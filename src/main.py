@@ -17,7 +17,7 @@ async def handle_msg(context):
         result = dice.dice_ex(context)
     # 今日人品
     if commond.startswith('.jrrp'):
-        return
+        result = dice.jrrp(context)
     # 指令说明
     if commond.startswith('.comm'):
         result = helper.comm_helper()

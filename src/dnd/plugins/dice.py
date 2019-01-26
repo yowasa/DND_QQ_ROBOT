@@ -1,6 +1,8 @@
 import diceUtil
 import character
 import re
+import time
+
 from config import *
 
 
@@ -58,3 +60,21 @@ def dice_ex(content):
             print(dice_result)
             result_list.append(dice_result)
         return f'{user_name} 骰点 {ex_msg} {all_msg} = {result_list}'
+
+
+def jrrp(content):
+    sender = content['sender']
+    nickname = sender['nickname']
+    user_id = sender['user_id']
+    dic=character.get_base_user_info(user_id)
+    jrrp_date=dic.get('jrrp_date')
+    date = time.strftime("%Y-%m-%d")
+    if jrrp_date is None or jrrp_date!=date:
+        dic['jrrp_date']=date
+        value=diceUtil.range(101)-1
+        dic['jrrp_value']=value
+        character.update_base_user_info(user_id,dic)
+    jrrp_value = dic.get('jrrp_value')
+    return f'{nickname} 今天的人品是{jrrp_value}%！！！！！！！！！！'
+
+

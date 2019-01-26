@@ -1,4 +1,7 @@
-import character as cha
+import datetime,time
+now = datetime.datetime.now()
+print(now)
 
 
-cha.set_name('2508488843', 'DM')
+date=time.strftime("%Y-%m-%d")
+print(date)
