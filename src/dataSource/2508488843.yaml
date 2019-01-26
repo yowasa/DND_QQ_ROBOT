@@ -1,0 +1,38 @@
+current_user: "\u6843\u6BD2"
+user_list:
+- "\u6843\u6BD2"
+- "\u5929\u5B50"
+- "\u72D7\u5934"
+"\u6843\u6BD2":
+  name: "\u6843\u6BD2"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 8
+    "\u4F53\u8D28": 8
+    "\u654F\u6377": 14
+    "\u667A\u529B": 10
+    "\u611F\u77E5": 13
+    "\u9B45\u529B": 14
+  re_roll_time: 0
+"\u5929\u5B50":
+  name: "\u5929\u5B50"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 10
+    "\u4F53\u8D28": 12
+    "\u654F\u6377": 16
+    "\u667A\u529B": 11
+    "\u611F\u77E5": 14
+    "\u9B45\u529B": 17
+  re_roll_time: 4
+"\u72D7\u5934":
+  name: "\u72D7\u5934"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 12
+    "\u4F53\u8D28": 10
+    "\u654F\u6377": 10
+    "\u667A\u529B": 12
+    "\u611F\u77E5": 11
+    "\u9B45\u529B": 9
+  re_roll_time: 3

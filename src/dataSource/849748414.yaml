@@ -1,0 +1,14 @@
+current_user: "\u4E8C\u5CA9"
+user_list:
+- "\u4E8C\u5CA9"
+"\u4E8C\u5CA9":
+  name: "\u4E8C\u5CA9"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 16
+    "\u4F53\u8D28": 14
+    "\u654F\u6377": 11
+    "\u667A\u529B": 16
+    "\u611F\u77E5": 11
+    "\u9B45\u529B": 7
+  re_roll_time: 0
