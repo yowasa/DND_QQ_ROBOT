@@ -105,3 +105,4 @@ venv.bak/
 
 # project auto
 .idea
+venv/
