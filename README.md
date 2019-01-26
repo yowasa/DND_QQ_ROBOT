@@ -4,7 +4,7 @@
 网络链接部分基于[python-aiocqhttp](https://github.com/richardchien/python-aiocqhttp)
 
 ### 二、快速启动
-1.服务基于酷q平台，因此要先下载[酷q]()  
+1.服务基于酷q平台，因此要先下载[酷q](https://cqp.cc/)  
 2.使用期望成为机器人的qq号登陆酷q  
 3.下载酷q的http api的[cpk](https://github.com/richardchien/coolq-http-api/releases)  
 4.右键点击酷q悬浮窗口，应用--应用目录,将下载的cpk复制进该目录  
