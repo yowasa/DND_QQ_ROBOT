@@ -37,7 +37,7 @@ def gen_user(user_id, name):
     re_roll_time = 4
     content['re_roll_time'] = re_roll_time
     msg = update_user(user_id, content, user_name=name)
-    refresh(user_id,user)
+    refresh(user_id,content)
     return f'生成角色 {name} 成功\n初始属性为 {formateUtil.formate_dic(attr)}\n可重roll次数为{re_roll_time}'
 
 
@@ -51,8 +51,9 @@ def update_user(user_id, content, user_name=None, set_current=True):
     if not os.path.exists(y_path):  # 判断当前路径是否存在，没有则创建new文件夹
         file = open(y_path, 'w')
         file.close()
-    a = open(y_path, "r")
+    a = open(y_path, "r",encoding='utf-8')
     dic = yaml.load(a.read(), Loader=yaml.Loader)
+    print(dic)
     if dic is None:
         dic = {}
         dic['current_user'] = user_name
@@ -78,7 +79,7 @@ def get_user_info(user_id, user_name):
     try:
         user_id = str(user_id)
         y_path = data_path + user_id + '.yaml'
-        a = open(y_path, "r")
+        a = open(y_path, "r",encoding='utf-8')
         dic = yaml.load(a.read(), Loader=yaml.Loader)
         if user_name is not None:
             return dic.get(user_name)
@@ -96,7 +97,7 @@ def get_base_user_info(user_id):
     try:
         user_id = str(user_id)
         y_path = data_path + user_id + '.yaml'
-        a = open(y_path, "r")
+        a = open(y_path, "r",encoding='utf-8')
         dic = yaml.load(a.read(), Loader=yaml.Loader)
         return dic
     except:
@@ -174,6 +175,8 @@ def refresh(user_id, user):
     for s in race_skill:
         if s=='额外语言':
             pc_op['select_language']={'num':1,'msg':'你可以使用.language 请选择1门额外语言'}
+        if s=='矮人的盔甲训练':
+            skilled_eq+=['轻甲','中甲']
     # 可执行变更动作解析
     # 存储数据
     user['cur_attr'] = current_attr

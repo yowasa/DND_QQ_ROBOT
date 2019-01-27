@@ -57,7 +57,7 @@ def watch_attribute(content):
     skilled_eq = user.get('skilled_eq')
     skilled_eq_msg = formateUtil.formate_list(skilled_eq) if skilled_weapon is not None and len(
         skilled_eq) else None
-    sb += f'\n武器装备：{skilled_eq_msg}'
+    sb += f'\n盔甲熟練：{skilled_eq_msg}'
 
     race_skill=user.get('race_skill')
     race_skill_msg = formateUtil.formate_list(race_skill) if skilled_weapon is not None and len(

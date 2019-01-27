@@ -15,6 +15,10 @@ async def handle_msg(context):
     # 骰点
     if commond.startswith('.r') and not commond.startswith('.race') and not commond.startswith('.reroll'):
         result = dice.dice_ex(context)
+    # 属性鉴定
+    if commond.startswith('.check'):
+        result=dice.check(context)
+
     # 今日人品
     if commond.startswith('.jrrp'):
         result = dice.jrrp(context)

@@ -1,80 +1,50 @@
-current_user: "\u534E\u80E5"
+current_user: 华胥
 user_list:
-- "\u534E\u80E5"
-- "\u6843\u5B50\u6709\u6BD2"
-"\u534E\u80E5":
-  name: "\u534E\u80E5"
+- 华胥
+华胥:
+  name: 华胥
   status: gen
   attribute:
-    "\u529B\u91CF": 7
-    "\u4F53\u8D28": 15
-    "\u654F\u6377": 18
-    "\u667A\u529B": 17
-    "\u611F\u77E5": 12
-    "\u9B45\u529B": 11
-  re_roll_time: 0
-  race: "\u7CBE\u7075"
-  speed: 25
-  language:
-  - "\u901A\u7528\u8BED"
-  - "\u7CBE\u7075\u8BED"
+    力量: 13
+    体质: 16
+    敏捷: 15
+    智力: 15
+    感知: 16
+    魅力: 16
+  re_roll_time: 4
   cur_attr:
-    "\u529B\u91CF": 7
-    "\u4F53\u8D28": 15
-    "\u654F\u6377": 20
-    "\u667A\u529B": 18
-    "\u611F\u77E5": 12
-    "\u9B45\u529B": 11
-  race_skill:
-  - "\u9ED1\u6697\u89C6\u89C9"
-  - "\u654F\u9510\u611F\u77E5"
-  - "\u5996\u7CBE\u5148\u7956"
-  - "\u51FA\u795E"
-  - "\u620F\u6CD5"
-  - "\u989D\u5916\u8BED\u8A00"
-  skilled_weapon:
-  - "\u957F\u5251"
-  - "\u77ED\u5251"
-  - "\u77ED\u5F13"
-  - "\u957F\u5F13"
+    力量: 13
+    体质: 16
+    敏捷: 15
+    智力: 15
+    感知: 16
+    魅力: 16
+  race_skill: []
+  skilled_weapon: []
   skilled_eq: []
   check_attr:
-    "\u529B\u91CF\u8C41\u514D": -2
-    "\u4F53\u8D28\u8C41\u514D": 2
-    "\u654F\u6377\u8C41\u514D": 5
-    "\u667A\u529B\u8C41\u514D": 4
-    "\u611F\u77E5\u8C41\u514D": 1
-    "\u9B45\u529B\u8C41\u514D": 0
-    "\u8FD0\u52A8": -2
-    "\u4F53\u64CD": 5
-    "\u5DE7\u624B": 5
-    "\u9690\u533F": 5
-    "\u5965\u79D8": 4
-    "\u5386\u53F2": 4
-    "\u8C03\u67E5": 4
-    "\u81EA\u7136": 4
-    "\u5B97\u6559": 4
-    "\u9A6F\u517D": 1
-    "\u6D1E\u6089": 1
-    "\u533B\u836F": 1
-    "\u5BDF\u89C9": 1
-    "\u6C42\u751F": 1
-    "\u6B3A\u7792": 0
-    "\u5A01\u5413": 0
-    "\u8868\u6F14": 0
-    "\u6E38\u8BF4": 0
+    力量豁免: 1
+    体质豁免: 3
+    敏捷豁免: 2
+    智力豁免: 2
+    感知豁免: 3
+    魅力豁免: 3
+    运动: 1
+    体操: 2
+    巧手: 2
+    隐匿: 2
+    奥秘: 2
+    历史: 2
+    调查: 2
+    自然: 2
+    宗教: 2
+    驯兽: 3
+    洞悉: 3
+    医药: 3
+    察觉: 3
+    求生: 3
+    欺瞒: 3
+    威吓: 3
+    表演: 3
+    游说: 3
   pc_op: {}
-  sub_race: "\u9AD8\u7B49\u7CBE\u7075"
-jrrp_date: '2019-01-27'
-jrrp_value: 82
-"\u6843\u5B50\u6709\u6BD2":
-  name: "\u6843\u5B50\u6709\u6BD2"
-  status: gen
-  attribute:
-    "\u529B\u91CF": 12
-    "\u4F53\u8D28": 16
-    "\u654F\u6377": 16
-    "\u667A\u529B": 14
-    "\u611F\u77E5": 16
-    "\u9B45\u529B": 9
-  re_roll_time: 4
