@@ -12,7 +12,7 @@ def gen(content):
     if comm == '':
         return '请输入名称'
     if ' ' in comm.strip():
-        return '名称种请不要带空格'
+        return '名称中请不要带空格'
     msg = character.gen_user(user_id, comm)
     return msg
 

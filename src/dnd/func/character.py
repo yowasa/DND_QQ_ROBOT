@@ -48,9 +48,9 @@ def update_user(user_id, content, user_name=None, set_current=True):
     user_id = str(user_id)
     y_path = data_path + user_id + '.yaml'
     if not os.path.exists(y_path):  # 判断当前路径是否存在，没有则创建new文件夹
-        file = open(y_path, 'w')
+        file = open(y_path, 'w', encoding='utf-8')
         file.close()
-    a = open(y_path, "r")
+    a = open(y_path, "r", encoding='utf-8')
     dic = yaml.load(a.read(), Loader=yaml.Loader)
     if dic is None:
         dic = {}
@@ -69,7 +69,7 @@ def update_user(user_id, content, user_name=None, set_current=True):
         dic['user_list'].append(user_name)
     dic[user_name] = content
     with open(y_path, "w", encoding="utf-8") as f:
-        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper)
+        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper, encoding="utf-8", default_flow_style=False, allow_unicode=True)
 
 
 # 获取人物信息
@@ -77,7 +77,7 @@ def get_user_info(user_id, user_name):
     try:
         user_id = str(user_id)
         y_path = data_path + user_id + '.yaml'
-        a = open(y_path, "r")
+        a = open(y_path, "r", encoding='utf-8')
         dic = yaml.load(a.read(), Loader=yaml.Loader)
         if user_name is not None:
             return dic.get(user_name)
@@ -95,7 +95,7 @@ def get_base_user_info(user_id):
     try:
         user_id = str(user_id)
         y_path = data_path + user_id + '.yaml'
-        a = open(y_path, "r")
+        a = open(y_path, "r", encoding='utf-8')
         dic = yaml.load(a.read(), Loader=yaml.Loader)
         return dic
     except:
@@ -106,7 +106,7 @@ def update_base_user_info(user_id, content):
     user_id = str(user_id)
     y_path = data_path + user_id + '.yaml'
     if not os.path.exists(y_path):  # 判断当前路径是否存在，没有则创建new文件夹
-        file = open(y_path, 'w')
+        file = open(y_path, 'w', encoding='utf-8')
         file.close()
     dic = content
     with open(y_path, "w", encoding="utf-8") as f:

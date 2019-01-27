@@ -1,0 +1,14 @@
+current_user: 狗头
+user_list:
+- 狗头
+狗头:
+  name: 狗头
+  status: gen
+  attribute:
+    力量: 15
+    体质: 15
+    敏捷: 6
+    智力: 6
+    感知: 8
+    魅力: 13
+  re_roll_time: 4

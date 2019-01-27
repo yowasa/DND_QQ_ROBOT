@@ -31,6 +31,7 @@ async def handle_msg(context):
     if commond.startswith('.attr'):
         result = attribute_controller.watch_attribute(context)
     # 生成人物
+    # todo 捏人返回向导提示
     if commond.startswith('.gen '):
         result = user_gen.gen(context)
     # 重新骰点
