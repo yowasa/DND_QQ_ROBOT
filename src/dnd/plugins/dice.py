@@ -67,14 +67,16 @@ def jrrp(content):
     nickname = sender['nickname']
     user_id = sender['user_id']
     dic=character.get_base_user_info(user_id)
+    if dic is None:
+        dic={}
     jrrp_date=dic.get('jrrp_date')
     date = time.strftime("%Y-%m-%d")
     if jrrp_date is None or jrrp_date!=date:
         dic['jrrp_date']=date
-        value=diceUtil.range(101)-1
+        value = diceUtil.range(101)-1
         dic['jrrp_value']=value
         character.update_base_user_info(user_id,dic)
     jrrp_value = dic.get('jrrp_value')
-    return f'{nickname} 今天的人品是{jrrp_value}%！！！！！！！！！！'
+    return f'{nickname} 今天的运势是{jrrp_value}%！！！！！！！！！！'
 
 

@@ -1,6 +1,9 @@
-current_user: "\u4E8C\u5CA9"
+current_user: "\u732F\u85CF"
 user_list:
 - "\u4E8C\u5CA9"
+- "\u591C\u83BA"
+- "\u8D1D\u83F2\u5C14\u5FB7"
+- "\u732F\u85CF"
 "\u4E8C\u5CA9":
   name: "\u4E8C\u5CA9"
   status: gen
@@ -12,3 +15,75 @@ user_list:
     "\u611F\u77E5": 11
     "\u9B45\u529B": 7
   re_roll_time: 0
+jrrp_date: '2019-01-27'
+jrrp_value: 61
+"\u591C\u83BA":
+  name: "\u591C\u83BA"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 11
+    "\u4F53\u8D28": 7
+    "\u654F\u6377": 7
+    "\u667A\u529B": 12
+    "\u611F\u77E5": 15
+    "\u9B45\u529B": 8
+  re_roll_time: 0
+"\u8D1D\u83F2\u5C14\u5FB7":
+  name: "\u8D1D\u83F2\u5C14\u5FB7"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 12
+    "\u4F53\u8D28": 13
+    "\u654F\u6377": 14
+    "\u667A\u529B": 14
+    "\u611F\u77E5": 10
+    "\u9B45\u529B": 11
+  re_roll_time: 0
+"\u732F\u85CF":
+  name: "\u732F\u85CF"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 14
+    "\u4F53\u8D28": 10
+    "\u654F\u6377": 14
+    "\u667A\u529B": 16
+    "\u611F\u77E5": 10
+    "\u9B45\u529B": 14
+  re_roll_time: 0
+  cur_attr:
+    "\u529B\u91CF": 14
+    "\u4F53\u8D28": 10
+    "\u654F\u6377": 14
+    "\u667A\u529B": 16
+    "\u611F\u77E5": 10
+    "\u9B45\u529B": 14
+  race_skill: []
+  notic_list: []
+  skilled_weapon: []
+  skilled_eq: []
+  check_attr:
+    "\u529B\u91CF\u8C41\u514D": 2
+    "\u4F53\u8D28\u8C41\u514D": 0
+    "\u654F\u6377\u8C41\u514D": 2
+    "\u667A\u529B\u8C41\u514D": 3
+    "\u611F\u77E5\u8C41\u514D": 0
+    "\u9B45\u529B\u8C41\u514D": 2
+    "\u8FD0\u52A8": 2
+    "\u4F53\u64CD": 2
+    "\u5DE7\u624B": 2
+    "\u9690\u533F": 2
+    "\u5965\u79D8": 3
+    "\u5386\u53F2": 3
+    "\u8C03\u67E5": 3
+    "\u81EA\u7136": 3
+    "\u5B97\u6559": 3
+    "\u9A6F\u517D": 0
+    "\u6D1E\u6089": 0
+    "\u533B\u836F": 0
+    "\u5BDF\u89C9": 0
+    "\u6C42\u751F": 0
+    "\u6B3A\u7792": 2
+    "\u5A01\u5413": 2
+    "\u8868\u6F14": 2
+    "\u6E38\u8BF4": 2
+  pc_op: {}

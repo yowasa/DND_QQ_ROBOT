@@ -1,7 +1,8 @@
-current_user: "\u5BA3\u57CE"
+current_user: "\u6885\u65AF\u83F2\u5C14\u5FB7"
 user_list:
 - "\u5BA3\u57CE\u6559\u6559\u4E3B"
 - "\u5BA3\u57CE"
+- "\u6885\u65AF\u83F2\u5C14\u5FB7"
 "\u5BA3\u57CE\u6559\u6559\u4E3B":
   name: "\u5BA3\u57CE\u6559\u6559\u4E3B"
   status: gen
@@ -13,6 +14,48 @@ user_list:
     "\u611F\u77E5": 15
     "\u9B45\u529B": 15
   re_roll_time: 4
+  race: "\u4EBA\u7C7B"
+  speed: 30
+  language:
+  - "\u901A\u7528\u8BED"
+  cur_attr:
+    "\u529B\u91CF": 14
+    "\u4F53\u8D28": 17
+    "\u654F\u6377": 17
+    "\u667A\u529B": 16
+    "\u611F\u77E5": 16
+    "\u9B45\u529B": 16
+  race_skill:
+  - "\u989D\u5916\u8BED\u8A00"
+  notic_list: []
+  skilled_weapon: []
+  skilled_eq: []
+  check_attr:
+    "\u529B\u91CF\u8C41\u514D": 2
+    "\u4F53\u8D28\u8C41\u514D": 3
+    "\u654F\u6377\u8C41\u514D": 3
+    "\u667A\u529B\u8C41\u514D": 3
+    "\u611F\u77E5\u8C41\u514D": 3
+    "\u9B45\u529B\u8C41\u514D": 3
+    "\u8FD0\u52A8": 2
+    "\u4F53\u64CD": 3
+    "\u5DE7\u624B": 3
+    "\u9690\u533F": 3
+    "\u5965\u79D8": 3
+    "\u5386\u53F2": 3
+    "\u8C03\u67E5": 3
+    "\u81EA\u7136": 3
+    "\u5B97\u6559": 3
+    "\u9A6F\u517D": 3
+    "\u6D1E\u6089": 3
+    "\u533B\u836F": 3
+    "\u5BDF\u89C9": 3
+    "\u6C42\u751F": 3
+    "\u6B3A\u7792": 3
+    "\u5A01\u5413": 3
+    "\u8868\u6F14": 3
+    "\u6E38\u8BF4": 3
+  pc_op: {}
 "\u5BA3\u57CE":
   name: "\u5BA3\u57CE"
   status: gen
@@ -24,3 +67,53 @@ user_list:
     "\u611F\u77E5": 8
     "\u9B45\u529B": 11
   re_roll_time: 0
+jrrp_date: '2019-01-27'
+jrrp_value: 49
+"\u6885\u65AF\u83F2\u5C14\u5FB7":
+  name: "\u6885\u65AF\u83F2\u5C14\u5FB7"
+  status: gen
+  attribute:
+    "\u529B\u91CF": 14
+    "\u4F53\u8D28": 11
+    "\u654F\u6377": 15
+    "\u667A\u529B": 14
+    "\u611F\u77E5": 11
+    "\u9B45\u529B": 16
+  re_roll_time: 0
+  cur_attr:
+    "\u529B\u91CF": 14
+    "\u4F53\u8D28": 11
+    "\u654F\u6377": 15
+    "\u667A\u529B": 14
+    "\u611F\u77E5": 11
+    "\u9B45\u529B": 16
+  race_skill: []
+  notic_list: []
+  skilled_weapon: []
+  skilled_eq: []
+  check_attr:
+    "\u529B\u91CF\u8C41\u514D": 2
+    "\u4F53\u8D28\u8C41\u514D": 0
+    "\u654F\u6377\u8C41\u514D": 2
+    "\u667A\u529B\u8C41\u514D": 2
+    "\u611F\u77E5\u8C41\u514D": 0
+    "\u9B45\u529B\u8C41\u514D": 3
+    "\u8FD0\u52A8": 2
+    "\u4F53\u64CD": 2
+    "\u5DE7\u624B": 2
+    "\u9690\u533F": 2
+    "\u5965\u79D8": 2
+    "\u5386\u53F2": 2
+    "\u8C03\u67E5": 2
+    "\u81EA\u7136": 2
+    "\u5B97\u6559": 2
+    "\u9A6F\u517D": 0
+    "\u6D1E\u6089": 0
+    "\u533B\u836F": 0
+    "\u5BDF\u89C9": 0
+    "\u6C42\u751F": 0
+    "\u6B3A\u7792": 3
+    "\u5A01\u5413": 3
+    "\u8868\u6F14": 3
+    "\u6E38\u8BF4": 3
+  pc_op: {}
