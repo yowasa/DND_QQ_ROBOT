@@ -177,6 +177,9 @@ def refresh(user_id, user):
             pc_op['select_language']={'num':1,'msg':'你可以使用.language 请选择1门额外语言'}
         if s=='矮人的盔甲训练':
             skilled_eq+=['轻甲','中甲']
+        if s=='轻捷步伐':
+            user['speed']+=5
+
     # 可执行变更动作解析
     # 存储数据
     user['cur_attr'] = current_attr
