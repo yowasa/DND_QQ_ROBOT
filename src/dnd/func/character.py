@@ -69,7 +69,7 @@ def update_user(user_id, content, user_name=None, set_current=True):
         dic['user_list'].append(user_name)
     dic[user_name] = content
     with open(y_path, "w", encoding="utf-8") as f:
-        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper, encoding="utf-8", default_flow_style=False, allow_unicode=True)
+        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper, encoding="utf-8", allow_unicode=True)
 
 
 # 获取人物信息
@@ -110,4 +110,4 @@ def update_base_user_info(user_id, content):
         file.close()
     dic = content
     with open(y_path, "w", encoding="utf-8") as f:
-        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper)
+        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper, allow_unicode=True)
