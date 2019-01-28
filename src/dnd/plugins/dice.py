@@ -1,11 +1,19 @@
 import diceUtil
-import character
+import character_controller
 import re
 import time
+import random
+import user_controller
+import character_controller
+from user_dto import *
 
-from config import *
+
+# 1-n随机值
+def range(num):
+    return random.randint(1, num)
 
 
+# 替换骰子命令为具体的值
 def replace_dice(str):
     list = str.split('d')
     count = 1
@@ -28,7 +36,7 @@ def dice_ex(content):
     nickname = sender['nickname']
     user_id = sender['user_id']
     user_name = nickname
-    user_info = character.get_current_user_info(user_id)
+    user_info = character_controller.get_current_user_info(user_id)
     print(user_info)
     if user_info is not None:
         user_name = user_info['name']
@@ -63,33 +71,35 @@ def dice_ex(content):
         return f'{user_name} 骰点 {ex_msg} {all_msg} = {result_list}'
 
 
+# 今日人品功能 沙雕群友快乐源泉
 def jrrp(content):
     sender = content['sender']
     nickname = sender['nickname']
     user_id = sender['user_id']
-    dic = character.get_base_user_info(user_id)
-    if dic is None:
-        dic = {}
-    jrrp_date = dic.get('jrrp_date')
+    user = user_controller.get_user(user_id)
+    if user is None:
+        user=User({})
+    jrrp_date = user.jrrp_date
     date = time.strftime("%Y-%m-%d")
     if jrrp_date is None or jrrp_date != date:
-        dic['jrrp_date'] = date
-        value = diceUtil.range(101) - 1
-        dic['jrrp_value'] = value
-        character.update_base_user_info(user_id, dic)
-    jrrp_value = dic.get('jrrp_value')
+        user.jrrp_date = date
+        user.jrrp = diceUtil.range(101) - 1
+        user_controller.save_user(user)
+    jrrp_value = user.jrrp
     return f'{nickname} 今天的运势是{jrrp_value}%！！！！！！！！！！'
 
 
+# 检定功能
 def check(content):
     sender = content['sender']
     nickname = sender['nickname']
     user_id = sender['user_id']
-    user = character.get_current_user_info(user_id)
-    if user is None:
+    user = user_controller.get_user(user_id)
+    character_name = user.current_character
+    character = character_controller.get_charater(user_id, character_name)
+    if character is None:
         return f'{nickname} 请先创建角色'
-    user_name = user.get('name')
-    check_attr = user.get('check_attr')
+    check_attr = character.cur_check
     cmd_msg = content['message']
     cmd_msg = cmd_msg.replace('.check', '')
     if ' ' in cmd_msg:
@@ -119,7 +129,7 @@ def check(content):
     # 得到加值
     add_value = int(check_attr.get(checked_attr))
 
-    print('doubleflag',double_flag)
+    print('doubleflag', double_flag)
     pre_msg = ''
     low_flag = False
     if double_flag == 0 or double_flag == 1 or double_flag == -1:
@@ -161,4 +171,4 @@ def check(content):
             print(sort_list)
             best_msg = '取最高值' + str(sort_list[0])
 
-        return f'{user_name} 检定 {checked_attr} {all_msg} = {result_list} {best_msg}'
+        return f'{character_name} 检定 {checked_attr} {all_msg} = {result_list} {best_msg}'

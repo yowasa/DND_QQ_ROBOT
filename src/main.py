@@ -3,6 +3,7 @@ import dice
 import attribute_controller
 import user_gen
 import helper
+
 bot = CQHttp(access_token='yowasaTest',
              enable_http_post=False)
 
@@ -17,7 +18,7 @@ async def handle_msg(context):
         result = dice.dice_ex(context)
     # 属性鉴定
     if commond.startswith('.check'):
-        result=dice.check(context)
+        result = dice.check(context)
 
     # 今日人品
     if commond.startswith('.jrrp'):
@@ -27,7 +28,7 @@ async def handle_msg(context):
         result = helper.comm_helper()
     # 帮助文档
     if commond.startswith('.help '):
-        result=helper.helper(context)
+        result = helper.helper(context)
     # 随机dnd属性
     if commond.startswith('!dnd'):
         result = attribute_controller.random_attribute()
