@@ -15,6 +15,10 @@ async def handle_msg(context):
     # 骰点
     if commond.startswith('.r') and not commond.startswith('.race') and not commond.startswith('.reroll'):
         result = dice.dice_ex(context)
+    # 属性鉴定
+    if commond.startswith('.check'):
+        result=dice.check(context)
+
     # 今日人品
     if commond.startswith('.jrrp'):
         result = dice.jrrp(context)
@@ -28,17 +32,23 @@ async def handle_msg(context):
     if commond.startswith('!dnd'):
         result = attribute_controller.random_attribute()
     # 查看属性
-    if commond.startswith('.attr'):
+    if commond == '.attr':
         result = attribute_controller.watch_attribute(context)
     # 生成人物
     # todo 捏人返回向导提示
     if commond.startswith('.gen '):
         result = user_gen.gen(context)
     # 重新骰点
-    if commond.startswith('.reroll'):
+    if commond == '.reroll':
         result = user_gen.reroll(context)
+    # 自选属性
+    if commond.startswith('.attrup '):
+        result = attribute_controller.attr_up(context)
+    # 自选语言
+    if commond.startswith('.language '):
+        result = attribute_controller.select_language(context)
     # 查看角色列表
-    if commond.startswith('.ul'):
+    if commond == '.ul':
         result = attribute_controller.get_user_list(context)
     # 选择使用哪一个人物
     if commond.startswith('.switch '):
@@ -54,7 +64,6 @@ async def handle_msg(context):
         result = user_gen.switch_sub_race(context)
     if commond.startswith('.job '):
         result = user_gen.switch_job(context)
-
     # 统一发送消息
     if result != None or result == '':
         await bot.send(context, result)

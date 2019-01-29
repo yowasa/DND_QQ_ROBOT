@@ -1,40 +1,66 @@
-current_user: "\u6843\u6BD2"
+current_user: 桃毒
 user_list:
-- "\u6843\u6BD2"
-- "\u5929\u5B50"
-- "\u72D7\u5934"
-"\u6843\u6BD2":
-  name: "\u6843\u6BD2"
+- 桃毒
+桃毒:
+  name: 桃毒
   status: gen
   attribute:
-    "\u529B\u91CF": 8
-    "\u4F53\u8D28": 8
-    "\u654F\u6377": 14
-    "\u667A\u529B": 10
-    "\u611F\u77E5": 13
-    "\u9B45\u529B": 14
-  re_roll_time: 0
-"\u5929\u5B50":
-  name: "\u5929\u5B50"
-  status: gen
-  attribute:
-    "\u529B\u91CF": 10
-    "\u4F53\u8D28": 12
-    "\u654F\u6377": 16
-    "\u667A\u529B": 11
-    "\u611F\u77E5": 14
-    "\u9B45\u529B": 17
-  re_roll_time: 4
-"\u72D7\u5934":
-  name: "\u72D7\u5934"
-  status: gen
-  attribute:
-    "\u529B\u91CF": 12
-    "\u4F53\u8D28": 10
-    "\u654F\u6377": 10
-    "\u667A\u529B": 12
-    "\u611F\u77E5": 11
-    "\u9B45\u529B": 9
-  re_roll_time: 3
-jrrp_date: '2019-01-27'
-jrrp_value: 91
+    力量: 16
+    体质: 16
+    敏捷: 15
+    智力: 10
+    感知: 11
+    魅力: 8
+  re_roll_time: 1
+  cur_attr:
+    力量: 18
+    体质: 18
+    敏捷: 15
+    智力: 10
+    感知: 11
+    魅力: 8
+  race_skill:
+  - 矮人刚毅
+  - 黑暗视觉
+  - 熟悉岩石
+  - 矮人的盔甲训练
+  skilled_weapon:
+  - 战斧
+  - 手斧
+  - 轻锤
+  - 战锤
+  skilled_eq:
+  - 轻甲
+  - 中甲
+  check_attr:
+    力量豁免: 4
+    体质豁免: 4
+    敏捷豁免: 2
+    智力豁免: 0
+    感知豁免: 0
+    魅力豁免: -1
+    运动: 4
+    体操: 2
+    巧手: 2
+    隐匿: 2
+    奥秘: 0
+    历史: 0
+    调查: 0
+    自然: 0
+    宗教: 0
+    驯兽: 0
+    洞悉: 0
+    医药: 0
+    察觉: 0
+    求生: 0
+    欺瞒: -1
+    威吓: -1
+    表演: -1
+    游说: -1
+  pc_op: {}
+  race: 矮人
+  speed: 25
+  language:
+  - 通用语
+  - 矮人语
+  sub_race: 山地矮人

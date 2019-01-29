@@ -36,7 +36,7 @@ def reroll(content):
     user['re_roll_time'] = re_roll_time
     attr = character.init_attribute()
     user['attribute'] = attr
-    character.update_user(user_id, user)
+    character.refresh(user_id, user)
     return f'角色 {user_name} 重新roll点成功\n新属性 {formateUtil.formate_dic(attr)}\n可重新roll点次数为{re_roll_time}'
 
 
@@ -60,7 +60,7 @@ def swap(content):
     cache = user['attribute'][attr1]
     user['attribute'][attr1] = user['attribute'][attr2]
     user['attribute'][attr2] = cache
-    character.update_user(user_id, user)
+    character.refresh(user_id, user)
     return '交换属性成功'
 
 
@@ -70,7 +70,13 @@ def switch_race(content):
     comm = comm.replace('.race ', '')
     if comm not in RACE:
         return f'种族{comm}不存在'
-    return '功能未实现'
+    user = character.get_current_user_info(user_id)
+    user_name=user.get('name')
+    if user.get('status')!='gen':
+        return f'{user_name} 已经创建完成 不能再重新选择种族'
+    user['race']=comm
+    character.refresh(user_id,user)
+    return f'选择种族{comm}成功，请使用.attr查看角色状态'
 
 
 def switch_job(content):
@@ -78,4 +84,22 @@ def switch_job(content):
 
 
 def switch_sub_race(content):
-    return '功能未实现'
+    user_id = content['sender']['user_id']
+    comm = content['message']
+    comm = comm.replace('.subrace ', '')
+    user = character.get_current_user_info(user_id)
+    pc_op=user.get('pc_op')
+    if pc_op is None:
+        return '当前角色不可选择亚种'
+    select_sub_job=pc_op.get('select_sub_job')
+    if select_sub_job:
+        race=user.get('race')
+        sub_race_list=RACE_DESCRIBE.get(race).get('ex_race')
+        print(sub_race_list)
+        print(sub_race_list.keys())
+        print(comm)
+        if comm in sub_race_list.keys():
+            user['sub_race']=comm
+            character.refresh(user_id, user)
+            return f'选择亚种{comm}成功,请使用.attr查看角色状态'
+    return '当前角色不可选择亚种'

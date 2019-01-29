@@ -37,6 +37,7 @@ def gen_user(user_id, name):
     re_roll_time = 4
     content['re_roll_time'] = re_roll_time
     msg = update_user(user_id, content, user_name=name)
+    refresh(user_id,content)
     return f'生成角色 {name} 成功\n初始属性为 {formateUtil.formate_dic(attr)}\n可重roll次数为{re_roll_time}'
 
 
@@ -52,6 +53,7 @@ def update_user(user_id, content, user_name=None, set_current=True):
         file.close()
     a = open(y_path, "r", encoding='utf-8')
     dic = yaml.load(a.read(), Loader=yaml.Loader)
+    print(dic)
     if dic is None:
         dic = {}
         dic['current_user'] = user_name
@@ -110,4 +112,101 @@ def update_base_user_info(user_id, content):
         file.close()
     dic = content
     with open(y_path, "w", encoding="utf-8") as f:
+        yaml.dump(dic, f, Dumper=yaml.RoundTripDumper,allow_unicode=True)
+
+
+# 刷新属性
+def refresh(user_id, user):
+    user_race = user.get('race')
+    user_sub_race = user.get('sub_race')
+    user_job = user.get('race')
+    current_attr = user.get('attribute').copy()
+    race_skill = []
+    skilled_weapon = []
+    skilled_eq = []
+    pc_op = {}
+    # 种族基础属性解析
+    if user_race is not None:
+        race_des = RACE_DESCRIBE.get(user_race)
+        user['speed'] = race_des.get('speed')
+        base_attr_up = race_des.get('attr')
+        print(current_attr)
+        for k, v in base_attr_up.items():
+            if k =='random':
+                sb = f'你可以使用.attrup选择{v}项属性进行提升'
+                pc_op['attr_up'] = {'num':2,'reason':'种族特性','msg':sb}
+                pass
+            else:
+                current_attr[k] = current_attr.get(k) + v
+        print(current_attr)
+        user['language'] = race_des.get('language')
+        base_race_skill = race_des.get('ex_skill')
+        race_skill += base_race_skill
+        race_skilled_skilled_weapon = race_des.get('skilled_weapon')
+        skilled_weapon += race_skilled_skilled_weapon if race_skilled_skilled_weapon is not None else []
+        if user_sub_race is not None:
+            ex_race = race_des.get('ex_race')
+            if ex_race is None:
+                user.pop('sub_race')
+            else:
+                # 亚种属性解析
+                if user_sub_race in ex_race:
+                    sub_race = ex_race.get(user_sub_race)
+                    sub_race_attr_up = sub_race.get('attr')
+                    for k, v in sub_race_attr_up.items():
+                        current_attr[k] = current_attr.get(k) + v
+                    sub_race_skill = sub_race.get('ex_skill')
+                    race_skill += sub_race_skill
+                    sub_race_skilled_weapon = sub_race.get('skilled_weapon')
+                    skilled_weapon += sub_race_skilled_weapon if sub_race_skilled_weapon is not None else []
+                else:
+                    user.pop('sub_race')
+        else:
+            ex_race = race_des.get('ex_race')
+            if ex_race is not None:
+                pc_op['select_sub_job'] = True
+                sb = f'你可以使用.subrace选择{user_race}的亚种：'
+                for k, v in ex_race.items():
+                    sb += k + ' '
+                pc_op['select_sub_job'] = {'status':True,'msg':sb}
+    # 鉴定属性生成
+    check_list=refresh_check_list(current_attr)
+    # 技能解析
+    for s in race_skill:
+        if s=='额外语言':
+            pc_op['select_language']={'num':1,'msg':'你可以使用.language 请选择1门额外语言'}
+        if s=='矮人的盔甲训练':
+            skilled_eq+=['轻甲','中甲']
+        if s=='轻捷步伐':
+            user['speed']+=5
+
+    # 可执行变更动作解析
+    # 存储数据
+    user['cur_attr'] = current_attr
+    user['race_skill'] = race_skill
+    user['skilled_weapon'] = skilled_weapon
+    user['skilled_eq'] = skilled_eq
+    user['check_attr'] = check_list
+    user['pc_op'] = pc_op
+    update_user(user_id, user)
+
+#刷新鉴定属性
+def refresh_check_list(current_attr):
+    check_list = {}
+    for att in ATTRIBUTE:
+        cur_value = current_attr.get(att)
+        check_list[att + '豁免'] = gen_check(cur_value)
+    for che in CHECK_CONFIG:
+        att = CHECK_REF.get(che)
+        cur_value = current_attr.get(att)
+        check_list[che] = gen_check(cur_value)
+    return check_list
+
+# 生成鉴定属性
+def gen_check(attr):
+    attr = int(attr)
+    if attr - 10 >= 0:
+        return int((attr - 10) / 2)
+    if attr - 10 < 0:
+        return int((attr - 11) / 2)
         yaml.dump(dic, f, Dumper=yaml.RoundTripDumper, allow_unicode=True)
