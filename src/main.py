@@ -31,13 +31,16 @@ async def handle_msg(context):
         result = helper.helper(context)
     # 随机dnd属性
     if commond.startswith('!dnd'):
-        result = attribute_controller.random_attribute()
+        result = dice.random_attribute()
     # 查看属性
     if commond == '.attr':
         result = attribute_controller.watch_attribute(context)
-    # 生成人物
+    # 生成角色
     if commond.startswith('.gen '):
         result = user_gen.gen(context)
+    # 删除角色
+    if commond.startswith('.drop '):
+        result = user_gen.drop(context)
     # 重新骰点
     if commond == '.reroll':
         result = user_gen.reroll(context)
@@ -53,15 +56,16 @@ async def handle_msg(context):
     # 选择使用哪一个人物
     if commond.startswith('.switch '):
         result = attribute_controller.switch_user(context)
-
     # 交换属性
     if commond.startswith('.swap'):
         result = user_gen.swap(context)
-    # todo
+    # 选择种族
     if commond.startswith('.race '):
         result = user_gen.switch_race(context)
+    # 选择亚种
     if commond.startswith('.subrace '):
         result = user_gen.switch_sub_race(context)
+    # 选择职业
     if commond.startswith('.job '):
         result = user_gen.switch_job(context)
     # 统一发送消息

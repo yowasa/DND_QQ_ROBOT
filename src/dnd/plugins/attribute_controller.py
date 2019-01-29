@@ -1,15 +1,10 @@
-import formateUtil
+import formate
 import user_controller
 import character_controller
 from config.base_config import *
 
 
 # 控制人物属性
-
-# 生成属性并展示
-def random_attribute():
-    attr = character_controller.init_attribute()
-    return formateUtil.formate_dic(attr)
 
 
 # 查看当前角色属性
@@ -23,34 +18,39 @@ def watch_attribute(content):
     if character is None:
         return '当前没有角色'
     sb = f'角色：{character.name}'
-    sb += f'\n种族：{character.race.name}'
-    if character.race.sub_race is not None:
+    race=character.race.name if character.race is not None else None
+    sb += f'\n种族：{race}'
+    if character.race and character.race.sub_race is not None:
         sb += f' - {character.race.sub_race}'
-    sb += f'\n职业：{character.job}'
-    language_msg = formateUtil.formate_list(character.language) if character.language is not None and len(
+
+    job=character.job.name if character.job is not None else None
+    sb += f'\n职业：{job}'
+    language_msg = formate.formate_list(character.language) if character.language is not None and len(
         character.language) else None
     sb += f'\n语言：{language_msg}'
     sb += f'\n行走速度：{character.speed}'
+
+    attr_msg=formate.formate_dic(character.base_attr)
     sb += f'\n基础属性：{attr_msg}'
     if character.status == 'gen':
         sb += f'\n状态：生成角色中，请使用.swap交换属性，使用.race选择种族，使用.job选择职业 .gened结束生成'
     if character.status == 'normal':
-        f'\n状态：通常 请愉快的进行游戏吧'
+        f'\n状态：正常 请愉快的进行游戏吧'
     if character.status == 'lv_up':
         sb += f'\n状态：升级中，请使用.lvup 查看选择对应的技能或属性'
-    cur_attr_msg = formateUtil.formate_dic(character.cur_attr) if character.cur_attr is not None else None
+    cur_attr_msg = formate.formate_dic(character.cur_attr) if character.cur_attr is not None else None
     sb += f'\n当前属性：{cur_attr_msg}'
-    check_attr_msg = formateUtil.formate_dic(character.cur_check) if character.cur_check is not None else None
+    check_attr_msg = formate.formate_dic(character.cur_check) if character.cur_check is not None else None
     sb += f'\n鉴定值：{check_attr_msg}'
-    skilled_weapon_msg = formateUtil.formate_list(character.skilled_weapon) if character.skilled_weapon is not None and len(
+    skilled_weapon_msg = formate.formate_list(character.skilled_weapon) if character.skilled_weapon is not None and len(
         character.skilled_weapon) else None
     sb += f'\n武器熟练：{skilled_weapon_msg}'
 
-    skilled_eq_msg = formateUtil.formate_list(character.skilled_armour) if character.skilled_armour is not None and len(
+    skilled_eq_msg = formate.formate_list(character.skilled_armour) if character.skilled_armour is not None and len(
         character.skilled_armour) else None
     sb += f'\n盔甲熟練：{skilled_eq_msg}'
 
-    race_skill_msg = formateUtil.formate_list(character.race.race_skill) if character.race.race_skill is not None and len(
+    race_skill_msg = formate.formate_list(character.race.race_skill) if character.race and character.race.race_skill is not None and len(
         character.race.race_skill) else None
     sb += f'\n种族技能：{race_skill_msg}'
     if character.notice is not None and len(character.notice):
@@ -64,6 +64,7 @@ def watch_attribute(content):
 def get_user_list(content):
     sender = content['sender']
     user_id = sender['user_id']
+    nickname = sender['nickname']
     user = user_controller.get_user(user_id)
     if user is None:
         return '用户下没有角色'
@@ -147,14 +148,12 @@ def select_language(content):
             return f'输入的属性{a}不存在'
         if a in character.language:
             return f'人物已经具备说 {a} 的能力'
-    pc_op = user.get('pc_op')
-    if pc_op is not None:
-        select_language = pc_op.get('select_language')
-        if select_language is not None:
+    if character.notice:
+        select_language = character.notice.pop('select_language')
+        if select_language:
             num = select_language.get('num')
             if num == len(language_list):
                 character.language+=language_list
-                pc_op.pop('select_language')
                 character_controller.save_charater(user_id, character)
                 return '选择语言成功'
             else:

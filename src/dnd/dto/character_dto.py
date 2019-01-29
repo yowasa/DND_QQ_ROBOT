@@ -20,13 +20,13 @@ class Charater:
         # 允许重新roll点次数
         self.re_roll_time = context.get('re_roll_time')
         # 种族
-        self.race = Race(context.get('race'))
+        self.race = Race(context.get('race')) if context.get('race') else None
         # 职业 todo 职业未实现
-        self.job = Job(context.get('job'))
+        self.job = Job(context.get('job')) if context.get('job') else None
         # 背景
-        self.background = Background(context.get('background'))
+        self.background = Background(context.get('background')) if context.get('background') else None
         # 等级信息
-        self.level_info = LevelInfo(context.get('level_info'))
+        self.level_info = LevelInfo(context.get('level_info')) if context.get('level_info') else None
         # 熟练项
         self.skilled_item = context.get('skilled_item')
         # 熟练工具
@@ -48,11 +48,11 @@ class Charater:
         # 临时状态
         self.ex_status = context.get('ex_status')
         # 金钱
-        self.fortune = Fortune(context.get('gold'))
+        self.fortune = Fortune(context.get('gold')) if context.get('gold') else None
         # 物品
         # 装备
         # 通知
-        self.notice = context.get('notice')
+        self.notice = context.get('notice') if context.get('notice') else {}
         # log
         self.log = context.get('log')
 
@@ -66,13 +66,12 @@ class Charater:
     # 同步基本信息
     def refresh_base(self):
         self.cur_attr = self.base_attr.copy()
-        self.cur_check = self.base_check.copy()
 
     # 同步种族信息
     def refresh_race(self):
         if self.race is None:
             return
-        race_des = RACE_DESCRIBE.get(self.race)
+        race_des = RACE_DESCRIBE.get(self.race.name)
         self.speed = race_des.get('speed')
         base_attr_up = race_des.get('attr')
         for k, v in base_attr_up.items():
@@ -83,8 +82,7 @@ class Charater:
             else:
                 self.cur_attr[k] += v
         self.language = race_des.get('language')
-        self.race.race_skill = list(self.race.race_skill).append(
-            race_des.get('ex_skill')) if self.race.race_skill else race_des.get('ex_skill')
+        self.race.race_skill = race_des.get('ex_skill')
         self.skilled_weapon = list(self.skilled_weapon).append(
             race_des.get('skilled_weapon')) if self.skilled_weapon else race_des.get('skilled_weapon')
         if self.race.sub_race is not None:
@@ -108,7 +106,7 @@ class Charater:
         else:
             ex_race = race_des.get('ex_race')
             if ex_race is not None:
-                sb = f'你可以使用.subrace选择{self.race}的亚种：'
+                sb = f'你可以使用.subrace选择{self.race.name}的亚种：'
                 for k, v in ex_race.items():
                     sb += k + ' '
                 self.notice['select_sub_job'] = {'status': True, 'msg': sb}
@@ -131,6 +129,7 @@ class Charater:
     # 刷新检定值
     def refresh_check(self):
         self.base_check = refresh_check_list(self.cur_attr)
+        self.cur_check = self.base_check.copy()
 
 
 # 种族
@@ -141,7 +140,7 @@ class Race:
         # 亚种名称
         self.sub_race = context.get('sub_race')
         # 种族技能
-        self.race_skill = context.get('race_skill')
+        self.race_skill = context.get('race_skill') if context.get('race_skill') else []
 
 
 class Job:
@@ -171,12 +170,6 @@ class Fortune:
         self.ep = context.get('ep')
         self.gp = context.get('gp')
         self.pp = context.get('pp')
-
-
-context = {'name': '桃毒', 'base_attr': {'力量': 16, '体质': 16, '敏捷': 15, '智力': 10, '感知': 11, '魅力': 8}}
-c = Charater(context)
-
-print(formate.obj_2_dic(c))
 
 
 # 刷新鉴定属性

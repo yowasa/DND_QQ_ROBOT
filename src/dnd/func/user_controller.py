@@ -13,9 +13,10 @@ def get_user(user_id):
     try:
         user_id = str(user_id)
         y_path = data_path + user_id + '.yaml'
-        a = open(y_path, "r", encoding='utf-8')
-        dic = yaml.load(a.read(), Loader=yaml.Loader)
-        if dic is None or dic:
+        dic={}
+        with open(y_path, "r", encoding='utf-8') as a:
+            dic = yaml.load(a.read(), Loader=yaml.Loader)
+        if dic is None or not dic:
             return None
         return User(dic)
     except:

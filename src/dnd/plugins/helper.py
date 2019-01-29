@@ -1,4 +1,4 @@
-from config import *
+from config.help_config import *
 
 
 def comm_helper():
