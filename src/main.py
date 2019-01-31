@@ -50,6 +50,15 @@ async def handle_msg(context):
     # 自选语言
     if commond.startswith('.language '):
         result = attribute_controller.select_language(context)
+    # 初始装备
+    if commond.startswith('.init_equip '):
+        result = attribute_controller.init_equip(context)
+    # 熟练项选择
+    if commond.startswith('.skilled_item '):
+        result = attribute_controller.skilled_item(context)
+    # 范型选择
+    if commond.startswith('.style '):
+        result = attribute_controller.select_style(context)
     # 查看角色列表
     if commond == '.ul':
         result = attribute_controller.get_user_list(context)

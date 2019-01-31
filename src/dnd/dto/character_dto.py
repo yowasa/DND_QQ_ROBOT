@@ -1,9 +1,12 @@
 import formate
 from config.character_config import *
 from config.base_config import *
+from job_config import JOB_DESCRIBE
 
 
 # 角色实体类
+
+
 class Charater:
     def __init__(self, context):
         # ###基础信息###
@@ -21,12 +24,14 @@ class Charater:
         self.re_roll_time = context.get('re_roll_time')
         # 种族
         self.race = Race(context.get('race')) if context.get('race') else None
-        # 职业 todo 职业未实现
+        # 职业
         self.job = Job(context.get('job')) if context.get('job') else None
         # 背景
         self.background = Background(context.get('background')) if context.get('background') else None
         # 等级信息
         self.level_info = LevelInfo(context.get('level_info')) if context.get('level_info') else None
+        # hp
+        self.health_point = context.get('base_hp')
         # 熟练项
         self.skilled_item = context.get('skilled_item')
         # 熟练工具
@@ -34,7 +39,7 @@ class Charater:
         # 熟练武器
         self.skilled_weapon = context.get('skilled_weapon')
         # 熟练盔甲
-        self.skilled_armour = context.get('skilled_armour')
+        self.skilled_armor = context.get('skilled_armor')
         # 基础属性
         self.base_attr = context.get('base_attr')
         # 当前属性（受升级影响）
@@ -114,13 +119,32 @@ class Charater:
             if s == '额外语言':
                 self.notice['select_language'] = {'num': 1, 'msg': '你可以使用.language 请选择1门额外语言'}
             if s == '矮人的盔甲训练':
-                self.skilled_armour += ['轻甲', '中甲']
+                self.skilled_armor += ['轻甲', '中甲']
             if s == '轻捷步伐':
                 self.speed += 5
 
     # 同步职业信息
     def refresh_job(self):
-        pass
+        if self.job is None:
+            return
+        job_des = JOB_DESCRIBE.get(self.job.name)
+        proficiencies = job_des.get('proficiencies')
+        self.skilled_tool = list(self.skilled_tool).append(
+            proficiencies.get('skilled_tool')) if self.skilled_tool else proficiencies.get('skilled_tool')
+        self.skilled_weapon = list(self.skilled_weapon).append(
+            proficiencies.get('skilled_weapon')) if self.skilled_weapon else proficiencies.get('skilled_weapon')
+        self.skilled_armor = list(self.skilled_armor).append(
+            proficiencies.get('skilled_armor')) if self.skilled_armor else proficiencies.get('skilled_armor')
+
+        n = proficiencies.get('base_skill_count')
+        sb = f'使用.skilled_item从以下技能中选择{n}个作为熟练项\n'
+        self.notice['skilled_item'] = {'num': n,
+                                       'msg': formate.formate_list(sb + str(proficiencies.get('skilled_item')))}
+        equipment = job_des.get('equipment')
+        if type(equipment).__name__ == 'dict':
+            num = len(equipment) / 2
+            sb = f'使用.init_equip从以下{num}组备选装备中选定每组的装备(每组选择a或b) eg:a,a,b,a\n'
+            self.notice['init_equip'] = {'num': num, 'msg': formate.formate_list(sb + str(equipment))}
 
     # 同步背景信息
     def refresh_background(self):
@@ -147,6 +171,7 @@ class Job:
     def __init__(self, context):
         # 职业名称
         self.name = context.get('name')
+        self.job_skill = context.get('job_skill') if context.get('job_skill') else []
 
 
 # 背景

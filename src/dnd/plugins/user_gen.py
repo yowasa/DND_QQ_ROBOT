@@ -1,6 +1,7 @@
 import user_controller
 import character_controller
 from character_dto import *
+from job_config import JOB
 
 
 def gen(content):
@@ -59,7 +60,22 @@ def switch_race(content):
 
 
 def switch_job(content):
-    return '功能未实现'
+    user_id = content['sender']['user_id']
+    comm = content['message']
+    comm = comm.replace('.job ', '')
+    if comm not in JOB:
+        return f'职业{comm}不存在'
+    user = user_controller.get_user(user_id)
+    character_name = user.current_character
+    character = character_controller.get_charater(user_id, character_name)
+
+    if character.status != 'gen':
+        return f'{character.name} 已经创建完成 不能再重新选择职业'
+    character.job = Job({})
+    character.job.name = comm
+    character.refresh()
+    character_controller.save_charater(user_id, character)
+    return f'选择职业{comm}成功，请使用.attr查看角色状态'
 
 
 def switch_sub_race(content):
@@ -83,6 +99,7 @@ def switch_sub_race(content):
             return f'选择亚种{comm}成功,请使用.attr查看角色状态'
     return '当前角色不可选择亚种'
 
+
 def drop(content):
     # 获得用户
     sender = content['sender']
@@ -95,6 +112,7 @@ def drop(content):
         return '名称种请不要带空格'
     msg = character_controller.drop(user_id, comm)
     return msg
+
 
 def swap(content):
     # 交换属性

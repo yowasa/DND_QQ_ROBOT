@@ -46,9 +46,17 @@ def watch_attribute(content):
         character.skilled_weapon) else None
     sb += f'\n武器熟练：{skilled_weapon_msg}'
 
-    skilled_eq_msg = formate.formate_list(character.skilled_armour) if character.skilled_armour is not None and len(
-        character.skilled_armour) else None
-    sb += f'\n盔甲熟練：{skilled_eq_msg}'
+    skilled_armor_msg = formate.formate_list(character.skilled_armor) if character.skilled_armor is not None and len(
+        character.skilled_armor) else None
+    sb += f'\n盔甲熟練：{skilled_armor_msg}'
+
+    skilled_item_msg = formate.formate_list(character.skilled_item) if character.skilled_item is not None and len(
+        character.skilled_item) else None
+    sb += f'\n熟练项：{skilled_item_msg}'
+
+    skilled_tool_msg = formate.formate_list(character.skilled_tool) if character.skilled_tool is not None and len(
+        character.skilled_tool) else None
+    sb += f'\n熟练工具：{skilled_tool_msg}'
 
     race_skill_msg = formate.formate_list(character.race.race_skill) if character.race and character.race.race_skill is not None and len(
         character.race.race_skill) else None
@@ -160,3 +168,12 @@ def select_language(content):
                 return f'请输入{num}个不同类型的语言'
 
     return '当前角色不可选择语言'
+
+def init_equip(content):
+    return '功能未实现'
+
+def skilled_item(content):
+    return '功能未实现'
+
+def select_style(content):
+    return '功能未实现'
