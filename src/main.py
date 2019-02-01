@@ -3,14 +3,22 @@ import dice
 import attribute_controller
 import user_gen
 import helper
+import base_filter
 
 bot = CQHttp(access_token='yowasaTest',
              enable_http_post=False)
 
+def msg(func):
+    def warpper(context):
+        print(context)
+        result=func(context)
+        print(result)
 
 @bot.on_message()
+@msg()
 async def handle_msg(context):
     print(context)
+    base_filter.filter(context)
     commond = context['message']
     result = None
     # 骰点
@@ -78,8 +86,9 @@ async def handle_msg(context):
     if commond.startswith('.job '):
         result = user_gen.switch_job(context)
     # 统一发送消息
-    if result != None or result == '':
+    if result != None:
         await bot.send(context, result)
+
 
 
 # @bot.on_notice('group_increase')
@@ -92,5 +101,8 @@ async def handle_msg(context):
 # async def handle_request(context):
 #     return {'approve': True}
 
+base_filter.init('plugins')
 
 bot.run(host='127.0.0.1', port=8080)
+
+
