@@ -158,6 +158,7 @@ def set_sex(content):
         return f'请选择正确的性别'
     character.sex = cmd_msg
     character_controller.save_charater(user.user_id, character)
+    return f'设置性别 {cmd_msg} 成功'
 
 
 # 增加背景描述
@@ -172,3 +173,4 @@ def set_desc(content):
         return f'请先选择背景'
     character.background.desc = cmd_msg
     character_controller.save_charater(user.user_id, character)
+    return f'增加背景描述成功'

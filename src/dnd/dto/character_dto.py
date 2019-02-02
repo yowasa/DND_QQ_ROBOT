@@ -54,8 +54,20 @@ class Charater:
         self.ex_status = context.get('ex_status')
         # 金钱
         self.fortune = Fortune(context.get('gold')) if context.get('gold') else None
+        # 血量
+        self.hp = context.get('hp')
+        self.cur_hp = context.get('cur_hp')
+        self.armor_hp = context.get('armor_hp')
         # 物品
-        # 装备
+        self.items = []
+        if context.get('items'):
+            for item in context.get('items'):
+                self.items.append(Item(item))
+        # 武器&盾牌
+        self.weapon = Weapon(context.get('weapon')) if context.get('weapon') else None
+        # 护甲
+        self.armor = Armor(context.get('armor')) if context.get('armor') else None
+
         # 通知
         self.notice = context.get('notice') if context.get('notice') else {}
         # log
@@ -199,6 +211,64 @@ class Fortune:
         self.ep = context.get('ep')
         self.gp = context.get('gp')
         self.pp = context.get('pp')
+
+
+# 物品
+class Item:
+    def __init__(self, context):
+        self.name = context.get('name')
+        self.type = context.get('type')
+        self.num = context.get('num')
+        self.weight = context.get('each_weight')
+        self.desc = context.get('desc')
+        self.used_able = context.get('used_able')
+
+
+# 武器
+class Weapon:
+    def __init__(self, context):
+        self.name = context.get('name')
+        # 武器种类
+        self.type = context.get('type')
+        # 是否军用武器
+        self.military = context.get('military')
+        # 影响属性
+        self.gain = context.get('gain')
+        # 共计骰点
+        self.damage = context.get('damage')
+        # 是否可双持
+        self.dual_holding = context.get('dual_holding')
+        # 双持伤害
+        self.dual_damage = context.get('dual_damage')
+        # 是否允许有副手武器
+        self.extra_able = context.get('extra_able')
+        # 副手武器名称
+        self.extra_name = context.get('extra_name')
+        # 副手武器伤害
+        self.extra_damage = context.get('extra_damage')
+        # 武器种类
+        self.extra_type = context.get('extra_type')
+        # 是否军用武器
+        self.extra_military = context.get('extra_military')
+        # 是否允许持盾
+        self.shield_able = context.get('shield_able')
+        # 持盾的类型
+        self.shield_type = context.get('shield_type')
+        # 持盾的加值
+        self.shield_ac = context.get('shield_ac')
+
+
+# 护甲
+class Armor:
+    def __init__(self, context):
+        # 护甲名
+        self.name = context.get('name')
+        # 种类
+        self.type = context.get('type')
+        # 影响属性
+        self.gain = context.get('gain')
+        # 属性加成上限
+        self.gain_limit = context.get('gain_limit')
 
 
 # 刷新鉴定属性
