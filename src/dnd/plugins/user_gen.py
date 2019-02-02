@@ -5,6 +5,7 @@ from job_config import JOB
 from msg import filter
 
 
+# 生成角色
 @filter(r'.gen ')
 def gen(content):
     # 获得用户
@@ -20,6 +21,7 @@ def gen(content):
     return msg
 
 
+# 重新骰点
 @filter(r'.reroll', need_character=True)
 def reroll(content):
     nickname = content['sender']['nickname']
@@ -40,6 +42,7 @@ def reroll(content):
     return f'角色 {character_name} 重新roll点成功\n新属性 {formate.formate_dic(attr)}\n可重新roll点次数为{character.re_roll_time}'
 
 
+# 选择种族
 @filter(r'.race ', need_character=True)
 def switch_race(content):
     comm = content['cmd_msg']
@@ -57,6 +60,7 @@ def switch_race(content):
     return f'选择种族{comm}成功，请使用.attr查看角色状态'
 
 
+# 选择职业
 @filter(r'.job ')
 def switch_job(content):
     user_id = content['sender']['user_id']
@@ -77,6 +81,7 @@ def switch_job(content):
     return f'选择职业{comm}成功，请使用.attr查看角色状态'
 
 
+# 选择亚种
 @filter(r'.subrace ', need_character=True)
 def switch_sub_race(content):
     comm = content['message']
@@ -98,6 +103,7 @@ def switch_sub_race(content):
     return '当前角色不可选择亚种'
 
 
+# 删除角色
 @filter(r'.drop ')
 def drop(content):
     # 获得用户
@@ -113,6 +119,7 @@ def drop(content):
     return msg
 
 
+# 交换属性
 @filter('.swap', need_character=True)
 def swap(content):
     # 交换属性
@@ -137,3 +144,31 @@ def swap(content):
     character.refresh()
     character_controller.save_charater(user.user_id, character)
     return '交换属性成功'
+
+
+# 设定性别
+@filter(r'.sex ', need_character=True)
+def set_sex(content):
+    user = content['sys_user']
+    character = content['sys_character']
+    cmd_msg = content['cmd_msg']
+    if character.status != 'gen':
+        return '用户已经创建完成 不可变更属性'
+    if cmd_msg not in ['男', '女', '扶她', '秀吉']:
+        return f'请选择正确的性别'
+    character.sex = cmd_msg
+    character_controller.save_charater(user.user_id, character)
+
+
+# 增加背景描述
+@filter(r'.desc ', need_character=True)
+def set_desc(content):
+    user = content['sys_user']
+    character = content['sys_character']
+    cmd_msg = content['cmd_msg']
+    if character.status != 'gen':
+        return '用户已经创建完成 不可变更属性'
+    if not character.background:
+        return f'请先选择背景'
+    character.background.desc = cmd_msg
+    character_controller.save_charater(user.user_id, character)

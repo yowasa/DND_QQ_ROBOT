@@ -181,7 +181,7 @@ class Job:
 class Background:
     def __init__(self, context):
         self.name = context.get('name')
-        self.desc = context.get('name')
+        self.desc = context.get('desc')
 
 
 # 等级信息
