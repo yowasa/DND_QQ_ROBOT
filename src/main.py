@@ -1,8 +1,4 @@
 from aiocqhttp import CQHttp
-import dice
-import attribute_controller
-import user_gen
-import helper
 import base_filter
 
 bot = CQHttp(access_token='yowasaTest',
@@ -12,16 +8,7 @@ bot = CQHttp(access_token='yowasaTest',
 @bot.on_message()
 async def handle_msg(context):
     content = context.copy()
-
     result = base_filter.filter(content)
-    if result:
-        return await bot.send(context, result)
-    print(context)
-    commond = context['message']
-    result = None
-    # 骰点
-    if commond.startswith('.r') and not commond.startswith('.race') and not commond.startswith('.reroll'):
-        result = dice.dice_ex(context)
     # 统一发送消息
     if result != None:
         await bot.send(context, result)

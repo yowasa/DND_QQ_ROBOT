@@ -1,4 +1,6 @@
 import re
+import user_controller
+import character_controller
 
 
 # 注解msg 传入正则表达式进行匹配
@@ -17,11 +19,18 @@ def filter(re_msg, need_user=False, need_character=False):
             sub_msg = re.sub(re_msg, lambda m: '', cmd_msg)
             # 新增命令属性
             content['cmd_msg'] = sub_msg
+            sender = content['sender']
+            user_id = sender['user_id']
             # 获得用户
             if need_user:
-                content['sys_user'] = 'user'
+                user = user_controller.get_user(user_id)
+                content['sys_user'] = user
             if need_character:
-                content['sys_character'] = 'character'
+                user = user_controller.get_user(user_id)
+                content['sys_user'] = user
+                character_name = user.current_character
+                character = character_controller.get_charater(user_id, character_name)
+                content['sys_character'] = character
             result = func(content)
             # 打印输出结果
             print(result)

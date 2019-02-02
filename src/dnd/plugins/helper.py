@@ -3,7 +3,7 @@ from msg import filter
 
 
 @filter(r'.comm')
-def comm_helper():
+def comm_helper(content):
     msg = ''
     for k, v in COM_HELP.items():
         msg += f'{k}:{v}\n'

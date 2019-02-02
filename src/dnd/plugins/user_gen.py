@@ -20,16 +20,13 @@ def gen(content):
     return msg
 
 
-@filter(r'.reroll')
+@filter(r'.reroll',need_character=True)
 def reroll(content):
+    nickname = content['sender']['nickname']
     # 重新roll点
-    sender = content['sender']
-    nickname = sender['nickname']
-    user_id = sender['user_id']
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
-    if character is None:
+    user = content.get('sys_user')
+    character = content.get('sys_character')
+    if character:
         return f'{nickname} 请先创建角色'
     if character.status != 'gen':
         return '用户已经创建完成 不可变更属性'
@@ -39,27 +36,24 @@ def reroll(content):
     attr = character_controller.init_attribute()
     character.base_attr = attr
     character.refresh()
-    character_controller.save_charater(user_id, character)
+    character_controller.save_charater(user.user_id, character)
     return f'角色 {character_name} 重新roll点成功\n新属性 {formate.formate_dic(attr)}\n可重新roll点次数为{character.re_roll_time}'
 
 
-@filter(r'.race ')
+@filter(r'.race ',need_character=True)
 def switch_race(content):
-    user_id = content['sender']['user_id']
-    comm = content['message']
-    comm = comm.replace('.race ', '')
+    comm = content['cmd_msg']
     if comm not in RACE:
         return f'种族{comm}不存在'
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    user = content['sys_user']
+    character = content['sys_character']
 
     if character.status != 'gen':
         return f'{character.name} 已经创建完成 不能再重新选择种族'
     character.race = Race({})
     character.race.name = comm
     character.refresh()
-    character_controller.save_charater(user_id, character)
+    character_controller.save_charater(user.user_id, character)
     return f'选择种族{comm}成功，请使用.attr查看角色状态'
 
 @filter(r'.job ')
@@ -82,14 +76,12 @@ def switch_job(content):
     return f'选择职业{comm}成功，请使用.attr查看角色状态'
 
 
-@filter(r'.subrace ')
+@filter(r'.subrace ',need_character=True)
 def switch_sub_race(content):
-    user_id = content['sender']['user_id']
     comm = content['message']
     comm = comm.replace('.subrace ', '')
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    user = content['sys_user']
+    character = content['sys_character']
 
     if character.notice is None:
         return '当前角色不可选择亚种'
@@ -100,7 +92,7 @@ def switch_sub_race(content):
         if comm in sub_race_list.keys():
             character.race.sub_race = comm
             character.refresh()
-            character_controller.save_charater(user_id, character)
+            character_controller.save_charater(user.user_id, character)
             return f'选择亚种{comm}成功,请使用.attr查看角色状态'
     return '当前角色不可选择亚种'
 
@@ -119,11 +111,10 @@ def drop(content):
     return msg
 
 
-@filter('.swap')
+@filter('.swap',need_character=True)
 def swap(content):
     # 交换属性
-    comm = content['message']
-    comm = comm.replace('.swap ', '')
+    comm = content['cmd_msg']
     attr_list = comm.split(' ')
     attr1 = attr_list[0]
     if attr1 not in ATTRIBUTE:
@@ -133,10 +124,8 @@ def swap(content):
         return f'不存在 {attr2} 这种属性'
     if attr1 == attr2:
         return '请输入两种不同的属性'
-    user_id = content['sender']['user_id']
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    user = content['sys_user']
+    character = content['sys_character']
 
     if character.status != 'gen':
         return '用户已经创建完成 不可变更属性'
@@ -144,5 +133,5 @@ def swap(content):
     character.base_attr[attr1] = character.base_attr[attr2]
     character.base_attr[attr2] = cache
     character.refresh()
-    character_controller.save_charater(user_id, character)
+    character_controller.save_charater(user.user_id, character)
     return '交换属性成功'

@@ -31,24 +31,23 @@ def replace_dice(str):
 
 # 生成属性并展示
 @filter(r'!dnd')
-def random_attribute():
+def random_attribute(content):
     attr = character_controller.init_attribute()
     return formate.formate_dic(attr)
 
 
 # 用于通用处理骰子指令
+@filter(r'.r(?=\d*d|\d*#)',need_character=True)
 def dice_ex(content):
     # 获得用户
-    sender = content['sender']
-    nickname = sender['nickname']
-    user_id = sender['user_id']
-    user_name = nickname
-    user = user_controller.get_user(user_id)
+    nickname = content['sender']['nickname']
+    user = content.get('sys_user')
+    character = content.get('sys_character')
+    user_name = character.name if character else nickname
     if user is not None:
         user_name = user.current_character
 
-    cmd_msg = content['message']
-    cmd_msg = cmd_msg.replace('.r', '')
+    cmd_msg = content['cmd_msg']
     # 获得骰子后命令说明
     ex_msg = ''
     if ' ' in cmd_msg.strip():
@@ -96,19 +95,13 @@ def jrrp(content):
 
 
 # 检定功能
-@filter(r'.check ')
+@filter(r'.check ',need_character=True)
 def check(content):
-    sender = content['sender']
-    nickname = sender['nickname']
-    user_id = sender['user_id']
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    character = content['sys_character']
     if character is None:
         return f'{nickname} 请先创建角色'
     check_attr = character.cur_check
-    cmd_msg = content['message']
-    cmd_msg = cmd_msg.replace('.check', '')
+    cmd_msg = content['cmd_msg']
     if ' ' in cmd_msg:
         c_list = cmd_msg.split(' ')
         checked_attr = c_list[1]
@@ -157,7 +150,7 @@ def check(content):
     if count == 1:
         result = re.sub(patt, lambda m: str(replace_dice(m.group(0))), work_msg)
         dice_result = eval(result)
-        return f'{character_name} 检定 {checked_attr} {all_msg}=({result}) = {dice_result}'
+        return f'{character.name} 检定 {checked_attr} {all_msg}=({result}) = {dice_result}'
     else:
         result_list = []
         for i in range(0, int(count)):

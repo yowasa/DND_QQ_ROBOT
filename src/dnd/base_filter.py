@@ -1,7 +1,6 @@
 import re
 
 import os
-from os import path
 import importlib
 
 from inspect import isfunction

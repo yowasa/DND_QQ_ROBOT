@@ -4,17 +4,14 @@ import character_controller
 from config.base_config import *
 from msg import filter
 
+
 # 控制人物属性
 
 
 # 查看当前角色属性
-@filter(r'.attr')
+@filter(r'.attr', need_character=True)
 def watch_attribute(content):
-    sender = content['sender']
-    user_id = sender['user_id']
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    character = content['sys_character']
 
     if character is None:
         return '当前没有角色'
@@ -71,12 +68,10 @@ def watch_attribute(content):
 
 
 # 获得角色列表
-@filter(r'.ul')
+@filter(r'.ul', need_user=True)
 def get_user_list(content):
-    sender = content['sender']
-    user_id = sender['user_id']
-    nickname = sender['nickname']
-    user = user_controller.get_user(user_id)
+    nickname = content['sender']['nickname']
+    user = content['sys_user']
     if user is None:
         return '用户下没有角色'
     else:
@@ -89,13 +84,10 @@ def get_user_list(content):
 
 
 # 切换用户
-@filter(r'.switch ')
+@filter(r'.switch ', need_user=True)
 def switch_user(content):
-    sender = content['sender']
-    user_id = sender['user_id']
-    message = content['message']
-    cmd_msg = message.replace('.switch ', '')
-    user = user_controller.get_user(user_id)
+    cmd_msg = content['cmd_msg']
+    user = content['sys_user']
     if cmd_msg in user.user_list:
         user.current_character = cmd_msg
         user_controller.save_user(user)
@@ -107,10 +99,7 @@ def switch_user(content):
 # 增加属性
 @filter(r'.attrup ')
 def attr_up(content):
-    sender = content['sender']
-    user_id = sender['user_id']
-    message = content['message']
-    cmd_msg = message.replace('.attrup ', '')
+    cmd_msg = content['cmd_msg']
     attr_up_list = str(cmd_msg).split(' ')
     if not len(attr_up_list):
         return '请选择要提升的属性值'
@@ -119,10 +108,8 @@ def attr_up(content):
     for a in attr_up_list:
         if a not in ATTRIBUTE:
             return f'输入的属性{a}不存在'
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
-
+    user = content['sys_user']
+    character = content['sys_character']
     if character.notice is not None:
         attr_up = character.notice.get('attr_up')
         if attr_up is not None:
@@ -133,7 +120,7 @@ def attr_up(content):
                     character.cur_attr[a] += 1
                 character.refresh_check()
                 character.notice.pop('attr_up')
-                character_controller.save_charater(user_id, character)
+                character_controller.save_charater(user.user_id, character)
                 return '变更属性成功'
             else:
                 return f'请输入{num}个不同类型的属性'
@@ -144,17 +131,14 @@ def attr_up(content):
 # 增加语言
 @filter(r'.language ')
 def select_language(content):
-    sender = content['sender']
-    user_id = sender['user_id']
-    message = content['message']
-    cmd_msg = message.replace('.language ', '')
+
+    cmd_msg = content['cmd_msg']
     language_list = str(cmd_msg).split(' ')
     if not len(language_list):
         return '请选择语言'
 
-    user = user_controller.get_user(user_id)
-    character_name = user.current_character
-    character = character_controller.get_charater(user_id, character_name)
+    user = content['sys_user']
+    character = content['sys_character']
 
     if len(language_list) != len(set(language_list)):
         return '不允许出现重复的语言'
@@ -169,20 +153,23 @@ def select_language(content):
             num = select_language.get('num')
             if num == len(language_list):
                 character.language += language_list
-                character_controller.save_charater(user_id, character)
+                character_controller.save_charater(user.user_id, character)
                 return '选择语言成功'
             else:
                 return f'请输入{num}个不同类型的语言'
 
     return '当前角色不可选择语言'
 
+
 @filter(r'.init_equip ')
 def init_equip(content):
     return '功能未实现'
 
+
 @filter('.skilled_item ')
 def skilled_item(content):
     return '功能未实现'
+
 
 @filter(r'.style ')
 def select_style(content):
