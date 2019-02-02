@@ -5,10 +5,7 @@ import character_controller
 
 # 注解msg 传入正则表达式进行匹配
 def filter(re_msg, need_user=False, need_character=False):
-
-
     def show(func):
-
 
         def warpper(content):
             # 原始入参打印
@@ -36,11 +33,10 @@ def filter(re_msg, need_user=False, need_character=False):
             print(result)
             return result
 
-        warpper.re_msg=re_msg
+        warpper.re_msg = re_msg
         return warpper
 
     return show
-
 
 # for name in filter.__dir__():
 #     print(name,str(getattr(filter,name,None)))

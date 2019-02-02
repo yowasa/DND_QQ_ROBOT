@@ -53,18 +53,18 @@ class CharacterTest(unittest.TestCase):
 
     # 测试重骰
     def test_reroll(self):
-        result=user_gen.reroll(self.test_content)
+        result = user_gen.reroll(self.test_content)
         print(result)
 
     # 测试交换属性
     def test_swap(self):
         self.test_content['message'] = '.swap 力量 敏捷'
-        result=user_gen.swap(self.test_content)
+        result = user_gen.swap(self.test_content)
         print(result)
         result = attribute_controller.watch_attribute(self.test_content)
         print(result)
 
-    #测试自选属性&自选语言
+    # 测试自选属性&自选语言
     def test_attr_up(self):
         self.test_content['message'] = '.race 半精灵'
         result = user_gen.switch_race(self.test_content)

@@ -38,11 +38,11 @@ def gen_user(user_id, name):
     if user.user_list:
         user.user_list.append(name)
     else:
-        user.user_list=[name]
+        user.user_list = [name]
 
     cha = Charater({})
     cha.name = name
-    cha.status='gen'
+    cha.status = 'gen'
     cha.base_attr = init_attribute()
     cha.re_roll_time = 4
     cha.refresh()
@@ -86,7 +86,7 @@ def get_charater(user_id, character_name):
         user_id = str(user_id)
         character_name = str(character_name)
         y_path = data_path + user_id + character_name + '.yaml'
-        dic={}
+        dic = {}
         with open(y_path, "r", encoding='utf-8') as a:
             dic = yaml.load(a.read(), Loader=yaml.Loader)
         if dic is None or not dic:

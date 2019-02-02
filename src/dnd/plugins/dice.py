@@ -37,7 +37,7 @@ def random_attribute(content):
 
 
 # 用于通用处理骰子指令
-@filter(r'.r(?=\d*d|\d*#)',need_character=True)
+@filter(r'.r(?=\d*d|\d*#)', need_character=True)
 def dice_ex(content):
     # 获得用户
     nickname = content['sender']['nickname']
@@ -82,8 +82,8 @@ def jrrp(content):
     user_id = sender['user_id']
     user = user_controller.get_user(user_id)
     if user is None:
-        user=User({})
-        user.user_id=user_id
+        user = User({})
+        user.user_id = user_id
     jrrp_date = user.jrrp_date
     date = time.strftime("%Y-%m-%d")
     if jrrp_date is None or jrrp_date != date:
@@ -95,7 +95,7 @@ def jrrp(content):
 
 
 # 检定功能
-@filter(r'.check ',need_character=True)
+@filter(r'.check ', need_character=True)
 def check(content):
     character = content['sys_character']
     if character is None:

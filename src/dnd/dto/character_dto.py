@@ -70,8 +70,6 @@ class Charater:
         self.refresh_background()
         self.refresh_check()
 
-
-
     # 同步基本信息
     def refresh_base(self):
         self.cur_attr = self.base_attr.copy()

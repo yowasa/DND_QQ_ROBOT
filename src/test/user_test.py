@@ -2,6 +2,7 @@ import unittest
 import user_gen
 import attribute_controller
 
+
 class UserTest(unittest.TestCase):
     test_content = {}
 
@@ -46,10 +47,6 @@ class UserTest(unittest.TestCase):
         self.test_content['message'] = '.switch 天子'
         result = attribute_controller.switch_user(self.test_content)
         print(result)
-
-
-
-
 
 
 if __name__ == '__main__':

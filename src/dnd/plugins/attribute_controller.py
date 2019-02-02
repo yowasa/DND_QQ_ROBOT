@@ -131,7 +131,6 @@ def attr_up(content):
 # 增加语言
 @filter(r'.language ')
 def select_language(content):
-
     cmd_msg = content['cmd_msg']
     language_list = str(cmd_msg).split(' ')
     if not len(language_list):

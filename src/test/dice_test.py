@@ -14,7 +14,6 @@ class DiceTest(unittest.TestCase):
         self.test_content['message'] = '.gen 天子'
         user_gen.gen(self.test_content)
 
-
     @classmethod
     def tearDownClass(self):
         # 必须使用 @ classmethod装饰器, 所有test运行完后运行一次
@@ -23,10 +22,9 @@ class DiceTest(unittest.TestCase):
         test_content = {}
         print('测试结束')
 
-
     def setUp(self):
         # 每个测试用例执行之前做操作
-        self.test_content['message']=''
+        self.test_content['message'] = ''
 
     def tearDown(self):
         # 每个测试用例执行之后做操作
