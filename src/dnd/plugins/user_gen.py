@@ -2,8 +2,10 @@ import user_controller
 import character_controller
 from character_dto import *
 from job_config import JOB
+from msg import filter
 
 
+@filter(r'.gen ')
 def gen(content):
     # 获得用户
     sender = content['sender']
@@ -18,6 +20,7 @@ def gen(content):
     return msg
 
 
+@filter(r'.reroll')
 def reroll(content):
     # 重新roll点
     sender = content['sender']
@@ -40,6 +43,7 @@ def reroll(content):
     return f'角色 {character_name} 重新roll点成功\n新属性 {formate.formate_dic(attr)}\n可重新roll点次数为{character.re_roll_time}'
 
 
+@filter(r'.race ')
 def switch_race(content):
     user_id = content['sender']['user_id']
     comm = content['message']
@@ -58,7 +62,7 @@ def switch_race(content):
     character_controller.save_charater(user_id, character)
     return f'选择种族{comm}成功，请使用.attr查看角色状态'
 
-
+@filter(r'.job ')
 def switch_job(content):
     user_id = content['sender']['user_id']
     comm = content['message']
@@ -78,6 +82,7 @@ def switch_job(content):
     return f'选择职业{comm}成功，请使用.attr查看角色状态'
 
 
+@filter(r'.subrace ')
 def switch_sub_race(content):
     user_id = content['sender']['user_id']
     comm = content['message']
@@ -99,7 +104,7 @@ def switch_sub_race(content):
             return f'选择亚种{comm}成功,请使用.attr查看角色状态'
     return '当前角色不可选择亚种'
 
-
+@filter(r'.drop ')
 def drop(content):
     # 获得用户
     sender = content['sender']
@@ -114,6 +119,7 @@ def drop(content):
     return msg
 
 
+@filter('.swap')
 def swap(content):
     # 交换属性
     comm = content['message']

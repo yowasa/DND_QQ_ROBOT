@@ -2,12 +2,13 @@ import formate
 import user_controller
 import character_controller
 from config.base_config import *
-
+from msg import filter
 
 # 控制人物属性
 
 
 # 查看当前角色属性
+@filter(r'.attr')
 def watch_attribute(content):
     sender = content['sender']
     user_id = sender['user_id']
@@ -18,19 +19,19 @@ def watch_attribute(content):
     if character is None:
         return '当前没有角色'
     sb = f'角色：{character.name}'
-    race=character.race.name if character.race is not None else None
+    race = character.race.name if character.race is not None else None
     sb += f'\n种族：{race}'
     if character.race and character.race.sub_race is not None:
         sb += f' - {character.race.sub_race}'
 
-    job=character.job.name if character.job is not None else None
+    job = character.job.name if character.job is not None else None
     sb += f'\n职业：{job}'
     language_msg = formate.formate_list(character.language) if character.language is not None and len(
         character.language) else None
     sb += f'\n语言：{language_msg}'
     sb += f'\n行走速度：{character.speed}'
 
-    attr_msg=formate.formate_dic(character.base_attr)
+    attr_msg = formate.formate_dic(character.base_attr)
     sb += f'\n基础属性：{attr_msg}'
     if character.status == 'gen':
         sb += f'\n状态：生成角色中，请使用.swap交换属性，使用.race选择种族，使用.job选择职业 .gened结束生成'
@@ -58,7 +59,8 @@ def watch_attribute(content):
         character.skilled_tool) else None
     sb += f'\n熟练工具：{skilled_tool_msg}'
 
-    race_skill_msg = formate.formate_list(character.race.race_skill) if character.race and character.race.race_skill is not None and len(
+    race_skill_msg = formate.formate_list(
+        character.race.race_skill) if character.race and character.race.race_skill is not None and len(
         character.race.race_skill) else None
     sb += f'\n种族技能：{race_skill_msg}'
     if character.notice is not None and len(character.notice):
@@ -69,6 +71,7 @@ def watch_attribute(content):
 
 
 # 获得角色列表
+@filter(r'.ul')
 def get_user_list(content):
     sender = content['sender']
     user_id = sender['user_id']
@@ -86,6 +89,7 @@ def get_user_list(content):
 
 
 # 切换用户
+@filter(r'.switch ')
 def switch_user(content):
     sender = content['sender']
     user_id = sender['user_id']
@@ -93,7 +97,7 @@ def switch_user(content):
     cmd_msg = message.replace('.switch ', '')
     user = user_controller.get_user(user_id)
     if cmd_msg in user.user_list:
-        user.current_character=cmd_msg
+        user.current_character = cmd_msg
         user_controller.save_user(user)
         return f'切换角色成功 当前角色为 {cmd_msg}'
     else:
@@ -101,6 +105,7 @@ def switch_user(content):
 
 
 # 增加属性
+@filter(r'.attrup ')
 def attr_up(content):
     sender = content['sender']
     user_id = sender['user_id']
@@ -135,7 +140,9 @@ def attr_up(content):
 
     return '当前角色不可提升属性'
 
+
 # 增加语言
+@filter(r'.language ')
 def select_language(content):
     sender = content['sender']
     user_id = sender['user_id']
@@ -161,7 +168,7 @@ def select_language(content):
         if select_language:
             num = select_language.get('num')
             if num == len(language_list):
-                character.language+=language_list
+                character.language += language_list
                 character_controller.save_charater(user_id, character)
                 return '选择语言成功'
             else:
@@ -169,11 +176,14 @@ def select_language(content):
 
     return '当前角色不可选择语言'
 
+@filter(r'.init_equip ')
 def init_equip(content):
     return '功能未实现'
 
+@filter('.skilled_item ')
 def skilled_item(content):
     return '功能未实现'
 
+@filter(r'.style ')
 def select_style(content):
     return '功能未实现'

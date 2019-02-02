@@ -60,6 +60,8 @@ class Charater:
         self.notice = context.get('notice') if context.get('notice') else {}
         # log
         self.log = context.get('log')
+        # 专长
+        self.expertise = context.get('expertise') if context.get('expertise') else []
 
     def refresh(self):
         self.refresh_base()
@@ -67,6 +69,8 @@ class Charater:
         self.refresh_job()
         self.refresh_background()
         self.refresh_check()
+
+
 
     # 同步基本信息
     def refresh_base(self):
@@ -148,6 +152,7 @@ class Charater:
 
     # 同步背景信息
     def refresh_background(self):
+
         pass
 
     # 刷新检定值
@@ -178,6 +183,7 @@ class Job:
 class Background:
     def __init__(self, context):
         self.name = context.get('name')
+        self.desc = context.get('name')
 
 
 # 等级信息

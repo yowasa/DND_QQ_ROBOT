@@ -5,6 +5,7 @@ import user_controller
 import character_controller
 from user_dto import *
 import formate
+from msg import filter
 
 
 # 1-n随机值
@@ -27,7 +28,9 @@ def replace_dice(str):
         result += random_value(dice)
     return result
 
+
 # 生成属性并展示
+@filter(r'!dnd')
 def random_attribute():
     attr = character_controller.init_attribute()
     return formate.formate_dic(attr)
@@ -73,6 +76,7 @@ def dice_ex(content):
 
 
 # 今日人品功能 沙雕群友快乐源泉
+@filter(r'.jrrp')
 def jrrp(content):
     sender = content['sender']
     nickname = sender['nickname']
@@ -92,6 +96,7 @@ def jrrp(content):
 
 
 # 检定功能
+@filter(r'.check ')
 def check(content):
     sender = content['sender']
     nickname = sender['nickname']

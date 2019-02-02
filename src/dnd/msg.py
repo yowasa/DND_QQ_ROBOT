@@ -25,6 +25,7 @@ def filter(re_msg, need_user=False, need_character=False):
             result = func(content)
             # 打印输出结果
             print(result)
+            return result
 
         warpper.re_msg=re_msg
         return warpper

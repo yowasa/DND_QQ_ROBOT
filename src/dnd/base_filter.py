@@ -1,6 +1,7 @@
 import re
 
 import os
+from os import path
 import importlib
 
 from inspect import isfunction
@@ -18,7 +19,7 @@ def init(package='plugins'):
         if not file.startswith("__"):
             name, ext = os.path.splitext(file)
             modules.append("." + name)
-
+    package = package.replace('/', '.')
     for module in modules:
         module = importlib.import_module(module, package)
         for attr in dir(module):
@@ -35,4 +36,4 @@ def filter(content):
     for key in dict(register).keys():
         if re.match(key, cmd_msg):
             func = register.get(key)
-            func(content)
+            return func(content)
