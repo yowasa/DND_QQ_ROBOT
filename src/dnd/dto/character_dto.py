@@ -85,6 +85,11 @@ class Charater:
     # 同步基本信息
     def refresh_base(self):
         self.cur_attr = self.base_attr.copy()
+        self.skilled_weapon = None
+        self.skilled_armor = None
+        self.skilled_item = None
+        self.skilled_tool = None
+        self.race.race_skill = None
 
     # 同步种族信息
     def refresh_race(self):
@@ -102,8 +107,11 @@ class Charater:
                 self.cur_attr[k] += v
         self.language = race_des.get('language')
         self.race.race_skill = race_des.get('ex_skill')
-        self.skilled_weapon = list(self.skilled_weapon).append(
-            race_des.get('skilled_weapon')) if self.skilled_weapon else race_des.get('skilled_weapon')
+        if self.skilled_weapon is not None:
+            if race_des.get('skilled_weapon') is not None:
+                self.skilled_weapon = list(self.skilled_weapon).__add__(race_des.get('skilled_weapon'))
+        else:
+            self.skilled_weapon = race_des.get('skilled_weapon')
         if self.race.sub_race is not None:
             ex_race = race_des.get('ex_race')
             if ex_race is None:
@@ -118,8 +126,11 @@ class Charater:
                     sub_race_skill = sub_race.get('ex_skill')
                     self.race.race_skill += sub_race_skill
                     sub_race_skilled_weapon = sub_race.get('skilled_weapon')
-                    self.skilled_weapon = list(self.skilled_weapon).append(
-                        sub_race_skilled_weapon) if self.skilled_weapon else sub_race_skilled_weapon
+                    if self.skilled_weapon is not None:
+                        if sub_race_skilled_weapon is not None:
+                            self.skilled_weapon = list(self.skilled_weapon).__add__(sub_race_skilled_weapon)
+                    else:
+                        self.skilled_weapon = sub_race_skilled_weapon
                 else:
                     self.race.sub_race = None
         else:
@@ -143,12 +154,21 @@ class Charater:
             return
         job_des = JOB_DESCRIBE.get(self.job.name)
         proficiencies = job_des.get('proficiencies')
-        self.skilled_tool = list(self.skilled_tool).append(
-            proficiencies.get('skilled_tool')) if self.skilled_tool else proficiencies.get('skilled_tool')
-        self.skilled_weapon = list(self.skilled_weapon).append(
-            proficiencies.get('skilled_weapon')) if self.skilled_weapon else proficiencies.get('skilled_weapon')
-        self.skilled_armor = list(self.skilled_armor).append(
-            proficiencies.get('skilled_armor')) if self.skilled_armor else proficiencies.get('skilled_armor')
+        if self.skilled_tool is not None:
+            if proficiencies.get('skilled_tool') is not None:
+                self.skilled_tool = list(self.skilled_tool).__add__(proficiencies.get('skilled_tool'))
+        else:
+            self.skilled_tool = proficiencies.get('skilled_tool')
+        if self.skilled_weapon is not None:
+            if proficiencies.get('skilled_weapon') is not None:
+                self.skilled_weapon = list(self.skilled_weapon).__add__(proficiencies.get('skilled_weapon'))
+        else:
+            self.skilled_weapon = proficiencies.get('skilled_weapon')
+        if self.skilled_armor is not None:
+            if proficiencies.get('skilled_armor') is not None:
+                self.skilled_armor = list(self.skilled_armor).__add__(proficiencies.get('skilled_armor'))
+        else:
+            self.skilled_armor = proficiencies.get('skilled_armor')
 
         n = proficiencies.get('base_skill_count')
         sb = f'使用.skilled_item从以下技能中选择{n}个作为熟练项\n'
