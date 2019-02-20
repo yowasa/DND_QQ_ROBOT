@@ -59,7 +59,7 @@ def attr_key2des(key):
 
 
 def attr_des2key(key):
-    return attr_ref.get(key)
+    return attr_dict_ref.get(key)
 
 
 # 属性字典转对象

@@ -75,7 +75,7 @@ def guid_gen(content):
             sb += f'\n{inx} : {s.name}'
 
     if character.status == 25:
-        query = Race.select().where(Race.parent_race_id == s.id, Race.type == 2)
+        query = Race.select().where(Race.parent_race_id == character.race, Race.type == 2)
         sb += '\n从以下亚种中选择一个亚种 .choose + 编号'
         inx = 0
         for s in query:
@@ -143,7 +143,7 @@ def guid_choose(content):
 
 
 # 交换属性
-@msg_route('.swap', need_character=True)
+@msg_route('.swap ', need_character=True)
 def swap(content):
     # 交换属性
     comm = content.get('cmd_msg')
@@ -159,8 +159,8 @@ def swap(content):
     user = content.get('sys_user')
     character = content.get('sys_character')
 
-    if character.status != 'gen':
-        return '用户已经创建完成 不可变更属性'
+    if character.status > 20:
+        return '不可变更属性'
     attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
 
     cache = getattr(attr, fmt.attr_des2key(attr1))
@@ -214,13 +214,13 @@ def watch_attribute(content):
         attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
         attr_dict = fmt.attr2dict(attr)
         msg = fmt.attr_dict2str(attr_dict)
-        sb += "基础属性为:"
+        sb += "\n基础属性为:"
         sb += "\n" + msg
     if character.status > 20:
         attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
         attr_dict = fmt.attr2dict(attr)
         msg = fmt.attr_dict2str(attr_dict)
-        sb += "当前属性为:"
+        sb += "\n当前属性为:"
         sb += "\n" + msg
     return sb
 #     race = character.race.name if character.race is not None else None
