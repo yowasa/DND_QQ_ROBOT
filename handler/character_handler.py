@@ -13,7 +13,8 @@ attr_type = {
 }
 
 character_status = {
-    '选择属性': 10,
+    10: '选择属性',
+    20: '选择种族',
 }
 
 
@@ -65,8 +66,23 @@ def guid_gen(content):
             attr_dict = fmt.attr2dict(s)
             msg = fmt.attr_dict2str(attr_dict)
             sb += f'\n{inx} : {msg}'
-    if character.status == 11:
+    if character.status == 20:
         sb += '\n从以下种族中选择一个种族 .choose + 编号'
+        query = Race.select().where(Race.type == 1)
+        inx = 0
+        for s in query:
+            inx += 1
+            sb += f'\n{inx} : {s.name}'
+
+    if character.status == 25:
+        query = Race.select().where(Race.parent_race_id == s.id, Race.type == 2)
+        sb += '\n从以下亚种中选择一个亚种 .choose + 编号'
+        inx = 0
+        for s in query:
+            inx += 1
+            sb += f'\n{inx} : {s.name}'
+    if character.status == 30:
+        sb += '\n从以下职业中选择一个职业 .choose + 编号（未完成尽请期待）'
     return sb
 
 
@@ -88,10 +104,103 @@ def guid_choose(content):
                 s.save()
             s.delete()
         if flag:
-            character.status = 11
+            character.status = 20
             character.save()
-            return '选择属性成功,在角色创建完成之前可以任意调用.swap 交换你的属性值'
+            return '选择属性成功,在选择种族之前可以任意调用.swap 属性a 属性b 交换你的属性值'
         return '请选择正确的数字'
+    if character.status == 20:
+        choose_num = int(cmd_msg)
+        query = Race.select().where(Race.type == 1)
+        inx = 0
+        for s in query:
+            inx += 1
+            if inx == choose_num:
+                update_race_info(character, s)
+                num = Race.select().where(Race.parent_race_id == s.id).count()
+                if num > 0:
+                    character.status = 25
+                else:
+                    character.status = 30
+                character.save()
+                return f"选择种族 {s.name} 成功"
+        return '请选择正确的数字'
+    if character.status == 25:
+        choose_num = int(cmd_msg)
+        query = Race.select().where(Race.parent_race_id == character.race, Race.type == 2)
+        inx = 0
+        for s in query:
+            inx += 1
+            if inx == choose_num:
+                update_sub_race_info(character, s)
+                num = Race.select().where(Race.parent_race_id == s.id).count()
+                if num > 0:
+                    character.status = 25
+                else:
+                    character.status = 30
+                character.save()
+                return f"选择亚种 {s.name} 成功"
+        return '请选择正确的数字'
+
+
+# 交换属性
+@msg_route('.swap', need_character=True)
+def swap(content):
+    # 交换属性
+    comm = content.get('cmd_msg')
+    attr_list = comm.split(' ')
+    attr1 = attr_list[0]
+    if attr1 not in ATTRIBUTE:
+        return f'不存在 {attr1} 这种属性'
+    attr2 = attr_list[1]
+    if attr2 not in ATTRIBUTE:
+        return f'不存在 {attr2} 这种属性'
+    if attr1 == attr2:
+        return '请输入两种不同的属性'
+    user = content.get('sys_user')
+    character = content.get('sys_character')
+
+    if character.status != 'gen':
+        return '用户已经创建完成 不可变更属性'
+    attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
+
+    cache = getattr(attr, fmt.attr_des2key(attr1))
+    setattr(attr, fmt.attr_des2key(attr1), getattr(attr, fmt.attr_des2key(attr2)))
+    setattr(attr, fmt.attr_des2key(attr2), cache)
+    attr.save()
+    return '交换属性成功'
+
+
+def update_race_info(character, race):
+    character.race = race.id
+    character.speed = race.speed
+    # 增加属性
+    attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
+    dict = fmt.attr2dict(attr)
+    dict_buffer = fmt.attr2dict(race)
+    for k, v in dict_buffer.items():
+        base_v = dict.get(k)
+        dict_buffer[k] = base_v + v
+    cur_attr = fmt.dict2attr(dict_buffer)
+    cur_attr.character_id = character.id
+    cur_attr.attr_type = 3
+    cur_attr.save()
+
+
+def update_sub_race_info(character, race):
+    character.sub_race = race.id
+    character.speed = race.speed
+    # 增加属性
+    attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
+    dict = fmt.attr2dict(attr)
+    dict_buffer = fmt.attr2dict(race)
+    for k, v in dict_buffer.items():
+        base_v = dict.get(k)
+        dict_buffer[k] = base_v + v
+    cur_attr = fmt.dict2attr(dict_buffer)
+    cur_attr.id = attr.id
+    cur_attr.character_id = character.id
+    cur_attr.attr_type = 3
+    cur_attr.save()
 
 
 @msg_route(r'.attr', need_character=True)
@@ -100,13 +209,18 @@ def watch_attribute(content):
     character = content.get('sys_character')
     if not character:
         return '当前没有角色'
-
     sb = f'角色：{character.name}'
     if character.status > 10:
         attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
         attr_dict = fmt.attr2dict(attr)
         msg = fmt.attr_dict2str(attr_dict)
-        sb = "基础属性为:"
+        sb += "基础属性为:"
+        sb += "\n" + msg
+    if character.status > 20:
+        attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
+        attr_dict = fmt.attr2dict(attr)
+        msg = fmt.attr_dict2str(attr_dict)
+        sb += "当前属性为:"
         sb += "\n" + msg
     return sb
 #     race = character.race.name if character.race is not None else None

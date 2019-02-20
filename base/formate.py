@@ -54,6 +54,14 @@ attr_dict_ref = {
 }
 
 
+def attr_key2des(key):
+    return attr_ref.get(key)
+
+
+def attr_des2key(key):
+    return attr_ref.get(key)
+
+
 # 属性字典转对象
 def dict2attr(attr_dict):
     attr = Attribute()
@@ -78,4 +86,3 @@ def attr_dict2str(attr):
     for v in attr.values():
         total += v
     return f'{formate_dic(attr)}, 属性和为{str(total)}{", SSR!" if total>90 else ""}{", RSS!" if total<55 else ""}'
-

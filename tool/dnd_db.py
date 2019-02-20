@@ -142,12 +142,34 @@ class Race(BaseModel):
     name = CharField(index=True, unique=True)
     ename = CharField(index=True, unique=True)
     type = IntegerField()
+    parent_race_id = IntegerField()
+    size = IntegerField()
+    speed = IntegerField()
+    str = IntegerField()
+    dex = IntegerField()
+    con = IntegerField()
+    int = IntegerField()
+    wis = IntegerField()
+    cha = IntegerField()
 
 
 class RaceLanguage(BaseModel):
     id = AutoField()
     race_id = IntegerField(index=True)
     language_id = IntegerField()
+
+
+class RaceSkill(BaseModel):
+    id = AutoField()
+    race_id = IntegerField(index=True)
+    skill_id = IntegerField()
+
+
+class Skill(BaseModel):
+    id = AutoField()
+    name =  CharField(index=True, unique=True)
+    ename = CharField(index=True, unique=True)
+    desc = CharField()
 
 
 class Language(BaseModel):
@@ -186,3 +208,4 @@ class CheckInfo(BaseModel):
     ref_attr = CharField()
 
 
+Race.create_table()
