@@ -1,5 +1,5 @@
 from aiocqhttp import CQHttp
-import base_filter
+import filter
 
 bot = CQHttp(access_token='yowasaTest',
              enable_http_post=False)
@@ -8,7 +8,7 @@ bot = CQHttp(access_token='yowasaTest',
 @bot.on_message()
 async def handle_msg(context):
     content = context.copy()
-    result = base_filter.filter(content)
+    result = filter.filter(content)
     # 统一发送消息
     if result != None:
         await bot.send(context, result)
@@ -24,7 +24,5 @@ async def handle_msg(context):
 # async def handle_request(context):
 #     return {'approve': True}
 
-# 初始化过滤器
-base_filter.init('dnd/plugins')
 
 bot.run(host='127.0.0.1', port=8080)

@@ -8,6 +8,7 @@ import formate
 from msg import filter
 
 
+
 # 1-n随机值
 def random_value(num):
     return random.randint(1, num)
