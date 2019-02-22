@@ -1,5 +1,6 @@
 from filter import msg_route
 from tool.spell_db import *
+import re
 
 SPELL_PATTERN = re.compile(r'\s*(?P<command>\.\w+)(?P<args>.*)', flags=re.M | re.S)
 SPELL_ARG_PATTERN = re.compile(r'(?P<key>\w+)[:：]\s*(?P<quote>")?(?P<value>(?(quote)[^"]+|\S+))(?(quote)")', flags=re.M)

@@ -2,6 +2,7 @@ from filter import msg_route
 from tool.dnd_db import *
 from handler.dice_handler import init_attribute
 import base.formate as fmt
+import re
 
 ATTRIBUTE = ['力量', '体质', '敏捷', '智力', '感知', '魅力']
 
@@ -15,6 +16,8 @@ attr_type = {
 character_status = {
     10: '选择属性',
     20: '选择种族',
+    30: '选择职业',
+
 }
 
 
@@ -73,7 +76,12 @@ def guid_gen(content):
         for s in query:
             inx += 1
             sb += f'\n{inx} : {s.name}'
-
+    if character.status == 21:
+        sb += '\n由于半精灵特性,从以下属性中选择两个属性 .choose + 编号1 编号2'
+        inx = 0
+        for s in ['力量', '敏捷', '体质', '智力', '感知']:
+            inx += 1
+            sb += f'\n{inx} : {s}'
     if character.status == 25:
         query = Race.select().where(Race.parent_race_id == character.race, Race.type == 2)
         sb += '\n从以下亚种中选择一个亚种 .choose + 编号'
@@ -116,6 +124,11 @@ def guid_choose(content):
             inx += 1
             if inx == choose_num:
                 update_race_info(character, s)
+                if s.name == '半精灵':
+                    character.status = 21
+                    character.save()
+                    return f"选择种族 {s.name} 成功"
+                # 亚种判断
                 num = Race.select().where(Race.parent_race_id == s.id).count()
                 if num > 0:
                     character.status = 25
@@ -124,6 +137,30 @@ def guid_choose(content):
                 character.save()
                 return f"选择种族 {s.name} 成功"
         return '请选择正确的数字'
+    if character.status == 21:
+        msg_m = re.compile(r'[1-5]').findall(cmd_msg)
+        if len(msg_m) != 2:
+            return '请输入1-5的两个数字'
+        num1 = msg_m[0]
+        num2 = msg_m[1]
+        if num1 == num2:
+            return '请选择两种不同的属性'
+        attr = ['力量', '敏捷', '体质', '智力', '感知']
+        key1 = fmt.attr_des2key(attr[num1 - 1])
+        key2 = fmt.attr_des2key(attr[num2 - 1])
+        attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
+        setattr(attr, key1, getattr(key1) + 1)
+        setattr(attr, key2, getattr(key2) + 1)
+        attr.save()
+        # 亚种判断
+        num = Race.select().where(Race.parent_race_id == character.race).count()
+        if num > 0:
+            character.status = 25
+        else:
+            character.status = 30
+        character.save()
+        return '选择属性成功'
+
     if character.status == 25:
         choose_num = int(cmd_msg)
         query = Race.select().where(Race.parent_race_id == character.race, Race.type == 2)
@@ -184,6 +221,15 @@ def update_race_info(character, race):
     cur_attr.character_id = character.id
     cur_attr.attr_type = 3
     cur_attr.save()
+    # 增加语言
+    query = RaceLanguage.select().where(RaceLanguage.race_id == race.id)
+    for rl in query:
+        CharacterLanguage.create(character_id=character.id, language_id=rl.language_id)
+    # 增加技能
+    query_skill = RaceSkill.select().where(RaceSkill.race_id == race.id)
+    for rs in query_skill:
+        skill = Skill.get(Skill.id == rs.skill_id)
+        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id, skill_name=skill.name)
 
 
 def update_sub_race_info(character, race):
@@ -201,6 +247,11 @@ def update_sub_race_info(character, race):
     cur_attr.character_id = character.id
     cur_attr.attr_type = 3
     cur_attr.save()
+    # 增加技能
+    query_skill = RaceSkill.select().where(RaceSkill.race_id == race.id)
+    for rs in query_skill:
+        skill = Skill.get(Skill.id == rs.skill_id)
+        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id, skill_name=skill.name)
 
 
 @msg_route(r'.attr', need_character=True)
@@ -222,6 +273,20 @@ def watch_attribute(content):
         msg = fmt.attr_dict2str(attr_dict)
         sb += "\n当前属性为:"
         sb += "\n" + msg
+    sb + "\n语言列表:"
+    query1 = Language.select(Language, CharacterLanguage) \
+        .join(CharacterLanguage, on=(CharacterLanguage.language_id == Language.id)) \
+        .where(CharacterLanguage.character_id == character.id)
+    for s in query1:
+        sb += "\n\t" + s.name
+    sb + "\n技能列表:"
+    query2 = CharacterSkill.select().where(CharacterSkill.character_id == character.id)
+    for s in query2:
+        sb += "\n\t" + s.name
+    sb + "\n熟练工具列表:"
+    query3 = CharacterSkilled.select().where(CharacterSkilled.character_id == character.id)
+    for s in query3:
+        sb += "\n\t" + s.name
     return sb
 #     race = character.race.name if character.race is not None else None
 #     sb += f'\n种族：{race}'

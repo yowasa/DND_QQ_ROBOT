@@ -12,30 +12,30 @@ class BaseModel(Model):
 class User(BaseModel):
     id = AutoField()
     qq_number = BigIntegerField(index=True, unique=True)
-    cur_character_id = IntegerField(null = True)
-    jrrp = IntegerField(null = True)
-    jrrp_date = CharField(null = True)
+    cur_character_id = IntegerField(null=True)
+    jrrp = IntegerField(null=True)
+    jrrp_date = CharField(null=True)
 
 
 class Character(BaseModel):
     id = AutoField()
     user_id = IntegerField(index=True)
     name = CharField(index=True)
-    sex = CharField(null = True)
-    camp = CharField(null = True)
-    status = IntegerField(null = True)
-    race = IntegerField(null = True)
-    sub_race = IntegerField(null = True)
-    job = IntegerField(null = True)
-    sub_job = IntegerField(null = True)
-    backend = CharField(null = True)
-    desc = CharField(null = True)
-    level = IntegerField(null = True)
-    exp = IntegerField(null = True)
-    hp = IntegerField(null = True)
-    cur_hp = IntegerField(null = True)
-    armor_hp = IntegerField(null = True)
-    speed = IntegerField(null = True)
+    sex = CharField(null=True)
+    camp = CharField(null=True)
+    status = IntegerField(null=True)
+    race = IntegerField(null=True)
+    sub_race = IntegerField(null=True)
+    job = IntegerField(null=True)
+    sub_job = IntegerField(null=True)
+    backend = CharField(null=True)
+    desc = CharField(null=True)
+    level = IntegerField(null=True)
+    exp = IntegerField(null=True)
+    hp = IntegerField(null=True)
+    cur_hp = IntegerField(null=True)
+    armor_hp = IntegerField(null=True)
+    speed = IntegerField(null=True)
 
 
 class CharacterLog(BaseModel):
@@ -56,6 +56,13 @@ class CharacterSkilled(BaseModel):
     skilled_type = IntegerField()
     skilled_id = IntegerField()
     skilled_name = CharField()
+
+
+class CharacterSkill(BaseModel):
+    id = AutoField()
+    character_id = IntegerField(index=True)
+    skill_id = IntegerField()
+    skill_name = CharField()
 
 
 class CharacterExpertise(BaseModel):
@@ -167,7 +174,7 @@ class RaceSkill(BaseModel):
 
 class Skill(BaseModel):
     id = AutoField()
-    name =  CharField(index=True, unique=True)
+    name = CharField(index=True, unique=True)
     ename = CharField(index=True, unique=True)
     desc = CharField()
 
@@ -175,6 +182,10 @@ class Skill(BaseModel):
 class Language(BaseModel):
     id = AutoField()
     name = CharField(index=True, unique=True)
+    ename = CharField(index=True, unique=True)
+    type = IntegerField()
+    usage = CharField()
+    words = CharField()
 
 
 class Expertise(BaseModel):
@@ -208,4 +219,9 @@ class CheckInfo(BaseModel):
     ref_attr = CharField()
 
 
-RaceSkill.create_table()
+class Alignment(BaseModel):
+    id = AutoField()
+    name = CharField(index=True, unique=True)
+    ename = CharField()
+    tag = CharField()
+    desc = CharField()

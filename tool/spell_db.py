@@ -1,5 +1,3 @@
-import re
-
 from peewee import *
 
 spell_db = SqliteDatabase("data/spell.db")
@@ -33,10 +31,3 @@ class Spell(BaseModel):
 class JobSpell(BaseModel):
     job = ForeignKeyField(Job, backref='spells')
     spell = ForeignKeyField(Spell, backref='jobs')
-
-
-escape_new_line_pattern = re.compile(r'(?<!。)(?<!  )(?<!：)\n', flags=re.M)
-
-
-def escape_new_line(content):
-    return escape_new_line_pattern.sub('', content)
