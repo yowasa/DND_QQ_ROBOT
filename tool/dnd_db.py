@@ -208,4 +208,4 @@ class CheckInfo(BaseModel):
     ref_attr = CharField()
 
 
-Race.create_table()
+RaceSkill.create_table()
