@@ -63,3 +63,6 @@ def drop(content):
 def delete_ref(cha_id):
     # 删除属性
     Attribute.delete().where(Attribute.character_id == cha_id).execute()
+    CharacterLanguage.delete().where(CharacterLanguage.character_id == cha_id).execute()
+    CharacterSkill.delete().where(CharacterSkill.character_id == cha_id).execute()
+    CharacterSkilled.delete().where(CharacterSkilled.character_id == cha_id).execute()

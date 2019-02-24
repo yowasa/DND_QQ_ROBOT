@@ -141,16 +141,16 @@ def guid_choose(content):
         msg_m = re.compile(r'[1-5]').findall(cmd_msg)
         if len(msg_m) != 2:
             return '请输入1-5的两个数字'
-        num1 = msg_m[0]
-        num2 = msg_m[1]
+        num1 = int(msg_m[0])
+        num2 = int(msg_m[1])
         if num1 == num2:
             return '请选择两种不同的属性'
         attr = ['力量', '敏捷', '体质', '智力', '感知']
         key1 = fmt.attr_des2key(attr[num1 - 1])
         key2 = fmt.attr_des2key(attr[num2 - 1])
         attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
-        setattr(attr, key1, getattr(key1) + 1)
-        setattr(attr, key2, getattr(key2) + 1)
+        setattr(attr, key1, getattr(attr,key1) + 1)
+        setattr(attr, key2, getattr(attr,key2) + 1)
         attr.save()
         # 亚种判断
         num = Race.select().where(Race.parent_race_id == character.race).count()
@@ -273,20 +273,20 @@ def watch_attribute(content):
         msg = fmt.attr_dict2str(attr_dict)
         sb += "\n当前属性为:"
         sb += "\n" + msg
-    sb + "\n语言列表:"
+    sb += "\n语言列表:"
     query1 = Language.select(Language, CharacterLanguage) \
         .join(CharacterLanguage, on=(CharacterLanguage.language_id == Language.id)) \
         .where(CharacterLanguage.character_id == character.id)
     for s in query1:
         sb += "\n\t" + s.name
-    sb + "\n技能列表:"
+    sb += "\n技能列表:"
     query2 = CharacterSkill.select().where(CharacterSkill.character_id == character.id)
     for s in query2:
-        sb += "\n\t" + s.name
-    sb + "\n熟练工具列表:"
+        sb += "\n\t" + s.skill_name
+    sb += "\n熟练工具列表:"
     query3 = CharacterSkilled.select().where(CharacterSkilled.character_id == character.id)
     for s in query3:
-        sb += "\n\t" + s.name
+        sb += "\n\t" + s.skill_name
     return sb
 #     race = character.race.name if character.race is not None else None
 #     sb += f'\n种族：{race}'
