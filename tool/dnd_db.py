@@ -53,9 +53,7 @@ class CharacterLanguage(BaseModel):
 class CharacterSkilled(BaseModel):
     id = AutoField()
     character_id = IntegerField(index=True)
-    skilled_type = IntegerField()
     skilled_id = IntegerField()
-    skilled_name = CharField()
 
 
 class CharacterSkill(BaseModel):
@@ -142,6 +140,8 @@ class Job(BaseModel):
     id = AutoField()
     name = CharField(index=True, unique=True)
     ename = CharField(index=True, unique=True)
+    life_dice = CharField()
+    desc = CharField()
 
 
 class Race(BaseModel):
@@ -170,6 +170,12 @@ class RaceSkill(BaseModel):
     id = AutoField()
     race_id = IntegerField(index=True)
     skill_id = IntegerField()
+
+
+class RaceSkilled(BaseModel):
+    id = AutoField()
+    race_id = IntegerField(index=True)
+    skilled_id = IntegerField()
 
 
 class Skill(BaseModel):
@@ -225,3 +231,6 @@ class Alignment(BaseModel):
     ename = CharField()
     tag = CharField()
     desc = CharField()
+
+
+Job.create_table()
