@@ -93,7 +93,7 @@ def guid_gen(content):
             sb += f'\n{inx} : {s}'
     if character.status == 23:
         sb += '\n由于半精灵特性,从以下技能熟练项中选择两个熟练项 .choose + 编号1 编号2'
-        query = Skilled.select().where(Skilled.type in (31, 32, 33, 34, 35))
+        query = Skilled.select().where(Skilled.type.in_((31, 32, 33, 34, 35)))
         inx = 0
         for s in query:
             inx += 1
@@ -110,11 +110,11 @@ def guid_gen(content):
         pre_query = CharacterLanguage.select().where(CharacterLanguage.character_id == character.id)
         ll = {s.id for s in pre_query}
         query = Language.select() \
-            .where(Language.id not in ll)
+            .where(Language.id.not_in(ll))
         inx = 0
         for s in query:
             inx += 1
-            sb += f'\n{inx} : {s}'
+            sb += f'\n{inx} : {s.name}'
     if character.status == 30:
         query = Job.select()
         sb += '\n从以下职业中选择一个职业 .choose + 编号'
@@ -189,10 +189,10 @@ def guid_choose(content):
         attr = ['力量', '敏捷', '体质', '智力', '感知']
         key1 = fmt.attr_des2key(attr[num1 - 1])
         key2 = fmt.attr_des2key(attr[num2 - 1])
-        attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
-        setattr(attr, key1, getattr(attr, key1) + 1)
-        setattr(attr, key2, getattr(attr, key2) + 1)
-        attr.save()
+        attrobj = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
+        setattr(attrobj, key1, getattr(attrobj, key1) + 1)
+        setattr(attrobj, key2, getattr(attrobj, key2) + 1)
+        attrobj.save()
         character.status = 23
         character.save()
         return f'选择属性 {attr[num1 - 1]} {attr[num2 - 1]}成功'
@@ -218,11 +218,11 @@ def guid_choose(content):
         msg_m = re.compile(r'1[1-8]|[1-9]').findall(cmd_msg)
         if len(msg_m) != 2:
             return '请输入1-18的两个数字'
-        query = Skilled.select().where(Skilled.type in (31, 32, 33, 34, 35))
+        query = Skilled.select().where(Skilled.type.in_((31, 32, 33, 34, 35)))
         inx = 0
         for s in query:
             inx += 1
-            if inx in msg_m:
+            if str(inx) in msg_m:
                 CharacterSkilled(character_id=character.id, skilled_id=s.id).save()
         character.status = 26
         character.save()
@@ -248,7 +248,7 @@ def guid_choose(content):
         pre_query = CharacterLanguage.select().where(CharacterLanguage.character_id == character.id)
         ll = {s.id for s in pre_query}
         query = Language.select() \
-            .where(Language.id not in ll)
+            .where(Language.id.not_in(ll))
         inx = 0
         for s in query:
             inx += 1
@@ -415,7 +415,7 @@ def watch_attribute(content):
         sb += "\n工具熟练项:"
         craftsman = {s.name for s in query3 if s.type == 2}
         if craftsman:
-            sb += f"工匠工具:{gambling} "
+            sb += f"工匠工具:{craftsman} "
         gambling = {s.name for s in query3 if s.type == 3}
         if gambling:
             sb += f"赌博工具:{gambling} "
