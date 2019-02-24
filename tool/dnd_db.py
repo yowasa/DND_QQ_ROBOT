@@ -177,6 +177,16 @@ class RaceSkilled(BaseModel):
     race_id = IntegerField(index=True)
     skilled_id = IntegerField()
 
+class JobSkill(BaseModel):
+    id = AutoField()
+    job_id = IntegerField(index=True)
+    skill_id = IntegerField()
+
+
+class JobSkilled(BaseModel):
+    id = AutoField()
+    job_id = IntegerField(index=True)
+    skilled_id = IntegerField()
 
 class Skill(BaseModel):
     id = AutoField()
@@ -233,4 +243,3 @@ class Alignment(BaseModel):
     desc = CharField()
 
 
-Job.create_table()

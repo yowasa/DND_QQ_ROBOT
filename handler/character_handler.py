@@ -363,6 +363,8 @@ def update_job_info(character, job):
     attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 3)
     plus = tool.get_check_plus(attr.con)
     character.hp += plus
+    # 获得熟练项
+    # 获得
 
 
 @msg_route(r'.attr', need_character=True)
@@ -394,7 +396,10 @@ def watch_attribute(content):
         msg = fmt.attr_dict2str(attr_dict)
         sb += "\n当前属性为:"
         sb += "\n" + msg
-    sb += f"\n速度: {character.speed}"
+    if character.speed:
+        sb += f"\n速度: {character.speed}"
+    if character.hp:
+        sb += f"\nhp: {character.hp}"
     # 语言列表
     query1 = Language.select(Language, CharacterLanguage) \
         .join(CharacterLanguage, on=(CharacterLanguage.language_id == Language.id)) \
