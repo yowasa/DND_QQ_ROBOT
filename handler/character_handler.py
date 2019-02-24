@@ -273,6 +273,7 @@ def watch_attribute(content):
         msg = fmt.attr_dict2str(attr_dict)
         sb += "\n当前属性为:"
         sb += "\n" + msg
+    sb += f"\n速度: {character.speed}"
     sb += "\n语言列表:"
     query1 = Language.select(Language, CharacterLanguage) \
         .join(CharacterLanguage, on=(CharacterLanguage.language_id == Language.id)) \
