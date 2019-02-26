@@ -28,7 +28,7 @@ character_status = {
 
 
 # 生成角色
-@msg_route(r'.gen ', need_user=True)
+@msg_route(r'\s*\.gen ', need_user=True)
 def gen(content):
     # 获得用户
     cmd_msg = content['cmd_msg']
@@ -56,7 +56,7 @@ def gen(content):
     return f'生成角色 {character.name} 成功 使用.guid 操作查看创建指引\n'
 
 
-@msg_route(r'.guid', need_character=True)
+@msg_route(r'\s*\.guid', need_character=True)
 def guid_gen(content):
     user = content.get('sys_user')
     character = content.get('sys_character')
@@ -137,7 +137,7 @@ def guid_gen(content):
     return sb
 
 
-@msg_route(r'.choose ', need_character=True)
+@msg_route(r'\s*\.choose ', need_character=True)
 def guid_choose(content):
     user = content.get('sys_user')
     character = content.get('sys_character')
@@ -299,7 +299,7 @@ def guid_choose(content):
 
 
 # 交换属性
-@msg_route('.swap ', need_character=True)
+@msg_route('\s*\.swap ', need_character=True)
 def swap(content):
     # 交换属性
     comm = content.get('cmd_msg')
@@ -379,7 +379,7 @@ def update_job_info(character, job):
     # 判断矮人刚毅
     query = Skill.select(Skill, CharacterSkill) \
         .join(CharacterSkill, on=(CharacterSkill.skill_id == Skill.id)) \
-        .where(CharacterSkill.character_id == character.id, Skilled.name == '矮人刚毅')
+        .where(CharacterSkill.character_id == character.id, Skill.name == '矮人刚毅')
     if query.count():
         character.hp += 1
     # 获得体质调整值加值
@@ -389,19 +389,19 @@ def update_job_info(character, job):
     # 获得熟练项
     query = JobSkilled.select().where(JobSkilled.job_id == job.id)
     for s in query:
-        if CharacterSkilled.select().where(CharacterSkilled.skilled_id == s.skilled_id).count():
+        if not CharacterSkilled.select().where(CharacterSkilled.skilled_id == s.skilled_id).count():
             CharacterSkilled(character_id=character.id, skilled_id=s.skilled_id).save()
     # 获得技能
     query2 = JobSkill.select().where(JobSkill.subjob_id == character.job, JobSkill.limit_lv == 1)
     for s in query2:
-        if CharacterSkill.select().where(CharacterSkill.skill_id == s.skill_id).count():
-            CharacterSkill(character_id=character.id, skill_id=s.skill_id)
+        if not CharacterSkill.select().where(CharacterSkill.skill_id == s.skill_id).count():
+            CharacterSkill(character_id=character.id, skill_id=s.skill_id).save()
     # 初始化经验值
     character.level = 0
     character.exp = 0
 
 
-@msg_route(r'.attr', need_character=True)
+@msg_route(r'\s*\.attr', need_character=True)
 def watch_attribute(content):
     user = content.get('sys_user')
     character = content.get('sys_character')
@@ -446,10 +446,11 @@ def watch_attribute(content):
         sb += "\n语言列表:"
         sb += '\n' + ' '.join(([s.name for s in query1]))
     # 技能列表
-    query2 = CharacterSkill.select().where(CharacterSkill.character_id == character.id)
+    query2 = Skill.select(Skill,CharacterSkill)\
+        .join(CharacterSkill,on=(CharacterSkill.skill_id==Skill.id)).where(CharacterSkill.character_id == character.id)
     if query2.count():
         sb += "\n技能列表:"
-        sb += '\n' + ' '.join(([s.skill_name for s in query2]))
+        sb += '\n' + ' '.join(([s.name for s in query2]))
     # 熟练工具列表
     query3 = Skilled.select(Skilled, CharacterSkilled) \
         .join(CharacterSkilled, on=(CharacterSkilled.skilled_id == Skilled.id)) \

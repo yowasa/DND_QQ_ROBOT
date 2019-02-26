@@ -3,7 +3,7 @@ from tool.dnd_db import *
 
 
 # 获得用户下角色列表
-@msg_route(r'.ul', need_user=True)
+@msg_route(r'\s*\.ul', need_user=True)
 def get_user_list(content):
     nickname = content['sender']['nickname']
     user = content['sys_user']
@@ -18,7 +18,7 @@ def get_user_list(content):
 
 
 # 切换用户角色
-@msg_route(r'.switch ', need_user=True)
+@msg_route(r'\s*\.switch ', need_user=True)
 def switch_user(content):
     cmd_msg = content['cmd_msg']
     user = content['sys_user']
@@ -31,7 +31,7 @@ def switch_user(content):
 
 
 # 删除角色
-@msg_route(r'.drop ', need_character=True)
+@msg_route(r'\s*\.drop ', need_character=True)
 def drop(content):
     cmd_msg = content.get('cmd_msg')
     if not cmd_msg or cmd_msg == '':

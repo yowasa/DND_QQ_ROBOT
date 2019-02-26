@@ -38,10 +38,9 @@ SPELL_HANDLER_HELP_MSG = \
 
 
 # 查询技能
-@msg_route(r'.spell ')
+@msg_route(r'\s*\.spell')
 def spell_handler(context):
     cmd_m = SPELL_PATTERN.match(context['message'])
-    cmd = '%s\n' % context['message']
     if not cmd_m or not cmd_m.group('args').strip():
         return SPELL_HANDLER_HELP_MSG
     args = {}
@@ -51,7 +50,7 @@ def spell_handler(context):
     name = SPELL_ARG_PATTERN.sub('', cmd_m.group('args')).strip()
     spell = Spell.get_or_none((Spell.name == name) | (Spell.ename == name))
     if spell:
-        return cmd + gen_one_spell_msg(spell)
+        return gen_one_spell_msg(spell)
     if name:
         name = '%{}%'.format(name)
         query_where = ((Spell.name ** name) | (Spell.ename ** name))
@@ -59,23 +58,23 @@ def spell_handler(context):
     if 'level' in args:
         try:
             m = LEVEL_PATTERN.search(args['level'])
-            if not m: return cmd + 'level:%s 未找到' % args['level']
+            if not m: return 'level:%s 未找到' % args['level']
             level = int(m.group('level'))
             if query_where:
                 query_where = query_where & (Spell.level == level)
             else:
                 query_where = (Spell.level == level)
         except:
-            return cmd + 'level:%s 未找到' % args['level']
+            return 'level:%s 未找到' % args['level']
 
     if 'job' in args:
         if 'list' == args['job']:
             reply = '\n'.join(('%s %s' % (j.name, j.ename) for j in Job.select()))
-            return cmd + reply
+            return reply
         job_name = '%{}%'.format(args['job'])
         job = Job.get_or_none((Job.name ** job_name) | (Job.ename ** job_name))
         if not job:
-            return cmd + 'job:%s 未找到' % args['job']
+            return 'job:%s 未找到' % args['job']
         if query_where:
             query_where = (JobSpell.job == job) & query_where
         else:
@@ -100,7 +99,7 @@ def spell_handler(context):
             reply = gen_one_spell_msg(Spell.get_by_id(last_spell.id))
         else:
             reply = '\n'.join(reply_arr)
-        return cmd + reply
+        return reply
 
     query = (Spell
              .select()

@@ -65,7 +65,7 @@ def random_attribute(content):
 
 
 # 用于通用处理骰子指令
-@msg_route(r'.r(?=\d*d|\d*#)', need_character=True)
+@msg_route(r'\s*\.r(?=\d*d|\d*#)', need_character=True)
 def dice_ex(content):
     # 获得用户
     nickname = content['sender']['nickname']
@@ -99,7 +99,7 @@ def dice_ex(content):
 
 
 # 今日人品功能 沙雕群友快乐源泉
-@msg_route(r'.jrrp', need_user=True)
+@msg_route(r'\s*\.jrrp', need_user=True)
 def jrrp(content):
     sender = content['sender']
     nickname = sender['nickname']
@@ -114,7 +114,7 @@ def jrrp(content):
 
 
 # 检定功能
-@msg_route(r'.check ', need_character=True)
+@msg_route(r'\s*\.check ', need_character=True)
 def check(content):
     nickname = content['sender']['nickname']
     user = content.get('sys_user')
