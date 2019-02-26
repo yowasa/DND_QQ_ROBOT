@@ -122,6 +122,16 @@ def guid_gen(content):
         for s in query:
             inx += 1
             sb += f'\n{inx} : {s.name}'
+    if character.status == 35:
+        job = Job.get(id=character.job)
+        query = Skilled.select(Skilled, JobSkilledSelectAble) \
+            .join(JobSkilledSelectAble, on=(JobSkilledSelectAble.skilled_id == Skilled.id)) \
+            .where(JobSkilledSelectAble.job_id == character.job)
+        sb += f'\n从以下技能熟练项中选择{job.limit}个熟练项习得 .choose + 编号1 编号2 ..'
+        inx = 0
+        for s in query:
+            inx += 1
+            sb += f'\n{inx} : {s.name}'
     if character.status == 70:
         sb += '\n从以下背景中选择一个背景 .choose + 编号（未完成尽请期待）'
     return sb
@@ -266,11 +276,26 @@ def guid_choose(content):
             inx += 1
             if inx == choose_num:
                 update_job_info(character, s)
-                character.status = 70
+                character.status = 35
                 character.save()
                 return f'选择职业 {s.name} 成功'
-
         return '请选择正确的数字'
+    if character.status == 35:
+        job = Job.get(id=character.job)
+        msg_m = re.compile(r'1[1-8]|[1-9]').findall(cmd_msg)
+        if len(msg_m) != job.limit:
+            return f'请输入{job.limit}数字'
+        query = Skilled.select(Skilled, JobSkilledSelectAble) \
+            .join(JobSkilledSelectAble, on=(JobSkilledSelectAble.skilled_id == Skilled.id)) \
+            .where(JobSkilledSelectAble.job_id == character.job)
+        inx = 0
+        for s in query:
+            inx += 1
+            if str(inx) in msg_m:
+                CharacterSkilled(character_id=character.id, skilled_id=s.id).save()
+        character.status = 70
+        character.save()
+        return '选择熟练项成功'
 
 
 # 交换属性
@@ -322,8 +347,7 @@ def update_race_info(character, race):
     # 增加技能
     query_skill = RaceSkill.select().where(RaceSkill.race_id == race.id)
     for rs in query_skill:
-        skill = Skill.get(Skill.id == rs.skill_id)
-        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id, skill_name=skill.name)
+        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id)
 
 
 def update_sub_race_info(character, race):
@@ -344,8 +368,7 @@ def update_sub_race_info(character, race):
     # 增加技能
     query_skill = RaceSkill.select().where(RaceSkill.race_id == race.id)
     for rs in query_skill:
-        skill = Skill.get(Skill.id == rs.skill_id)
-        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id, skill_name=skill.name)
+        CharacterSkill.create(character_id=character.id, skill_id=rs.skill_id)
 
 
 def update_job_info(character, job):
@@ -364,7 +387,18 @@ def update_job_info(character, job):
     plus = tool.get_check_plus(attr.con)
     character.hp += plus
     # 获得熟练项
-    # 获得
+    query = JobSkilled.select().where(JobSkilled.job_id == job.id)
+    for s in query:
+        if CharacterSkilled.select().where(CharacterSkilled.skilled_id == s.skilled_id).count():
+            CharacterSkilled(character_id=character.id, skilled_id=s.skilled_id).save()
+    # 获得技能
+    query2 = JobSkill.select().where(JobSkill.subjob_id == character.job, JobSkill.limit_lv == 1)
+    for s in query2:
+        if CharacterSkill.select().where(CharacterSkill.skill_id == s.skill_id).count():
+            CharacterSkill(character_id=character.id, skill_id=s.skill_id)
+    # 初始化经验值
+    character.level = 0
+    character.exp = 0
 
 
 @msg_route(r'.attr', need_character=True)
@@ -398,6 +432,10 @@ def watch_attribute(content):
         sb += "\n" + msg
     if character.speed:
         sb += f"\n速度: {character.speed}"
+    if character.level:
+        sb += f"\n等级: {character.level}"
+    if character.exp:
+        sb += f"\n经验值: {character.exp}"
     if character.hp:
         sb += f"\nhp: {character.hp}"
     # 语言列表
@@ -445,250 +483,6 @@ def watch_attribute(content):
         if sk_item:
             sb += "\n技能熟练项:"
             sb += ' '.join(sk_item)
-
     return sb
-#     race = character.race.name if character.race is not None else None
-#     sb += f'\n种族：{race}'
-#     if character.race and character.race.sub_race is not None:
-#         sb += f' - {character.race.sub_race}'
-#
-#     job = character.job.name if character.job is not None else None
-#     sb += f'\n职业：{job}'
-#     language_msg = formate.formate_list(character.language) if character.language is not None and len(
-#         character.language) else None
-#     sb += f'\n语言：{language_msg}'
-#     sb += f'\n行走速度：{character.speed}'
-#
-#     attr_msg = formate.formate_dic(character.base_attr)
-#     sb += f'\n基础属性：{attr_msg}'
-#     if character.status == 'gen':
-#         sb += f'\n状态：生成角色中，请使用.swap交换属性，使用.race选择种族，使用.job选择职业 .gened结束生成'
-#     if character.status == 'normal':
-#         f'\n状态：正常 请愉快的进行游戏吧'
-#     if character.status == 'lv_up':
-#         sb += f'\n状态：升级中，请使用.lvup 查看选择对应的技能或属性'
-#     cur_attr_msg = formate.formate_dic(character.cur_attr) if character.cur_attr is not None else None
-#     sb += f'\n当前属性：{cur_attr_msg}'
-#     check_attr_msg = formate.formate_dic(character.cur_check) if character.cur_check is not None else None
-#     sb += f'\n鉴定值：{check_attr_msg}'
-#     skilled_weapon_msg = formate.formate_list(character.skilled_weapon) if character.skilled_weapon is not None and len(
-#         character.skilled_weapon) else None
-#     sb += f'\n武器熟练：{skilled_weapon_msg}'
-#
-#     skilled_armor_msg = formate.formate_list(character.skilled_armor) if character.skilled_armor is not None and len(
-#         character.skilled_armor) else None
-#     sb += f'\n盔甲熟練：{skilled_armor_msg}'
-#
-#     skilled_item_msg = formate.formate_list(character.skilled_item) if character.skilled_item is not None and len(
-#         character.skilled_item) else None
-#     sb += f'\n熟练项：{skilled_item_msg}'
-#
-#     skilled_tool_msg = formate.formate_list(character.skilled_tool) if character.skilled_tool is not None and len(
-#         character.skilled_tool) else None
-#     sb += f'\n熟练工具：{skilled_tool_msg}'
-#
-#     race_skill_msg = formate.formate_list(
-#         character.race.race_skill) if character.race and character.race.race_skill is not None and len(
-#         character.race.race_skill) else None
-#     sb += f'\n种族技能：{race_skill_msg}'
-#     if character.notice is not None and len(character.notice):
-#         sb += f'\n通知：'
-#         for s in character.notice.values():
-#             sb += '\n\t' + s.get('msg')
-#     return sb
-#
-#
-#
-# # 选择种族
-# @msg_route(r'.race ', need_character=True)
-# def switch_race(content):
-#     comm = content['cmd_msg']
-#     if comm not in RACE:
-#         return f'种族{comm}不存在'
-#     user = content['sys_user']
-#     character = content['sys_character']
-#
-#     if character.status != 'gen':
-#         return f'{character.name} 已经创建完成 不能再重新选择种族'
-#     character.race = Race({})
-#     character.race.name = comm
-#     character.refresh()
-#     character_controller.save_charater(user.user_id, character)
-#     return f'选择种族{comm}成功，请使用.attr查看角色状态'
-#
-#
-# # 选择职业
-# @filter(r'.job ')
-# def switch_job(content):
-#     user_id = content['sender']['user_id']
-#     comm = content['message']
-#     comm = comm.replace('.job ', '')
-#     if comm not in JOB:
-#         return f'职业{comm}不存在'
-#     user = user_controller.get_user(user_id)
-#     character_name = user.current_character
-#     character = character_controller.get_charater(user_id, character_name)
-#
-#     if character.status != 'gen':
-#         return f'{character.name} 已经创建完成 不能再重新选择职业'
-#     character.job = Job({})
-#     character.job.name = comm
-#     character.refresh()
-#     character_controller.save_charater(user_id, character)
-#     return f'选择职业{comm}成功，请使用.attr查看角色状态'
-#
-#
-# # 选择亚种
-# @msg_route(r'.subrace ', need_character=True)
-# def switch_sub_race(content):
-#     comm = content['message']
-#     comm = comm.replace('.subrace ', '')
-#     user = content['sys_user']
-#     character = content['sys_character']
-#
-#     if character.notice is None:
-#         return '当前角色不可选择亚种'
-#     select_sub_job = character.notice.pop('select_sub_job')
-#     if select_sub_job:
-#         race = character.race.name
-#         sub_race_list = RACE_DESCRIBE.get(race).get('ex_race')
-#         if comm in sub_race_list.keys():
-#             character.race.sub_race = comm
-#             character.refresh()
-#             character_controller.save_charater(user.user_id, character)
-#             return f'选择亚种{comm}成功,请使用.attr查看角色状态'
-#     return '当前角色不可选择亚种'
-#
-#
-# # 删除角色
-# @msg_route(r'.drop ')
-# def drop(content):
-#     # 获得用户
-#     sender = content['sender']
-#     user_id = sender['user_id']
-#     comm = content['message']
-#     comm = comm.replace('.drop ', '')
-#     if comm == '':
-#         return '请输入名称'
-#     if ' ' in comm.strip():
-#         return '名称种请不要带空格'
-#     msg = character_controller.drop(user_id, comm)
-#     return msg
-#
-#
-# # 交换属性
-# @msg_route('.swap', need_character=True)
-# def swap(content):
-#     # 交换属性
-#     comm = content['cmd_msg']
-#     attr_list = comm.split(' ')
-#     attr1 = attr_list[0]
-#     if attr1 not in ATTRIBUTE:
-#         return f'不存在 {attr1} 这种属性'
-#     attr2 = attr_list[1]
-#     if attr2 not in ATTRIBUTE:
-#         return f'不存在 {attr2} 这种属性'
-#     if attr1 == attr2:
-#         return '请输入两种不同的属性'
-#     user = content['sys_user']
-#     character = content['sys_character']
-#
-#     if character.status != 'gen':
-#         return '用户已经创建完成 不可变更属性'
-#     cache = character.base_attr[attr1]
-#     character.base_attr[attr1] = character.base_attr[attr2]
-#     character.base_attr[attr2] = cache
-#     character.refresh()
-#     character_controller.save_charater(user.user_id, character)
-#     return '交换属性成功'
-#
-#
-# # 设定性别
-# @msg_route(r'.sex ', need_character=True)
-# def set_sex(content):
-#     user = content['sys_user']
-#     character = content['sys_character']
-#     cmd_msg = content['cmd_msg']
-#     if character.status != 'gen':
-#         return '用户已经创建完成 不可变更属性'
-#     if cmd_msg not in ['男', '女', '扶她', '秀吉']:
-#         return f'请选择正确的性别'
-#     character.sex = cmd_msg
-#     character_controller.save_charater(user.user_id, character)
-#     return f'设置性别 {cmd_msg} 成功'
-#
-#
-# # 增加背景描述
-# @filter(r'.desc ', need_character=True)
-# def set_desc(content):
-#     user = content['sys_user']
-#     character = content['sys_character']
-#     cmd_msg = content['cmd_msg']
-#     if character.status != 'gen':
-#         return '用户已经创建完成 不可变更属性'
-#     if not character.background:
-#         return f'请先选择背景'
-#     character.background.desc = cmd_msg
-#     character_controller.save_charater(user.user_id, character)
-#     return f'增加背景描述成功'
-#
-#
-# # 查看当前角色卡
-# @filter(r'.attr', need_character=True)
-# def watch_attribute(content):
-#     character = content['sys_character']
-#
-#     if character is None:
-#         return '当前没有角色'
-#     sb = f'角色：{character.name}'
-#     race = character.race.name if character.race is not None else None
-#     sb += f'\n种族：{race}'
-#     if character.race and character.race.sub_race is not None:
-#         sb += f' - {character.race.sub_race}'
-#
-#     job = character.job.name if character.job is not None else None
-#     sb += f'\n职业：{job}'
-#     language_msg = formate.formate_list(character.language) if character.language is not None and len(
-#         character.language) else None
-#     sb += f'\n语言：{language_msg}'
-#     sb += f'\n行走速度：{character.speed}'
-#
-#     attr_msg = formate.formate_dic(character.base_attr)
-#     sb += f'\n基础属性：{attr_msg}'
-#     if character.status == 'gen':
-#         sb += f'\n状态：生成角色中，请使用.swap交换属性，使用.race选择种族，使用.job选择职业 .gened结束生成'
-#     if character.status == 'normal':
-#         f'\n状态：正常 请愉快的进行游戏吧'
-#     if character.status == 'lv_up':
-#         sb += f'\n状态：升级中，请使用.lvup 查看选择对应的技能或属性'
-#     cur_attr_msg = formate.formate_dic(character.cur_attr) if character.cur_attr is not None else None
-#     sb += f'\n当前属性：{cur_attr_msg}'
-#     check_attr_msg = formate.formate_dic(character.cur_check) if character.cur_check is not None else None
-#     sb += f'\n鉴定值：{check_attr_msg}'
-#     skilled_weapon_msg = formate.formate_list(character.skilled_weapon) if character.skilled_weapon is not None and len(
-#         character.skilled_weapon) else None
-#     sb += f'\n武器熟练：{skilled_weapon_msg}'
-#
-#     skilled_armor_msg = formate.formate_list(character.skilled_armor) if character.skilled_armor is not None and len(
-#         character.skilled_armor) else None
-#     sb += f'\n盔甲熟練：{skilled_armor_msg}'
-#
-#     skilled_item_msg = formate.formate_list(character.skilled_item) if character.skilled_item is not None and len(
-#         character.skilled_item) else None
-#     sb += f'\n熟练项：{skilled_item_msg}'
-#
-#     skilled_tool_msg = formate.formate_list(character.skilled_tool) if character.skilled_tool is not None and len(
-#         character.skilled_tool) else None
-#     sb += f'\n熟练工具：{skilled_tool_msg}'
-#
-#     race_skill_msg = formate.formate_list(
-#         character.race.race_skill) if character.race and character.race.race_skill is not None and len(
-#         character.race.race_skill) else None
-#     sb += f'\n种族技能：{race_skill_msg}'
-#     if character.notice is not None and len(character.notice):
-#         sb += f'\n通知：'
-#         for s in character.notice.values():
-#             sb += '\n\t' + s.get('msg')
-#     return sb
 
 # 查看简版人物卡
