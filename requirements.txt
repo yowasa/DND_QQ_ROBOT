@@ -1,2 +1,2 @@
+aiocqhttp==0.6.8
 peewee==3.8.2
-cqhttp==1.2.3
