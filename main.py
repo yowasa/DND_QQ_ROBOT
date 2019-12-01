@@ -1,8 +1,9 @@
 from aiocqhttp import CQHttp
 import filter
 
-bot = CQHttp(access_token='yowasaTest',
-             enable_http_post=False)
+bot = CQHttp(api_root="http://127.0.0.1:5700/",
+             access_token="yowasaTest",
+             secret="3909432")
 
 
 @bot.on_message()
