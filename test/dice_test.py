@@ -53,7 +53,9 @@ class DiceTest(unittest.TestCase):
         test_content['message'] = '.help'
         filter(test_content)
 
-
+    def test_base(self):
+        test_content['message'] = '本周奶子'
+        filter(test_content)
 
 if __name__ == '__main__':
     unittest.main()  # 运行所有的测试用例
