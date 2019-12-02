@@ -1,7 +1,15 @@
 from aiocqhttp import CQHttp
 import filter
+# 读取环境变量，找不到情况下使用默认
+import os
 
-bot = CQHttp(api_root="http://127.0.0.1:5700/",
+env_dist = os.environ
+
+api_root = env_dist.get("api_root")
+if not api_root:
+    api_root = "http://127.0.0.1:5700/"
+
+bot = CQHttp(api_root=api_root,
              access_token="yowasaTest",
              secret="3909432")
 
