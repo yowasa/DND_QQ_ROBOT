@@ -129,7 +129,7 @@ def check(content):
     character = content.get('sys_character')
     if not character:
         return f'{nickname} 请先创建角色'
-    if character.status<100:
+    if character.status < 100:
         return f'{nickname} 请先创建完成{character.name}角色,使用.guide查看创建指引'
 
     check_attr = character.cur_check

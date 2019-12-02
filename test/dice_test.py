@@ -49,6 +49,10 @@ class DiceTest(unittest.TestCase):
         test_content['message'] = '!dnd5'
         filter(test_content)
 
+    def test_dnd(self):
+        test_content['message'] = '.help'
+        filter(test_content)
+
 
 
 if __name__ == '__main__':

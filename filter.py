@@ -58,6 +58,7 @@ def get_user(user_id):
     return user
 
 #识别加载装饰器 勿删
+from handler import *
 from handler.dnd_handler import *
 from handler.touhou_handler import *
 from handler.base_handler import *

@@ -36,11 +36,13 @@ def gen_one_spell_msg(s):
 
 
 SPELL_HANDLER_HELP_MSG = \
-    '''.spell <法术名> [level:<环数>] [job:<职业>] 
+    '''
+    .spell <法术名> [level:<环数>] [job:<职业>] 
     用于查询法术
     当有多个结果时，输出名称列表;
     当仅一个结果时，输出法术详细信息。
-    注：.spell job:list 会列出具有法术的职业。'''
+    注：.spell job:list 会列出具有法术的职业。
+    '''
 
 
 # 查询技能
