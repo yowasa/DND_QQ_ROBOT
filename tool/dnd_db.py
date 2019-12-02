@@ -260,4 +260,4 @@ class Alignment(BaseModel):
     tag = CharField()
     desc = CharField()
 
-CharacterSkill.create_table()
+# CharacterSkill.create_table()

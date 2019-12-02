@@ -2,6 +2,12 @@ from filter import msg_route
 from tool.spell_db import *
 import re
 
+'''
+法术速查功能
+.spell <法术名> [level:<环数>] [job:<职业>] 法术速查
+
+'''
+
 SPELL_PATTERN = re.compile(r'\s*(?P<command>\.\w+)(?P<args>.*)', flags=re.M | re.S)
 SPELL_ARG_PATTERN = re.compile(r'(?P<key>\w+)[:：]\s*(?P<quote>")?(?P<value>(?(quote)[^"]+|\S+))(?(quote)")', flags=re.M)
 LEVEL_PATTERN = re.compile(r'(?P<level>\d+)\s*环?')

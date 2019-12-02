@@ -1,6 +1,12 @@
 from filter import msg_route
 from tool.dnd_db import *
 
+'''
+用户相关功能
+.ul 获得名下的角色列表
+.switch <角色名> 切换角色
+.drop <角色名> 删除角色
+'''
 
 # 获得用户下角色列表
 @msg_route(r'\s*\.ul', need_user=True)

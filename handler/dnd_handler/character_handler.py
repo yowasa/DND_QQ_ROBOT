@@ -1,9 +1,18 @@
 from filter import msg_route
 from tool.dnd_db import *
-from handler.dice_handler import init_attribute
+from handler.dnd_handler.dice_handler import init_attribute
 import base.formate as fmt
 import re
 import base.tool as tool
+
+'''
+角色相关的命令及处理
+.gen 生成角色
+.guid 导航
+.choose 选择角色
+.swap 交换属性
+.attr 显示当前人物属性
+'''
 
 ATTRIBUTE = ['力量', '体质', '敏捷', '智力', '感知', '魅力']
 

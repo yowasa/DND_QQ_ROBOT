@@ -5,6 +5,14 @@ from filter import msg_route
 from base.formate import *
 from tool.dnd_db import *
 
+'''
+骰子相关功能
+!dnd 随机生成dnd5e规则下的6维属性，可以指定次数 不得超过20次
+.rd20 骰一个20面骰子，支持自定义骰子面数，及指定鉴定加成，例:.r4#d30+4 骰4次30面骰，每次结果加4
+.jrrp 今日人品功能，检查今天的人品
+.check 过鉴定 鉴定某项属性
+'''
+
 # 人物属性
 ATTRIBUTE = ['力量', '体质', '敏捷', '智力', '感知', '魅力']
 
