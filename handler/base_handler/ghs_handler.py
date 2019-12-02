@@ -42,7 +42,7 @@ def more_oppai(content):
             pdiv = each.find(class_='AdaptiveMedia-photoContainer')
             print(pdiv.img.attrs.get('src'))
             messagee.append( package_img(pdiv.img.attrs.get('src')))
-    return ','.join(messagee)
+    return ''.join(messagee)
 
 def package_img(url):
     name=url[url.rfind("/")+1:]
