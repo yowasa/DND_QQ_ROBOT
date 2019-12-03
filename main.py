@@ -22,6 +22,11 @@ async def handle_msg(context):
     if result != None:
         await bot.send(context, result)
 
+@bot.on_request('group', 'friend')
+async def handle_request(context):
+    if context["user_id"]==2508488843:
+        return {'approve': True}
+    return {}
 
 # @bot.on_notice('group_increase')
 # async def handle_group_increase(context):
