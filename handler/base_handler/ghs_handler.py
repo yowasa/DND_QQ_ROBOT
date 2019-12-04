@@ -4,6 +4,7 @@ from filter import msg_route
 import requests
 import os
 import random
+from PIL import Image
 
 from pixivpy3 import *
 
@@ -83,10 +84,20 @@ def package_img(url):
 
 
 def package_pixiv_img(illust):
-    url = illust.image_urls.square_medium
+    url = illust.image_urls.large
     name = url[url.rfind("/") + 1:]
-    api.download(url, path=cq_image_file)
+    api.download(url, path=cq_image_file,replace=True)
+    name = trance_png(name,cq_image_file)
     return f'[CQ:image,file={name}]'
+
+def trance_png(name,cq_image_file):
+    im = Image.open(cq_image_file+name)
+    name=name.replace("jpg","png")
+    try:
+        im.save(cq_image_file+name, "PNG")
+    except IOError:
+        pass
+    return name
 
 
 def ten_page_search(cmd_msg):
@@ -98,3 +109,4 @@ def ten_page_search(cmd_msg):
     sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
     fetch = random.randint(0, 29)
     return illusts[fetch]
+
