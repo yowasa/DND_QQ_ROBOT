@@ -1,7 +1,11 @@
-#从第二级才能获得成长加成
-total=0
-for i in range(1,256):
-    print(i)
-    total+=i
-print(total)
+from pixivpy3 import *
+
+api = AppPixivAPI()
+
+api.login("2508488843@qq.com","czqq872710284")
+
+results=api.illust_ranking( mode='day_r18', date=None, offset=None)
+
+
+api.download(results.illusts[20].image_urls.square_medium)
 
