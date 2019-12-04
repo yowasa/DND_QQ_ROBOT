@@ -1,5 +1,7 @@
 from filter import msg_route
-
+'''
+获取帮助信息
+'''
 @msg_route(r'\.help')
 def random_attribute(content):
     result=''
