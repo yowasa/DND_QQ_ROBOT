@@ -113,7 +113,7 @@ def ten_page_search(cmd_msg):
         illusts.extend(result.illusts)
     illusts_sorted=sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
     fetch=29
-    if fetch<len(illusts_sorted):
+    if fetch>len(illusts_sorted)-1:
         fetch=len(illusts_sorted)-1
     fetch = random.randint(0, fetch)
     return illusts_sorted[fetch]
