@@ -54,7 +54,7 @@ def more_oppai(content):
     return ''.join(messagee)
 
 
-@msg_route(r'\.ghs$')
+@msg_route(r'(\.|。)ghs$')
 def ghs_pixiv(content):
     try:
         # 没有数据从日排行前三十里随机取一张
@@ -64,14 +64,14 @@ def ghs_pixiv(content):
         api.login("2508488843@qq.com", "czqq872710284")
 
 
-@msg_route(r'\.img')
+@msg_route(r'(\.|。)img')
 def pixiv_search(content):
     cmd_msg = content.get('cmd_msg').strip()
     try:
         # 没有数据从日排行前三十里随机取一张
         if not cmd_msg:
             results = api.illust_ranking(mode='day', date=None, offset=None)
-            return package_pixiv_img(results.illusts[random.randint(0, 29)])
+            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts)-1)])
         # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
         illust = ten_page_search(cmd_msg)
         return package_pixiv_img(illust)
@@ -112,6 +112,9 @@ def ten_page_search(cmd_msg):
                                    offset=i * 30)
         illusts.extend(result.illusts)
     illusts_sorted=sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
-    fetch = random.randint(0, 29)
+    fetch=29
+    if fetch<len(illusts_sorted):
+        fetch=len(illusts_sorted)-1
+    fetch = random.randint(0, fetch)
     return illusts_sorted[fetch]
 

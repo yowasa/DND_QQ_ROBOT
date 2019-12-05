@@ -7,7 +7,7 @@ register = dict()
 def filter(content):
     cmd_msg = content['message']
     for key in dict(register).keys():
-        if re.match(key, cmd_msg):
+        if re.match(key, cmd_msg,flags=re.IGNORECASE):
             func = register.get(key)
             return func(content)
 
@@ -21,7 +21,7 @@ def msg_route(re_msg, need_user=False, need_character=False):
             # 获得命令参数
             cmd_msg = content['message']
             # 替换掉指令部分
-            sub_msg = re.sub(re_msg, lambda m: '', cmd_msg)
+            sub_msg = re.sub(re_msg, lambda m: '', cmd_msg,flags=re.IGNORECASE)
             # 新增命令属性
             content['cmd_msg'] = sub_msg
             sender = content['sender']
