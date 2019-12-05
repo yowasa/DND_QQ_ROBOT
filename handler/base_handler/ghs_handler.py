@@ -111,7 +111,7 @@ def ten_page_search(cmd_msg):
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30)
         illusts.extend(result.illusts)
-    sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
+    illusts_sorted=sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
     fetch = random.randint(0, 29)
-    return illusts[fetch]
+    return illusts_sorted[fetch]
 
