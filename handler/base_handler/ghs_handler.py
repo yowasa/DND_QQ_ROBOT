@@ -10,8 +10,6 @@ from pixivpy3 import *
 
 api = AppPixivAPI()
 
-api.login("2508488843@qq.com", "czqq872710284")
-
 '''
 ghs相关功能(未实现)
 本周奶子 获取本周月曜日的丰满图片
@@ -58,21 +56,28 @@ def more_oppai(content):
 
 @msg_route(r'\.ghs$')
 def ghs_pixiv(content):
-    # 没有数据从日排行前三十里随机取一张
-    results = api.illust_ranking(mode='day_r18', date=None, offset=None)
-    return package_pixiv_img(results.illusts[random.randint(0, 29)])
+    try:
+        # 没有数据从日排行前三十里随机取一张
+        results = api.illust_ranking(mode='day_r18', date=None, offset=None)
+        return package_pixiv_img(results.illusts[random.randint(0, 29)])
+    except:
+        api.login("2508488843@qq.com", "czqq872710284")
 
 
 @msg_route(r'\.img')
 def pixiv_search(content):
     cmd_msg = content.get('cmd_msg').strip()
-    # 没有数据从日排行前三十里随机取一张
-    if not cmd_msg:
-        results = api.illust_ranking(mode='day', date=None, offset=None)
-        return package_pixiv_img(results.illusts[random.randint(0, 29)])
-    # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
-    illust = ten_page_search(cmd_msg)
-    return package_pixiv_img(illust)
+    try:
+        # 没有数据从日排行前三十里随机取一张
+        if not cmd_msg:
+            results = api.illust_ranking(mode='day', date=None, offset=None)
+            return package_pixiv_img(results.illusts[random.randint(0, 29)])
+        # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
+        illust = ten_page_search(cmd_msg)
+        return package_pixiv_img(illust)
+    except:
+        api.login("2508488843@qq.com", "czqq872710284")
+
 
 
 def package_img(url):
