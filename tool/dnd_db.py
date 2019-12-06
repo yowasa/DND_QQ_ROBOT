@@ -15,6 +15,7 @@ class User(BaseModel):
     cur_character_id = IntegerField(null=True)
     jrrp = IntegerField(null=True)
     jrrp_date = CharField(null=True)
+    level = IntegerField(null=True)
 
 
 class Character(BaseModel):
@@ -260,4 +261,4 @@ class Alignment(BaseModel):
     tag = CharField()
     desc = CharField()
 
-# CharacterSkill.create_table()
+# User.create_table()

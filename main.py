@@ -2,6 +2,7 @@ from aiocqhttp import CQHttp
 import filter
 # 读取环境变量，找不到情况下使用默认
 import os
+import request.invite_request as ir
 
 env_dist = os.environ
 
@@ -24,9 +25,9 @@ async def handle_msg(context):
 
 @bot.on_request('group', 'friend')
 async def handle_request(context):
-    if context["user_id"]==2508488843:
-        return {'approve': True}
-    return {}
+    content = context.copy()
+    result = ir.handle_invite_request(content)
+    return {'approve': result}
 
 # @bot.on_notice('group_increase')
 # async def handle_group_increase(context):
