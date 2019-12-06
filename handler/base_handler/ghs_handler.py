@@ -9,6 +9,7 @@ from PIL import Image
 from pixivpy3 import *
 
 api = AppPixivAPI()
+api.login("2508488843@qq.com", "czqq872710284")
 
 '''
 ghs相关功能(未实现)
