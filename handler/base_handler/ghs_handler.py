@@ -9,7 +9,7 @@ from PIL import Image
 from pixivpy3 import *
 
 api = AppPixivAPI()
-api.login("2508488843@qq.com", "czqq872710284")
+
 
 '''
 ghs相关功能(未实现)
@@ -21,7 +21,10 @@ ghs相关功能(未实现)
 env_dist = os.environ
 cq_image_file = env_dist.get("cq_image_file")
 if not cq_image_file:
-    cq_image_file = 'F:\\workspace\\py\\CQP-xiaoi\\酷Q Pro\\data\\image\\'
+    cq_image_file = 'F:\\workspace\\py\\CQP-xiaoi2\\酷Q Pro\\data\\image\\'
+
+pixiv_user_name = env_dist.get("pixiv_user_name")
+pixiv_password = env_dist.get("pixiv_password")
 
 
 @msg_route(r'本周奶子$')
@@ -54,32 +57,60 @@ def more_oppai(content):
             messagee.append(package_img(pdiv.img.attrs.get('src')))
     return ''.join(messagee)
 
-
-@msg_route(r'(\.|。)ghs$')
-def ghs_pixiv(content):
-    try:
-        # 没有数据从日排行前三十里随机取一张
-        results = api.illust_ranking(mode='day_r18', date=None, offset=None)
-        return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts)-1)])
-    except:
-        api.login("2508488843@qq.com", "czqq872710284")
-
+@msg_route(r'(\.|。)gimg')
+def group_pixiv_search(content):
+    return pixiv_search_common(content,group=True)
 
 @msg_route(r'(\.|。)img')
 def pixiv_search(content):
+    return pixiv_search_common(content)
+
+@msg_route(r'(\.|。)gghs$')
+def group_ghs_pixiv(content):
+    return ghs_pixiv_common(content,group=True)
+
+@msg_route(r'(\.|。)ghs$')
+def ghs_pixiv(content):
+    return ghs_pixiv_common(content)
+
+def ghs_pixiv_common(content,group=False):
+    try:
+        results = api.illust_ranking(mode='day_r18', date=None, offset=None)
+        # 没有数据从日排行前三十里随机取一张
+        return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)],group=group)
+    except PixivError as pe:
+        if  True!=content.get("retry") :
+            api.login(pixiv_user_name, pixiv_password)
+            content["retry"] = True
+            return ghs_pixiv(content)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
+
+def pixiv_search_common(content,group=False):
     cmd_msg = content.get('cmd_msg').strip()
     try:
         # 没有数据从日排行前三十里随机取一张
         if not cmd_msg:
             results = api.illust_ranking(mode='day', date=None, offset=None)
-            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts)-1)])
+            if len(results.illusts) == 0:
+                return "搜索不到结果"
+            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
         # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
         illust = ten_page_search(cmd_msg)
-        return package_pixiv_img(illust)
-    except:
-        api.login("2508488843@qq.com", "czqq872710284")
-
-
+        if not illust:
+            return "搜索不到结果"
+        return package_pixiv_img(illust, group=group)
+    except PixivError as pe:
+        if True != content.get("retry"):
+            api.login(pixiv_user_name, pixiv_password)
+            content["retry"] = True
+            return pixiv_search_common(content,group=group)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
 
 def package_img(url):
     name = url[url.rfind("/") + 1:]
@@ -89,7 +120,7 @@ def package_img(url):
     return f'[CQ:image,file={name}]'
 
 
-def package_pixiv_img(illust):
+def package_pixiv_img(illust,group=False):
     url = illust.meta_single_page.get('original_image_url')
     if not url:
         urls=[]
@@ -97,13 +128,24 @@ def package_pixiv_img(illust):
             uu=i.get('image_urls').get('large')
             if uu:
                 urls.append(uu)
-        img_list=[]
-        for uurl in urls:
+        ##一组图取全部
+        if group:
+            img_list=[]
+            for uurl in urls:
+                name = uurl[uurl.rfind("/") + 1:]
+                api.download(uurl, path=cq_image_file, replace=True)
+                name = trance_png(name, cq_image_file)
+                img_list.append(f'[CQ:image,file={name}]')
+            return ''.join(img_list)
+        else:
+            ##一组图随机取一个
+            length = len(urls)
+            randomNumber = random.randint(0, length - 1)
+            uurl = urls[randomNumber]
             name = uurl[uurl.rfind("/") + 1:]
             api.download(uurl, path=cq_image_file, replace=True)
             name = trance_png(name, cq_image_file)
-            img_list.append(f'[CQ:image,file={name}]')
-        return ''.join(img_list)
+            return f'[CQ:image,file={name}]'
     else:
         if 'gif' not in url:
             url=illust.image_urls.get('large')
@@ -142,7 +184,11 @@ def ten_page_search(cmd_msg):
     for i in range(0, 9):
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30)
+        if len(result.illusts)==0:
+            break
         illusts.extend(result.illusts)
+    if len(illusts)==0:
+        return None
     illusts_sorted=sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
     fetch=29
     if fetch>len(illusts_sorted)-1:
