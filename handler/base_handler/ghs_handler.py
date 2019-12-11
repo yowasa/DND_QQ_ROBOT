@@ -67,7 +67,7 @@ def pixiv_search(content):
     return pixiv_search_common(content)
 
 
-@msg_route(r'(\.|。)gghs$')
+@msg_route(r'(\.|。)gghs$',need_user=True)
 def group_ghs_pixiv(content):
     return ghs_pixiv_common(content, group=True)
 
@@ -81,7 +81,7 @@ def ghs_pixiv_common(content, group=False):
     opt = content.get('sys_user')
     if opt.level < 10:
         return '仅管理员可以使用ghs'
-    
+
     try:
         results = api.illust_ranking(mode='day_r18', date=None, offset=None)
         if results.get('error'):
