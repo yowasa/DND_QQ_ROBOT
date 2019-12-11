@@ -88,6 +88,14 @@ def check(args, content):
         return f'未查询到用户{args.user},请让其至少使用过一次.jrrp功能'
     return trance_2_name(user.level)
 
+def common(args,content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    if args.help:
+        return admin_parser.format_help()
+    elif args.version:
+        return '你TM是程序员吧，看这种东西'
 
 # admin指令解析器
 admin_parser = argparse.ArgumentParser(
@@ -95,9 +103,11 @@ admin_parser = argparse.ArgumentParser(
     usage='%(prog)s [options]',  # 用法说明 会显示在help里
     description='管理员指令',  # 指令描述 会显示在help里
     epilog="用这些指令管理成员的权限",  # help显示完，最后的文案
-    add_help=True,  # 是否添加默认的-h 和--help指令显示内容
+    add_help=False,  # 是否添加默认的-h 和--help指令显示内容
 )
-admin_parser.add_argument('--version', '-v', action='version', version='%(prog)s 1.0 你TM是程序员吧，看这东西')
+admin_parser.add_argument('--version', '-v', nargs='?', default=False, const=True, help='版本号')
+admin_parser.add_argument('--help', '-h', nargs='?', default=False, const=True, help='帮助')
+admin_parser.set_defaults(func=common)
 
 subparsers = admin_parser.add_subparsers(help='指令列表')
 
