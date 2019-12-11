@@ -10,7 +10,6 @@ from pixivpy3 import *
 
 api = AppPixivAPI()
 
-
 '''
 ghs相关功能(未实现)
 本周奶子 获取本周月曜日的丰满图片
@@ -57,29 +56,34 @@ def more_oppai(content):
             messagee.append(package_img(pdiv.img.attrs.get('src')))
     return ''.join(messagee)
 
+
 @msg_route(r'(\.|。)gimg')
 def group_pixiv_search(content):
-    return pixiv_search_common(content,group=True)
+    return pixiv_search_common(content, group=True)
+
 
 @msg_route(r'(\.|。)img')
 def pixiv_search(content):
     return pixiv_search_common(content)
 
+
 @msg_route(r'(\.|。)gghs$')
 def group_ghs_pixiv(content):
-    return ghs_pixiv_common(content,group=True)
+    return ghs_pixiv_common(content, group=True)
+
 
 @msg_route(r'(\.|。)ghs$')
 def ghs_pixiv(content):
     return ghs_pixiv_common(content)
 
-def ghs_pixiv_common(content,group=False):
+
+def ghs_pixiv_common(content, group=False):
     try:
         results = api.illust_ranking(mode='day_r18', date=None, offset=None)
         # 没有数据从日排行前三十里随机取一张
-        return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)],group=group)
+        return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
     except PixivError as pe:
-        if  True!=content.get("retry") :
+        if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
             content["retry"] = True
             return ghs_pixiv(content)
@@ -88,7 +92,8 @@ def ghs_pixiv_common(content,group=False):
     except Exception as ex:
         return "未知异常"
 
-def pixiv_search_common(content,group=False):
+
+def pixiv_search_common(content, group=False):
     cmd_msg = content.get('cmd_msg').strip()
     try:
         # 没有数据从日排行前三十里随机取一张
@@ -106,11 +111,12 @@ def pixiv_search_common(content,group=False):
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
             content["retry"] = True
-            return pixiv_search_common(content,group=group)
+            return pixiv_search_common(content, group=group)
         else:
             return "Pixiv登陆异常"
     except Exception as ex:
         return "未知异常"
+
 
 def package_img(url):
     name = url[url.rfind("/") + 1:]
@@ -120,17 +126,17 @@ def package_img(url):
     return f'[CQ:image,file={name}]'
 
 
-def package_pixiv_img(illust,group=False):
+def package_pixiv_img(illust, group=False):
     url = illust.meta_single_page.get('original_image_url')
     if not url:
-        urls=[]
+        urls = []
         for i in illust.meta_pages:
-            uu=i.get('image_urls').get('large')
+            uu = i.get('image_urls').get('large')
             if uu:
                 urls.append(uu)
         ##一组图取全部
         if group:
-            img_list=[]
+            img_list = []
             for uurl in urls:
                 name = uurl[uurl.rfind("/") + 1:]
                 api.download(uurl, path=cq_image_file, replace=True)
@@ -148,29 +154,30 @@ def package_pixiv_img(illust,group=False):
             return f'[CQ:image,file={name}]'
     else:
         if 'gif' not in url:
-            url=illust.image_urls.get('large')
+            url = illust.image_urls.get('large')
         name = url[url.rfind("/") + 1:]
-        api.download(url, path=cq_image_file,replace=True)
-        name = trance_png(name,cq_image_file)
+        api.download(url, path=cq_image_file, replace=True)
+        name = trance_png(name, cq_image_file)
         return f'[CQ:image,file={name}]'
 
-def trance_png(name,cq_image_file):
-    im = Image.open(cq_image_file+name)
-    if im.format =='WEBP':
+
+def trance_png(name, cq_image_file):
+    im = Image.open(cq_image_file + name)
+    if im.format == 'WEBP':
         name = name.replace("jpg", "png")
         try:
             w, h = im.size
-            w_s,h_s=float_range(w,h)
-            im=im.resize((w_s, h_s))
+            w_s, h_s = float_range(w, h)
+            im = im.resize((w_s, h_s))
             im.save(cq_image_file + name, "PNG")
         except IOError:
             pass
         return name
-    elif im.format in ['JPEG','PNG']:
+    elif im.format in ['JPEG', 'PNG']:
         try:
             w, h = im.size
-            w_s,h_s=float_range(w,h)
-            im=im.resize((w_s, h_s))
+            w_s, h_s = float_range(w, h)
+            im = im.resize((w_s, h_s))
             im.save(cq_image_file + name)
         except IOError:
             pass
@@ -184,19 +191,20 @@ def ten_page_search(cmd_msg):
     for i in range(0, 9):
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30)
-        if len(result.illusts)==0:
+        if len(result.illusts) == 0:
             break
         illusts.extend(result.illusts)
-    if len(illusts)==0:
+    if len(illusts) == 0:
         return None
-    illusts_sorted=sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
-    fetch=29
-    if fetch>len(illusts_sorted)-1:
-        fetch=len(illusts_sorted)-1
+    illusts_sorted = sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
+    fetch = 29
+    if fetch > len(illusts_sorted) - 1:
+        fetch = len(illusts_sorted) - 1
     fetch = random.randint(0, fetch)
     return illusts_sorted[fetch]
 
-#得到正负10%的晃动比例，生成新size
-def float_range(x,y):
+
+# 得到正负10%的晃动比例，生成新size
+def float_range(x, y):
     level = round(random.random() * 0.2 + 0.9, 2)
-    return int(x * level),int(y * level)
+    return int(x * level), int(y * level)

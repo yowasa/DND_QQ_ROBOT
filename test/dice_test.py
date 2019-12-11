@@ -5,6 +5,7 @@ test_content = {}
 sender = {'user_id': 123456789, 'nickname': '桃毒专用测试'}
 test_content['sender'] = {'user_id': 123456789, 'nickname': '桃毒专用测试'}
 
+
 class DiceTest(unittest.TestCase):
 
     @classmethod
@@ -49,20 +50,26 @@ class DiceTest(unittest.TestCase):
         test_content['message'] = '!dnd5'
         filter(test_content)
 
-    def test_dnd(self):
+    def test_help(self):
         test_content['message'] = '.help'
         filter(test_content)
 
-    def test_base(self):
+    def test_oppai(self):
         test_content['message'] = '本周奶子'
         filter(test_content)
 
-    def test_base(self):
+    def test_ghs(self):
         test_content['message'] = '.ghs'
         filter(test_content)
-    def test_base(self):
+
+    def test_img(self):
         test_content['message'] = '.img'
         filter(test_content)
+
+    def test_admin(self):
+        test_content['message'] = '.admin ls -a'
+        filter(test_content)
+
 
 if __name__ == '__main__':
     unittest.main()  # 运行所有的测试用例
