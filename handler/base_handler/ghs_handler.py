@@ -80,6 +80,13 @@ def ghs_pixiv(content):
 def ghs_pixiv_common(content, group=False):
     try:
         results = api.illust_ranking(mode='day_r18', date=None, offset=None)
+        if results.get('error'):
+            if True != content.get("retry"):
+                api.login(pixiv_user_name, pixiv_password)
+                content["retry"] = True
+                return ghs_pixiv_common(content, group=group)
+            else:
+                return "Pixiv登陆异常"
         # 没有数据从日排行前三十里随机取一张
         return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
     except PixivError as pe:
@@ -99,6 +106,13 @@ def pixiv_search_common(content, group=False):
         # 没有数据从日排行前三十里随机取一张
         if not cmd_msg:
             results = api.illust_ranking(mode='day', date=None, offset=None)
+            if results.get('error'):
+                if True != content.get("retry"):
+                    api.login(pixiv_user_name, pixiv_password)
+                    content["retry"] = True
+                    return ghs_pixiv_common(content, group=group)
+                else:
+                    return "Pixiv登陆异常"
             if len(results.illusts) == 0:
                 return "搜索不到结果"
             return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
@@ -191,6 +205,8 @@ def ten_page_search(cmd_msg):
     for i in range(0, 9):
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30)
+        if result.get('error'):
+            raise PixivError('search error')
         if len(result.illusts) == 0:
             break
         illusts.extend(result.illusts)
