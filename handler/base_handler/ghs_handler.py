@@ -222,13 +222,11 @@ def ten_page_search(cmd_msg, r18=False):
             raise PixivError('search error')
         if len(result.illusts) == 0:
             break
-        result_filter = []
-        for r in result.illusts:
-            if 'R-18' not in [tg.name for tg in r.tags] and not r18:
-                result_filter.append(r)
-            if 'R-18' in [tg.name for tg in r.tags] and r18:
-                result_filter.append(r)
-        illusts.extend(result_filter)
+        illusts.extend(result.illusts)
+    if len(illusts) == 0:
+        return None
+    if not r18:
+        illusts= list(filter(lambda n:n.sanity_level<6,illusts))
     if len(illusts) == 0:
         return None
     illusts_sorted = sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
