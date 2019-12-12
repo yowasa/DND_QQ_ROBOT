@@ -104,7 +104,7 @@ def ghs_pixiv_common(content, group=False):
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
             content["retry"] = True
-            return ghs_pixiv(content)
+            return ghs_pixiv_common(content)
         else:
             return "Pixiv登陆异常"
     except Exception as ex:
@@ -214,6 +214,8 @@ def trance_png(name, cq_image_file):
 def ten_page_search(cmd_msg, r18=False):
     illusts = []
     for i in range(0, 9):
+        if r18:
+            cmd_msg=cmd_msg+' R-18'
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30, req_auth=True)
         if result.get('error'):
