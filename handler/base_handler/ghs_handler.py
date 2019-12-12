@@ -233,21 +233,3 @@ def ten_page_search(cmd_msg):
 def float_range(x, y):
     level = round(random.random() * 0.2 + 0.9, 2)
     return int(x * level), int(y * level)
-
-
-def my_search_illust( word, search_target='partial_match_for_tags', sort='date_desc', duration=None,
-                      filter='for_ios', offset=None, req_auth=True):
-    url = '%s/v1/search/illust?mode=safe' % api.hosts
-    params = {
-        'word': word,
-        'search_target': search_target,
-        'sort': sort,
-        'filter': filter,
-        'mode':'safe',
-    }
-    if (duration):
-        params['duration'] = duration
-    if (offset):
-        params['offset'] = offset
-    r = api.no_auth_requests_call('GET', url, params=params, req_auth=req_auth)
-    return api.parse_result(r)
