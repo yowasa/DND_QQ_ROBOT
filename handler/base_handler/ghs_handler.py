@@ -1,12 +1,13 @@
 # 1.导入模块
-from robobrowser import RoboBrowser
-from filter import msg_route
-import requests
 import os
 import random
-from PIL import Image
 
+import requests
+from PIL import Image
 from pixivpy3 import *
+from robobrowser import RoboBrowser
+
+from filter import msg_route
 
 api = AppPixivAPI()
 
@@ -67,12 +68,12 @@ def pixiv_search(content):
     return pixiv_search_common(content)
 
 
-@msg_route(r'(\.|。)gghs$',need_user=True)
+@msg_route(r'(\.|。)gghs', need_user=True)
 def group_ghs_pixiv(content):
     return ghs_pixiv_common(content, group=True)
 
 
-@msg_route(r'(\.|。)ghs$',need_user=True)
+@msg_route(r'(\.|。)ghs', need_user=True)
 def ghs_pixiv(content):
     return ghs_pixiv_common(content)
 
@@ -81,18 +82,24 @@ def ghs_pixiv_common(content, group=False):
     opt = content.get('sys_user')
     if opt.level < 10:
         return '仅管理员可以使用ghs'
-
+    cmd_msg = content.get('cmd_msg').strip()
     try:
-        results = api.illust_ranking(mode='day_r18', date=None, offset=None)
-        if results.get('error'):
-            if True != content.get("retry"):
-                api.login(pixiv_user_name, pixiv_password)
-                content["retry"] = True
-                return ghs_pixiv_common(content, group=group)
-            else:
-                return "Pixiv登陆异常"
-        # 没有数据从日排行前三十里随机取一张
-        return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
+        if not cmd_msg:
+            results = api.illust_ranking(mode='day_r18', date=None, offset=None)
+            if results.get('error'):
+                if True != content.get("retry"):
+                    api.login(pixiv_user_name, pixiv_password)
+                    content["retry"] = True
+                    return ghs_pixiv_common(content, group=group)
+                else:
+                    return "Pixiv登陆异常"
+            # 没有数据从日排行前三十里随机取一张
+            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
+        else:
+            illust = ten_page_search(cmd_msg, r18=True)
+            if not illust:
+                return "搜索不到结果"
+            return package_pixiv_img(illust, group=group)
     except PixivError as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
@@ -204,20 +211,21 @@ def trance_png(name, cq_image_file):
         return name
 
 
-def ten_page_search(cmd_msg):
+def ten_page_search(cmd_msg, r18=False):
     illusts = []
     for i in range(0, 9):
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
-                                   offset=i * 30,req_auth=True)
+                                   offset=i * 30, req_auth=True)
         if result.get('error'):
             raise PixivError('search error')
         if len(result.illusts) == 0:
             break
-        result_filter=[]
+        result_filter = []
         for r in result.illusts:
-            if 'R-18' in [tg.name for tg in r.tags]:
-                continue
-            result_filter.append(r)
+            if 'R-18' not in [tg.name for tg in r.tags] and not r18:
+                result_filter.append(r)
+            if 'R-18' in [tg.name for tg in r.tags] and r18:
+                result_filter.append(r)
         illusts.extend(result_filter)
     if len(illusts) == 0:
         return None
