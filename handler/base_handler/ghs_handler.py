@@ -114,7 +114,7 @@ def pixiv_search_common(content, group=False):
                 if True != content.get("retry"):
                     api.login(pixiv_user_name, pixiv_password)
                     content["retry"] = True
-                    return ghs_pixiv_common(content, group=group)
+                    return pixiv_search_common(content, group=group)
                 else:
                     return "Pixiv登陆异常"
             if len(results.illusts) == 0:
