@@ -57,6 +57,28 @@ def more_oppai(content):
             messagee.append(package_img(pdiv.img.attrs.get('src')))
     return ''.join(messagee)
 
+@msg_route(r'(\.|。)tag$')
+def pixiv_tag(content):
+    try:
+        result= api.trending_tags_illust()
+        if result.get('error'):
+            if True != content.get("retry"):
+                api.login(pixiv_user_name, pixiv_password)
+                content["retry"] = True
+                return pixiv_tag(content)
+            else:
+                return "Pixiv登陆异常"
+        randomNumber = random.randint(0, len(result.get('trend_tags'))- 1)
+        return result.get('trend_tags')[randomNumber].get('tag')
+    except PixivError as pe:
+        if True != content.get("retry"):
+            api.login(pixiv_user_name, pixiv_password)
+            content["retry"] = True
+            return pixiv_tag(content)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
 
 @msg_route(r'(\.|。)gimg')
 def group_pixiv_search(content):
