@@ -424,8 +424,8 @@ def watch_attribute(content):
         race = Race.get(Race.id == character.sub_race)
         sb += f"\n亚种:{race.name}"
     if character.job:
-        job = Job.get(Job.id == character.race)
-        sb += f"\n种族:{job.name}"
+        job = Job.get(Job.id == character.job)
+        sb += f"\n职业:{job.name}"
 
     if character.status > 10:
         attr = Attribute.get(Attribute.character_id == character.id, Attribute.attr_type == 2)
