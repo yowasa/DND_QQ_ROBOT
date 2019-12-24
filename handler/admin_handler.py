@@ -24,8 +24,8 @@ def add(args, content):
         if user.level >= admin.level:
             return '无法对权限高于或等于你的角色使用权限命令'
         if not args.force:
-            user.level >= 50
-            return f'用户已经是超管,无需再次添加'
+            if user.level >= 50:
+                return f'用户已经是超管,无需再次添加'
         user.level = 50
         user.save()
         return '增加超管成功'
@@ -136,8 +136,11 @@ admin_check.set_defaults(func=check)
 @msg_route(r'(\.|。)admin', need_user=True)
 def admin_exec(content):
     msg = content.get('cmd_msg')
-    args = admin_parser.parse_args(msg.split())
-    return args.func(args, content)
+    try:
+        args = admin_parser.parse_args(msg.split())
+        return args.func(args, content)
+    except SystemExit:
+        return '解析指令失败'
 
 
 def trance_2_name(level):
