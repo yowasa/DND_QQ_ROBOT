@@ -7,6 +7,8 @@ from PIL import Image
 from pixivpy3 import *
 from robobrowser import RoboBrowser
 
+from base import cq_code_formate as cq_tool
+from base import tool
 from filter import msg_route
 
 api = AppPixivAPI()
@@ -31,15 +33,13 @@ pixiv_password = env_dist.get("pixiv_password")
 def oppai_now(content):
     b = RoboBrowser(history=True)
     b.open('http://twitter.com/Strangestone/media')
-
     ls = b.find_all(class_='content')
-
     for each in ls:
         each_text = each.find(class_='TweetTextSize--normal')
         if '月曜日のたわわ' in each_text.text:
             pdiv = each.find(class_='AdaptiveMedia-photoContainer')
-            print(pdiv.img.attrs.get('src'))
-            return package_img(pdiv.img.attrs.get('src'))
+            name = tool.requests_download_url(pdiv.img.attrs.get('src'), cq_image_file)
+            return cq_tool.package_img_2_cq_code(name)
 
 
 @msg_route(r'更多奶子$')
@@ -48,19 +48,20 @@ def more_oppai(content):
     b.open('http://twitter.com/Strangestone/media')
 
     ls = b.find_all(class_='content')
-    messagee = []
+    url_list = []
     for each in ls:
         each_text = each.find(class_='TweetTextSize--normal')
         if '月曜日のたわわ' in each_text.text:
             pdiv = each.find(class_='AdaptiveMedia-photoContainer')
-            print(pdiv.img.attrs.get('src'))
-            messagee.append(package_img(pdiv.img.attrs.get('src')))
-    return ''.join(messagee)
+            url_list.append(pdiv.img.attrs.get('src'))
+    name_list = tool.requests_download_url_list(url_list, cq_image_file)
+    return cq_tool.package_img_2_cq_code_list(name_list)
+
 
 @msg_route(r'(\.|。)tag$')
 def pixiv_tag(content):
     try:
-        result= api.trending_tags_illust()
+        result = api.trending_tags_illust()
         if result.get('error'):
             if True != content.get("retry"):
                 api.login(pixiv_user_name, pixiv_password)
@@ -68,7 +69,7 @@ def pixiv_tag(content):
                 return pixiv_tag(content)
             else:
                 return "Pixiv登陆异常"
-        randomNumber = random.randint(0, len(result.get('trend_tags'))- 1)
+        randomNumber = random.randint(0, len(result.get('trend_tags')) - 1)
         return result.get('trend_tags')[randomNumber].get('tag')
     except PixivError as pe:
         if True != content.get("retry"):
@@ -79,6 +80,7 @@ def pixiv_tag(content):
             return "Pixiv登陆异常"
     except Exception as ex:
         return "未知异常"
+
 
 @msg_route(r'(\.|。)gimg')
 def group_pixiv_search(content):
@@ -214,7 +216,7 @@ def trance_png(name, cq_image_file):
         name = name.replace("jpg", "png")
         try:
             w, h = im.size
-            w_s, h_s = float_range(w, h)
+            w_s, h_s = tool.float_tenpercent_range(w, h)
             im = im.resize((w_s, h_s))
             im.save(cq_image_file + name, "PNG")
         except IOError:
@@ -223,7 +225,7 @@ def trance_png(name, cq_image_file):
     elif im.format in ['JPEG', 'PNG']:
         try:
             w, h = im.size
-            w_s, h_s = float_range(w, h)
+            w_s, h_s = tool.float_tenpercent_range(w, h)
             im = im.resize((w_s, h_s))
             im.save(cq_image_file + name)
         except IOError:
@@ -237,7 +239,7 @@ def ten_page_search(cmd_msg, r18=False):
     illusts = []
     for i in range(0, 9):
         if r18:
-            cmd_msg=cmd_msg+' R-18'
+            cmd_msg = cmd_msg + ' R-18'
         result = api.search_illust(cmd_msg, search_target='partial_match_for_tags', sort='date_desc', duration=None,
                                    offset=i * 30, req_auth=True)
         if result.get('error'):
@@ -248,7 +250,7 @@ def ten_page_search(cmd_msg, r18=False):
     if len(illusts) == 0:
         return None
     if not r18:
-        illusts= list(filter(lambda n:n.sanity_level<6,illusts))
+        illusts = list(filter(lambda n: n.sanity_level < 6, illusts))
     if len(illusts) == 0:
         return None
     illusts_sorted = sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
@@ -257,9 +259,3 @@ def ten_page_search(cmd_msg, r18=False):
         fetch = len(illusts_sorted) - 1
     fetch = random.randint(0, fetch)
     return illusts_sorted[fetch]
-
-
-# 得到正负10%的晃动比例，生成新size
-def float_range(x, y):
-    level = round(random.random() * 0.2 + 0.9, 2)
-    return int(x * level), int(y * level)
