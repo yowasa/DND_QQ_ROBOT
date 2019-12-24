@@ -335,16 +335,12 @@ def ten_page_search(cmd_msg, r18=False):
     return illusts_sorted[fetch]
 
 def web_ten_page_search(cmd_msg, r18=False ,type='illustration'):
-    illusts = []
-    for i in range(1, 10):
-        if r18:
-            cmd_msg=cmd_msg+' R-18'
-        result = web_api.search_works(cmd_msg, mode="tag",types=[type],include_sanity_level=r18,page=i)
-        if result.get('status')=="failure":
-            raise PixivError('search error')
-        if len(result.get('response')) == 0:
-            break
-        illusts.extend(result.get('response'))
+    if r18:
+        cmd_msg=cmd_msg+' R-18'
+    result = web_api.search_works(cmd_msg, mode="tag",types=[type],include_sanity_level=r18,per_page=300)
+    if result.get('status') == "failure":
+        raise PixivError('search error')
+    illusts=result.get('response')
     if len(illusts) == 0:
         return None
     illusts_sorted = sorted(illusts, key=lambda v: v.get('stats').get('favorited_count').get('public')+v.get('stats').get('favorited_count').get('private'), reverse=True)
