@@ -12,6 +12,7 @@ from base import tool
 from filter import msg_route
 
 api = AppPixivAPI()
+web_api = PixivAPI()
 
 '''
 ghs相关功能(未实现)
@@ -101,6 +102,40 @@ def group_ghs_pixiv(content):
 def ghs_pixiv(content):
     return ghs_pixiv_common(content)
 
+@msg_route(r'(\.|。)ill')
+def ill(content):
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg']='1000users'
+    return pixiv_web_search_common(content)
+
+
+@msg_route(r'(\.|。)ero', need_user=True)
+def ero(content):
+    opt = content.get('sys_user')
+    if opt.level < 10:
+        return '仅管理员可以使用'
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg']='1000users'
+    return pixiv_web_search_common(content, r18=True)
+
+
+@msg_route(r'(\.|。)manga')
+def manga(content):
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg']='1000users'
+    return pixiv_web_search_common(content, type='manga')
+
+
+
+@msg_route(r'(\.|。)eman', need_user=True)
+def eromanga(content):
+    opt = content.get('sys_user')
+    if opt.level < 10:
+        return '仅管理员可以使用'
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg']='1000users'
+    return pixiv_web_search_common(content, r18=True, type='manga')
+
 
 def ghs_pixiv_common(content, group=False):
     opt = content.get('sys_user')
@@ -167,12 +202,50 @@ def pixiv_search_common(content, group=False):
         return "未知异常"
 
 
+#Web版本搜索
+def pixiv_web_search_common(content,r18=False,type='illustration'):
+    cmd_msg = content.get('cmd_msg').strip()
+    try:
+        illust = web_ten_page_search(cmd_msg,r18=r18,type=type)
+        if not illust:
+            return "搜索不到结果"
+        return web_package_pixiv_img(illust,type)
+    except PixivError as pe:
+        if True != content.get("retry"):
+            web_api.login(pixiv_user_name, pixiv_password)
+            content["retry"] = True
+            return pixiv_web_search_common(content,r18=r18,type=type)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
+
 def package_img(url):
     name = url[url.rfind("/") + 1:]
     r = requests.get(url, stream=True)
     if r.status_code == 200:
         open(cq_image_file + name, 'wb').write(r.content)
     return f'[CQ:image,file={name}]'
+
+def web_package_pixiv_img(illust,type='illustration'):
+    if type=='manga':
+        pages=web_api.works(illust.get('id')).get('response')[0].get('metadata').get('pages')
+        urls=[p.get('image_urls').get('large') for p in pages]
+        img_list=[]
+        for uurl in urls:
+            name = uurl[uurl.rfind("/") + 1:]
+            web_api.download(uurl, path=cq_image_file, replace=True)
+            name = trance_png(name, cq_image_file)
+            img_list.append(f'[CQ:image,file={name}]')
+        return ''.join(img_list)
+    if type=='illustration':
+        url=illust.get('image_urls').get('large')
+        name = url[url.rfind("/") + 1:]
+        web_api.download(url, path=cq_image_file, replace=True)
+        name = trance_png(name, cq_image_file)
+        return f'[CQ:image,file={name}]'
+    if type=='ugoira':
+        return '暂不支持动图'
 
 
 def package_pixiv_img(illust, group=False):
@@ -254,6 +327,22 @@ def ten_page_search(cmd_msg, r18=False):
     if len(illusts) == 0:
         return None
     illusts_sorted = sorted(illusts, key=lambda v: v.total_bookmarks, reverse=True)
+    fetch = 29
+    if fetch > len(illusts_sorted) - 1:
+        fetch = len(illusts_sorted) - 1
+    fetch = random.randint(0, fetch)
+    return illusts_sorted[fetch]
+
+def web_ten_page_search(cmd_msg, r18=False ,type='illustration'):
+    if r18:
+        cmd_msg=cmd_msg+' R-18'
+    result = web_api.search_works(cmd_msg, mode="tag",types=[type],include_sanity_level=r18,per_page=300)
+    if result.get('status') == "failure":
+        raise PixivError('search error')
+    illusts=result.get('response')
+    if len(illusts) == 0:
+        return None
+    illusts_sorted = sorted(illusts, key=lambda v: v.get('stats').get('favorited_count').get('public')+v.get('stats').get('favorited_count').get('private'), reverse=True)
     fetch = 29
     if fetch > len(illusts_sorted) - 1:
         fetch = len(illusts_sorted) - 1
