@@ -8,7 +8,9 @@ import requests
 import zipfile
 
 import imageio
-
+from pygifsicle import optimize
+from PIL import Image
+import os
 
 # 获得属性加值
 def get_check_plus(attr):
@@ -53,4 +55,17 @@ def package_2_gif(filenames, target_file):
     images = []
     for filename in filenames:
         images.append(imageio.imread(filename))
-    imageio.mimsave(target_file, images, fps=10)
+    imageio.mimsave(target_file, images, fps=12)
+    optimize(target_file, options=["--lossy"], colors=64)
+    optimize_gif(target_file)
+
+
+def optimize_gif(target_file):
+    size=os.path.getsize(target_file) / (1024 * 1024)
+    if size < 6:
+        return
+    ratio=size/5
+    im = Image.open(target_file)
+    w, h = im.size
+    w_s, h_s = int(w/ratio),int(h/ratio)
+    optimize(target_file, options=["--lossy",f'--resize-width={w_s}',f'--resize-width={h_s}'], colors=64)

@@ -55,7 +55,7 @@ def replace_dice(str):
 
 
 # 生成属性并展示
-@msg_route(r'!dnd')
+@msg_route(r'(!|！)dnd')
 def random_attribute(content):
     cmd_msg = content['cmd_msg']
     num = 1

@@ -93,13 +93,13 @@ def pixiv_search(content):
     return pixiv_search_common(content)
 
 
-@msg_route(r'(\.|。)gghs', need_user=True)
+@msg_route(r'(\.|。)gghs')
 def group_ghs_pixiv(content):
     content['call_back'] = True
     return ghs_pixiv_common(content, group=True)
 
 
-@msg_route(r'(\.|。)ghs', need_user=True)
+@msg_route(r'(\.|。)ghs')
 def ghs_pixiv(content):
     content['call_back']=True
     return ghs_pixiv_common(content)
@@ -112,12 +112,9 @@ def ill(content):
     return pixiv_web_search_common(content)
 
 
-@msg_route(r'(\.|。)ero', need_user=True)
+@msg_route(r'(\.|。)ero')
 def ero(content):
     content['call_back'] = True
-    opt = content.get('sys_user')
-    if opt.level < 10:
-        return '仅管理员可以使用'
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, r18=True)
@@ -130,21 +127,21 @@ def manga(content):
     return pixiv_web_search_common(content, type='manga')
 
 
-@msg_route(r'(\.|。)eman', need_user=True)
+@msg_route(r'(\.|。)eman')
 def eromanga(content):
     content['call_back'] = True
-    opt = content.get('sys_user')
-    if opt.level < 10:
-        return '仅管理员可以使用'
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, r18=True, type='manga')
 
+@msg_route(r'(\.|。)gif')
+def gif(content):
+    content['call_back'] = True
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg'] = '1000users'
+    return pixiv_web_search_common(content, type='ugoira')
 
 def ghs_pixiv_common(content, group=False):
-    opt = content.get('sys_user')
-    if opt.level < 10:
-        return '仅管理员可以使用ghs'
     cmd_msg = content.get('cmd_msg').strip()
     try:
         if not cmd_msg:
@@ -251,7 +248,39 @@ def web_package_pixiv_img(illust, type='illustration'):
         name = trance_png(name, cq_image_file)
         return f'[CQ:image,file={name}]'
     if type == 'ugoira':
-        return '暂不支持动图'
+        return gen_gif_response(illust.get('id'))
+
+
+def gen_gif_response(ill_id,retry=True):
+    try:
+        result=api.ugoira_metadata(ill_id)
+        if result.get('error'):
+            if retry:
+                api.login(pixiv_user_name, pixiv_password)
+                return gen_gif_response(ill_id, retry=False)
+            else:
+                return "Pixiv登陆异常"
+        url = result.get('ugoira_metadata').get('zip_urls').get('medium')
+        zip_name = url[url.rfind("/") + 1:]
+        name=zip_name.replace('.zip', '')
+        path=cq_image_file+name+'/'
+        gif_name=name+'.gif'
+        target_name=cq_image_file+gif_name
+        if not os.path.exists(target_name):
+            api.download(url, path=cq_image_file, replace=True)
+            tool.unzip_single(cq_image_file+zip_name,path)
+            filenames = sorted((path+fn for fn in os.listdir(path)))
+            tool.package_2_gif(filenames,target_name)
+        return f'[CQ:image,file={gif_name}]'
+
+    except PixivError as pe:
+        if retry:
+            api.login(pixiv_user_name, pixiv_password)
+            return gen_gif_response(ill_id,retry=False)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
 
 
 def package_pixiv_img(illust, group=False):
