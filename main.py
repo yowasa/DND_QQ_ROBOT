@@ -1,8 +1,9 @@
-from aiocqhttp import CQHttp
+from cqhttp import CQHttp
 import filter
 # 读取环境变量，找不到情况下使用默认
 import os
 import request.invite_request as ir
+import time,threading
 
 env_dist = os.environ
 
@@ -16,15 +17,21 @@ bot = CQHttp(api_root=api_root,
 
 
 @bot.on_message()
-async def handle_msg(context):
+def handle_msg(context):
     content = context.copy()
     result = filter.filter(content)
     # 统一发送消息
     if result != None:
-        await bot.send(context, result)
+        msg =  bot.send(context, result)
+        if content.get('call_back'):
+            s=threading.Timer(60,call_back,(msg,))
+            s.start()
+
+def call_back(msg):
+    bot.delete_msg(**msg)
 
 @bot.on_request('group', 'friend')
-async def handle_request(context):
+def handle_request(context):
     content = context.copy()
     result = ir.handle_invite_request(content)
     return {'approve': result}

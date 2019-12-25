@@ -1,6 +1,6 @@
 PixivPy==3.5.2
 requests==2.22.0
-aiocqhttp==0.6.8
+cqhttp==1.2.3
 imageio==2.6.1
 peewee==3.13.1
 Pillow==6.2.1

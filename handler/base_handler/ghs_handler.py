@@ -95,11 +95,13 @@ def pixiv_search(content):
 
 @msg_route(r'(\.|。)gghs', need_user=True)
 def group_ghs_pixiv(content):
+    content['call_back'] = True
     return ghs_pixiv_common(content, group=True)
 
 
 @msg_route(r'(\.|。)ghs', need_user=True)
 def ghs_pixiv(content):
+    content['call_back']=True
     return ghs_pixiv_common(content)
 
 
@@ -112,6 +114,7 @@ def ill(content):
 
 @msg_route(r'(\.|。)ero', need_user=True)
 def ero(content):
+    content['call_back'] = True
     opt = content.get('sys_user')
     if opt.level < 10:
         return '仅管理员可以使用'
@@ -129,6 +132,7 @@ def manga(content):
 
 @msg_route(r'(\.|。)eman', need_user=True)
 def eromanga(content):
+    content['call_back'] = True
     opt = content.get('sys_user')
     if opt.level < 10:
         return '仅管理员可以使用'
