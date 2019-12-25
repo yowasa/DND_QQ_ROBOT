@@ -261,16 +261,18 @@ def gen_gif_response(ill_id,retry=True):
             else:
                 return "Pixiv登陆异常"
         url = result.get('ugoira_metadata').get('zip_urls').get('medium')
+        delay = result.get('ugoira_metadata').get('frames')[0].get('delay')
+        fps = int(1000/delay)
         zip_name = url[url.rfind("/") + 1:]
-        name=zip_name.replace('.zip', '')
-        path=cq_image_file+name+'/'
-        gif_name=name+'.gif'
-        target_name=cq_image_file+gif_name
+        name = zip_name.replace('.zip', '')
+        path = cq_image_file+name+'/'
+        gif_name = name+'.gif'
+        target_name = cq_image_file+gif_name
         if not os.path.exists(target_name):
             api.download(url, path=cq_image_file, replace=True)
             tool.unzip_single(cq_image_file+zip_name,path)
             filenames = sorted((path+fn for fn in os.listdir(path)))
-            tool.package_2_gif(filenames,target_name)
+            tool.package_2_gif(filenames,target_name,fps=fps)
         return f'[CQ:image,file={gif_name}]'
 
     except PixivError as pe:

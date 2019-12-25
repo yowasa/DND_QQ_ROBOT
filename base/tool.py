@@ -51,11 +51,11 @@ def unzip_single(src_file, dest_dir):
     zf.close()
 
 
-def package_2_gif(filenames, target_file):
+def package_2_gif(filenames, target_file,fps=12):
     images = []
     for filename in filenames:
         images.append(imageio.imread(filename))
-    imageio.mimsave(target_file, images, fps=12)
+    imageio.mimsave(target_file, images, fps=fps)
     optimize(target_file, options=["--lossy"], colors=64)
     optimize_gif(target_file)
 
