@@ -5,6 +5,10 @@ import random
 
 import requests
 
+import zipfile
+
+import imageio
+
 
 # 获得属性加值
 def get_check_plus(attr):
@@ -33,3 +37,20 @@ def requests_download_url_list(url_list, path):
 def float_tenpercent_range(x, y):
     level = round(random.random() * 0.2 + 0.9, 2)
     return int(x * level), int(y * level)
+
+
+# 解压单个文件 src_file:文件目录,dest_dir:目标目录
+def unzip_single(src_file, dest_dir):
+    zf = zipfile.ZipFile(src_file)
+    try:
+        zf.extractall(path=dest_dir)
+    except RuntimeError as e:
+        print(e)
+    zf.close()
+
+
+def package_2_gif(filenames, target_file):
+    images = []
+    for filename in filenames:
+        images.append(imageio.imread(filename))
+    imageio.mimsave(target_file, images, fps=10)

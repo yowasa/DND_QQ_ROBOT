@@ -1,6 +1,7 @@
 PixivPy==3.5.2
-requests==2.21.0
+requests==2.22.0
 aiocqhttp==0.6.8
-peewee==3.12.0
-robobrowser==0.5.3
+imageio==2.6.1
+peewee==3.13.1
 Pillow==6.2.1
+robobrowser==0.5.3
