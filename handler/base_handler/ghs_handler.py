@@ -101,7 +101,7 @@ def group_ghs_pixiv(content):
 
 @msg_route(r'(\.|。)ghs')
 def ghs_pixiv(content):
-    content['call_back']=True
+    content['call_back'] = True
     return ghs_pixiv_common(content)
 
 
@@ -134,12 +134,14 @@ def eromanga(content):
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, r18=True, type='manga')
 
+
 @msg_route(r'(\.|。)gif')
 def gif(content):
     content['call_back'] = True
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, type='ugoira')
+
 
 def ghs_pixiv_common(content, group=False):
     cmd_msg = content.get('cmd_msg').strip()
@@ -154,12 +156,13 @@ def ghs_pixiv_common(content, group=False):
                 else:
                     return "Pixiv登陆异常"
             # 没有数据从日排行前三十里随机取一张
-            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
+            illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
+            return combine_app_result(illust, group=group)
         else:
             illust = ten_page_search(cmd_msg, r18=True)
             if not illust:
                 return "搜索不到结果"
-            return package_pixiv_img(illust, group=group)
+            return combine_app_result(illust, group=group)
     except PixivError as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
@@ -186,12 +189,13 @@ def pixiv_search_common(content, group=False):
                     return "Pixiv登陆异常"
             if len(results.illusts) == 0:
                 return "搜索不到结果"
-            return package_pixiv_img(results.illusts[random.randint(0, len(results.illusts) - 1)], group=group)
+            illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
+            return combine_app_result(illust, group=group)
         # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
         illust = ten_page_search(cmd_msg)
         if not illust:
             return "搜索不到结果"
-        return package_pixiv_img(illust, group=group)
+        return combine_app_result(illust, group=group)
     except PixivError as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
@@ -203,6 +207,18 @@ def pixiv_search_common(content, group=False):
         return "未知异常"
 
 
+# 组装app端的查询结果
+def combine_app_result(illust, group=False):
+    cq_img = package_pixiv_img(illust, group=group)
+    return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("name") for x in illust.get("tags")])}\n{cq_img}'
+
+
+# 组装web端的查询结果
+def combine_web_result(illust, type='illustration'):
+    cq_img = web_package_pixiv_img(illust, type)
+    return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x for x in illust.get("tags")])}\n{cq_img}'
+
+
 # Web版本搜索
 def pixiv_web_search_common(content, r18=False, type='illustration'):
     cmd_msg = content.get('cmd_msg').strip()
@@ -210,7 +226,7 @@ def pixiv_web_search_common(content, r18=False, type='illustration'):
         illust = web_ten_page_search(cmd_msg, r18=r18, type=type)
         if not illust:
             return "搜索不到结果"
-        return web_package_pixiv_img(illust, type)
+        return combine_web_result(illust, type)
     except PixivError as pe:
         if True != content.get("retry"):
             web_api.login(pixiv_user_name, pixiv_password)
@@ -251,9 +267,9 @@ def web_package_pixiv_img(illust, type='illustration'):
         return gen_gif_response(illust.get('id'))
 
 
-def gen_gif_response(ill_id,retry=True):
+def gen_gif_response(ill_id, retry=True):
     try:
-        result=api.ugoira_metadata(ill_id)
+        result = api.ugoira_metadata(ill_id)
         if result.get('error'):
             if retry:
                 api.login(pixiv_user_name, pixiv_password)
@@ -262,23 +278,23 @@ def gen_gif_response(ill_id,retry=True):
                 return "Pixiv登陆异常"
         url = result.get('ugoira_metadata').get('zip_urls').get('medium')
         delay = result.get('ugoira_metadata').get('frames')[0].get('delay')
-        fps = int(1000/delay)
+        fps = int(1000 / delay)
         zip_name = url[url.rfind("/") + 1:]
         name = zip_name.replace('.zip', '')
-        path = cq_image_file+name+'/'
-        gif_name = name+'.gif'
-        target_name = cq_image_file+gif_name
+        path = cq_image_file + name + '/'
+        gif_name = name + '.gif'
+        target_name = cq_image_file + gif_name
         if not os.path.exists(target_name):
             api.download(url, path=cq_image_file, replace=True)
-            tool.unzip_single(cq_image_file+zip_name,path)
-            filenames = sorted((path+fn for fn in os.listdir(path)))
-            tool.package_2_gif(filenames,target_name,fps=fps)
+            tool.unzip_single(cq_image_file + zip_name, path)
+            filenames = sorted((path + fn for fn in os.listdir(path)))
+            tool.package_2_gif(filenames, target_name, fps=fps)
         return f'[CQ:image,file={gif_name}]'
 
     except PixivError as pe:
         if retry:
             api.login(pixiv_user_name, pixiv_password)
-            return gen_gif_response(ill_id,retry=False)
+            return gen_gif_response(ill_id, retry=False)
         else:
             return "Pixiv登陆异常"
     except Exception as ex:
