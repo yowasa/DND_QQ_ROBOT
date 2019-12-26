@@ -8,6 +8,17 @@ from tool.dnd_db import *
 .drop <角色名> 删除角色
 '''
 
+@msg_route(r'(\.|。)pixiv_switch$', need_user=True)
+def pixiv_switch(content):
+    user = content['sys_user']
+    user.pixiv_switch=not user.pixiv_switch
+    user.save()
+    if user.pixiv_switch:
+        return '图片显示详情开启'
+    else:
+        return '图片显示详情关闭'
+
+
 # 获得用户下角色列表
 @msg_route(r'\s*\.ul', need_user=True)
 def get_user_list(content):

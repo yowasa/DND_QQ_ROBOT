@@ -16,6 +16,7 @@ class User(BaseModel):
     jrrp = IntegerField(null=True)
     jrrp_date = CharField(null=True)
     level = IntegerField(null=True)
+    pixiv_switch = BooleanField(null=False)
 
 
 class Character(BaseModel):

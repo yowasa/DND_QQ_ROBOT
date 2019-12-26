@@ -83,36 +83,36 @@ def pixiv_tag(content):
         return "未知异常"
 
 
-@msg_route(r'(\.|。)gimg')
+@msg_route(r'(\.|。)gimg',need_user=True)
 def group_pixiv_search(content):
     return pixiv_search_common(content, group=True)
 
 
-@msg_route(r'(\.|。)img')
+@msg_route(r'(\.|。)img',need_user=True)
 def pixiv_search(content):
     return pixiv_search_common(content)
 
 
-@msg_route(r'(\.|。)gghs')
+@msg_route(r'(\.|。)gghs',need_user=True)
 def group_ghs_pixiv(content):
     content['call_back'] = True
     return ghs_pixiv_common(content, group=True)
 
 
-@msg_route(r'(\.|。)ghs')
+@msg_route(r'(\.|。)ghs',need_user=True)
 def ghs_pixiv(content):
     content['call_back'] = True
     return ghs_pixiv_common(content)
 
 
-@msg_route(r'(\.|。)ill')
+@msg_route(r'(\.|。)ill',need_user=True)
 def ill(content):
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content)
 
 
-@msg_route(r'(\.|。)ero')
+@msg_route(r'(\.|。)ero',need_user=True)
 def ero(content):
     content['call_back'] = True
     if not content.get('cmd_msg').strip():
@@ -120,14 +120,14 @@ def ero(content):
     return pixiv_web_search_common(content, r18=True)
 
 
-@msg_route(r'(\.|。)manga')
+@msg_route(r'(\.|。)manga',need_user=True)
 def manga(content):
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, type='manga')
 
 
-@msg_route(r'(\.|。)eman')
+@msg_route(r'(\.|。)eman',need_user=True)
 def eromanga(content):
     content['call_back'] = True
     if not content.get('cmd_msg').strip():
@@ -135,12 +135,53 @@ def eromanga(content):
     return pixiv_web_search_common(content, r18=True, type='manga')
 
 
-@msg_route(r'(\.|。)gif')
+@msg_route(r'(\.|。)gif',need_user=True)
 def gif(content):
     content['call_back'] = True
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, type='ugoira')
+
+@msg_route(r'(\.|。)hgif',need_user=True)
+def gif(content):
+    content['call_back'] = True
+    if not content.get('cmd_msg').strip():
+        content['cmd_msg'] = '1000users'
+    return pixiv_web_search_common(content,r18=True, type='ugoira')
+
+@msg_route(r'(\.|。)pid',need_user=True)
+def pid(content):
+    return get_by_id(content)
+
+
+def get_by_id(content,retry=True):
+    cmd_msg=content.get('cmd_msg').strip()
+    if not cmd_msg:
+        return '请指定作品id'
+    if not cmd_msg.isdigit():
+        return '请指定作品id'
+    try:
+        result = web_api.works(int(cmd_msg))
+        if result.get('status') == "failure":
+            if retry:
+                web_api.login(pixiv_user_name, pixiv_password)
+                return get_by_id(content, retry=False)
+        illusts = result.get('response')
+        if len(illusts) == 0:
+            return "未查询到作品"
+        if not illusts[0].age_limit == 'all-age':
+            content['call_back'] = True
+        user = content.get('sys_user')
+        return combine_web_result(illusts[0],type=illusts[0].type)
+    except PixivError as pe:
+        if retry:
+            web_api.login(pixiv_user_name, pixiv_password)
+            return get_by_id(content, retry=False)
+        else:
+            return "Pixiv登陆异常"
+    except Exception as ex:
+        return "未知异常"
+
 
 
 def ghs_pixiv_common(content, group=False):
@@ -152,12 +193,12 @@ def ghs_pixiv_common(content, group=False):
                 if True != content.get("retry"):
                     api.login(pixiv_user_name, pixiv_password)
                     content["retry"] = True
-                    return ghs_pixiv_common(content, group=group)
+                    return ghs_pixiv_common(content, group=group,need_info=content.get('sys_user').pixiv_switch)
                 else:
                     return "Pixiv登陆异常"
             # 没有数据从日排行前三十里随机取一张
             illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
-            return combine_app_result(illust, group=group)
+            return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
         else:
             illust = ten_page_search(cmd_msg, r18=True)
             if not illust:
@@ -184,13 +225,13 @@ def pixiv_search_common(content, group=False):
                 if True != content.get("retry"):
                     api.login(pixiv_user_name, pixiv_password)
                     content["retry"] = True
-                    return pixiv_search_common(content, group=group)
+                    return pixiv_search_common(content, group=group,need_info=content.get('sys_user').pixiv_switch)
                 else:
                     return "Pixiv登陆异常"
             if len(results.illusts) == 0:
                 return "搜索不到结果"
             illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
-            return combine_app_result(illust, group=group)
+            return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
         # 有数据以数据为tag进行搜索，第一页随机取一张展示（排行）
         illust = ten_page_search(cmd_msg)
         if not illust:
@@ -208,15 +249,20 @@ def pixiv_search_common(content, group=False):
 
 
 # 组装app端的查询结果
-def combine_app_result(illust, group=False):
+def combine_app_result(illust, group=False,need_info=False):
     cq_img = package_pixiv_img(illust, group=group)
-    return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("name") for x in illust.get("tags")])}\n{cq_img}'
-
+    if need_info:
+        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("name") for x in illust.get("tags")])}\n{cq_img}'
+    else:
+        return cq_img
 
 # 组装web端的查询结果
-def combine_web_result(illust, type='illustration'):
+def combine_web_result(illust, type='illustration',need_info=False):
     cq_img = web_package_pixiv_img(illust, type)
-    return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x for x in illust.get("tags")])}\n{cq_img}'
+    if need_info:
+        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x for x in illust.get("tags")])}\n{cq_img}'
+    else:
+        return cq_img
 
 
 # Web版本搜索
@@ -226,7 +272,7 @@ def pixiv_web_search_common(content, r18=False, type='illustration'):
         illust = web_ten_page_search(cmd_msg, r18=r18, type=type)
         if not illust:
             return "搜索不到结果"
-        return combine_web_result(illust, type)
+        return combine_web_result(illust, type,need_info=content.get('sys_user').pixiv_switch)
     except PixivError as pe:
         if True != content.get("retry"):
             web_api.login(pixiv_user_name, pixiv_password)
@@ -390,10 +436,14 @@ def ten_page_search(cmd_msg, r18=False):
 def web_ten_page_search(cmd_msg, r18=False, type='illustration'):
     if r18:
         cmd_msg = cmd_msg + ' R-18'
-    result = web_api.search_works(cmd_msg, mode="tag", types=[type], include_sanity_level=r18, per_page=300)
+    result = web_api.search_works(cmd_msg, mode="tag", types=[type], include_sanity_level=r18, per_page=500)
     if result.get('status') == "failure":
         raise PixivError('search error')
     illusts = result.get('response')
+    if len(illusts) == 0:
+        return None
+    if not r18:
+        illusts = list(filter(lambda n: n.sanity_level == 'white', illusts))
     if len(illusts) == 0:
         return None
     illusts_sorted = sorted(illusts,
