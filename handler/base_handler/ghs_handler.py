@@ -172,7 +172,7 @@ def get_by_id(content,retry=True):
         if not illusts[0].age_limit == 'all-age':
             content['call_back'] = True
         user = content.get('sys_user')
-        return combine_web_result(illusts[0],type=illusts[0].type)
+        return combine_web_result(illusts[0],type=illusts[0].type,need_info=content.get('sys_user').pixiv_switch)
     except PixivError as pe:
         if retry:
             web_api.login(pixiv_user_name, pixiv_password)
@@ -203,7 +203,7 @@ def ghs_pixiv_common(content, group=False):
             illust = ten_page_search(cmd_msg, r18=True)
             if not illust:
                 return "搜索不到结果"
-            return combine_app_result(illust, group=group)
+            return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
     except PixivError as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
@@ -236,7 +236,7 @@ def pixiv_search_common(content, group=False):
         illust = ten_page_search(cmd_msg)
         if not illust:
             return "搜索不到结果"
-        return combine_app_result(illust, group=group)
+        return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
     except PixivError as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
