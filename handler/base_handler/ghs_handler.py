@@ -137,7 +137,6 @@ def eromanga(content):
 
 @msg_route(r'(\.|。)gif',need_user=True)
 def gif(content):
-    content['call_back'] = True
     if not content.get('cmd_msg').strip():
         content['cmd_msg'] = '1000users'
     return pixiv_web_search_common(content, type='ugoira')
