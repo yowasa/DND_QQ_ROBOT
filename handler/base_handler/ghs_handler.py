@@ -82,7 +82,8 @@ def img_search(content):
             pixiv_list=list(filter(lambda n: n['header']['index_id'] in (5,6), uper_80))
             if len(pixiv_list)==0:
                 select = result_list[0]
-            select=pixiv_list[0]
+            else:
+                select=pixiv_list[0]
         else:
             select=result_list[0]
         return package_search_result(select)
