@@ -37,4 +37,5 @@ ghs相关功能（R18相关功能将在发送后1分钟删除）
 .eman:随机色图漫画,可以指定搜索条件，未指定默认条件为'1000users'
 .gif:随机gif,可以指定搜索条件，未指定默认条件为'1000users'
 .hgif:随机色图gif,可以指定搜索条件，未指定默认条件为'1000users'
-.pid:指定id搜索pixiv作品
+.pid <pixiv_id>:指定id搜索pixiv作品
+.search <图片>:搜索图片

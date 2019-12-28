@@ -1,18 +1,19 @@
 # 1.导入模块
 import os
 import random
-
+import json
 import requests
 from PIL import Image
 from pixivpy3 import *
 from robobrowser import RoboBrowser
-
+import re
 from base import cq_code_formate as cq_tool
 from base import tool
 from filter import msg_route
 
 api = AppPixivAPI()
 web_api = PixivAPI()
+
 
 '''
 ghs相关功能(未实现)
@@ -57,6 +58,67 @@ def more_oppai(content):
             url_list.append(pdiv.img.attrs.get('src'))
     name_list = tool.requests_download_url_list(url_list, cq_image_file)
     return cq_tool.package_img_2_cq_code_list(name_list)
+
+@msg_route(r'(\.|。)search')
+def img_search(content):
+    cmd_msg = content.get('cmd_msg').strip()
+    matchObj=re.match(r'\[CQ:image,file=(.*),url=(.*)\]', cmd_msg, re.M|re.I)
+    if matchObj:
+        img_url=matchObj.group(2)
+        url = f'https://saucenao.com/search.php?output_type=2&testmode=1&numres=16&url={img_url}'
+        result = requests.get(url)
+        if result.status_code != 200:
+            return '请求异常'
+        content = json.loads(result.content)
+        if content['header']['status']!=0:
+            if content['header']['status']==-2:
+                return '搜索过于频繁'
+            else:
+                return '搜索超过限制'
+        result_list=content['results']
+        # 相似度大于80的列表
+        uper_80= list(filter(lambda n: float(n['header']['similarity']) > float(80), result_list))
+        if len(uper_80)>0:
+            pixiv_list=list(filter(lambda n: n['header']['index_id'] in (5,6), uper_80))
+            if len(pixiv_list)==0:
+                select = result_list[0]
+            select=pixiv_list[0]
+        else:
+            select=result_list[0]
+        return package_search_result(select)
+
+    else:
+        return '未识别到图片'
+
+def package_search_result(select):
+    other_msg=''
+    index_id= select['header']['index_id']
+    similarity=select['header']['similarity']
+    if select['data'].get('ext_urls'):
+        ext_url = select['data']['ext_urls'][0]
+    else:
+        ext_url=select['header']['thumbnail']
+    if index_id == 5 or index_id == 6:
+        # 5->pixiv 6->pixiv historical
+        service_name = 'pixiv'
+        illust_id = select['data']['pixiv_id']
+        content={'cmd_msg':str(illust_id)}
+        other_msg = '\n'+get_by_id(content,need_info=True)
+    elif index_id == 8:
+        # 8->nico nico seiga
+        service_name = 'seiga'
+    elif index_id == 10:
+        # 10->drawr
+        service_name = 'drawr'
+    elif index_id == 11:
+        # 11->nijie
+        service_name = 'nijie'
+    elif index_id == 34:
+        # 34->da
+        service_name = 'da'
+    else:
+        service_name = '未知'
+    return f'图片来源:{service_name}\n相似度:{similarity}\n原图地址:{ext_url}{other_msg}'
 
 
 @msg_route(r'(\.|。)tag$')
@@ -153,7 +215,7 @@ def pid(content):
     return get_by_id(content)
 
 
-def get_by_id(content,retry=True):
+def get_by_id(content,retry=True,need_info=False):
     cmd_msg=content.get('cmd_msg').strip()
     if not cmd_msg:
         return '请指定作品id'
@@ -164,18 +226,18 @@ def get_by_id(content,retry=True):
         if result.get('status') == "failure":
             if retry:
                 web_api.login(pixiv_user_name, pixiv_password)
-                return get_by_id(content, retry=False)
+                return get_by_id(content, retry=False,need_info=need_info)
         illusts = result.get('response')
         if len(illusts) == 0:
             return "未查询到作品"
         if not illusts[0].age_limit == 'all-age':
             content['call_back'] = True
         user = content.get('sys_user')
-        return combine_web_result(illusts[0],type=illusts[0].type,need_info=content.get('sys_user').pixiv_switch)
+        return combine_web_result(illusts[0],type=illusts[0].type,need_info=need_info)
     except PixivError as pe:
         if retry:
             web_api.login(pixiv_user_name, pixiv_password)
-            return get_by_id(content, retry=False)
+            return get_by_id(content, retry=False,need_info=need_info)
         else:
             return "Pixiv登陆异常"
     except Exception as ex:
