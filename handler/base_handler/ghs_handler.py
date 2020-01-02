@@ -213,7 +213,7 @@ def gif(content):
 
 @msg_route(r'(\.|。)pid',need_user=True)
 def pid(content):
-    return get_by_id(content)
+    return get_by_id(content,need_info=content.get('sys_user').pixiv_switch)
 
 
 def get_by_id(content,retry=True,need_info=False):

@@ -3,7 +3,7 @@ import filter
 # 读取环境变量，找不到情况下使用默认
 import os
 import request.invite_request as ir
-import time,threading
+import threading
 
 env_dist = os.environ
 
@@ -15,7 +15,6 @@ bot = CQHttp(api_root=api_root,
              access_token="yowasaTest",
              secret="3909432")
 
-
 @bot.on_message()
 def handle_msg(context):
     content = context.copy()
@@ -24,8 +23,9 @@ def handle_msg(context):
     if result != None:
         msg =  bot.send(context, result)
         if content.get('call_back'):
-            s=threading.Timer(60,call_back,(msg,))
-            s.start()
+            global timer
+            timer=threading.Timer(60,call_back,(msg,))
+            timer.start()
 
 def call_back(msg):
     bot.delete_msg(**msg)
