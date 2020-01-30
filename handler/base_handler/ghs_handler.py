@@ -223,21 +223,23 @@ def get_by_id(content,retry=True,need_info=False):
     if not cmd_msg.isdigit():
         return '请指定作品id'
     try:
-        result = web_api.works(int(cmd_msg))
-        if result.get('status') == "failure":
-            if retry:
-                web_api.login(pixiv_user_name, pixiv_password)
-                return get_by_id(content, retry=False,need_info=need_info)
-        illusts = result.get('response')
-        if len(illusts) == 0:
+        result=api.illust_detail(int(cmd_msg))
+        # result = web_api.works(int(cmd_msg))
+        if result.get('error') :
             return "未查询到作品"
-        if not illusts[0].age_limit == 'all-age':
+            # if retry:
+            #     api.login(pixiv_user_name, pixiv_password)
+            #     return get_by_id(content, retry=False,need_info=need_info)
+        # illusts = result.get('response')
+        illust=result.get('illust')
+        # if len(illusts) == 0:
+        #     return "未查询到作品"
+        if not illust.get('sanity_level') < 6:
             content['call_back'] = True
-        user = content.get('sys_user')
-        return combine_web_result(illusts[0],type=illusts[0].type,need_info=need_info)
+        return combine_app_result(illust,group=True,need_info=need_info)
     except PixivError as pe:
         if retry:
-            web_api.login(pixiv_user_name, pixiv_password)
+            api.login(pixiv_user_name, pixiv_password)
             return get_by_id(content, retry=False,need_info=need_info)
         else:
             return "Pixiv登陆异常"
