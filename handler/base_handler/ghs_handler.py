@@ -92,14 +92,17 @@ def img_search(content):
         return '未识别到图片'
 
 def package_search_result(select):
-    other_msg=''
     index_id= select['header']['index_id']
     similarity=select['header']['similarity']
     thumbnail = select['header'][ 'thumbnail']
-    ext_url=select['data']['source']
+    ext_url=select['data'].get('source')
+    if not ext_url:
+        ext_url=select['data']['ext_urls'][0]
     if index_id == 5 or index_id == 6:
         # 5->pixiv 6->pixiv historical
         service_name = 'pixiv'
+        illust_id = select['data']['pixiv_id']
+        content={'cmd_msg':str(illust_id)}
     elif index_id == 8:
         # 8->nico nico seiga
         service_name = 'seiga'
@@ -117,10 +120,13 @@ def package_search_result(select):
         service_name = 'da'
     else:
         service_name = '未知'
-    url_list = []
-    url_list.append(thumbnail)
-    name_list = tool.requests_download_url_list(url_list, cq_image_file)
-    other_msg = '\n' + cq_tool.package_img_2_cq_code_list(name_list)
+    if index_id == 5 or index_id == 6:
+        other_msg = '\n' + get_by_id(content, need_info=True)
+    else:
+        url_list=[]
+        url_list.append(thumbnail)
+        name_list = tool.requests_download_url_list(url_list, cq_image_file)
+        other_msg='\n'+ cq_tool.package_img_2_cq_code_list(name_list)
     return f'图片来源:{service_name}\n相似度:{similarity}\n原图地址:{ext_url}{other_msg}'
 
 
