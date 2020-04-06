@@ -76,10 +76,10 @@ def img_search(content):
             else:
                 return '搜索超过限制'
         result_list=content['results']
-        # 相似度大于80的列表
-        uper_80= list(filter(lambda n: float(n['header']['similarity']) > float(80), result_list))
-        if len(uper_80)>0:
-            pixiv_list=list(filter(lambda n: n['header']['index_id'] in (5,6), uper_80))
+        # 相似度大于90的列表
+        uper_90= list(filter(lambda n: float(n['header']['similarity']) > float(90), result_list))
+        if len(uper_90)>0:
+            pixiv_list=list(filter(lambda n: n['header']['index_id'] in (5,6), uper_90))
             if len(pixiv_list)==0:
                 select = result_list[0]
             else:
@@ -95,19 +95,17 @@ def package_search_result(select):
     other_msg=''
     index_id= select['header']['index_id']
     similarity=select['header']['similarity']
-    if select['data'].get('ext_urls'):
-        ext_url = select['data']['ext_urls'][0]
-    else:
-        ext_url=select['header']['thumbnail']
+    thumbnail = select['header'][ 'thumbnail']
+    ext_url=select['data']['source']
     if index_id == 5 or index_id == 6:
         # 5->pixiv 6->pixiv historical
         service_name = 'pixiv'
-        illust_id = select['data']['pixiv_id']
-        content={'cmd_msg':str(illust_id)}
-        other_msg = '\n'+get_by_id(content,need_info=True)
     elif index_id == 8:
         # 8->nico nico seiga
         service_name = 'seiga'
+    elif index_id == 9:
+        # 8->nico nico seiga
+        service_name = 'Twitter'
     elif index_id == 10:
         # 10->drawr
         service_name = 'drawr'
@@ -119,6 +117,10 @@ def package_search_result(select):
         service_name = 'da'
     else:
         service_name = '未知'
+    url_list = []
+    url_list.append(thumbnail)
+    name_list = tool.requests_download_url_list(url_list, cq_image_file)
+    other_msg = '\n' + cq_tool.package_img_2_cq_code_list(name_list)
     return f'图片来源:{service_name}\n相似度:{similarity}\n原图地址:{ext_url}{other_msg}'
 
 
