@@ -10,8 +10,14 @@ import re
 from base import cq_code_formate as cq_tool
 from base import tool
 from filter import msg_route
+from tool.dnd_db import PixivCache
 
 api = AppPixivAPI()
+# api = ByPassSniApi()
+# api.require_appapi_hosts(
+#     hostname="public-api.secure.pixiv.net"
+# )
+# api.set_accept_language('en_us')
 web_api = PixivAPI()
 
 
@@ -25,7 +31,7 @@ ghs相关功能(未实现)
 env_dist = os.environ
 cq_image_file = env_dist.get("cq_image_file")
 if not cq_image_file:
-    cq_image_file = 'F:\\workspace\\py\\CQP-xiaoi2\\酷Q Pro\\data\\image\\'
+    cq_image_file = 'D:\\workspace\\Mirai\\plugins\\CQHTTPMirai\\image\\'
 
 pixiv_user_name = env_dist.get("pixiv_user_name")
 pixiv_password = env_dist.get("pixiv_password")
@@ -276,15 +282,15 @@ def ghs_pixiv_common(content, group=False):
             if not illust:
                 return "搜索不到结果"
             return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
-    except PixivError as pe:
+    except Exception as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
             content["retry"] = True
             return ghs_pixiv_common(content)
         else:
             return "Pixiv登陆异常"
-    except Exception as ex:
-        return "未知异常"
+    # except Exception as ex:
+    #     return "未知异常"
 
 
 def pixiv_search_common(content, group=False):
@@ -309,15 +315,15 @@ def pixiv_search_common(content, group=False):
         if not illust:
             return "搜索不到结果"
         return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
-    except PixivError as pe:
+    except Exception as pe:
         if True != content.get("retry"):
             api.login(pixiv_user_name, pixiv_password)
             content["retry"] = True
             return pixiv_search_common(content, group=group)
         else:
             return "Pixiv登陆异常"
-    except Exception as ex:
-        return "未知异常"
+    # except Exception as ex:
+    #     return "未知异常"
 
 
 # 组装app端的查询结果
@@ -421,6 +427,10 @@ def gen_gif_response(ill_id, retry=True):
 
 def package_pixiv_img(illust, group=False):
     url = illust.meta_single_page.get('original_image_url')
+    cache = PixivCache.get_or_none((PixivCache.pixiv_id == illust.get('id')) &(PixivCache.group==group) )
+    if cache:
+        
+        return cache.message
     if not url:
         urls = []
         for i in illust.meta_pages:
@@ -435,7 +445,7 @@ def package_pixiv_img(illust, group=False):
                 api.download(uurl, path=cq_image_file, replace=True)
                 name = trance_png(name, cq_image_file)
                 img_list.append(f'[CQ:image,file={name}]')
-            return ''.join(img_list)
+            result = ''.join(img_list)
         else:
             ##一组图随机取一个
             length = len(urls)
@@ -444,14 +454,20 @@ def package_pixiv_img(illust, group=False):
             name = uurl[uurl.rfind("/") + 1:]
             api.download(uurl, path=cq_image_file, replace=True)
             name = trance_png(name, cq_image_file)
-            return f'[CQ:image,file={name}]'
+            result = f'[CQ:image,file={name}]'
     else:
         if 'gif' not in url:
             url = illust.image_urls.get('large')
         name = url[url.rfind("/") + 1:]
         api.download(url, path=cq_image_file, replace=True)
         name = trance_png(name, cq_image_file)
-        return f'[CQ:image,file={name}]'
+        result = f'[CQ:image,file={name}]'
+    new_cache = PixivCache()
+    new_cache.pixiv_id = illust.get('id')
+    new_cache.group = group
+    new_cache.message=result
+    new_cache.save()
+    return result
 
 
 def trance_png(name, cq_image_file):

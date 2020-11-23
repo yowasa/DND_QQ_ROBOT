@@ -3,6 +3,7 @@
 
 import random
 
+import hashlib
 import requests
 
 import zipfile
@@ -20,14 +21,20 @@ def get_check_plus(attr):
     if attr - 10 < 0:
         return int((attr - 11) / 2)
 
+def md5(str):
+    m = hashlib.md5()
+    m.update(str.encode("utf8"))
+    print(m.hexdigest())
+    return m.hexdigest()
 
 # 通过request下载图片,返回图片名称
 def requests_download_url(url, path):
     name = url[url.rfind("/") + 1:]
+    hash_name=md5(name)+'.jpg'
     r = requests.get(url, stream=True)
     if r.status_code == 200:
-        open(path + name, 'wb').write(r.content)
-    return name
+        open(path + hash_name, 'wb').write(r.content)
+    return hash_name
 
 
 # 通过request下载图片,返回图片名称 列表操作

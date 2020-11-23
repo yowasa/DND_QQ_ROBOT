@@ -1,4 +1,5 @@
 import re
+from werkzeug.utils import cached_property
 from tool.dnd_db import User, Character
 
 register = dict()

@@ -262,4 +262,32 @@ class Alignment(BaseModel):
     tag = CharField()
     desc = CharField()
 
-# User.create_table()
+
+class Subscribe(BaseModel):
+    id = AutoField()
+    user_type = CharField() # user group
+    user_id = IntegerField(index=True) # qq号 群号
+    clazz = CharField() # pixiv twitter
+    type = CharField() # day day_r18 user
+    type_user = IntegerField() #作者id 推主id
+
+
+class SubscribeSendLog(BaseModel):
+    id = AutoField()
+    user_type = CharField() # user group
+    user_id = IntegerField(index=True) # qq号 群号
+    clazz = CharField() # pixiv twitter
+    message_id = IntegerField(index=True) #图片id 推文id
+    message_info = CharField()
+    send_flag = BooleanField(null=False,default=False)
+
+
+class PixivCache(BaseModel):
+    id = AutoField()
+    pixiv_id = IntegerField(index=True)
+    group = BooleanField()
+    message = CharField(max_length=2000) #cq码
+
+# SubscribeSendLog.create_table()
+# PixivCache.create_table()
+# Subscribe.create_table()

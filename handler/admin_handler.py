@@ -1,7 +1,8 @@
 import argparse
 
 from filter import msg_route
-from tool.dnd_db import User
+from tool.dnd_db import User,Subscribe
+from handler.base_handler import ghs_handler as ghs
 
 '''
 管理类
@@ -152,3 +153,153 @@ def trance_2_name(level):
         return '超管'
     if level == 100:
         return '你在看谁？'
+
+def add_subscribe(content,ttype,Auth_User=0):
+    msg=content.get('message_type')
+    if msg=='group':
+        user_id=content.get('group_id')
+    elif msg=='private':
+        user_id=content.get('user_id')
+    elif msg == 'discuss':
+        user_id = content.get('discuss_id')
+    else:
+        return '不支持群/私聊/讨论组以外的订阅方式'
+
+    if Auth_User !=0:
+        results_users = ghs.api.user_illusts(Auth_User)
+        if len(results_users.illusts)==0:
+            return '此id不存在作品'
+        ttype = 'user'
+
+    old = Subscribe.get_or_none(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (Subscribe.type == ttype) &(Subscribe.type_user==Auth_User))
+    if not old:
+        newSub = Subscribe()
+        newSub.user_type = msg
+        newSub.user_id = user_id
+        newSub.clazz = 'pixiv'
+        newSub.type = ttype
+        newSub.type_user = Auth_User
+        newSub.save()
+        return '订阅成功'
+    else:
+        return '已经订阅 无需重复操作'
+
+
+# 为个人或群开启自动ghs功能
+@msg_route(r'(\.|。)auto', need_user=True)
+def open_auto_ghs(content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    msg = content.get('cmd_msg').strip()
+    if msg =='日榜':
+        return add_subscribe(content,'day')
+    elif msg=='r18日榜':
+        return add_subscribe(content,'day_r18')
+    elif msg=='自动订阅':
+        return add_subscribe(content,'public')
+    elif msg=='r18自动订阅':
+        return add_subscribe(content,'private')
+    else:
+        return '无此指令 请输入:日榜 r18日榜 自动订阅 r18自动订阅'
+
+@msg_route(r'(\.|。)subscribe', need_user=True)
+def subscribe(content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    msg = content.get('cmd_msg').strip()
+    return add_subscribe(content,'user',Auth_User=msg)
+
+
+#.checksub  <作者id>:检查是否订阅某作者作品
+@msg_route(r'(\.|。)checksub', need_user=True)
+def checksub(content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    comm = content.get('cmd_msg').strip()
+    msg = content.get('message_type')
+    if msg == 'group':
+        user_id = content.get('group_id')
+    elif msg == 'private':
+        user_id = content.get('user_id')
+    elif msg == 'discuss':
+        user_id = content.get('discuss_id')
+    else:
+        return '不支持群/私聊/讨论组以外的订阅方式'
+    old = Subscribe.get_or_none(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                    Subscribe.type == 'user') & (Subscribe.type_user == comm))
+    if not old:
+        return '未订阅'
+    else:
+        return '订阅中'
+
+def trancetype(msg):
+    if msg =='day':
+        return '日榜'
+    elif msg=='day_r18':
+        return 'r18日榜'
+    elif msg=='public':
+        return '自动订阅'
+    elif msg=='private':
+        return 'r18自动订阅'
+
+#.sublist:订阅列表
+@msg_route(r'(\.|。)sublist', need_user=True)
+def checksub(content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    comm = content.get('cmd_msg').strip()
+    msg = content.get('message_type')
+    if msg == 'group':
+        user_id = content.get('group_id')
+    elif msg == 'private':
+        user_id = content.get('user_id')
+    elif msg == 'discuss':
+        user_id = content.get('discuss_id')
+    else:
+        return '不支持群/私聊/讨论组以外的订阅方式'
+    pack_info = [trancetype(str(sub.type)) for sub in
+                  Subscribe.select().where(
+                      (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                                  Subscribe.type != 'user'))]
+    user_infos = [str(sub.type_user) for sub in
+             Subscribe.select().where(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (Subscribe.type == 'user'))]
+    return_msg=''
+    if pack_info:
+        return_msg+='套餐\n'+'\n'.join(pack_info)+'\n\n'
+
+    if user_infos:
+        return_msg+='画师id\n'+'\n'.join(user_infos)
+    return return_msg
+
+
+#.unsubscribe <作者id>:取消订阅某一作者（在库存中待发送的图片不会取消）
+@msg_route(r'(\.|。)unsubscribe', need_user=True)
+def unsubscribe(content):
+    admin = content.get('sys_user')
+    if admin.level < 10:
+        return '用户权限不足,仅管理可以使用'
+    comm = content.get('cmd_msg').strip()
+    msg = content.get('message_type')
+    if msg == 'group':
+        user_id = content.get('group_id')
+    elif msg == 'private':
+        user_id = content.get('user_id')
+    elif msg == 'discuss':
+        user_id = content.get('discuss_id')
+    else:
+        return '不支持群/私聊/讨论组以外的订阅方式'
+    old = Subscribe.get_or_none(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                    Subscribe.type == 'user') & (Subscribe.type_user == comm))
+    if not old:
+        return '未订阅过该作者作品'
+    else:
+        old.delete_instance()
+        return '取消订阅成功'

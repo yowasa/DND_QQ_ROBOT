@@ -1,8 +1,27 @@
-import requests
-import json
+import os
+from pixivpy3 import *
+# api = AppPixivAPI()
+api = ByPassSniApi()
 
-img_url='https://c2cpicdw.qpic.cn/offpic_new/2508488843//801a5255-07dc-4e6e-9f1d-ef1c55f3e525/0?vuin=1564652357&amp'
-url=f'https://saucenao.com/search.php?output_type=2&testmode=1&numres=16&url={img_url}'
-result=requests.get(url)
-content=json.loads(result.content)
-print(content.get('header').get('long_remaining'))
+
+'''
+ghs相关功能(未实现)
+本周奶子 获取本周月曜日的丰满图片
+更多奶子 获取之前一段时间的月曜日的丰满图片
+随机色图 随机获取pixiv上排名靠前的图片
+'''
+
+env_dist = os.environ
+cq_image_file = env_dist.get("cq_image_file")
+if not cq_image_file:
+    cq_image_file = 'D:\\workspace\\CQP-xiaoi\\酷Q Pro\\data\\image\\'
+
+pixiv_user_name = env_dist.get("pixiv_user_name")
+pixiv_password = env_dist.get("pixiv_password")
+
+api.login(pixiv_user_name,pixiv_password)
+
+result = api.user_illusts(8129277000)
+result2=api.illust_follow(restrict='public')
+result3=api.illust_follow(restrict='private')
+print(result)
