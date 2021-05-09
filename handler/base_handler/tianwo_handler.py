@@ -22,7 +22,7 @@ def tianwo_now(content):
 @msg_route(r'毒鸡汤$')
 def tianwo_now(content):
     b = RoboBrowser(history=True)
-    b.open('https://s.nmsl8.club/getloveword?type=')
+    b.open('https://s.nmsl8.club/getloveword?type=4')
     ls = b.response.text
     a = json.loads(ls)
     return a['content']

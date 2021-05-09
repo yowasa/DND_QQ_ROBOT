@@ -31,11 +31,34 @@ ghs相关功能(未实现)
 env_dist = os.environ
 cq_image_file = env_dist.get("cq_image_file")
 if not cq_image_file:
-    cq_image_file = 'D:\\workspace\\Mirai\\plugins\\CQHTTPMirai\\image\\'
+    cq_image_file = 'D:\\workspace\\mcl\\data\\OneBot\\image\\'
 
 pixiv_user_name = env_dist.get("pixiv_user_name")
 pixiv_password = env_dist.get("pixiv_password")
 
+def web_pixiv_login():
+    token = get_token()
+    web_api.set_auth(access_token=token['access_token'], refresh_token=token['refresh_token'])
+    web_api.auth(refresh_token=token['refresh_token'])
+    token['refresh_token'] = web_api.refresh_token
+    write_refresh_token(token)
+
+def pixiv_login():
+    token=get_token()
+    api.set_auth(access_token=token['access_token'],refresh_token=token['refresh_token'])
+    api.auth(refresh_token=token['refresh_token'])
+    token['refresh_token']=api.refresh_token
+    write_refresh_token(token)
+
+
+def get_token():
+    with open('../../token', 'r') as f:
+        result = json.load(f)
+    return result
+
+def write_refresh_token(token):
+    with open('../../token', 'w') as f:
+        json.dump(token, fp=f)
 
 @msg_route(r'本周奶子$')
 def oppai_now(content):
@@ -71,7 +94,8 @@ def img_search(content):
     matchObj=re.match(r'\[CQ:image,file=(.*),url=(.*)\]', cmd_msg, re.M|re.I)
     if matchObj:
         img_url=matchObj.group(2)
-        url = f'https://saucenao.com/search.php?output_type=2&testmode=1&numres=16&url={img_url}'
+        url = f'https://saucenao.com/search.php?output_type=2&testmode=1&api_key=53f99bec6827ad0b6b728c063be1c84c20d40f20&numres=16&url={img_url}'
+
         result = requests.get(url)
         if result.status_code != 200:
             return '请求异常'
@@ -142,7 +166,7 @@ def pixiv_tag(content):
         result = api.trending_tags_illust()
         if result.get('error'):
             if True != content.get("retry"):
-                api.login(pixiv_user_name, pixiv_password)
+                pixiv_login()
                 content["retry"] = True
                 return pixiv_tag(content)
             else:
@@ -151,7 +175,7 @@ def pixiv_tag(content):
         return result.get('trend_tags')[randomNumber].get('tag')
     except PixivError as pe:
         if True != content.get("retry"):
-            api.login(pixiv_user_name, pixiv_password)
+            pixiv_login()
             content["retry"] = True
             return pixiv_tag(content)
         else:
@@ -242,7 +266,7 @@ def get_by_id(content,retry=True,need_info=False):
         if result.get('error') :
             return "未查询到作品"
             # if retry:
-            #     api.login(pixiv_user_name, pixiv_password)
+            #     pixiv_login()
             #     return get_by_id(content, retry=False,need_info=need_info)
         # illusts = result.get('response')
         illust=result.get('illust')
@@ -253,7 +277,7 @@ def get_by_id(content,retry=True,need_info=False):
         return combine_app_result(illust,group=True,need_info=need_info)
     except PixivError as pe:
         if retry:
-            api.login(pixiv_user_name, pixiv_password)
+            pixiv_login()
             return get_by_id(content, retry=False,need_info=need_info)
         else:
             return "Pixiv登陆异常"
@@ -269,7 +293,7 @@ def ghs_pixiv_common(content, group=False):
             results = api.illust_ranking(mode='day_r18', date=None, offset=None)
             if results.get('error'):
                 if True != content.get("retry"):
-                    api.login(pixiv_user_name, pixiv_password)
+                    pixiv_login()
                     content["retry"] = True
                     return ghs_pixiv_common(content, group=group,need_info=content.get('sys_user').pixiv_switch)
                 else:
@@ -284,7 +308,7 @@ def ghs_pixiv_common(content, group=False):
             return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
     except Exception as pe:
         if True != content.get("retry"):
-            api.login(pixiv_user_name, pixiv_password)
+            pixiv_login()
             content["retry"] = True
             return ghs_pixiv_common(content)
         else:
@@ -301,7 +325,7 @@ def pixiv_search_common(content, group=False):
             results = api.illust_ranking(mode='day', date=None, offset=None)
             if results.get('error'):
                 if True != content.get("retry"):
-                    api.login(pixiv_user_name, pixiv_password)
+                    pixiv_login()
                     content["retry"] = True
                     return pixiv_search_common(content, group=group,need_info=content.get('sys_user').pixiv_switch)
                 else:
@@ -317,7 +341,7 @@ def pixiv_search_common(content, group=False):
         return combine_app_result(illust, group=group,need_info=content.get('sys_user').pixiv_switch)
     except Exception as pe:
         if True != content.get("retry"):
-            api.login(pixiv_user_name, pixiv_password)
+            pixiv_login()
             content["retry"] = True
             return pixiv_search_common(content, group=group)
         else:
@@ -353,7 +377,7 @@ def pixiv_web_search_common(content, r18=False, type='illustration'):
         return combine_web_result(illust, type,need_info=content.get('sys_user').pixiv_switch)
     except PixivError as pe:
         if True != content.get("retry"):
-            web_api.login(pixiv_user_name, pixiv_password)
+            web_pixiv_login()
             content["retry"] = True
             return pixiv_web_search_common(content, r18=r18, type=type)
         else:
@@ -396,7 +420,7 @@ def gen_gif_response(ill_id, retry=True):
         result = api.ugoira_metadata(ill_id)
         if result.get('error'):
             if retry:
-                api.login(pixiv_user_name, pixiv_password)
+                pixiv_login()
                 return gen_gif_response(ill_id, retry=False)
             else:
                 return "Pixiv登陆异常"
@@ -417,7 +441,7 @@ def gen_gif_response(ill_id, retry=True):
 
     except PixivError as pe:
         if retry:
-            api.login(pixiv_user_name, pixiv_password)
+            pixiv_login()
             return gen_gif_response(ill_id, retry=False)
         else:
             return "Pixiv登陆异常"

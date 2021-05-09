@@ -46,7 +46,7 @@ def build_result(subscribe,illusts):
 
 
 def scan_list():
-    ghs.api.login(ghs.pixiv_user_name,ghs.pixiv_password)
+    ghs.pixiv_login()
     # 每日前三十
     results = ghs.api.illust_ranking(mode='day', date=None, offset=None)
     results_r18 = ghs.api.illust_ranking(mode='day_r18', date=None, offset=None)
