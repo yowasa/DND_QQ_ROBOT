@@ -183,7 +183,11 @@ def add_subscribe(content,ttype,Auth_User=0):
         newSub.save()
         return '订阅成功'
     else:
-        return '已经订阅 无需重复操作'
+        if ttype != 'user':
+            old.delete_instance()
+            return '取消自动订阅'
+        else:
+            return '已经订阅 无需重复操作'
 
 
 # 为个人或群开启自动ghs功能
