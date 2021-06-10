@@ -5,7 +5,6 @@ import json
 import requests
 from PIL import Image
 from pixivpy3 import *
-from robobrowser import RoboBrowser
 import re
 from base import cq_code_formate as cq_tool
 from base import tool
@@ -13,11 +12,6 @@ from filter import msg_route
 from tool.dnd_db import PixivCache
 
 api = AppPixivAPI()
-# api = ByPassSniApi()
-# api.require_appapi_hosts(
-#     hostname="public-api.secure.pixiv.net"
-# )
-# api.set_accept_language('en_us')
 web_api = PixivAPI()
 
 
@@ -60,33 +54,6 @@ def write_refresh_token(token):
     with open('../../token', 'w') as f:
         json.dump(token, fp=f)
 
-@msg_route(r'本周奶子$')
-def oppai_now(content):
-    b = RoboBrowser(history=True)
-    b.open('http://twitter.com/Strangestone/media')
-    ls = b.find_all(class_='content')
-    for each in ls:
-        each_text = each.find(class_='TweetTextSize--normal')
-        if '月曜日のたわわ' in each_text.text:
-            pdiv = each.find(class_='AdaptiveMedia-photoContainer')
-            name = tool.requests_download_url(pdiv.img.attrs.get('src'), cq_image_file)
-            return cq_tool.package_img_2_cq_code(name)
-
-
-@msg_route(r'更多奶子$')
-def more_oppai(content):
-    b = RoboBrowser(history=True)
-    b.open('http://twitter.com/Strangestone/media')
-
-    ls = b.find_all(class_='content')
-    url_list = []
-    for each in ls:
-        each_text = each.find(class_='TweetTextSize--normal')
-        if '月曜日のたわわ' in each_text.text:
-            pdiv = each.find(class_='AdaptiveMedia-photoContainer')
-            url_list.append(pdiv.img.attrs.get('src'))
-    name_list = tool.requests_download_url_list(url_list, cq_image_file)
-    return cq_tool.package_img_2_cq_code_list(name_list)
 
 @msg_route(r'(\.|。)search')
 def img_search(content):

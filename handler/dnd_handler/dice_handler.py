@@ -106,21 +106,6 @@ def dice_ex(content):
         return f'{user_name} 骰点 {ex_msg} {all_msg} = {result_list}'
 
 
-# 今日人品功能 沙雕群友快乐源泉
-@msg_route(r'\s*\.jrrp', need_user=True)
-def jrrp(content):
-    sender = content['sender']
-    nickname = sender['nickname']
-    user = content.get('sys_user')
-    jrrp_date = user.jrrp_date
-    date = time.strftime("%Y-%m-%d")
-    if not jrrp_date or jrrp_date != date:
-        user.jrrp_date = date
-        user.jrrp = random_value(101) - 1
-        user.save()
-    return f'{nickname} 今天的运势是{user.jrrp}%！！！！！！！！！！'
-
-
 # 检定功能
 @msg_route(r'\s*\.check ', need_character=True)
 def check(content):
