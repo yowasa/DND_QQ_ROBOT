@@ -14,7 +14,7 @@ data = {
 env_dist = os.environ
 cq_image_file = env_dist.get("cq_image_file")
 if not cq_image_file:
-    cq_image_file = '/Users/yowasa/workspace/mcl-1.0.5/data/OneBot/image/'
+    cq_image_file = 'D:\\workspace\\mcl\\data\\OneBot\\image\\'
 
 
 # 今日人品功能 沙雕群友快乐源泉
