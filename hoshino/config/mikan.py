@@ -1,0 +1,1 @@
+MIKAN_TOKEN = "50jloAJG3sFiwCXGP9GiwA=="
