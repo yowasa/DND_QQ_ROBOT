@@ -97,21 +97,7 @@ Group.create_table()
 PixivCache.create_table()
 
 
-class CustomAdapter(requests.adapters.HTTPAdapter):
-    def init_poolmanager(self, *args, **kwargs):
-        # When urllib3 hand-rolls a SSLContext, it sets 'options |= OP_NO_TICKET'
-        # and CloudFlare really does not like this. We cannot control this behavior
-        # in urllib3, but we can just pass our own standard context instead.
-        import ssl
-        ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ctx.load_default_certs()
-        ctx.set_alpn_protocols(["http/1.1"])
-        return super().init_poolmanager(*args, **kwargs, ssl_context=ctx)
-
-
 api = AppPixivAPI()
-api.requests = requests.Session()
-api.requests.mount("https://", CustomAdapter())
 
 
 # # Pixiv WEB客户端
@@ -276,8 +262,93 @@ async def checksub(bot, ev: CQEvent):
         result = '订阅中'
     await bot.send(ev, result)
 
+def trancetype(msg):
+    if msg =='day':
+        return '日榜'
+    elif msg=='day_r18':
+        return 'r18日榜'
+    elif msg=='public':
+        return '默认列表'
+    elif msg=='private':
+        return 'r18默认列表'
 
-# 每30分钟扫描订阅列表发送图片
+
+@sv_img.on_prefix(['订阅列表'])
+async def sublist(bot, ev: CQEvent):
+    msg = ev.detail_type
+    if msg == 'group':
+        user_id = ev.group_id
+    elif msg == 'private':
+        user_id = ev.user_id
+    elif msg == 'discuss':
+        user_id = ev.discuss_id
+    else:
+        await bot.finish(ev,'不支持群/私聊/讨论组以外的订阅方式')
+    pack_info = [trancetype(str(sub.type)) for sub in
+                  Subscribe.select().where(
+                      (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                                  Subscribe.type != 'user'))]
+    user_infos = [str(sub.type_user) for sub in
+             Subscribe.select().where(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (Subscribe.type == 'user'))]
+    return_msg=''
+    if pack_info:
+        return_msg+='套餐\n'+'\n'.join(pack_info)+'\n\n'
+
+    if user_infos:
+        return_msg+='画师id\n'+'\n'.join(user_infos)
+    await bot.send(ev, return_msg)
+
+
+
+@sv_img.on_prefix(['取消订阅'])
+async def unsubscribe(bot, ev: CQEvent):
+    if not priv.check_priv(ev, priv.ADMIN):
+        await bot.finish(ev, '只有群管理才能设置订阅。', at_sender=True)
+    comm = str(ev.message).strip()
+    msg = ev.detail_type
+    if msg == 'group':
+        user_id = ev.group_id
+    elif msg == 'private':
+        user_id = ev.user_id
+    elif msg == 'discuss':
+        user_id = ev.discuss_id
+    else:
+        await bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
+    old = Subscribe.get_or_none(
+        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                    Subscribe.type == 'user') & (Subscribe.type_user == comm))
+    if not old:
+        await bot.send(ev,  '未订阅过该作者作品')
+    else:
+        old.delete_instance()
+        await bot.send(ev,  '取消订阅成功')
+
+@sv_img.on_prefix(['测试扫描'])
+async def test_scan(bot, ev: CQEvent):
+    pixiv_login()
+    # 每日前三十
+    results = api.illust_ranking(mode='day', date=None, offset=None)
+    results_r18 = api.illust_ranking(mode='day_r18', date=None, offset=None)
+    result_public = api.illust_follow(restrict='public')
+    result_private = api.illust_follow(restrict='private')
+    query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
+    for each in query:
+        if each.type == 'day':
+            build_result(each, results.illusts)
+        if each.type == 'day_r18':
+            build_result(each, results_r18.illusts)
+        if each.type == 'private':
+            build_result(each, result_private.illusts)
+        if each.type == 'public':
+            build_result(each, result_public.illusts)
+        if each.type == 'user':
+            results_users = api.user_illusts(each.type_user)
+            build_result(each, results_users.illusts)
+    await bot.send(ev,'扫描成功')
+
+
+
 @sv_img.scheduled_job('cron', minute='*/30')
 async def send_job():
     try:
@@ -298,10 +369,8 @@ async def send_job():
     except:
         pass
 
-
-# 每小时扫描一次
-@sv_img.scheduled_job('cron', hour='*')
-async def scan_list():
+@sv_img.scheduled_job('cron', hour ='*')
+async def scan_job():
     pixiv_login()
     # 每日前三十
     results = api.illust_ranking(mode='day', date=None, offset=None)
@@ -321,6 +390,7 @@ async def scan_list():
         if each.type == 'user':
             results_users = api.user_illusts(each.type_user)
             build_result(each, results_users.illusts)
+    return '扫描成功'
 
 
 def get_auto_delete(group_id):
