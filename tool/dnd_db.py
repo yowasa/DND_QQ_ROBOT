@@ -9,6 +9,12 @@ class BaseModel(Model):
         only_save_dirty = True
 
 
+class PixivCache(BaseModel):
+    pixiv_id = IntegerField(index=True)
+    group = BooleanField()
+    message = CharField(max_length=2000)  # cq码
+
+
 class User(BaseModel):
     id = AutoField()
     qq_number = BigIntegerField(index=True, unique=True)
@@ -145,6 +151,7 @@ class Job(BaseModel):
     desc = CharField()
     limit = IntegerField()
 
+
 class SubJob(BaseModel):
     id = AutoField()
     name = CharField(index=True, unique=True)
@@ -152,7 +159,6 @@ class SubJob(BaseModel):
     type = IntegerField()
     parent_id = IntegerField()
     desc = CharField()
-
 
 
 class Race(BaseModel):
@@ -265,28 +271,21 @@ class Alignment(BaseModel):
 
 class Subscribe(BaseModel):
     id = AutoField()
-    user_type = CharField() # user group
-    user_id = IntegerField(index=True) # qq号 群号
-    clazz = CharField() # pixiv twitter
-    type = CharField() # day day_r18 user
-    type_user = IntegerField() #作者id 推主id
+    user_type = CharField()  # user group
+    user_id = IntegerField(index=True)  # qq号 群号
+    clazz = CharField()  # pixiv twitter
+    type = CharField()  # day day_r18 user
+    type_user = IntegerField()  # 作者id 推主id
 
 
 class SubscribeSendLog(BaseModel):
     id = AutoField()
-    user_type = CharField() # user group
-    user_id = IntegerField(index=True) # qq号 群号
-    clazz = CharField() # pixiv twitter
-    message_id = IntegerField(index=True) #图片id 推文id
+    user_type = CharField()  # user group
+    user_id = IntegerField(index=True)  # qq号 群号
+    clazz = CharField()  # pixiv twitter
+    message_id = IntegerField(index=True)  # 图片id 推文id
     message_info = CharField()
-    send_flag = BooleanField(null=False,default=False)
-
-
-class PixivCache(BaseModel):
-    id = AutoField()
-    pixiv_id = IntegerField(index=True)
-    group = BooleanField()
-    message = CharField(max_length=2000) #cq码
+    send_flag = BooleanField(null=False, default=False)
 
 # SubscribeSendLog.create_table()
 # PixivCache.create_table()

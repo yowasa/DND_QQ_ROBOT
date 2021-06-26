@@ -9,15 +9,10 @@ class BaseModel(Model):
         only_save_dirty = True
 
 
-# 账号
-class Account(BaseModel):
-    id = AutoField()
-    qq_number = BigIntegerField(index=True)
-
-
 # 用户
 class User(BaseModel):
     id = AutoField()
+    name = CharField(null=True)  # 名称
     qq_number = BigIntegerField(index=True)
     group_number = BigIntegerField(index=True)
 
@@ -68,4 +63,4 @@ class Build(BaseModel):
     build = BigIntegerField(index=True)  # 建筑
 
 
-Account.create_table()
+User.create_table()
