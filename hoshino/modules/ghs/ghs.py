@@ -24,6 +24,8 @@ sv_img = Service('pixiv功能', enable_on_default=True, help_=
 [关闭图片详情] 搜tag出图会显示作品详情
 [订阅] {作者id} 为本群订阅指定作者的作品 管理员可操作
 [取消订阅] {作者id} 为本群取消订阅指定作者的作品 管理员可操作
+[订阅列表] 查看订阅的信息
+[自动订阅] 批量订阅和订阅日榜 再次输入指令取消 管理员可操作
 [热门标签] pixiv搜索最近热门的标签
 ''')
 
@@ -112,7 +114,7 @@ api = AppPixivAPI()
 #     token['refresh_token'] = web_api.refresh_token
 #     write_refresh_token(token)
 
-@sv_img.on_fullmatch(['启用自动撤回', '开启自动撤回'])
+@sv_ghs.on_fullmatch(['启用自动撤回', '开启自动撤回'])
 async def pixiv_detail_open(bot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
         await bot.finish(ev, '只有群管理才能设置自动撤回哦。', at_sender=True)
@@ -120,7 +122,7 @@ async def pixiv_detail_open(bot, ev: CQEvent):
     await bot.send(ev, "启用自动撤回成功")
 
 
-@sv_img.on_fullmatch(['关闭自动撤回'])
+@sv_ghs.on_fullmatch(['关闭自动撤回'])
 async def pixiv_detail_close(bot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
         await bot.finish(ev, '只有群管理才能设置自动撤回哦。', at_sender=True)
@@ -324,33 +326,52 @@ async def unsubscribe(bot, ev: CQEvent):
         old.delete_instance()
         await bot.send(ev,  '取消订阅成功')
 
-@sv_img.on_prefix(['测试扫描'])
-async def test_scan(bot, ev: CQEvent):
-    pixiv_login()
-    # 每日前三十
-    results = api.illust_ranking(mode='day', date=None, offset=None)
-    results_r18 = api.illust_ranking(mode='day_r18', date=None, offset=None)
-    result_public = api.illust_follow(restrict='public')
-    result_private = api.illust_follow(restrict='private')
-    query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
-    for each in query:
-        if each.type == 'day':
-            build_result(each, results.illusts)
-        if each.type == 'day_r18':
-            build_result(each, results_r18.illusts)
-        if each.type == 'private':
-            build_result(each, result_private.illusts)
-        if each.type == 'public':
-            build_result(each, result_public.illusts)
-        if each.type == 'user':
-            results_users = api.user_illusts(each.type_user)
-            build_result(each, results_users.illusts)
-    await bot.send(ev,'扫描成功')
+@sv_img.scheduled_job('cron', hour ='2')
+async def scan_job():
+    sv_img.logger.info("开始扫描订阅信息")
+    try:
+        pixiv_login()
+        sv_img.logger.info("pixiv登录成功")
+        # 每日前三十
+        results = api.illust_ranking(mode='day', date=None, offset=None)
+        sv_img.logger.info("抓取日榜信息成功")
+        results_r18 = api.illust_ranking(mode='day_r18', date=None, offset=None)
+        sv_img.logger.info("抓取r18日榜信息成功")
+        result_public = api.illust_follow(restrict='public')
+        sv_img.logger.info("抓取公开收藏夹信息成功")
+        result_private = api.illust_follow(restrict='private')
+        sv_img.logger.info("抓取私人收藏夹信息成功")
+        query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
+        for each in query:
+            if each.type == 'day':
+                await build_result(each, results.illusts)
+                sv_img.logger.info("存储日榜信息成功")
+            if each.type == 'day_r18':
+                await build_result(each, results_r18.illusts)
+                sv_img.logger.info("存储r18日榜信息成功")
+            if each.type == 'private':
+                await build_result(each, result_private.illusts)
+                sv_img.logger.info("存储私人收藏夹信息成功")
+            if each.type == 'public':
+                await build_result(each, result_public.illusts)
+                sv_img.logger.info("存储公开收藏夹信息成功")
+            if each.type == 'user':
+                await sv_img.logger.info(f"开始扫描画师{each.type_user}作品信息")
+                results_users = api.user_illusts(each.type_user)
+                await sv_img.logger.info(f"扫描画师{each.type_user}作品信息成功 准备存储")
+                await build_result(each, results_users.illusts)
+                sv_img.logger.info(f"存储指定画师{each.type_user}作品信息成功")
+        sv_img.logger.info("扫描结束")
+        return
+    except Exception as e:
+        sv_img.logger.info(f"扫描失败{e}")
+        return
 
 
 
-@sv_img.scheduled_job('cron', minute='*/30')
+@sv_img.scheduled_job('cron', minute='0,15,30,45')
 async def send_job():
+    sv_img.logger.info("开始投放订阅图片")
     try:
         need_send_list = send_list()
         for each in need_send_list:
@@ -366,31 +387,11 @@ async def send_job():
                     await sv_img.bot.send_private_msg(self_id=sid, user_id=context['user_id'], message=message)
                 elif user_type == 'discuss':
                     await sv_img.bot.send_discuss_msg(self_id=sid, discuss_id=context['discuss_id'], message=message)
-    except:
-        pass
-
-@sv_img.scheduled_job('cron', hour ='*')
-async def scan_job():
-    pixiv_login()
-    # 每日前三十
-    results = api.illust_ranking(mode='day', date=None, offset=None)
-    results_r18 = api.illust_ranking(mode='day_r18', date=None, offset=None)
-    result_public = api.illust_follow(restrict='public')
-    result_private = api.illust_follow(restrict='private')
-    query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
-    for each in query:
-        if each.type == 'day':
-            build_result(each, results.illusts)
-        if each.type == 'day_r18':
-            build_result(each, results_r18.illusts)
-        if each.type == 'private':
-            build_result(each, result_private.illusts)
-        if each.type == 'public':
-            build_result(each, result_public.illusts)
-        if each.type == 'user':
-            results_users = api.user_illusts(each.type_user)
-            build_result(each, results_users.illusts)
-    return '扫描成功'
+        sv_img.logger.info("发送完成")
+        return
+    except Exception as e:
+        sv_img.logger.info(f"发送失败{e}")
+        return
 
 
 def get_auto_delete(group_id):
@@ -614,7 +615,7 @@ def bulid_context(user_id, user_type):
     return None
 
 
-def build_result(subscribe, illusts):
+async def build_result(subscribe, illusts):
     mapping = {}
     ill_ids = []
     for illust in illusts:
@@ -637,29 +638,6 @@ def build_result(subscribe, illusts):
         sublog.message_info = message
         sublog.send_flag = False
         sublog.save()
-
-
-def scan_list():
-    pixiv_login()
-    # 每日前三十
-    results = api.illust_ranking(mode='day', date=None, offset=None)
-    results_r18 = api.illust_ranking(mode='day_r18', date=None, offset=None)
-    result_public = api.illust_follow(restrict='public')
-    result_private = api.illust_follow(restrict='private')
-    query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
-    for each in query:
-        if each.type == 'day':
-            build_result(each, results.illusts)
-        if each.type == 'day_r18':
-            build_result(each, results_r18.illusts)
-        if each.type == 'private':
-            build_result(each, result_private.illusts)
-        if each.type == 'public':
-            build_result(each, result_public.illusts)
-        if each.type == 'user':
-            results_users = api.user_illusts(each.type_user)
-            build_result(each, results_users.illusts)
-
 
 def send_list():
     result = []

@@ -20,6 +20,7 @@ import json
 from .CECounter import *
 from .ScoreCounter import *
 from .DuelCounter import *
+
 from .duelconfig import *
 
 
@@ -28,32 +29,31 @@ async def duel_help(bot, ev: CQEvent):
     msg = '''
 ╔                                       ╗    
         贵族决斗相关指令
-
-   1.贵族签到(每日一次)
-   2.查询贵族
-   3.贵族决斗+艾特
+   0.[创建贵族]开启贵族之旅
+   1.[贵族签到](每日一次)
+   2.[查询贵族]
+   3.[贵族决斗]@群友
    4.领金币/查金币
-   5.贵族舞会(招募女友)
-   6.查女友+角色名
-   7.升级贵族
-   8.重置金币+qq (限群主)
-   9.重置角色+qq (限群主) 
-   10.重置决斗(限管理，决
-   斗卡住时用)
-   11.分手+角色名(需分手费)
-   12.贵族等级表
-   13.兑换声望+数量(兑换比例1：10)
-   14.转账(为@qq转账xxx金币)
-   15.女友交易(用xxx金币与@qq交易女友+角色名)，需要收10%交易手续费
-   16.dlc帮助(增加dlc角色)
-   17.声望帮助(查询声望系统指令)
-   18.时装帮助(查询时装系统指令)
-   19.副本帮助(查询副本系统指令)
-   20.战斗帮助(查询战斗系统指令)
-   21.会战帮助(查询会战系统指令)
+   5.[贵族舞会]招募女友
+   6.[查女友]{角色名}
+   7.[升级贵族]
+   8.[重置金币]{qq号} (限群主)
+   9.[重置角色]{qq} (限群主) 
+   10.[重置决斗] 限管理使用，决斗卡住时用
+   11.[分手]{角色名} 需分手费
+   12.[贵族等级表]
+   13.[用{数量}声望兑换金币] 兑换比例1：10 至少200起换
+   14.[为@群友转账{额度}金币]
+   15.[用{额度}金币与@群友交易女友]{角色名} 需要收10%交易手续费
+   16.[dlc帮助] 查看dlc帮助 
+   17.[声望帮助] 查询声望系统指令
+   18.[时装帮助] 查询时装系统指令
+   19.[副本帮助] 查询副本系统指令
+   20.[战斗帮助] 查询战斗系统指令
+   21.[会战帮助] 查询会战系统指令
    
    
-  一个女友只属于一位群友
+   一个女友只属于一位群友
 ╚                                        ╝
 '''
     await bot.send(ev, msg)
@@ -123,8 +123,9 @@ async def help_dlc(bot, ev: CQEvent):
 ╔                                 ╗
          DLC帮助
       
-  1.加载\卸载dlc+dlc名
-  2.dlc列表(查看介绍)
+  1.[加载dlc]{dlc名}
+  2.[卸载dlc]{dlc名}
+  3.[dlc列表](查看介绍)
   
   卸载的dlc不会被抽到
   但是角色仍留在仓库
@@ -137,17 +138,17 @@ async def help_dlc(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['贵族表', '贵族等级表'])
 async def duel_biao(bot, ev: CQEvent):
-    msg = '''"1": "平民",  最多可持有1名女友，每日签到额外获得100金币，初始等级。
-"2": "骑士",  升级需要100金币，最多可持有2名女友，每日签到额外获得200金币，保持等级最少持有1名女友。
-"3": "准男爵", 升级需要300金币，最多可持有3名女友，每日签到额外获得300金币，保持等级最少持有2名女友。
-"4": "男爵",升级需要500金币，最多可持有5名女友，每日签到额外获得400金币，保持等级最少持有3名女友。
-"5": "子爵",升级需要1000金币，最多可持有7名女友，每日签到额外获得500金币，保持等级最少持有5名女友。
-"6": "伯爵",升级需要3000金币，最多可持有9名女友，每日签到额外获得600金币，保持等级最少持有7名女友。
-"7": "侯爵",升级需要1000声望和5000金币，最多可持有10名女友，每日签到额外获得700金币，保持等级最少持有9名女友。
-"8": "公爵",升级需要1500声望和10000金币，最多可持有12名女友，每日签到额外获得800金币，不再会掉级，可拥有一名妻子。
-"9": "国王",升级需要2000声望和15000金币，最多可持有14名女友，每日签到额外获得900金币，不再会掉级，可拥有一名妻子。
-"10": "皇帝"升级需要2500声望和20000金币，最多可持有15名女友，每日签到额外获得1000金币，不再会掉级，可拥有一名妻子。
-"11": "神"升级需要4000声望和30000金币，最多可持有99名女友，每日签到额外获得2000金币，当输光女友时贬为平民，可拥有一名妻子。
+    msg = f'''"1": "平民",  最多可持有{LEVEL_GIRL_NEED[str(1)]}名女友，每日签到额外获得100金币，初始等级。
+"2": "骑士",  升级需要{LEVEL_COST_DICT[str(2)]}金币，最多可持有{LEVEL_GIRL_NEED[str(2)]}名女友，每日签到额外获得200金币，保持等级最少持有1名女友。
+"3": "准男爵", 升级需要{LEVEL_COST_DICT[str(3)]}金币，最多可持有{LEVEL_GIRL_NEED[str(3)]}名女友，每日签到额外获得300金币，保持等级最少持有2名女友。
+"4": "男爵",升级需要{LEVEL_COST_DICT[str(4)]}金币，最多可持有{LEVEL_GIRL_NEED[str(4)]}名女友，每日签到额外获得400金币，保持等级最少持有3名女友。
+"5": "子爵",升级需要{LEVEL_COST_DICT[str(5)]}金币，最多可持有{LEVEL_GIRL_NEED[str(5)]}名女友，每日签到额外获得500金币，保持等级最少持有5名女友。
+"6": "伯爵",升级需要{LEVEL_COST_DICT[str(6)]}金币，最多可持有{LEVEL_GIRL_NEED[str(6)]}名女友，每日签到额外获得600金币，保持等级最少持有7名女友。
+"7": "侯爵",升级需要{LEVEL_SW_NEED[str(7)]}声望和{LEVEL_COST_DICT[str(7)]}金币，最多可持有{LEVEL_GIRL_NEED[str(7)]}名女友，每日签到额外获得700金币，保持等级最少持有9名女友。
+"8": "公爵",升级需要{LEVEL_SW_NEED[str(8)]}声望和{LEVEL_COST_DICT[str(8)]}金币，最多可持有{LEVEL_GIRL_NEED[str(8)]}名女友，每日签到额外获得800金币，不再会掉级，可拥有一名妻子。
+"9": "国王",升级需要{LEVEL_SW_NEED[str(9)]}声望和{LEVEL_COST_DICT[str(9)]}金币，最多可持有{LEVEL_GIRL_NEED[str(9)]}名女友，每日签到额外获得900金币，不再会掉级，可拥有一名妻子。
+"10": "皇帝"升级需要{DJ_NEED_SW}声望和{DJ_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(10)]}名女友，每日签到额外获得1000金币，不再会掉级，可拥有一名妻子。
+"11": "神"升级需要{FS_NEED_SW }声望和{FS_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(20)]}名女友，每日签到额外获得2000金币，当输光女友时贬为平民，可拥有一名妻子。
 '''
     await bot.send(ev, msg)
 
@@ -498,12 +499,12 @@ async def nobleduel(bot, ev: CQEvent):
         return
 
     if not name:
-        await bot.send(ev, '请输入查女友+pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入查女友+角色名。', at_sender=True)
         duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         return
     cid = chara.name2id(name)
     if cid == 1000:
-        await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         return
     owner = duel._get_card_owner(gid, cid)
@@ -1645,7 +1646,7 @@ async def add_score(bot, ev: CQEvent):
         await bot.send(ev, '错误:\n' + str(e))
 
 
-@sv.on_prefix(['查金币', '查询金币', '查看金币'])
+@sv.on_prefix(['查金币', '查询金币', '查看金币','金币查询'])
 async def get_score(bot, ev: CQEvent):
     try:
         score_counter = ScoreCounter2()
@@ -2024,7 +2025,7 @@ async def prestige_help(bot, ev: CQEvent):
     await bot.send(ev, msg)
 
 
-@sv.on_fullmatch('查询声望')
+@sv.on_fullmatch(['查询声望','查声望','声望查询'])
 async def inquire_prestige(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -2674,7 +2675,7 @@ async def cheat_score(bot, ev: CQEvent):
     pay_score = num
     num2 = num * 10
     if prestige < pay_score:
-        msg = f'您的声望只有{score}，无法兑换哦。'
+        msg = f'您的声望只有{prestige}，无法兑换哦。'
         await bot.send(ev, msg, at_sender=True)
         return
     else:
