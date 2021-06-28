@@ -337,7 +337,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
     # 处理输入数据
     match = ev['match']
     if match.group(2):
-        dun_nd = str(match.group(2))
+        dun_nd = str(match.group(2)).strip()
     else:
         dun_nd='简单'
 
@@ -358,9 +358,9 @@ async def add_duiwu_t(bot, ev: CQEvent):
         nd_t=20
     else:
         await bot.finish(ev, '请输入正确的副本难度(简单/困难/地狱)', at_sender=True)
-    dunname = str(match.group(3))
+    dunname = str(match.group(3)).strip()
     dunname = re.sub(r'[?？，,_ ]', '', dunname)
-    defen = str(match.group(1))
+    defen = str(match.group(1)).strip()
     defen = re.sub(r'[?？，,_]', '', defen)
     #await bot.finish(ev, f'进入{dun_nd}副本', at_sender=True)
     if not defen:

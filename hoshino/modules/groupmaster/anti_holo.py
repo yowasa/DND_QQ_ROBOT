@@ -29,7 +29,7 @@ Hololive ホロ 木口 术口
 宝钟 玛琳 宝鐘マリン Houshou Marine 无船承运人 山贼
 天音彼方 天音かなた Amane Kanata 彼方碳 かなたん PP天使 天妈 音妹 天音 天音腾格尔
 桐生可可 桐生 ココ Kiryū Kiryuu Coco 🐉 虫皇 龙皇 憨憨龙 ass龙 宝批龙 西成女王 tskk
-角卷绵芽 角巻わため Tsunomaki Watame wtm 毛球 顶顶羊 咚咚羊 畜生羊 木口锤石
+角卷绵芽 角巻わため Tsunomaki Watame 毛球 顶顶羊 咚咚羊 畜生羊 木口锤石
 常暗永远 常闇トワ Tokoyami Towa 永远大人 トワ様
 姬森璐娜 姫森 ルーナ Himemori Luuna 璐娜
 雪花菈米 雪花ラミィYukihana Lamy 菈米 雪妈 菈米妈妈

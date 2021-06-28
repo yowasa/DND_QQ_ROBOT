@@ -18,12 +18,12 @@ async def news_poller(spider: BaseSpider, sv: Service, TAG):
     await sv.broadcast(spider.format_items(news), TAG, interval_time=0.5)
 
 
-@svtw.scheduled_job('cron', minute='*/5', jitter=20)
+@svtw.scheduled_job('cron', hour='*/3', jitter=20)
 async def sonet_news_poller():
     await news_poller(SonetSpider, svtw, '台服官网')
 
 
-@svbl.scheduled_job('cron', minute='*/5', jitter=20)
+@svbl.scheduled_job('cron', hour='*/3', jitter=20)
 async def bili_news_poller():
     await news_poller(BiliSpider, svbl, 'B服官网')
 

@@ -14,7 +14,7 @@ from hoshino.typing import CommandSession
 
 UNKNOWN = 1000
 
-sv = Service('自定义DLC', enable_on_default=True, visible=True, help_=
+sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
 '''=====================
 自定义dlc说明
 =====================
@@ -130,6 +130,9 @@ async def search_chara(bot, ev: CQEvent):
         await bot.finish(ev, f'女友{msg}不是自定义女友')
     chara = get_json('chara')
     del chara[chara_id]
+    delete_ids = get_json('delete_ids')
+    delete_ids.append(int(chara_id))
+    write_json('delete_ids',delete_ids)
     write_json('chara', chara)
     roster.update()
     os.remove(R.img(f'dlc/icon/icon_unit_{chara_id}61.png').path)
@@ -194,11 +197,21 @@ async def add_chara(session: CommandSession):
     full_pic = trance_2_png(full_img)
     await session.bot.send(session.event, "已收到信息，处理中")
     chara = get_json('chara')
-    count = 0
-    for key, values in chara.items():
-        if int(DLC[choice]['index']) < int(key) < int(DLC[choice]['index'] + 999):
-            count + 1
-    char_id = DLC[choice]['index'] + count
+    delete_ids = get_json('delete_ids')
+    char_id=0
+    for id in delete_ids:
+        if int(DLC[choice]['index']) <= int(id) <= int(DLC[choice]['index'] + 999):
+            char_id=int(id)
+            break
+    if char_id!=0:
+        delete_ids.remove(char_id)
+        write_json('delete_ids', delete_ids)
+    else:
+        count = 0
+        for key, values in chara.items():
+            if int(DLC[choice]['index']) <= int(key) <= int(DLC[choice]['index'] + 999):
+                count += 1
+        char_id = DLC[choice]['index'] + count
     names = [name]
     names.extend(aliases)
     chara[char_id] = names
@@ -245,7 +258,7 @@ def resize_img(hash_name):
     img = Image.open(R.img(f'dlc/cache/{hash_name}').path)
     size = min(img.size)
     cropped = img.crop((0, 0, size, size))  # (left, upper, right, lower)
-    cropped = cropped.resize((128, 128))
+    cropped = cropped.resize((128, 128),Image.ANTIALIAS)
     re_name = 'icon_' + hash_name.replace('jpg', 'png')
     cropped.save(R.img(f'dlc/cache/{re_name}').path, "PNG")
     return re_name
