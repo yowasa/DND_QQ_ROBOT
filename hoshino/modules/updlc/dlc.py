@@ -130,7 +130,7 @@ async def search_chara(bot, ev: CQEvent):
         await bot.finish(ev, f'女友{msg}不是自定义女友')
     chara = get_json('chara')
     del chara[chara_id]
-    write_json('chara',chara)
+    write_json('chara', chara)
     roster.update()
     os.remove(R.img(f'dlc/icon/icon_unit_{chara_id}61.png').path)
     os.remove(R.img(f'dlc/full/{chara_id}31.png').path)
@@ -164,7 +164,7 @@ async def add_chara(session: CommandSession):
     for name, content in DLC.items():
         msg += f'{name}\n'
     choice = session.get('choice', prompt=msg)
-    if not DLC[choice]:
+    if not DLC.get(choice):
         await session.bot.send(session.event, f"未找到自定义DLC{choice}")
         return
     name = session.get('name', prompt='请输入角色名')
@@ -175,7 +175,7 @@ async def add_chara(session: CommandSession):
     aliases = str(aliases_str).strip().split(' ')
     for aliase in aliases:
         if roster.get_id(aliase) != UNKNOWN:
-            await session.bot.send(session.event, f"已经存在别名为{name}的角色，请勿重复")
+            await session.bot.send(session.event, f"已经存在别名为{aliase}的角色，请勿重复")
             return
     icon = session.get('icon', prompt='请发送角色头像,会从左上角尽可能截取一个正方形区域')
     if type(icon) == list:
@@ -196,7 +196,7 @@ async def add_chara(session: CommandSession):
     chara = get_json('chara')
     count = 0
     for key, values in chara.items():
-        if DLC[choice]['index'] < key < DLC[choice]['index'] + 999:
+        if int(DLC[choice]['index']) < int(key) < int(DLC[choice]['index'] + 999):
             count + 1
     char_id = DLC[choice]['index'] + count
     names = [name]
