@@ -15,7 +15,7 @@ from hoshino.util import DailyNumberLimiter
 import copy
 import json
 
-sv = Service('贵族决斗', enable_on_default=True, bundle="贵族决斗", help_=
+sv = Service('贵族决斗', enable_on_default=False, bundle="贵族决斗", help_=
 """[贵族帮助]查看相关帮助
 """)
 from .CECounter import *
