@@ -1,4 +1,3 @@
-import importlib
 from io import BytesIO
 
 import pygtrie
@@ -8,7 +7,7 @@ from fuzzywuzzy import process
 
 import hoshino
 from hoshino import R, log, util
-from . import _pcr_duel_data
+import json
 
 logger = log.new_logger('chara', hoshino.config.DEBUG)
 UNKNOWN = 1000
@@ -29,6 +28,7 @@ try:
     unknown_chara_icon = R.img(f'priconne/unit/icon_unit_{UNKNOWN}31.png').open()
 except Exception as e:
     logger.exception(e)
+chara_info={}
 
 
 class Roster:
@@ -38,15 +38,15 @@ class Roster:
         self.update()
 
     def update(self):
-        importlib.reload(_pcr_duel_data)
+        global chara_info
         self._roster.clear()
-        for idx, names in _pcr_duel_data.CHARA_NAME.items():
+        with open(R.get(f'duel/chara.json').path, 'r', encoding='UTF-8') as f:
+            chara_info = json.load(f)
+        for idx, names in chara_info.items():
             for n in names:
                 n = util.normalize_str(n)
                 if n not in self._roster:
-                    self._roster[n] = idx
-                # else:
-                # logger.warning(f'priconne.chara.Roster: 出现重名{n}于id{idx}与id{self._roster[n]}')
+                    self._roster[n] = int(idx)
         self._all_name_list = self._roster.keys()
 
     def get_id(self, name):
@@ -129,7 +129,6 @@ def download_chara_icon(id_, star):
 
 
 class Chara:
-
     def __init__(self, id_, star=0, equip=0):
         self.id = id_
         self.star = star
@@ -137,8 +136,8 @@ class Chara:
 
     @property
     def name(self):
-        return _pcr_duel_data.CHARA_NAME[self.id][0] if self.id in _pcr_duel_data.CHARA_NAME else \
-        _pcr_duel_data.CHARA_NAME[UNKNOWN][0]
+        return chara_info[str(self.id)][0] if str(self.id) in chara_info else \
+        chara_info[str(UNKNOWN)][0]
 
     @property
     def is_npc(self) -> bool:
@@ -146,23 +145,13 @@ class Chara:
 
     @property
     def icon(self):
-        star = '3' if 1 <= self.star <= 5 else '6'
-        res = R.img(f'priconne/unit/icon_unit_{self.id}61.png')
+        res = R.img(f'dlc/icon/icon_unit_{self.id}61.png')
         if not res.exist:
-            res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
+            res = R.img(f'dlc/icon/icon_unit_{self.id}31.png')
         if not res.exist:
-            res = R.img(f'priconne/unit/icon_unit_{self.id}11.png')
-        if not res.exist:  # FIXME: 不方便改成异步请求
-            download_chara_icon(self.id, 6)
-            download_chara_icon(self.id, 3)
-            download_chara_icon(self.id, 1)
-            res = R.img(f'priconne/unit/icon_unit_{self.id}{star}1.png')
+            res = R.img(f'dlc/icon/icon_unit_{self.id}11.png')
         if not res.exist:
-            res = R.img(f'priconne/unit/icon_unit_{self.id}31.png')
-        if not res.exist:
-            res = R.img(f'priconne/unit/icon_unit_{self.id}11.png')
-        if not res.exist:
-            res = R.img(f'priconne/unit/icon_unit_{UNKNOWN}31.png')
+            res = R.img(f'dlc/icon/icon_unit_{UNKNOWN}31.png')
         return res
 
     def render_icon(self, size, star_slot_verbose=True) -> Image:

@@ -2,15 +2,14 @@ import json
 import os
 import shutil
 
-import pygtrie
 from PIL import Image
-from fuzzywuzzy import process
 
-from hoshino import R, Service, util
-from hoshino.modules.priconne.pcr_duel._pcr_duel_data import CHARA_NAME
+from hoshino import R, Service
 from hoshino.service import sucmd
 from hoshino.typing import CQEvent
 from hoshino.typing import CommandSession
+from hoshino.modules.pcr_duel.duelconfig import refresh_config
+from hoshino.modules.pcr_duel import duel_chara
 
 UNKNOWN = 1000
 
@@ -18,96 +17,52 @@ sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
 '''=====================
 自定义dlc说明
 =====================
-[增加自定义dlc] 仅骰子管理员可用
-[自定义dlc列表]
-[添加自定义dlc角色]
-[删除自定义dlc角色]
-[自定义dlc角色查询]+女友名
+[增加dlc] 仅维护人员可用
+[添加女友]
+[删除女友]
+[角色查询]+女友名
 
 * 添加的dlc和角色不会立即加入可选dlc列表 当你认为角色已经齐全的时候联系骰子管理员进行添加 *
 ''')
 
 
 def get_json(name):
-    with open(R.get(f'dlc/{name}.json').path, 'r') as f:
+    with open(R.get(f'duel/{name}.json').path, 'r',encoding='UTF-8') as f:
         return json.load(f)
 
 
 def write_json(name, content):
-    with open(R.get(f'dlc/{name}.json').path, 'w') as f:
-        json.dump(content, fp=f)
+    with open(R.get(f'duel/{name}.json').path, 'w',encoding='UTF-8') as f:
+        json.dump(content, fp=f,ensure_ascii=False, indent=4)
 
-
-class Roster:
-
-    def __init__(self):
-        self._roster = pygtrie.CharTrie()
-        self.update()
-
-    def update(self):
-        self._roster.clear()
-        for idx, names in CHARA_NAME.items():
-            for n in names:
-                n = util.normalize_str(n)
-                if n not in self._roster:
-                    self._roster[n] = idx
-        dlc_chara = get_json('chara')
-        for idx, names in dlc_chara.items():
-            for n in names:
-                n = util.normalize_str(n)
-                if n not in self._roster:
-                    self._roster[n] = idx
-        self._all_name_list = self._roster.keys()
-
-    def get_id(self, name):
-        name = util.normalize_str(name)
-        return self._roster[name] if name in self._roster else UNKNOWN
-
-    def guess_id(self, name):
-        """@return: id, name, score"""
-        name, score = process.extractOne(name, self._all_name_list)
-        return self._roster[name], name, score
-
-    def parse_team(self, namestr):
-        """@return: List[ids], unknown_namestr"""
-        namestr = util.normalize_str(namestr)
-        team = []
-        unknown = []
-        while namestr:
-            item = self._roster.longest_prefix(namestr)
-            if not item:
-                unknown.append(namestr[0])
-                namestr = namestr[1:].lstrip()
-            else:
-                team.append(item.value)
-                namestr = namestr[len(item.key):].lstrip()
-        return team, ''.join(unknown)
-
-
-roster = Roster()
 
 # 开始下标
 BEGIN_INDEX = 20000
 
 
-@sucmd('增加自定义dlc', aliases=('添加自定义dlc'), force_private=False)
+@sucmd('增加dlc', aliases=('添加dlc'), force_private=False)
 async def dlc_add(session: CommandSession):
     bot = session.bot
     ev = session.event
-    msg = str(session.current_arg).strip()
-    comm = msg.split(' ')
-    name = comm[0]
-    code = comm[1]
-    content = get_json('DLC')
-    index = BEGIN_INDEX + len(content) * 1000
-    content[name] = {'code': code, 'index': index}
-    write_json('DLC', content)
+    name = session.get('name', prompt='输入dlc名称')
+    code = session.get('code', prompt='输入dlc code')
+    desc = session.get('desc', prompt='输入dlc描述')
+    offset = session.get('offset', prompt='输入dlc 起始编号')
+    to = session.get('to', prompt='输入dlc 终止编号')
+    content = get_json('dlc_config')
+    content[name] = {'code': code, 'index': int(offset),'to':int(to),'desc':desc}
+    write_json('dlc_config', content)
     await bot.send(ev, message='添加成功')
+
+@dlc_add.args_parser
+async def a_p(session: CommandSession):
+    text = session.current_arg_text
+    session.state[session.current_key] = text
 
 
 @sv.on_prefix(['自定义dlc列表'])
 async def dlc_list(bot, ev: CQEvent):
-    contents = get_json('DLC')
+    contents = get_json('dlc_config')
     msg = '==== 自定义DLC列表 ====\n'
     for name, content in contents.items():
         msg += f'''{name}dlc:
@@ -123,7 +78,7 @@ async def search_chara(bot, ev: CQEvent):
     msg = str(ev.message)
     if not ev.message:
         await bot.finish(ev, '请通过"自定义dlc角色查询+女友名"来查询')
-    chara_id = roster.get_id(msg)
+    chara_id = duel_chara.name2id(msg)
     if int(chara_id) == UNKNOWN:
         await bot.finish(ev, f'未查询到名称未{msg}的女友信息')
     if int(chara_id) < 20000:
@@ -134,7 +89,8 @@ async def search_chara(bot, ev: CQEvent):
     delete_ids.append(int(chara_id))
     write_json('delete_ids',delete_ids)
     write_json('chara', chara)
-    roster.update()
+    duel_chara.roster.update()
+    refresh_config()
     os.remove(R.img(f'dlc/icon/icon_unit_{chara_id}61.png').path)
     os.remove(R.img(f'dlc/full/{chara_id}31.png').path)
     await bot.send(ev, f'女友 {msg} 已经删除')
@@ -145,7 +101,7 @@ async def search_chara(bot, ev: CQEvent):
     msg = str(ev.message)
     if not msg:
         await bot.finish(ev, '请通过"自定义dlc角色查询+女友名"来查询')
-    chara_id = roster.get_id(msg)
+    chara_id = duel_chara.name2id(msg)
     if int(chara_id) == UNKNOWN:
         await bot.finish(ev, f'未查询到名称为 {msg} 的女友信息')
     if int(chara_id) < 20000:
@@ -162,7 +118,7 @@ async def search_chara(bot, ev: CQEvent):
 
 @sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色'))
 async def add_chara(session: CommandSession):
-    DLC = get_json('DLC')
+    DLC = get_json('dlc_config')
     msg = '选择添加进哪个dlc\n'
     for name, content in DLC.items():
         msg += f'{name}\n'
@@ -171,13 +127,13 @@ async def add_chara(session: CommandSession):
         await session.bot.send(session.event, f"未找到自定义DLC{choice}")
         return
     name = session.get('name', prompt='请输入角色名')
-    if roster.get_id(name) != UNKNOWN:
+    if duel_chara.name2id(name) != UNKNOWN:
         await session.bot.send(session.event, f"已经存在名为{name}的角色，请加后缀标识避免重复")
         return
     aliases_str = session.get('aliases', prompt='请输入角色别名，用空格隔开')
     aliases = str(aliases_str).strip().split(' ')
     for aliase in aliases:
-        if roster.get_id(aliase) != UNKNOWN:
+        if duel_chara.name2id(aliase) != UNKNOWN:
             await session.bot.send(session.event, f"已经存在别名为{aliase}的角色，请勿重复")
             return
     icon = session.get('icon', prompt='请发送角色头像,会从左上角尽可能截取一个正方形区域')
@@ -200,7 +156,7 @@ async def add_chara(session: CommandSession):
     delete_ids = get_json('delete_ids')
     char_id=0
     for id in delete_ids:
-        if int(DLC[choice]['index']) <= int(id) <= int(DLC[choice]['index'] + 999):
+        if int(DLC[choice]['index']) <= int(id) <= int(DLC[choice]['to']):
             char_id=int(id)
             break
     if char_id!=0:
@@ -209,7 +165,7 @@ async def add_chara(session: CommandSession):
     else:
         count = 0
         for key, values in chara.items():
-            if int(DLC[choice]['index']) <= int(key) <= int(DLC[choice]['index'] + 999):
+            if int(DLC[choice]['index']) <= int(key) <= int(DLC[choice]['to']):
                 count += 1
         char_id = DLC[choice]['index'] + count
     names = [name]
@@ -220,7 +176,8 @@ async def add_chara(session: CommandSession):
                 os.path.join(R.img(f'dlc/icon').path, f'icon_unit_{char_id}61.png'))
     shutil.move(R.img(f'dlc/cache/{full_pic}').path,
                 os.path.join(R.img(f'dlc/full').path, f'{char_id}31.png'))
-    roster.update()
+    duel_chara.roster.update()
+    refresh_config()
     await session.bot.send(session.event, '生成完成，请通过"自定义dlc角色查询+女友名"来查询添加的内容')
 
 

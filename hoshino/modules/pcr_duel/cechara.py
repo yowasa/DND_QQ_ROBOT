@@ -1,5 +1,11 @@
-from hoshino.modules.priconne.pcr_duel import *
+from hoshino.modules.pcr_duel import *
 from . import sv
+from . import DuelCounter
+from .ScoreCounter import ScoreCounter2
+from hoshino.typing import CQEvent
+from .duelconfig import get_nv_icon
+from .duelconfig import get_fashion
+from .duelconfig import get_relationship
 
 
 @sv.on_prefix(['女友信息'])

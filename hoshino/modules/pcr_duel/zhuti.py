@@ -1,14 +1,11 @@
 import asyncio
-import base64
 import copy
-import random
 import re
-from io import BytesIO
 
 from hoshino import priv
-from hoshino.modules.priconne.pcr_duel import duel_chara as chara
 from hoshino.typing import CQEvent
 from . import sv
+from . import duel_chara
 from .ScoreCounter import *
 from .duelconfig import *
 
@@ -394,12 +391,12 @@ async def store_shangjia(bot, ev: CQEvent):
     if not name:
         await bot.send(ev, '请输入查女友+pcr角色名。', at_sender=True)
         return
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
         return
     owner = duel._get_card_owner(gid, cid)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     # 判断是否是妻子。
     if duel._get_queen_owner(gid, cid) != 0:
         await bot.finish(ev, f'\n{c.name}现在是\n[CQ:at,qq={owner}]的妻子，无法上架哦。', at_sender=True)
@@ -491,13 +488,13 @@ async def nobleduel(bot, ev: CQEvent):
         await bot.send(ev, '请输入查女友+角色名。', at_sender=True)
         duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         return
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         return
     owner = duel._get_card_owner(gid, cid)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     # 判断是否是妻子。
     if duel._get_queen_owner(gid, cid) != 0:
         owner = duel._get_queen_owner(gid, cid)
@@ -636,7 +633,7 @@ async def noblelogin(bot, ev: CQEvent):
 
     if cidnum > 0:
         cid = random.choice(cidlist)
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         nvmes = get_nv_icon(cid)
         msg += f'\n\n今天向您请安的是\n{c.name}{nvmes}'
         # 随机获得一件礼物
@@ -695,7 +692,7 @@ async def noblelogin(bot, ev: CQEvent):
                 else:
                     score_counter._reduce_score(gid, uid, GACHA_COST)
                     cid = 9999
-                    c = chara.fromid(1059)
+                    c = duel_chara.fromid(1059)
                     duel._add_card(gid, uid, cid)
                     msg = f'本群已经没有可以约的女友了哦，一位神秘的可可萝在你孤单时来到了你身边。{c.icon.cqcode}。'
                     await bot.send(ev, msg, at_sender=True)
@@ -704,7 +701,7 @@ async def noblelogin(bot, ev: CQEvent):
             # 招募女友成功
             daily_free_limiter.increase(guid)
             cid = random.choice(newgirllist)
-            c = chara.fromid(cid)
+            c = duel_chara.fromid(cid)
             nvmes = get_nv_icon(cid)
             duel._add_card(gid, uid, cid)
             wintext = random.choice(Addgirlsuccess)
@@ -770,11 +767,11 @@ async def add_noble(bot, ev: CQEvent):
         newgirllist = get_newgirl_list(gid)
         if len(newgirllist) == 0:
             cid = 9999
-            c = chara.fromid(1059)
+            c = duel_chara.fromid(1059)
             girlmsg = f'本群已经没有可以约的女友了哦，一位神秘的可可萝在你孤单时来到了你身边。{c.icon.cqcode}。'
         else:
             cid = random.choice(newgirllist)
-            c = chara.fromid(cid)
+            c = duel_chara.fromid(cid)
             girlmsg = f'为您分配的初始女友为：{c.name}{c.icon.cqcode}'
         duel._add_card(gid, uid, cid)
         duel._set_level(gid, uid, 1)
@@ -873,8 +870,8 @@ async def inquire_noble(bot, ev: CQEvent):
             if cid == 9999:
                 cid = 1059
             star = CE._get_cardstar(gid, uid, cid)
-            charalist.append(chara.Chara(cid, star, 0))
-            c = chara.fromid(cid)
+            charalist.append(duel_chara.Chara(cid, star, 0))
+            c = duel_chara.fromid(cid)
             shuzi_flag = shuzi_flag + 1
             nv_names = nv_names + c.name + ' '
             if shuzi_flag == 6:
@@ -885,15 +882,15 @@ async def inquire_noble(bot, ev: CQEvent):
         num = copy.deepcopy(cidnum)
         position = 6
         if num <= 6:
-            res = chara.gen_team_pic(charalist, star_slot_verbose=False)
+            res = duel_chara.gen_team_pic(charalist, star_slot_verbose=False)
         else:
             num -= 6
-            res = chara.gen_team_pic(charalist[0:position], star_slot_verbose=False)
+            res = duel_chara.gen_team_pic(charalist[0:position], star_slot_verbose=False)
             while (num > 0):
                 if num >= 6:
-                    res1 = chara.gen_team_pic(charalist[position:position + 6], star_slot_verbose=False)
+                    res1 = duel_chara.gen_team_pic(charalist[position:position + 6], star_slot_verbose=False)
                 else:
-                    res1 = chara.gen_team_pic(charalist[position:], star_slot_verbose=False)
+                    res1 = duel_chara.gen_team_pic(charalist[position:], star_slot_verbose=False)
                 res = concat_pic([res, res1])
                 position += 6
                 num -= 6
@@ -920,7 +917,7 @@ async def inquire_noble(bot, ev: CQEvent):
         # 判断有无妻子
         queen = duel._search_queen(gid, uid)
         if queen != 0:
-            c = chara.fromid(queen)
+            c = duel_chara.fromid(queen)
 
             msg = f'''
 ╔                          ╗
@@ -987,7 +984,7 @@ async def add_girl(bot, ev: CQEvent):
             else:
                 score_counter._reduce_score(gid, uid, GACHA_COST)
                 cid = 9999
-                c = chara.fromid(1059)
+                c = duel_chara.fromid(1059)
                 duel._add_card(gid, uid, cid)
                 msg = f'本群已经没有可以约的女友了哦，一位神秘的可可萝在你孤单时来到了你身边。{c.icon.cqcode}。'
                 await bot.send(ev, msg, at_sender=True)
@@ -1006,7 +1003,7 @@ async def add_girl(bot, ev: CQEvent):
 
         # 招募女友成功
         cid = random.choice(newgirllist)
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         nvmes = get_nv_icon(cid)
         duel._add_card(gid, uid, cid)
         wintext = random.choice(Addgirlsuccess)
@@ -1060,7 +1057,7 @@ async def add_girl(bot, ev: CQEvent):
             else:
                 score_counter._reduce_prestige(gid, uid, needSW2)
                 cid = 9999
-                c = chara.fromid(1059)
+                c = duel_chara.fromid(1059)
                 duel._add_card(gid, uid, cid)
                 msg = f'本群已经没有可以约的女友了哦，一位神秘的可可萝在你孤单时来到了你身边。{c.icon.cqcode}。'
                 await bot.send(ev, msg, at_sender=True)
@@ -1069,7 +1066,7 @@ async def add_girl(bot, ev: CQEvent):
         score_counter._reduce_prestige(gid, uid, needSW2)
         # 招募女友成功
         cid = random.choice(newgirllist)
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         nvmes = get_nv_icon(cid)
         duel._add_card(gid, uid, cid)
         wintext = random.choice(Addgirlsuccess)
@@ -1308,7 +1305,7 @@ async def nobleduel(bot, ev: CQEvent):
     # 判断决斗胜利者是否有绑定角色,有则增加经验值
     bd_msg = ''
     if bangdinwin:
-        bd_info = chara.fromid(bangdinwin)
+        bd_info = duel_chara.fromid(bangdinwin)
         card_level = add_exp(gid, winner, bangdinwin, WIN_EXP)
         nvmes = get_nv_icon(bangdinwin)
         up_info = duel._get_fashionup(gid, winner, bangdinwin, 0)
@@ -1320,7 +1317,7 @@ async def nobleduel(bot, ev: CQEvent):
     # 判定被输掉的是否是复制人可可萝，是则换成金币。
     if selected_girl == 9999:
         score_counter._add_score(gid, winner, 300)
-        c = chara.fromid(1059)
+        c = duel_chara.fromid(1059)
         nvmes = get_nv_icon(1059)
         duel._delete_card(gid, loser, selected_girl)
         msg = f'[CQ:at,qq={winner}]\n您赢得了神秘的可可萝，但是她微笑着消失了。\n本次决斗获得了300金币。'
@@ -1350,7 +1347,7 @@ async def nobleduel(bot, ev: CQEvent):
     elif girl_outlimit(gid, winner):
         score_counter._add_score(gid, winner, 1000)
         msg = f'[CQ:at,qq={winner}]您的女友超过了爵位上限，\n本次决斗获得了300金币。'
-        c = chara.fromid(selected_girl)
+        c = duel_chara.fromid(selected_girl)
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
         if favor >= favor_reduce:
@@ -1365,7 +1362,7 @@ async def nobleduel(bot, ev: CQEvent):
     else:
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
-        c = chara.fromid(selected_girl)
+        c = duel_chara.fromid(selected_girl)
         if favor >= favor_reduce:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了50点。\n{c.icon.cqcode}'
@@ -1739,13 +1736,13 @@ async def search_girl(bot, ev: CQEvent):
         await bot.send(ev, '请输入查女友+角色名。', at_sender=True)
         return
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     # 判断是否是妻子。
     print(duel._get_queen_owner(gid, cid))
     nvmes = get_nv_icon(cid)
@@ -1865,7 +1862,7 @@ async def breakup(bot, ev: CQEvent):
         if not args:
             await bot.finish(ev, '请输入分手+pcr角色名。', at_sender=True)
         name = args[0]
-        cid = chara.name2id(name)
+        cid = duel_chara.name2id(name)
         if cid == 1000:
             await bot.finish(ev, '请输入正确的pcr角色名。', at_sender=True)
         score_counter = ScoreCounter2()
@@ -1891,7 +1888,7 @@ async def breakup(bot, ev: CQEvent):
         score_counter._reduce_score(gid, uid, needscore)
         score_counter._reduce_prestige(gid, uid, needSW)
         duel._delete_card(gid, uid, cid)
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         msg = f'\n“真正离开的那次，关门声最小。”\n你和{c.name}分手了。失去了{needscore}金币分手费,声望减少了{needSW}。\n{c.icon.cqcode}'
         await bot.send(ev, msg, at_sender=True)
 
@@ -1908,10 +1905,10 @@ async def breakup_yj(bot, ev: CQEvent):
         match = ev['match']
         defen = str(match.group(1))
         defen = re.sub(r'[?？，,_]', '', defen)
-        defen, unknown = chara.roster.parse_team(defen)
+        defen, unknown = duel_chara.roster.parse_team(defen)
         duel = DuelCounter()
         if unknown:
-            _, name, score = chara.guess_id(unknown)
+            _, name, score = duel_chara.guess_id(unknown)
             if score < 70 and not defen:
                 return  # 忽略无关对话
             msg = f'无法识别"{unknown}"' if score < 70 else f'无法识别"{unknown}" 您说的有{score}%可能是{name}'
@@ -1935,7 +1932,7 @@ async def breakup_yj(bot, ev: CQEvent):
         tas_list = []
         cidlist = duel._get_cards(gid, uid)
         for cid in defen:
-            c = chara.fromid(cid)
+            c = duel_chara.fromid(cid)
 
             needscore = 400 + level * 100
             needSW = 100 + level * 15
@@ -2089,7 +2086,7 @@ async def marry_queen(bot, ev: CQEvent):
     if not args:
         await bot.finish(ev, '请输入皇室婚礼+pcr角色名。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的pcr角色名。', at_sender=True)
     cidlist = duel._get_cards(gid, uid)
@@ -2108,7 +2105,7 @@ async def marry_queen(bot, ev: CQEvent):
     score_counter._reduce_score(gid, uid, 3000)
     duel._set_queen_owner(gid, cid, uid)
     nvmes = get_nv_icon(cid)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     msg = f'繁杂的皇室礼仪过后\n\n{c.name}与[CQ:at,qq={uid}]\n\n正式踏上了婚礼的殿堂\n成为了他的妻子。\n让我们为他们表示祝贺！\n妻子不会因决斗被抢走了哦。\n{nvmes}'
     await bot.send(ev, msg)
 
@@ -2122,7 +2119,7 @@ async def girl_story(bot, ev: CQEvent):
     if not args:
         await bot.finish(ev, '请输入查好感+女友名。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的女友名。', at_sender=True)
     cidlist = duel._get_cards(gid, uid)
@@ -2133,7 +2130,7 @@ async def girl_story(bot, ev: CQEvent):
         duel._set_favor(gid, uid, cid, 0)
     favor = duel._get_favor(gid, uid, cid)
     relationship, text = get_relationship(favor)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}对你的好感是{favor}\n你们的关系是{relationship}\n“{text}”\n{nvmes}'
     await bot.send(ev, msg, at_sender=True)
@@ -2148,7 +2145,7 @@ async def daily_date(bot, ev: CQEvent):
     if not args:
         await bot.finish(ev, '请输入贵族约会+女友名。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的女友名。', at_sender=True)
     cidlist = duel._get_cards(gid, uid)
@@ -2173,7 +2170,7 @@ async def daily_date(bot, ev: CQEvent):
     favor = Bonus[num][0]
     text = random.choice(Bonus[num][1])
     duel._add_favor(gid, uid, cid, favor)
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
@@ -2193,7 +2190,7 @@ async def give_gift(bot, ev: CQEvent):
     if len(args) != 2:
         await bot.finish(ev, '请输入 送礼物+女友名+礼物名 中间用空格隔开。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的女友名。', at_sender=True)
     cidlist = duel._get_cards(gid, uid)
@@ -2210,7 +2207,7 @@ async def give_gift(bot, ev: CQEvent):
     duel._add_favor(gid, uid, cid, favor)
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     await bot.send(ev, msg, at_sender=True)
@@ -2227,7 +2224,7 @@ async def give_gift_all(bot, ev: CQEvent):
     if len(args) != 2:
         await bot.finish(ev, '请输入 送礼物+女友名+礼物名 中间用空格隔开。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的女友名。', at_sender=True)
     cidlist = duel._get_cards(gid, uid)
@@ -2246,7 +2243,7 @@ async def give_gift_all(bot, ev: CQEvent):
     duel._add_favor(gid, uid, cid, favor)
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n您送给了{c.name}{gift}x{gift_num}\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     await bot.send(ev, msg, at_sender=True)
@@ -2395,7 +2392,7 @@ async def buy_information(bot, ev: CQEvent):
     if not args:
         await bot.finish(ev, '请输入买情报+女友名。', at_sender=True)
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.finish(ev, '请输入正确的女友名。', at_sender=True)
     score = score_counter._get_score(gid, uid)
@@ -2423,7 +2420,7 @@ async def buy_information(bot, ev: CQEvent):
         if num2 == choicelist[2]:
             dislike += f'{gift}\n'
             continue
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n花费了500金币，您买到了以下情报：\n{c.name}最喜欢的礼物是:\n{favorite}\n喜欢的礼物是:\n{like}一般喜欢的礼物是:\n{normal}不喜欢的礼物是:\n{dislike}{nvmes}'
     await bot.send(ev, msg, at_sender=True)
@@ -2487,7 +2484,7 @@ async def get_favorlist(bot, ev: CQEvent):
     for i in range(0, num):
         cid = rows_by_favor[i]["cid"]
         favor = rows_by_favor[i]["favor"]
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         msg += f'{c.name}:{favor}点\n'
     await bot.send(ev, msg, at_sender=True)
 
@@ -2511,7 +2508,7 @@ async def lihun_queen(bot, ev: CQEvent):
     score_counter._reduce_prestige(gid, uid, 3000)
     queen = duel._search_queen(gid, uid)
     duel._delete_card(gid, uid, queen)
-    c = chara.fromid(queen)
+    c = duel_chara.fromid(queen)
     nvmes = get_nv_icon(queen)
     msg = f'花费了20000金币，[CQ:at,qq={uid}]总算将他的妻子{c.name}赶出家门\n，引起了众人的不满，损失3000声望。{nvmes}'
     duel._delete_queen_owner(gid, queen)
@@ -2990,7 +2987,7 @@ async def buy_fashion(bot, ev: CQEvent):
             await bot.finish(ev, f"您已购买过时装{fashioninfo['name']}请勿重复够吗哦。", at_sender=True)
             return
         owner = duel._get_card_owner(gid, fashioninfo['cid'])
-        c = chara.fromid(fashioninfo['cid'])
+        c = duel_chara.fromid(fashioninfo['cid'])
         if uid != owner:
             msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您没有购买时装的权限哦。'
             await bot.send(ev, msg)
@@ -3042,7 +3039,7 @@ async def up_fashion(bot, ev: CQEvent):
     fashioninfo = get_fashion_buy(name)
     if fashioninfo:
         cid = fashioninfo['cid']
-        c = chara.fromid(cid)
+        c = duel_chara.fromid(cid)
         buy_info = duel._get_fashionbuy(gid, uid, cid, fashioninfo['fid'])
         if buy_info:
             duel._add_fashionup(gid, uid, cid, fashioninfo['fid'])
@@ -3064,14 +3061,14 @@ async def my_fashion(bot, ev: CQEvent):
         await bot.send(ev, '请输入我的女友+pcr角色名。', at_sender=True)
         return
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
         return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
     CE = CECounter()
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     lh_msg = ''
     fashioninfo = get_fashion(cid)
@@ -3141,13 +3138,13 @@ async def up_fashion(bot, ev: CQEvent):
         await bot.send(ev, '请输入取消穿戴+pcr角色名。', at_sender=True)
         return
     name = args[0]
-    cid = chara.name2id(name)
+    cid = duel_chara.name2id(name)
     if cid == 1000:
         await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
         return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
-    c = chara.fromid(cid)
+    c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     owner = duel._get_card_owner(gid, cid)
     if uid != owner:

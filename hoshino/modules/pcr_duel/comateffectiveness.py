@@ -1,12 +1,14 @@
 import re
 import time
 from decimal import Decimal
-
+import asyncio
 import nonebot
 import pytz
 
 from . import sv
 from .duelconfig import *
+from hoshino.typing import CQEvent
+from .ScoreCounter import ScoreCounter2
 
 
 @sv.on_fullmatch(['战斗系统帮助', '战斗帮助'])
@@ -586,8 +588,8 @@ async def dress_equip(bot, ev: CQEvent):
         CE = CECounter()
         now_dress = CE._get_dress_info(gid, uid, cid, equipinfo['type_id'])
         if now_dress > 0:
+            now_equipinfo = get_equip_info_id(now_dress)
             if now_dress == equipinfo['eid']:
-                now_equipinfo = get_equip_info_id(now_dress)
                 # 保存数据库
                 CE._dress_equip(gid, uid, cid, equipinfo['type_id'], 0)
                 # 可用装备加一
@@ -1380,7 +1382,7 @@ async def start_bushi(bot, ev: CQEvent):
                     nextboss = 1
                     nextzhoumu = bossinfo['zhoumu'] + 1
                 nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
-                boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfop['name']})\n{nextbossinfo['icon']}"
+                boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})\n{nextbossinfo['icon']}"
             else:
                 now_hp = bossinfo['hp'] - shanghai
                 nexthp = now_hp

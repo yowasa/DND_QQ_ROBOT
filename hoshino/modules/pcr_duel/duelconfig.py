@@ -1,6 +1,16 @@
-from hoshino.modules.priconne.pcr_duel import _pcr_duel_data as _pcr_data
 from .CECounter import *
 from .DuelCounter import *
+import json
+from datetime import datetime, timedelta
+from hoshino.util import DailyNumberLimiter
+import random
+import math
+from PIL import Image
+from io import BytesIO
+import base64
+from . import duel_chara as chara
+from .duel_chara import chara_info
+from hoshino import R
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
                 9604]  # 黑名单ID
@@ -291,24 +301,23 @@ def save_dlc_switch():
     with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'w', encoding='UTF-8') as f:
         json.dump(dlc_switch, f, ensure_ascii=False)
 
-
-blhxlist = range(6000, 6506)
 yozilist = range(1523, 1544)
-genshinlist = range(7001, 7020)
 bangdreamlist = range(1601, 1636)
 millist = range(3001, 3055)
 collelist = range(4001, 4639)
+mrfzlist = range(5001, 5180)
+blhxlist = range(6000, 6506)
+genshinlist = range(7001, 7020)
 koilist = range(7100, 7104)
 sakulist = range(7200, 7204)
 cloverlist = range(7300, 7307)
 majsoullist = range(7400, 7476)
 noranekolist = range(7500, 7510)
 fgolist = range(8001, 8301)
-mrfzlist = range(5001, 5180)
 
 # 这里记录dlc名字和对应列表
-dlcdict = {
-    'blhx': blhxlist,
+dlcdict_origin={
+'blhx': blhxlist,
     'yozi': yozilist,
     'genshin': genshinlist,
     'bangdream': bangdreamlist,
@@ -321,11 +330,9 @@ dlcdict = {
     'noraneko': noranekolist,
     'fgo': fgolist,
     'mrfz': mrfzlist
-
 }
-
 # 这里记录每个dlc的介绍
-dlcintro = {
+dlcintro_origin={
     'blhx': '碧蓝航线手游角色包',
     'yozi': '柚子社部分角色包',
     'genshin': '原神角色包',
@@ -340,8 +347,23 @@ dlcintro = {
     'fgo': 'FGO手游角色包',
     'mrfz': '明日方舟手游角色包'
 }
+dlcdict = {}
+dlcintro = {}
 
+def refresh_config():
+    global dlcdict,dlcintro
+    with open(R.get(f'duel/dlc_config.json').path, 'r', encoding='UTF-8') as f:
+        ex_dlc_info = json.load(f)
+    ex_info={}
+    ex_dict={}
+    for k,item in ex_dlc_info.items():
+        ex_info[item['code']]=item['desc']
+        ex_chara_ids=[int(id) for id in chara_info.keys() if item['index']<=int(id)<=item['to']]
+        ex_dict[item['code']]=ex_chara_ids
+    dlcdict={**dlcdict_origin,**ex_dict}
+    dlcintro={**dlcintro_origin,**ex_info}
 
+refresh_config()
 # noinspection SqlResolve
 class RecordDAO:
     def __init__(self, db_path):
@@ -473,23 +495,17 @@ daily_boss_limiter = DailyAmountLimiter("boss", BOSS_DAILY_LIMIT, RESET_HOUR)
 daily_equip_limiter = DailyAmountLimiter("equip", EQUIP_DAILY_LIMIT, RESET_HOUR)
 
 
-# 随机生成一个pcr角色id，应该已经被替代了。
-def get_pcr_id():
-    chara_id_list = list(_pcr_data.CHARA_NAME.keys())
-    while True:
-        random.shuffle(chara_id_list)
-        if chara_id_list[0] not in BLACKLIST_ID: break
-    return chara_id_list[0]
 
 
 # 生成没被约过的角色列表
 def get_newgirl_list(gid):
-    chara_id_list = list(_pcr_data.CHARA_NAME.keys())
+    chara_id_list = list(chara_info.keys())
     duel = DuelCounter()
     old_list = duel._get_card_list(gid)
     dlc_blacklist = get_dlc_blacklist(gid)
     new_list = []
     for card in chara_id_list:
+        card = int(card)
         if card not in BLACKLIST_ID and card not in old_list and card not in dlc_blacklist:
             new_list.append(card)
     return new_list
@@ -1002,19 +1018,13 @@ def concat_pic(pics, border=0):
 def get_nv_icon(cid):
     c = chara.fromid(cid)
     mes = c.icon.cqcode
-    PIC_PATH = os.path.join(FILE_PATH, 'fullcard')
+    PIC_PATH = R.img('dlc/full').path
     path = os.path.join(PIC_PATH, f'{cid}31.png')
     if os.path.exists(path):
-        img = Image.open(path)
-        bio = BytesIO()
-        img.save(bio, format='PNG')
-        base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
-        mes = f"[CQ:image,file={base64_str}]"
+        mes = str(R.img(f'dlc/full/{cid}31.png').cqcode)
     return mes
 
-
 # 根据角色id和礼物id，返回增加的好感和文本
-
 def check_gift(cid, giftid):
     lastnum = cid % 10
     if lastnum == giftid:

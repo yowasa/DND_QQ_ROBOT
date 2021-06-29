@@ -1,4 +1,4 @@
-from hoshino import R, Service, priv, util
+from hoshino import R, Service, priv
 import hoshino
 from peewee import *
 from hoshino.config.__bot__ import BASE_DB_PATH
@@ -8,7 +8,6 @@ import json
 from PIL import Image
 import asyncio
 from pixivpy3 import *
-import requests
 
 from hoshino.typing import CQEvent
 

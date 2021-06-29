@@ -39,6 +39,7 @@ MODULES_ON = {
     'groupmaster',
     'hourcall',
     'mikan',
+    'pcr_duel',
     'priconne',
     'saucenao',
     'setu',
