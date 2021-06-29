@@ -18,6 +18,7 @@ sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
 自定义dlc说明
 =====================
 [增加dlc] 仅维护人员可用
+[子定义dlc列表]
 [添加女友]
 [删除女友]
 [角色查询]+女友名
@@ -67,13 +68,14 @@ async def dlc_list(bot, ev: CQEvent):
     for name, content in contents.items():
         msg += f'''{name}dlc:
     编码:{content["code"]} 
-    角色id范围：{content["index"]} - {content["index"] + 999}
+    角色id范围：{content["index"]} - {content["to"]}
+    介绍：{content["desc"]}
 
 '''
     await bot.send(ev, message=msg)
 
 
-@sv.on_prefix(['自定义dlc角色删除', '角色删除', '删除角色'])
+@sv.on_prefix(['自定义dlc角色删除', '角色删除', '删除角色','沙漠成绩女友'])
 async def search_chara(bot, ev: CQEvent):
     msg = str(ev.message)
     if not ev.message:
@@ -81,8 +83,9 @@ async def search_chara(bot, ev: CQEvent):
     chara_id = duel_chara.name2id(msg)
     if int(chara_id) == UNKNOWN:
         await bot.finish(ev, f'未查询到名称未{msg}的女友信息')
+    chara= duel_chara.fromid(chara_id).name
     if int(chara_id) < 20000:
-        await bot.finish(ev, f'女友{msg}不是自定义女友')
+        await bot.finish(ev, f'女友{chara.name}不是自定义女友')
     chara = get_json('chara')
     del chara[chara_id]
     delete_ids = get_json('delete_ids')
@@ -93,30 +96,31 @@ async def search_chara(bot, ev: CQEvent):
     refresh_config()
     os.remove(R.img(f'dlc/icon/icon_unit_{chara_id}61.png').path)
     os.remove(R.img(f'dlc/full/{chara_id}31.png').path)
-    await bot.send(ev, f'女友 {msg} 已经删除')
+    await bot.send(ev, f'女友 {chara.name} 已经删除')
 
 
 @sv.on_prefix(['自定义dlc角色查询', '查询角色', "角色查询"])
 async def search_chara(bot, ev: CQEvent):
     msg = str(ev.message)
-    if not msg:
+    if not ev.message:
         await bot.finish(ev, '请通过"自定义dlc角色查询+女友名"来查询')
     chara_id = duel_chara.name2id(msg)
     if int(chara_id) == UNKNOWN:
-        await bot.finish(ev, f'未查询到名称为 {msg} 的女友信息')
+        await bot.finish(ev, f'未查询到名称未{msg}的女友信息')
+    chara = duel_chara.fromid(chara_id).name
     if int(chara_id) < 20000:
-        await bot.finish(ev, f'女友 {msg} 不是自定义女友')
+        await bot.finish(ev, f'女友{chara.name}不是自定义女友')
     chara = get_json('chara')
     result = f"""===自定义女友信息===
     角色id：{chara_id}
-    角色名称:{chara[chara_id]}
+    角色名称:{chara[str(chara_id)]}
     角色头像：{R.img(f'dlc/icon/icon_unit_{chara_id}61.png').cqcode}
     角色全图：{R.img(f'dlc/full/{chara_id}31.png').cqcode}
     """
     await bot.send(ev, result)
 
 
-@sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色'))
+@sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色','添加女友'))
 async def add_chara(session: CommandSession):
     DLC = get_json('dlc_config')
     msg = '选择添加进哪个dlc\n'
