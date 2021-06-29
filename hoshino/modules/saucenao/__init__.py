@@ -2,8 +2,8 @@ from .sauce_nao import get_image_data
 from hoshino import Service, log
 from hoshino.typing import *
 
-sv = Service('搜图', enable_on_default=True, help_=
-"""[搜图] {图片} 注意要加空格
+sv = Service('搜图', enable_on_default=True, bundle='图片功能', help_=
+"""[搜图] {图片} 注意要加空格 或者直接输入[搜图] 等待机器人响应后传入图片
 """)
 
 logger = log.new_logger('image')

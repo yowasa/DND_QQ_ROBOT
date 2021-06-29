@@ -16,24 +16,24 @@ from hoshino.typing import CQEvent
 Pixiv相关功能
 """
 
-sv_img = Service('pixiv功能', enable_on_default=True, help_=
+sv_img = Service('pixiv功能', enable_on_default=True, bundle='图片功能', help_=
 '''[img]{标签} pixiv搜索图片 不加标签则会随机抽取日榜图片
 [gimg]{标签} pixiv搜索图片 会返回图组 不加标签则会随机抽取日榜图片
 [pid]{图片id} pixiv搜索指定id图片
-[启用图片详情] 搜tag出图会显示作品详情
-[关闭图片详情] 搜tag出图会显示作品详情
-[订阅] {作者id} 为本群订阅指定作者的作品 管理员可操作
-[取消订阅] {作者id} 为本群取消订阅指定作者的作品 管理员可操作
+[启用图片详情] 搜tag出图会显示作品详情 个人设置
+[关闭图片详情] 搜tag出图会显示作品详情 个人设置 默认为关闭
+[订阅] {作者id} 为本群订阅指定作者的作品 管理员可操作，对群组设置
+[取消订阅] {作者id} 为本群取消订阅指定作者的作品 管理员可操作，对群组设置
 [订阅列表] 查看订阅的信息
-[自动订阅] 批量订阅和订阅日榜 再次输入指令取消 管理员可操作
+[自动订阅] 批量订阅和订阅日榜 再次输入指令取消 管理员可操作，对群组设置
 [热门标签] pixiv搜索最近热门的标签
 ''')
 
-sv_ghs = Service('搞黄色', enable_on_default=False, visible=False, help_=
+sv_ghs = Service('搞黄色', enable_on_default=False, visible=True, bundle='图片功能', help_=
 '''[ghs]{标签} pixiv搜索图片（R18版本）不加标签则会随机抽取日榜图片
 [gghs]{标签} pixiv搜索图片（R18版本） 会返回图组 不加标签则会随机抽取日榜图片
-[启用自动撤回] 开启r18图片自动撤回
-[关闭自动撤回] 关闭r18图片自动撤回
+[启用自动撤回] 开启r18图片自动撤回 仅管理员可用，对群组设置
+[关闭自动撤回] 关闭r18图片自动撤回 仅管理员可用，对群组设置
 ''')
 
 # 缓存图片文件
@@ -97,7 +97,6 @@ SubscribeSendLog.create_table()
 User.create_table()
 Group.create_table()
 PixivCache.create_table()
-
 
 api = AppPixivAPI()
 
@@ -264,14 +263,15 @@ async def checksub(bot, ev: CQEvent):
         result = '订阅中'
     await bot.send(ev, result)
 
+
 def trancetype(msg):
-    if msg =='day':
+    if msg == 'day':
         return '日榜'
-    elif msg=='day_r18':
+    elif msg == 'day_r18':
         return 'r18日榜'
-    elif msg=='public':
+    elif msg == 'public':
         return '默认列表'
-    elif msg=='private':
+    elif msg == 'private':
         return 'r18默认列表'
 
 
@@ -285,22 +285,22 @@ async def sublist(bot, ev: CQEvent):
     elif msg == 'discuss':
         user_id = ev.discuss_id
     else:
-        await bot.finish(ev,'不支持群/私聊/讨论组以外的订阅方式')
+        await bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
     pack_info = [trancetype(str(sub.type)) for sub in
+                 Subscribe.select().where(
+                     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+                             Subscribe.type != 'user'))]
+    user_infos = [str(sub.type_user) for sub in
                   Subscribe.select().where(
                       (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                                  Subscribe.type != 'user'))]
-    user_infos = [str(sub.type_user) for sub in
-             Subscribe.select().where(
-        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (Subscribe.type == 'user'))]
-    return_msg=''
+                                  Subscribe.type == 'user'))]
+    return_msg = ''
     if pack_info:
-        return_msg+='套餐\n'+'\n'.join(pack_info)+'\n\n'
+        return_msg += '套餐\n' + '\n'.join(pack_info) + '\n\n'
 
     if user_infos:
-        return_msg+='画师id\n'+'\n'.join(user_infos)
+        return_msg += '画师id\n' + '\n'.join(user_infos)
     await bot.send(ev, return_msg)
-
 
 
 @sv_img.on_prefix(['取消订阅'])
@@ -319,14 +319,15 @@ async def unsubscribe(bot, ev: CQEvent):
         await bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
     old = Subscribe.get_or_none(
         (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                    Subscribe.type == 'user') & (Subscribe.type_user == comm))
+                Subscribe.type == 'user') & (Subscribe.type_user == comm))
     if not old:
-        await bot.send(ev,  '未订阅过该作者作品')
+        await bot.send(ev, '未订阅过该作者作品')
     else:
         old.delete_instance()
-        await bot.send(ev,  '取消订阅成功')
+        await bot.send(ev, '取消订阅成功')
 
-@sv_img.scheduled_job('cron', hour ='2')
+
+@sv_img.scheduled_job('cron', hour='2')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
     try:
@@ -366,7 +367,6 @@ async def scan_job():
     except Exception as e:
         sv_img.logger.info(f"扫描失败{e}")
         return
-
 
 
 @sv_img.scheduled_job('cron', minute='0,15,30,45')
@@ -638,6 +638,7 @@ async def build_result(subscribe, illusts):
         sublog.message_info = message
         sublog.send_flag = False
         sublog.save()
+
 
 def send_list():
     result = []

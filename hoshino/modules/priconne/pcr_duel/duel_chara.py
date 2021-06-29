@@ -3,13 +3,11 @@ from io import BytesIO
 
 import pygtrie
 import requests
-from fuzzywuzzy import fuzz, process
 from PIL import Image
+from fuzzywuzzy import process
 
 import hoshino
-from hoshino import R, log, sucmd, util
-from hoshino.typing import CommandSession
-
+from hoshino import R, log, util
 from . import _pcr_duel_data
 
 logger = log.new_logger('chara', hoshino.config.DEBUG)

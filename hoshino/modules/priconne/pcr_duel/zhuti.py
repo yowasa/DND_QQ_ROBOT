@@ -1,26 +1,15 @@
 import asyncio
 import base64
-import os
+import copy
 import random
-import sqlite3
-import math
 import re
-from datetime import datetime, timedelta
 from io import BytesIO
-from PIL import Image
-from . import sv
-from hoshino import Service, priv
-from hoshino.modules.priconne.pcr_duel import _pcr_duel_data as _pcr_data
 
+from hoshino import priv
 from hoshino.modules.priconne.pcr_duel import duel_chara as chara
 from hoshino.typing import CQEvent
-from hoshino.util import DailyNumberLimiter
-import copy
-import json
-from .CECounter import *
+from . import sv
 from .ScoreCounter import *
-from .DuelCounter import *
-
 from .duelconfig import *
 
 
@@ -148,7 +137,7 @@ async def duel_biao(bot, ev: CQEvent):
 "8": "公爵",升级需要{LEVEL_SW_NEED[str(8)]}声望和{LEVEL_COST_DICT[str(8)]}金币，最多可持有{LEVEL_GIRL_NEED[str(8)]}名女友，每日签到额外获得800金币，不再会掉级，可拥有一名妻子。
 "9": "国王",升级需要{LEVEL_SW_NEED[str(9)]}声望和{LEVEL_COST_DICT[str(9)]}金币，最多可持有{LEVEL_GIRL_NEED[str(9)]}名女友，每日签到额外获得900金币，不再会掉级，可拥有一名妻子。
 "10": "皇帝"升级需要{DJ_NEED_SW}声望和{DJ_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(10)]}名女友，每日签到额外获得1000金币，不再会掉级，可拥有一名妻子。
-"11": "神"升级需要{FS_NEED_SW }声望和{FS_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(20)]}名女友，每日签到额外获得2000金币，当输光女友时贬为平民，可拥有一名妻子。
+"11": "神"升级需要{FS_NEED_SW}声望和{FS_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(20)]}名女友，每日签到额外获得2000金币，当输光女友时贬为平民，可拥有一名妻子。
 '''
     await bot.send(ev, msg)
 
@@ -814,7 +803,7 @@ async def add_warehouse(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
         return
     if prestige < SHANGXIAN_SW:
-        msg = '扩充女友上限，需要{SHANGXIAN_SW}声望，您的声望不足喔'
+        msg = f'扩充女友上限，需要{SHANGXIAN_SW}声望，您的声望不足喔'
         await bot.send(ev, msg, at_sender=True)
         return
     if current_score < SHANGXIAN_NUM:
@@ -1365,7 +1354,6 @@ async def nobleduel(bot, ev: CQEvent):
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
         if favor >= favor_reduce:
-            c = chara.fromid(selected_girl)
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了50点。\n{c.icon.cqcode}'
             await bot.send(ev, msg)
@@ -1377,6 +1365,7 @@ async def nobleduel(bot, ev: CQEvent):
     else:
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
+        c = chara.fromid(selected_girl)
         if favor >= favor_reduce:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了50点。\n{c.icon.cqcode}'
@@ -1385,7 +1374,6 @@ async def nobleduel(bot, ev: CQEvent):
             msg = f'[CQ:at,qq={winner}]您赢得了决斗，对方女友仍有一定好感。\n本次决斗获得了300金币。'
             await bot.send(ev, msg)
         else:
-            c = chara.fromid(selected_girl)
             duel._delete_card(gid, loser, selected_girl)
             duel._add_card(gid, winner, selected_girl)
             msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您被抢走了女友\n{c.name}{c.icon.cqcode}'
@@ -1438,7 +1426,6 @@ async def nobleduel(bot, ev: CQEvent):
     # 判定败者是否掉爵位，皇帝不会因为决斗掉爵位。
     level_loser = duel._get_level(gid, loser)
     if level_loser > 1 and level_loser < 8:
-        noblename_loser = get_noblename(level_loser)
         girlnum_loser = get_girlnum(level_loser - 1)
         cidlist_loser = duel._get_cards(gid, loser)
         cidnum_loser = len(cidlist_loser)
@@ -1646,7 +1633,7 @@ async def add_score(bot, ev: CQEvent):
         await bot.send(ev, '错误:\n' + str(e))
 
 
-@sv.on_prefix(['查金币', '查询金币', '查看金币','金币查询'])
+@sv.on_prefix(['查金币', '查询金币', '查看金币', '金币查询'])
 async def get_score(bot, ev: CQEvent):
     try:
         score_counter = ScoreCounter2()
@@ -1697,12 +1684,9 @@ async def cheat_num(bot, ev: CQEvent):
         await bot.finish(ev, '参数格式错误')
     deadnum = int(match.group(2))
     duel_judger.set_deadnum(gid, deadnum)
-    duel = DuelCounter()
-    score_counter = ScoreCounter2()
     msg = f'已将群{gid}本次决斗死亡位置修改为{deadnum}号。\n'
     print("死的位置是", duel_judger.get_deadnum(gid))
     await bot.send(ev, msg)
-    self.deadnum[gid] = deadnum
 
 
 @sv.on_rex(f'^为(.*)转账(\d+)金币$')
@@ -2025,7 +2009,7 @@ async def prestige_help(bot, ev: CQEvent):
     await bot.send(ev, msg)
 
 
-@sv.on_fullmatch(['查询声望','查声望','声望查询'])
+@sv.on_fullmatch(['查询声望', '查声望', '声望查询'])
 async def inquire_prestige(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -2884,7 +2868,7 @@ async def cheat_score(bot, ev: CQEvent):
     if prestige == None:
         await bot.finish(ev, '您未开启声望系统哦！。', at_sender=True)
     score = score_counter._get_score(gid, uid)
-    pay_score = num * 10000
+    pay_score = num * 100
     if score < pay_score:
         msg = f'兑换{num}声望需要{pay_score}金币，您的金币只有{score}，无法兑换哦。'
         await bot.send(ev, msg, at_sender=True)
