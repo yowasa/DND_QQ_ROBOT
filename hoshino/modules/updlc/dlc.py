@@ -1,15 +1,17 @@
+import hashlib
 import json
 import os
 import shutil
 
+import requests
 from PIL import Image
 
 from hoshino import R, Service
+from hoshino.modules.pcr_duel import duel_chara
+from hoshino.modules.pcr_duel.duelconfig import refresh_config
 from hoshino.service import sucmd
 from hoshino.typing import CQEvent
 from hoshino.typing import CommandSession
-from hoshino.modules.pcr_duel.duelconfig import refresh_config
-from hoshino.modules.pcr_duel import duel_chara
 
 UNKNOWN = 1000
 
@@ -20,6 +22,7 @@ sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
 [增加dlc] 仅维护人员可用
 [子定义dlc列表]
 [添加女友]
+[更新女友]
 [删除女友]
 [角色查询]+女友名
 
@@ -57,7 +60,7 @@ async def dlc_add(session: CommandSession):
 
 
 @dlc_add.args_parser
-async def a_p(session: CommandSession):
+async def ad_p(session: CommandSession):
     text = session.current_arg_text
     session.state[session.current_key] = text
 
@@ -108,17 +111,87 @@ async def search_chara(bot, ev: CQEvent):
     chara_id = duel_chara.name2id(msg)
     if int(chara_id) == UNKNOWN:
         await bot.finish(ev, f'未查询到名称未{msg}的女友信息')
-    chara = duel_chara.fromid(chara_id).name
-    if int(chara_id) < 20000:
-        await bot.finish(ev, f'女友{chara.name}不是自定义女友')
+    chara = duel_chara.fromid(chara_id)
     chara_json = get_json('chara')
-    result = f"""===自定义女友信息===
+    result = f"""===女友信息===
     角色id：{chara_id}
     角色名称:{chara_json[str(chara_id)]}
     角色头像：{R.img(f'dlc/icon/icon_unit_{chara_id}61.png').cqcode}
     角色全图：{R.img(f'dlc/full/{chara_id}31.png').cqcode}
     """
     await bot.send(ev, result)
+
+
+@sv.on_command('更新女友', aliases=('更新角色', '角色更新', '女友更新'))
+async def dlc_update(session: CommandSession):
+    bot = session.bot
+    ev = session.event
+    search_name = session.get('search_name', prompt="输入女友名称")
+    search_chara_id = duel_chara.name2id(search_name)
+    if search_chara_id == UNKNOWN:
+        await bot.finish(ev, f'未查询到名称为{search_name}的女友信息')
+    search_chara = duel_chara.fromid(search_chara_id)
+    confirm_search = session.get('confirm_search',
+                                 prompt=f'确认要更新的女友为{search_chara.name}(输入"确认"或者"拒绝")：\n' + str(
+                                     search_chara.icon.cqcode))
+    if str(confirm_search) != "确认":
+        await bot.finish(session.event, f"已终止")
+
+    name = session.get('name', prompt=f'请输入新角色名(原名为：{search_chara.name})')
+    if name not in search_chara.name_li:
+        if duel_chara.name2id(name) != UNKNOWN:
+            await session.bot.send(session.event, f"已经存在名为{name}的角色，请加后缀标识避免重复")
+            return
+    aliases_str = session.get('aliases', prompt=f'请输入角色别名，用空格隔开(原别名为{" ".join(search_chara.name_li[1:])})')
+    aliases = str(aliases_str).strip().split(' ')
+    for aliase in aliases:
+        if aliase not in search_chara.name_li:
+            if duel_chara.name2id(aliase) != UNKNOWN:
+                await session.bot.finish(session.event, f"已经存在别名为{aliase}的角色，请勿重复")
+    icon = session.get('icon', prompt=f'请发送角色头像,会从左上角尽可能截取一个正方形区域(原头像为{search_chara.icon.cqcode})')
+    if type(icon) == list:
+        icon = icon[0]
+    hash_name = requests_download_url(icon, R.get('img/dlc/cache/').path)
+    icon_pic = resize_img(hash_name)
+    confirm = session.get('confirm',
+                          prompt="生成头像为：\n" + str(R.img(f"dlc/cache/{icon_pic}").cqcode) + '\n确认是否使用上述头像(输入"确认"或者"拒绝")')
+    if str(confirm) != "确认":
+        await session.bot.send(session.event, f"已终止生成角色，请调整好后再来")
+        return
+    fullcard = session.get('fullcard', prompt=f"请发送角色全图,原图为{R.img(f'dlc/full/{search_chara_id}31.png').cqcode}")
+    if type(fullcard) == list:
+        fullcard = fullcard[0]
+    full_img = requests_download_url(fullcard, R.get('img/dlc/cache/').path)
+    full_pic = trance_2_png(full_img)
+    await session.bot.send(session.event, "已收到信息，处理中")
+    chara_json = get_json('chara')
+    char_id = search_chara_id
+
+    names = [name]
+    names.extend(aliases)
+    chara_json[char_id] = names
+    write_json('chara', chara_json)
+    shutil.move(R.img(f'dlc/cache/{icon_pic}').path,
+                os.path.join(R.img(f'dlc/icon').path, f'icon_unit_{char_id}61.png'))
+    shutil.move(R.img(f'dlc/cache/{full_pic}').path,
+                os.path.join(R.img(f'dlc/full').path, f'{char_id}31.png'))
+    duel_chara.roster.update()
+    refresh_config()
+    await session.bot.send(session.event, '生成完成，请通过"自定义dlc角色查询+女友名"来查询添加的内容')
+
+
+@dlc_update.args_parser
+async def u_p(session: CommandSession):
+    text = session.current_arg_text
+    img = session.current_arg_images
+    if session.is_first_run:
+        if text:
+            session.state['name'] = text.strip()
+        return
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text
 
 
 @sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色', '添加女友'))
@@ -157,7 +230,7 @@ async def add_chara(session: CommandSession):
     full_img = requests_download_url(fullcard, R.get('img/dlc/cache/').path)
     full_pic = trance_2_png(full_img)
     await session.bot.send(session.event, "已收到信息，处理中")
-    chara = get_json('chara')
+    chara_json = get_json('chara')
     delete_ids = get_json('delete_ids')
     char_id = 0
     for id in delete_ids:
@@ -169,14 +242,14 @@ async def add_chara(session: CommandSession):
         write_json('delete_ids', delete_ids)
     else:
         count = 0
-        for key, values in chara.items():
+        for key, values in chara_json.items():
             if int(DLC[choice]['index']) <= int(key) <= int(DLC[choice]['to']):
                 count += 1
         char_id = DLC[choice]['index'] + count
     names = [name]
     names.extend(aliases)
-    chara[char_id] = names
-    write_json('chara', chara)
+    chara_json[char_id] = names
+    write_json('chara', chara_json)
     shutil.move(R.img(f'dlc/cache/{icon_pic}').path,
                 os.path.join(R.img(f'dlc/icon').path, f'icon_unit_{char_id}61.png'))
     shutil.move(R.img(f'dlc/cache/{full_pic}').path,
@@ -194,10 +267,6 @@ async def a_p(session: CommandSession):
         session.state[session.current_key] = img
     else:
         session.state[session.current_key] = text
-
-
-import hashlib
-import requests
 
 
 def requests_download_url(url, path):

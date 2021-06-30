@@ -4,8 +4,8 @@ import re
 
 from hoshino import priv
 from hoshino.typing import CQEvent
-from . import sv
 from . import duel_chara
+from . import sv
 from .ScoreCounter import *
 from .duelconfig import *
 

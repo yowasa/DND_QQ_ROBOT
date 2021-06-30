@@ -140,6 +140,11 @@ class Chara:
         chara_info[str(UNKNOWN)][0]
 
     @property
+    def name_li(self):
+        return chara_info[str(self.id)] if str(self.id) in chara_info else \
+            chara_info[str(UNKNOWN)]
+
+    @property
     def is_npc(self) -> bool:
         return is_npc(self.id)
 
