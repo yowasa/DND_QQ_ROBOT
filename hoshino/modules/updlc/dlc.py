@@ -44,10 +44,13 @@ def write_json(name, content):
 BEGIN_INDEX = 20000
 
 
-@sucmd('增加dlc', aliases=('添加dlc'), force_private=False)
+
+@sv.on_command('增加dlc', aliases=('添加dlc'))
 async def dlc_add(session: CommandSession):
     bot = session.bot
     ev = session.event
+    if not priv.check_priv(ev, priv.SUPERUSER):
+        await bot.finish(ev, '只有超管可以增加dlc。', at_sender=True)
     name = session.get('name', prompt='输入dlc名称')
     code = session.get('code', prompt='输入dlc code')
     desc = session.get('desc', prompt='输入dlc描述')
@@ -56,13 +59,18 @@ async def dlc_add(session: CommandSession):
     content = get_json('dlc_config')
     content[name] = {'code': code, 'index': int(offset), 'to': int(to), 'desc': desc}
     write_json('dlc_config', content)
+    refresh_config()
     await bot.send(ev, message='添加成功')
 
 
 @dlc_add.args_parser
 async def ad_p(session: CommandSession):
     text = session.current_arg_text
-    session.state[session.current_key] = text
+    img = session.current_arg_images
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text
 
 
 @sv.on_prefix(['自定义dlc列表'])
