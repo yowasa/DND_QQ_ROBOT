@@ -466,7 +466,7 @@ async def nobleduel(bot, ev: CQEvent):
         id2 = int(ev.message[1].data['qq'])
     except:
         await bot.finish(ev, '参数格式错误')
-    name = str(match.group(3))
+    name = str(match.group(3)).strip()
     num = int(match.group(1))
     duel_jiaoyier.turn_jiaoyion(gid)
     id1 = ev.user_id
