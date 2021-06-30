@@ -6,7 +6,7 @@ import shutil
 import requests
 from PIL import Image
 
-from hoshino import R, Service
+from hoshino import R, Service,priv
 from hoshino.modules.pcr_duel import duel_chara
 from hoshino.modules.pcr_duel.duelconfig import refresh_config
 from hoshino.service import sucmd
@@ -15,7 +15,7 @@ from hoshino.typing import CommandSession
 
 UNKNOWN = 1000
 
-sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
+sv = Service('自定义DLC', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, help_=
 '''=====================
 自定义dlc说明
 =====================
@@ -186,7 +186,7 @@ async def u_p(session: CommandSession):
     img = session.current_arg_images
     if session.is_first_run:
         if text:
-            session.state['name'] = text.strip()
+            session.state['search_name'] = text.strip()
         return
     if img:
         session.state[session.current_key] = img
