@@ -54,6 +54,7 @@ async def duel_help(bot, ev: CQEvent):
 [副本帮助]
 
     *一个女友只属于一位群友
+    
 ╚                                        ╝
 '''
     await bot.send(ev, msg)
