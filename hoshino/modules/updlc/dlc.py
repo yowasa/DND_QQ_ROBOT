@@ -28,13 +28,13 @@ sv = Service('自定义DLC', enable_on_default=False, visible=True, help_=
 
 
 def get_json(name):
-    with open(R.get(f'duel/{name}.json').path, 'r',encoding='UTF-8') as f:
+    with open(R.get(f'duel/{name}.json').path, 'r', encoding='UTF-8') as f:
         return json.load(f)
 
 
 def write_json(name, content):
-    with open(R.get(f'duel/{name}.json').path, 'w',encoding='UTF-8') as f:
-        json.dump(content, fp=f,ensure_ascii=False, indent=4)
+    with open(R.get(f'duel/{name}.json').path, 'w', encoding='UTF-8') as f:
+        json.dump(content, fp=f, ensure_ascii=False, indent=4)
 
 
 # 开始下标
@@ -51,9 +51,10 @@ async def dlc_add(session: CommandSession):
     offset = session.get('offset', prompt='输入dlc 起始编号')
     to = session.get('to', prompt='输入dlc 终止编号')
     content = get_json('dlc_config')
-    content[name] = {'code': code, 'index': int(offset),'to':int(to),'desc':desc}
+    content[name] = {'code': code, 'index': int(offset), 'to': int(to), 'desc': desc}
     write_json('dlc_config', content)
     await bot.send(ev, message='添加成功')
+
 
 @dlc_add.args_parser
 async def a_p(session: CommandSession):
@@ -75,23 +76,23 @@ async def dlc_list(bot, ev: CQEvent):
     await bot.send(ev, message=msg)
 
 
-@sv.on_prefix(['自定义dlc角色删除', '角色删除', '删除角色','沙漠成绩女友'])
+@sv.on_prefix(['自定义dlc角色删除', '角色删除', '删除角色', '删除女友'])
 async def search_chara(bot, ev: CQEvent):
     msg = str(ev.message)
-    if not ev.message:
+    if not msg:
         await bot.finish(ev, '请通过"自定义dlc角色查询+女友名"来查询')
     chara_id = duel_chara.name2id(msg)
-    if int(chara_id) == UNKNOWN:
-        await bot.finish(ev, f'未查询到名称未{msg}的女友信息')
-    chara= duel_chara.fromid(chara_id).name
-    if int(chara_id) < 20000:
+    if chara_id == UNKNOWN:
+        await bot.finish(ev, f'未查询到名称为{msg}的女友信息')
+    chara = duel_chara.fromid(chara_id).name
+    if chara_id < 20000:
         await bot.finish(ev, f'女友{chara.name}不是自定义女友')
-    chara = get_json('chara')
-    del chara[chara_id]
+    chara_json = get_json('chara')
+    del chara_json[str(chara_id)]
     delete_ids = get_json('delete_ids')
-    delete_ids.append(int(chara_id))
-    write_json('delete_ids',delete_ids)
-    write_json('chara', chara)
+    delete_ids.append(chara_id)
+    write_json('delete_ids', delete_ids)
+    write_json('chara', chara_json)
     duel_chara.roster.update()
     refresh_config()
     os.remove(R.img(f'dlc/icon/icon_unit_{chara_id}61.png').path)
@@ -110,17 +111,17 @@ async def search_chara(bot, ev: CQEvent):
     chara = duel_chara.fromid(chara_id).name
     if int(chara_id) < 20000:
         await bot.finish(ev, f'女友{chara.name}不是自定义女友')
-    chara = get_json('chara')
+    chara_json = get_json('chara')
     result = f"""===自定义女友信息===
     角色id：{chara_id}
-    角色名称:{chara[str(chara_id)]}
+    角色名称:{chara_json[str(chara_id)]}
     角色头像：{R.img(f'dlc/icon/icon_unit_{chara_id}61.png').cqcode}
     角色全图：{R.img(f'dlc/full/{chara_id}31.png').cqcode}
     """
     await bot.send(ev, result)
 
 
-@sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色','添加女友'))
+@sv.on_command('添加dlc角色', aliases=('添加DLC角色', '添加角色', '添加女友'))
 async def add_chara(session: CommandSession):
     DLC = get_json('dlc_config')
     msg = '选择添加进哪个dlc\n'
@@ -158,12 +159,12 @@ async def add_chara(session: CommandSession):
     await session.bot.send(session.event, "已收到信息，处理中")
     chara = get_json('chara')
     delete_ids = get_json('delete_ids')
-    char_id=0
+    char_id = 0
     for id in delete_ids:
         if int(DLC[choice]['index']) <= int(id) <= int(DLC[choice]['to']):
-            char_id=int(id)
+            char_id = int(id)
             break
-    if char_id!=0:
+    if char_id != 0:
         delete_ids.remove(char_id)
         write_json('delete_ids', delete_ids)
     else:
@@ -219,7 +220,7 @@ def resize_img(hash_name):
     img = Image.open(R.img(f'dlc/cache/{hash_name}').path)
     size = min(img.size)
     cropped = img.crop((0, 0, size, size))  # (left, upper, right, lower)
-    cropped = cropped.resize((128, 128),Image.ANTIALIAS)
+    cropped = cropped.resize((128, 128), Image.ANTIALIAS)
     re_name = 'icon_' + hash_name.replace('jpg', 'png')
     cropped.save(R.img(f'dlc/cache/{re_name}').path, "PNG")
     return re_name
