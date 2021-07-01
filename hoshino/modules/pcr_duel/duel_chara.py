@@ -8,6 +8,7 @@ from fuzzywuzzy import process
 import hoshino
 from hoshino import R, log, util
 import json
+from hoshino.config import pcr_duel as cfg
 
 logger = log.new_logger('chara', hoshino.config.DEBUG)
 UNKNOWN = 1000
@@ -28,7 +29,6 @@ try:
     unknown_chara_icon = R.img(f'priconne/unit/icon_unit_{UNKNOWN}31.png').open()
 except Exception as e:
     logger.exception(e)
-chara_info={}
 
 
 class Roster:
@@ -37,12 +37,12 @@ class Roster:
         self._roster = pygtrie.CharTrie()
         self.update()
 
+
     def update(self):
-        global chara_info
-        self._roster.clear()
         with open(R.get(f'duel/chara.json').path, 'r', encoding='UTF-8') as f:
-            chara_info = json.load(f)
-        for idx, names in chara_info.items():
+            cfg.chara_info = json.load(f)
+        self._roster.clear()
+        for idx, names in cfg.chara_info.items():
             for n in names:
                 n = util.normalize_str(n)
                 if n not in self._roster:
@@ -136,13 +136,13 @@ class Chara:
 
     @property
     def name(self):
-        return chara_info[str(self.id)][0] if str(self.id) in chara_info else \
-        chara_info[str(UNKNOWN)][0]
+        return cfg.chara_info[str(self.id)][0] if str(self.id) in cfg.chara_info else \
+        cfg.chara_info[str(UNKNOWN)][0]
 
     @property
     def name_li(self):
-        return chara_info[str(self.id)] if str(self.id) in chara_info else \
-            chara_info[str(UNKNOWN)]
+        return cfg.chara_info[str(self.id)] if str(self.id) in cfg.chara_info else \
+            cfg.chara_info[str(UNKNOWN)]
 
     @property
     def is_npc(self) -> bool:

@@ -9,7 +9,6 @@ from PIL import Image
 from io import BytesIO
 import base64
 from . import duel_chara as chara
-from .duel_chara import chara_info
 from hoshino import R
 from hoshino.config import pcr_duel as cfg
 
@@ -359,7 +358,7 @@ def refresh_config():
     ex_dict = {}
     for k, item in ex_dlc_info.items():
         ex_info[item['code']] = item['desc']
-        ex_chara_ids = [int(id) for id in chara_info.keys() if item['index'] <= int(id) <= item['to']]
+        ex_chara_ids = [int(id) for id in cfg.chara_info.keys() if item['index'] <= int(id) <= item['to']]
         ex_dict[item['code']] = ex_chara_ids
     cfg.dlcdict = {**dlcdict_origin, **ex_dict}
     cfg.dlcintro = {**dlcintro_origin, **ex_info}
@@ -502,7 +501,7 @@ daily_equip_limiter = DailyAmountLimiter("equip", EQUIP_DAILY_LIMIT, RESET_HOUR)
 
 # 生成没被约过的角色列表
 def get_newgirl_list(gid):
-    chara_id_list = list(chara_info.keys())
+    chara_id_list = list(cfg.chara_info.keys())
     duel = DuelCounter()
     old_list = duel._get_card_list(gid)
     dlc_blacklist = get_dlc_blacklist(gid)
