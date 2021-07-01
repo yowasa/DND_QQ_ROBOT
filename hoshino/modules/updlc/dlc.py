@@ -6,10 +6,9 @@ import shutil
 import requests
 from PIL import Image
 
-from hoshino import R, Service,priv
+from hoshino import R, Service, priv
 from hoshino.modules.pcr_duel import duel_chara
 from hoshino.modules.pcr_duel.duelconfig import refresh_config
-from hoshino.service import sucmd
 from hoshino.typing import CQEvent
 from hoshino.typing import CommandSession
 
@@ -42,7 +41,6 @@ def write_json(name, content):
 
 # 开始下标
 BEGIN_INDEX = 20000
-
 
 
 @sv.on_command('增加dlc', aliases=('添加dlc'))

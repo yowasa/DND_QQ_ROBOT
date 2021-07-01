@@ -11,6 +11,7 @@ import base64
 from . import duel_chara as chara
 from .duel_chara import chara_info
 from hoshino import R
+from hoshino.config import pcr_duel as cfg
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
                 9604]  # 黑名单ID
@@ -18,7 +19,8 @@ WAIT_TIME = 30  # 对战接受等待时间
 WAIT_TIME_jy = 30  # 交易接受等待时间
 DUEL_SUPPORT_TIME = 30  # 赌钱等待时间
 from hoshino.config.__bot__ import BASE_DB_PATH
-DB_PATH = os.path.expanduser(BASE_DB_PATH+"pcr_duel.db")
+
+DB_PATH = os.path.expanduser(BASE_DB_PATH + "pcr_duel.db")
 CARD_LEVEL_MAX = 100  # 女友等级上限
 GECHA_DUNDCORE = 50  # 抽武器所需副本币
 # 这里是参数设置区
@@ -301,6 +303,7 @@ def save_dlc_switch():
     with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'w', encoding='UTF-8') as f:
         json.dump(dlc_switch, f, ensure_ascii=False)
 
+
 yozilist = range(1523, 1544)
 bangdreamlist = range(1601, 1636)
 millist = range(3001, 3055)
@@ -316,8 +319,8 @@ noranekolist = range(7500, 7510)
 fgolist = range(8001, 8301)
 
 # 这里记录dlc名字和对应列表
-dlcdict_origin={
-'blhx': blhxlist,
+dlcdict_origin = {
+    'blhx': blhxlist,
     'yozi': yozilist,
     'genshin': genshinlist,
     'bangdream': bangdreamlist,
@@ -332,7 +335,7 @@ dlcdict_origin={
     'mrfz': mrfzlist
 }
 # 这里记录每个dlc的介绍
-dlcintro_origin={
+dlcintro_origin = {
     'blhx': '碧蓝航线手游角色包',
     'yozi': '柚子社部分角色包',
     'genshin': '原神角色包',
@@ -347,23 +350,25 @@ dlcintro_origin={
     'fgo': 'FGO手游角色包',
     'mrfz': '明日方舟手游角色包'
 }
-dlcdict = {}
-dlcintro = {}
+
 
 def refresh_config():
-    global dlcdict,dlcintro
     with open(R.get(f'duel/dlc_config.json').path, 'r', encoding='UTF-8') as f:
         ex_dlc_info = json.load(f)
-    ex_info={}
-    ex_dict={}
-    for k,item in ex_dlc_info.items():
-        ex_info[item['code']]=item['desc']
-        ex_chara_ids=[int(id) for id in chara_info.keys() if item['index']<=int(id)<=item['to']]
-        ex_dict[item['code']]=ex_chara_ids
-    dlcdict={**dlcdict_origin,**ex_dict}
-    dlcintro={**dlcintro_origin,**ex_info}
+    ex_info = {}
+    ex_dict = {}
+    for k, item in ex_dlc_info.items():
+        ex_info[item['code']] = item['desc']
+        ex_chara_ids = [int(id) for id in chara_info.keys() if item['index'] <= int(id) <= item['to']]
+        ex_dict[item['code']] = ex_chara_ids
+    cfg.dlcdict = {**dlcdict_origin, **ex_dict}
+    cfg.dlcintro = {**dlcintro_origin, **ex_info}
+
 
 refresh_config()
+
+
+
 # noinspection SqlResolve
 class RecordDAO:
     def __init__(self, db_path):
@@ -495,8 +500,6 @@ daily_boss_limiter = DailyAmountLimiter("boss", BOSS_DAILY_LIMIT, RESET_HOUR)
 daily_equip_limiter = DailyAmountLimiter("equip", EQUIP_DAILY_LIMIT, RESET_HOUR)
 
 
-
-
 # 生成没被约过的角色列表
 def get_newgirl_list(gid):
     chara_id_list = list(chara_info.keys())
@@ -559,15 +562,15 @@ def get_relationship(favor):
 # 取得该群未开启的dlc所形成的黑名单
 def get_dlc_blacklist(gid):
     dlc_blacklist = []
-    for dlc in dlcdict.keys():
+    for dlc in cfg.dlcdict.keys():
         if gid not in dlc_switch[dlc]:
-            dlc_blacklist += dlcdict[dlc]
+            dlc_blacklist += cfg.dlcdict[dlc]
     return dlc_blacklist
 
 
 # 检查有没有没加到json里的dlc
 def check_dlc():
-    for dlc in dlcdict.keys():
+    for dlc in cfg.dlcdict.keys():
         if dlc not in dlc_switch.keys():
             dlc_switch[dlc] = []
     save_dlc_switch()
@@ -1023,6 +1026,7 @@ def get_nv_icon(cid):
     if os.path.exists(path):
         mes = str(R.img(f'dlc/full/{cid}31.png').cqcode)
     return mes
+
 
 # 根据角色id和礼物id，返回增加的好感和文本
 def check_gift(cid, giftid):
