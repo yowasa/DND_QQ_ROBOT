@@ -26,6 +26,7 @@ sv_img = Service('pixiv功能', enable_on_default=True, bundle='图片功能', h
 [订阅列表] 查看订阅的信息
 [自动订阅] 批量订阅和订阅日榜 再次输入指令取消 管理员可操作，对群组设置
 [热门标签] pixiv搜索最近热门的标签
+[抓取订阅] 从扫描订阅的图片中手动抓取未发送过的图片
 ''')
 
 sv_ghs = Service('搞黄色', enable_on_default=False, visible=True, bundle='图片功能', help_=
@@ -367,6 +368,28 @@ async def scan_job():
         sv_img.logger.info(f"扫描失败{e}")
         return
 
+@sv_img.on_prefix(['抓取订阅'])
+async def fetch_sub(bot, ev: CQEvent):
+    msg=str(ev.message).strip()
+    type = ev.detail_type
+    limit=1
+    if msg:
+        if msg.isnumeric():
+            if int(msg)>5 or int(msg)<1:
+                bot.finish(ev,"请输入1-5的数字")
+            else:
+                limit=int(msg)
+        else:
+            bot.finish(ev, "请输入1-5的数字")
+
+    query = SubscribeSendLog.select().where((SubscribeSendLog.user_id == ev.group_id)&(SubscribeSendLog.send_flag == False)&(SubscribeSendLog.user_type==type)).limit(limit)
+    if not query.count():
+        await bot.finish(ev, "已经一滴也没有了")
+    for e in query:
+        await bot.send(ev,e.message_info)
+        e.send_flag = True
+        e.save()
+        await asyncio.sleep(3)
 
 @sv_img.scheduled_job('cron', minute='0,15,30,45')
 async def send_job():

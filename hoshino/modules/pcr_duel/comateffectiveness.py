@@ -453,6 +453,14 @@ async def add_duiwu_t(bot, ev: CQEvent):
             CE._add_dunscore(gid, uid, get_dun_score)
             msg = msg + f"您获得了{get_dun_score}副本币\n"
 
+            get_money=dungeoninfo['dun_score'] * sp_d*20
+            get_SW = dungeoninfo['dun_score'] * sp_d
+
+            score_counter = ScoreCounter2()
+            score_counter._add_prestige(gid, uid, get_SW)
+            score_counter._add_score(gid, uid, get_money)
+
+            msg = msg + f"您获得了{get_money}金币和{get_SW}声望\n"
             # 增加角色碎片
             # 万能碎片
             get_fragment_w = dungeoninfo['fragment_w'] * sp_d
@@ -1995,7 +2003,7 @@ async def xiulian_end(bot, ev: CQEvent):
         jgtime = 86400
     xlmin = math.ceil(jgtime / 60)
     sj_msg = sj_msg + f"修炼时间为{xlmin}分钟，"
-    addexp = xlmin * 50
+    addexp = xlmin * GJ_EXP_RATE
     card_level = add_exp(gid, uid, guajiinfo[0], addexp)
     CE._delete_xiulian(gid, uid)
     c = chara.fromid(guajiinfo[0])

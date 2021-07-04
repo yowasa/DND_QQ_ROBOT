@@ -21,36 +21,36 @@ from hoshino.config.__bot__ import BASE_DB_PATH
 
 DB_PATH = os.path.expanduser(BASE_DB_PATH + "pcr_duel.db")
 CARD_LEVEL_MAX = 100  # 女友等级上限
-GECHA_DUNDCORE = 50  # 抽武器所需副本币
+GECHA_DUNDCORE = 100  # 抽武器所需副本币
 # 这里是参数设置区
 SIGN_DAILY_LIMIT = 1  # 机器人每天签到的次数
 DUEL_DAILY_LIMIT = 10  # 每个人每日发起决斗上限
 DUN_DAILY_LIMIT = 6  # 每个人每日副本上限
 BOSS_DAILY_LIMIT = 3  # 会战与世界boss次数
 EQUIP_DAILY_LIMIT = 5  # 副本商城兑换次数
-RESET_HOUR = 0  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
+RESET_HOUR = 5  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
 GACHA_COST = 500  # 抽老婆需求
 GACHA_COST_Fail = 200  # 抽老婆失败补偿量
 ZERO_GET_LIMIT = 3  # 没钱补给次数
 ZERO_GET_AMOUNT = 1000  # 没钱补给量
 WIN_NUM = 1  # 下注获胜赢得的倍率
-WIN_EXP = 100  # 决斗胜利获得经验
+WIN_EXP = 200  # 决斗胜利获得经验
 SHANGXIAN_NUM = 100000  # 增加女友上限所需金币
 WAREHOUSE_NUM = 40  # 仓库增加上限
-SHANGXIAN_SW = 500  # 扩充女友上限，需要的声望值
+SHANGXIAN_SW = 2000  # 扩充女友上限，需要的声望值
 
 BREAK_UP_SWITCH = True  # 分手系统开关
 Zhuan_Need = 0.2  # 转账所需的手续费比例
-WinSWBasics = 400  # 赢了获得的基础声望
-LoseSWBasics = 150  # 输了掉的基础声望
+WinSWBasics = 150  # 赢了获得的基础声望
+LoseSWBasics = 100  # 输了掉的基础声望
 
 Remake_allow = False  # 是否允许重开
 
 SW_COST = 500  # 声望招募的声望需求量
-DJ_NEED_SW = 2500  # 加冕称帝消耗的声望
-DJ_NEED_GOLD = 20000  # 加冕称帝消耗的金币
-FS_NEED_SW = 4000  # 飞升所需的声望
-FS_NEED_GOLD = 30000  # 飞升所需的金币
+DJ_NEED_SW = 5000  # 加冕称帝消耗的声望
+DJ_NEED_GOLD = 400000  # 加冕称帝消耗的金币
+FS_NEED_SW = 10000  # 飞升所需的声望
+FS_NEED_GOLD = 500000  # 飞升所需的金币
 DATE_DAILY_LIMIT = 1  # 每天女友约会次数上限
 GIFT_DAILY_LIMIT = 5  # 每日购买礼物次数上限
 WAIT_TIME_CHANGE = 30  # 礼物交换等待时间
@@ -61,22 +61,25 @@ Suo_allow = True  # 是否允许梭哈
 Suo = 1  # 梭哈额外获取的金币倍率
 
 # 这里是庆典设置区 ~~开关类，1为开，0为关~~
-Show_Cele_Not = True  # 查询庆典时，显示未开放的庆典
+Show_Cele_Not = False  # 查询庆典时，显示未开放的庆典
 # 金币庆典
-Gold_Cele = 1  # 群庆典初始化时，是否开启金币庆典
+Gold_Cele = 0  # 群庆典初始化时，是否开启金币庆典
 Gold_Cele_Num = 2  # 金币庆典倍率，实际获得金币倍率为金币庆典倍率*基础倍率
 # 贵族签到庆典
-QD_Cele = 1  # 群庆典初始化时，是否开启贵族签到庆典
-QD_Gold_Cele_Num = 3  # 签到庆典金币倍率
+QD_Cele = 0  # 群庆典初始化时，是否开启贵族签到庆典
+QD_Gold_Cele_Num = 2  # 签到庆典金币倍率
 QD_SW_Cele_Num = 2  # 签到庆典声望倍率
 # 梭哈庆典
-Suo_Cele = 1  # 群庆典初始化时，是否开启梭哈倍率庆典
+Suo_Cele = 0  # 群庆典初始化时，是否开启梭哈倍率庆典
 Suo_Cele_Num = 2  # 梭哈额外倍率，实际获得梭哈倍率为梭哈庆典倍率*基础倍率
 # 免费招募庆典
-FREE_DAILY = 1  # 群庆典初始化时，是否开启免费招募庆典
+FREE_DAILY = 0  # 群庆典初始化时，是否开启免费招募庆典
 FREE_DAILY_LIMIT = 1  # 每天免费招募的次数
 # 限时开放声望招募
 SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
+
+# 挂机修炼获取经验倍率（每分钟）
+GJ_EXP_RATE=10
 
 FILE_PATH = os.path.dirname(__file__)  # 用于加载dlcjson
 LEVEL_GIRL_NEED = {
@@ -85,34 +88,34 @@ LEVEL_GIRL_NEED = {
     "3": 3,
     "4": 5,
     "5": 7,
-    "6": 10,
-    "7": 15,
-    "8": 20,
-    "9": 30,
-    "10": 40,
-    "20": 60
+    "6": 9,
+    "7": 11,
+    "8": 13,
+    "9": 15,
+    "10": 17,
+    "20": 20
 }  # 升级所需要的老婆，格式为["等级“: 需求]
 LEVEL_COST_DICT = {
+    "1": 0,
+    "2": 2000,
+    "3": 5000,
+    "4": 10000,
+    "5": 30000,
+    "6": 50000,
+    "7": 100000,
+    "8": 200000,
+    "9": 300000
+}  # 升级所需要的钱钱，格式为["等级“: 需求]
+LEVEL_SW_NEED = {
     "1": 0,
     "2": 100,
     "3": 300,
     "4": 500,
-    "5": 1000,
-    "6": 3000,
-    "7": 5000,
-    "8": 10000,
-    "9": 15000
-}  # 升级所需要的钱钱，格式为["等级“: 需求]
-LEVEL_SW_NEED = {
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "5": 0,
-    "6": 0,
-    "7": 1000,
-    "8": 1500,
-    "9": 2000
+    "5": 700,
+    "6": 1000,
+    "7": 1500,
+    "8": 2000,
+    "9": 3000
 }  # 升级所需要的声望，格式为["等级“: 需求]
 
 RELATIONSHIP_DICT = {
@@ -147,18 +150,18 @@ GIFTCHOICE_DICT = {
 
 MAX_RANK = 12  # 最大rank等级
 RANK_LIST = {
-    1: 50000,
-    2: 100000,
-    3: 150000,
-    4: 200000,
-    5: 250000,
-    6: 300000,
-    7: 350000,
-    8: 400000,
-    9: 450000,
-    10: 500000,
-    11: 550000,
-    12: 600000,
+    1: 5000,
+    2: 10000,
+    3: 15000,
+    4: 20000,
+    5: 25000,
+    6: 30000,
+    7: 35000,
+    8: 40000,
+    9: 45000,
+    10: 50000,
+    11: 55000,
+    12: 60000,
 }  # rank升级要求，格式为["rank":金币]
 
 MAX_STAR = 5  # 最大星级
@@ -293,9 +296,8 @@ with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'r', encoding='UTF-8') as 
     dlc_switch = json.load(f, strict=False)
 
 # 加载时装列表
-fashionlist = {}
-with open(os.path.join(FILE_PATH, 'config.json'), 'r', encoding='UTF-8') as fa:
-    fashionlist = json.load(fa, strict=False)
+
+cfg.refresh_fashion()
 
 
 def save_dlc_switch():
@@ -303,68 +305,10 @@ def save_dlc_switch():
         json.dump(dlc_switch, f, ensure_ascii=False)
 
 
-yozilist = range(1523, 1544)
-bangdreamlist = range(1601, 1636)
-millist = range(3001, 3055)
-collelist = range(4001, 4639)
-mrfzlist = range(5001, 5180)
-blhxlist = range(6000, 6506)
-genshinlist = range(7001, 7020)
-koilist = range(7100, 7104)
-sakulist = range(7200, 7204)
-cloverlist = range(7300, 7307)
-majsoullist = range(7400, 7476)
-noranekolist = range(7500, 7510)
-fgolist = range(8001, 8301)
-
-# 这里记录dlc名字和对应列表
-dlcdict_origin = {
-    'blhx': blhxlist,
-    'yozi': yozilist,
-    'genshin': genshinlist,
-    'bangdream': bangdreamlist,
-    'million': millist,
-    'kancolle': collelist,
-    'koikake': koilist,
-    'sakukoi': sakulist,
-    'cloverdays': cloverlist,
-    'majsoul': majsoullist,
-    'noraneko': noranekolist,
-    'fgo': fgolist,
-    'mrfz': mrfzlist
-}
-# 这里记录每个dlc的介绍
-dlcintro_origin = {
-    'blhx': '碧蓝航线手游角色包',
-    'yozi': '柚子社部分角色包',
-    'genshin': '原神角色包',
-    'bangdream': '邦邦手游角色包。',
-    'million': '偶像大师百万剧场角色包',
-    'kancolle': '舰队collection角色包',
-    'koikake': '恋×シンアイ彼女角色包',
-    'sakukoi': '桜ひとひら恋もよう角色包',
-    'cloverdays': 'Clover Days角色包',
-    'majsoul': '雀魂角色包',
-    'noraneko': 'ノラと皇女と野良猫ハート角色包',
-    'fgo': 'FGO手游角色包',
-    'mrfz': '明日方舟手游角色包'
-}
 
 
-def refresh_config():
-    with open(R.get(f'duel/dlc_config.json').path, 'r', encoding='UTF-8') as f:
-        ex_dlc_info = json.load(f)
-    ex_info = {}
-    ex_dict = {}
-    for k, item in ex_dlc_info.items():
-        ex_info[item['code']] = item['desc']
-        ex_chara_ids = [int(id) for id in cfg.chara_info.keys() if item['index'] <= int(id) <= item['to']]
-        ex_dict[item['code']] = ex_chara_ids
-    cfg.dlcdict = {**dlcdict_origin, **ex_dict}
-    cfg.dlcintro = {**dlcintro_origin, **ex_info}
 
-
-refresh_config()
+cfg.refresh_config()
 
 
 
@@ -915,26 +859,16 @@ def get_dun_info(dunname):
 
 # 返回角色时装立绘
 def get_fashion_icon(fid):
-    PIC_PATH = os.path.join(FILE_PATH, 'fashion')
-    path = os.path.join(PIC_PATH, f'{fid}.JPG')
-    mes = ''
-    if os.path.exists(path):
-        img = Image.open(path)
-        bio = BytesIO()
-        img.save(bio, format='PNG')
-        base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
-        mes = f"[CQ:image,file={base64_str}]"
-    return mes
+    return str(R.img(f'dlc/fashion/{fid}.jpg').cqcode)
 
 
 # 返回角色时装列表
 def get_fashion(cid):
     returnfashion = []
-    for fashion in fashionlist:
-        fashioninfo = []
-        if str(cid) == str(fashionlist[fashion]['cid']):
-            fashioninfo = fashionlist[fashion]
-            fashioninfo['icon'] = get_fashion_icon(fashionlist[fashion]['fid'])
+    for fashion in cfg.fashionlist:
+        if str(cid) == str(cfg.fashionlist[fashion]['cid']):
+            fashioninfo = cfg.fashionlist[fashion]
+            fashioninfo['icon'] = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
             returnfashion.append(fashioninfo)
     return returnfashion
 
@@ -942,10 +876,10 @@ def get_fashion(cid):
 # 返回时装信息
 def get_fashion_buy(fname):
     fashioninfo = []
-    for fashion in fashionlist:
-        if str(fname) == str(fashionlist[fashion]['name']):
-            fashioninfo = fashionlist[fashion]
-            fashioninfo['icon'] = get_fashion_icon(fashionlist[fashion]['fid'])
+    for fashion in cfg.fashionlist:
+        if str(fname) == str(cfg.fashionlist[fashion]['name']):
+            fashioninfo = cfg.fashionlist[fashion]
+            fashioninfo['icon'] = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
             return fashioninfo
     return fashioninfo
 
@@ -953,10 +887,10 @@ def get_fashion_buy(fname):
 # 返回时装信息
 def get_fashion_info(fid):
     fashioninfo = []
-    for fashion in fashionlist:
-        if str(fid) == str(fashionlist[fashion]['fid']):
-            fashioninfo = fashionlist[fashion]
-            fashioninfo['icon'] = get_fashion_icon(fashionlist[fashion]['fid'])
+    for fashion in cfg.fashionlist:
+        if str(fid) == str(cfg.fashionlist[fashion]['fid']):
+            fashioninfo = cfg.fashionlist[fashion]
+            fashioninfo['icon'] = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
             return fashioninfo
     return fashioninfo
 

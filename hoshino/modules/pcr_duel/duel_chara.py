@@ -7,7 +7,6 @@ from fuzzywuzzy import process
 
 import hoshino
 from hoshino import R, log, util
-import json
 from hoshino.config import pcr_duel as cfg
 
 logger = log.new_logger('chara', hoshino.config.DEBUG)
@@ -30,7 +29,6 @@ try:
 except Exception as e:
     logger.exception(e)
 
-
 class Roster:
 
     def __init__(self):
@@ -39,8 +37,6 @@ class Roster:
 
 
     def update(self):
-        with open(R.get(f'duel/chara.json').path, 'r', encoding='UTF-8') as f:
-            cfg.chara_info = json.load(f)
         self._roster.clear()
         for idx, names in cfg.chara_info.items():
             for n in names:
@@ -73,6 +69,7 @@ class Roster:
                 namestr = namestr[len(item.key):].lstrip()
         return team, ''.join(unknown)
 
+cfg.refresh_chara()
 
 roster = Roster()
 

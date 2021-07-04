@@ -6,7 +6,7 @@ from hoshino.typing import CommandSession, CQHttpError
 
 
 # 私聊发送 广播至所有群
-@sucmd('broadcast', aliases=('bc', '广播'), force_private=False)
+@sucmd('broadcast', aliases=('bc', '广播'), force_private=True)
 async def broadcast(session: CommandSession):
     msg = session.current_arg
     bot = session.bot
