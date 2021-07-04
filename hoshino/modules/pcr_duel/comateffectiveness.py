@@ -453,8 +453,8 @@ async def add_duiwu_t(bot, ev: CQEvent):
             CE._add_dunscore(gid, uid, get_dun_score)
             msg = msg + f"您获得了{get_dun_score}副本币\n"
 
-            get_money=dungeoninfo['dun_score'] * sp_d*20
-            get_SW = dungeoninfo['dun_score'] * sp_d
+            get_money=dungeoninfo['dun_score'] * sp_d*20*3
+            get_SW = dungeoninfo['dun_score'] * sp_d*3
 
             score_counter = ScoreCounter2()
             score_counter._add_prestige(gid, uid, get_SW)

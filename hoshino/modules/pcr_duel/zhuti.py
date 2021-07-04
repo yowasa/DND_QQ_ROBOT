@@ -98,7 +98,7 @@ async def add_dlc(bot, ev: CQEvent):
     dlcname = args[0]
     if dlcname not in cfg.dlcdict.keys():
         await bot.finish(ev, 'DLC名填写错误。', at_sender=True)
-
+    check_dlc()
     if gid in dlc_switch[dlcname]:
         await bot.finish(ev, '本群已开启此dlc哦。', at_sender=True)
     dlc_switch[dlcname].append(gid)
@@ -1426,7 +1426,7 @@ async def nobleduel(bot, ev: CQEvent):
     # 判断胜者败者是否需要增减声望
     level_loser = duel._get_level(gid, loser)
     level_winner = duel._get_level(gid, winner)
-    wingold = 200 + (level_loser * 100)
+    wingold = 800 + (level_loser * 100)
     if is_overtime == 1:
         if n != 6:
             wingold = 100

@@ -28,21 +28,21 @@ DUEL_DAILY_LIMIT = 10  # 每个人每日发起决斗上限
 DUN_DAILY_LIMIT = 6  # 每个人每日副本上限
 BOSS_DAILY_LIMIT = 3  # 会战与世界boss次数
 EQUIP_DAILY_LIMIT = 5  # 副本商城兑换次数
-RESET_HOUR = 5  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
+RESET_HOUR = 0  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
 GACHA_COST = 500  # 抽老婆需求
 GACHA_COST_Fail = 200  # 抽老婆失败补偿量
 ZERO_GET_LIMIT = 3  # 没钱补给次数
 ZERO_GET_AMOUNT = 1000  # 没钱补给量
 WIN_NUM = 1  # 下注获胜赢得的倍率
-WIN_EXP = 200  # 决斗胜利获得经验
+WIN_EXP = 100  # 决斗胜利获得经验
 SHANGXIAN_NUM = 100000  # 增加女友上限所需金币
 WAREHOUSE_NUM = 40  # 仓库增加上限
 SHANGXIAN_SW = 2000  # 扩充女友上限，需要的声望值
 
 BREAK_UP_SWITCH = True  # 分手系统开关
 Zhuan_Need = 0.2  # 转账所需的手续费比例
-WinSWBasics = 150  # 赢了获得的基础声望
-LoseSWBasics = 100  # 输了掉的基础声望
+WinSWBasics = 400  # 赢了获得的基础声望
+LoseSWBasics = 150  # 输了掉的基础声望
 
 Remake_allow = False  # 是否允许重开
 
