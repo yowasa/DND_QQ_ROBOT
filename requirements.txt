@@ -25,3 +25,4 @@ pygtrie>=2.0
 tinydb>=4.0
 aiohttp>=3.6
 peony-twitter[all]~=1.1.7
+uvicorn==0.14.0
