@@ -561,11 +561,14 @@ def package_pixiv_img(illust, group=False):
         api.download(url, path=R.img(CACHE_FILE).path, replace=True)
         name = trance_png(name, R.img(CACHE_FILE).path)
         result = R.img(CACHE_FILE + name).cqcode
-    new_cache = PixivCache()
-    new_cache.pixiv_id = illust.get('id')
-    new_cache.group = group
-    new_cache.message = result
-    new_cache.save()
+    try:
+        new_cache = PixivCache()
+        new_cache.pixiv_id = illust.get('id')
+        new_cache.group = group
+        new_cache.message = result
+        new_cache.save()
+    except:
+        sv_img.logger.info("存储缓存失败")
     return result
 
 

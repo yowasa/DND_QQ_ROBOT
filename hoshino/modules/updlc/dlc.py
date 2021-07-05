@@ -18,6 +18,7 @@ UNKNOWN = 1000
 sv = Service('自定义DLC', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, bundle='贵族功能', help_=
 '''[增加dlc] 仅维护人员可用
 [自定义dlc列表]
+[dlc角色列表]{dlc名称}
 [添加女友]
 [更新女友]
 [删除女友]
@@ -187,6 +188,20 @@ async def ad_p(session: CommandSession):
     else:
         session.state[session.current_key] = text
 
+@sv.on_prefix(['dlc角色列表'])
+async def dlc_list(bot, ev: CQEvent):
+    msg=str(ev.message).strip()
+    contents = get_json('dlc_config')
+    dlc = contents.get(msg)
+    if not dlc:
+        await bot.finish(ev, f'未找到自定义DLC "{msg}"')
+    chara_json = get_json('chara')
+    ca_li=[]
+    for key, values in chara_json.items():
+        if int(dlc['index']) <= int(key) <= int(dlc['to']):
+            ca_li.append(values[0])
+    msg = "====角色列表====\n"+' '.join(ca_li)
+    await bot.send(ev, message=msg)
 
 @sv.on_prefix(['自定义dlc列表'])
 async def dlc_list(bot, ev: CQEvent):

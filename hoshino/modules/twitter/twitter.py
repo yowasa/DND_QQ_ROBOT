@@ -116,7 +116,7 @@ async def poll_new_tweets(account: str):
 
 # Requests/15-min window: 900  == 1 req/s
 _subr_num = len(latest_info)
-_freq = 3 * _subr_num
+_freq = 300 * _subr_num
 sv.logger.info(f"twitter_poller works at {_subr_num} / {_freq} seconds")
 
 
