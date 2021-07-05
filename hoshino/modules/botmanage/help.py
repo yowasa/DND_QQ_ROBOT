@@ -27,10 +27,12 @@ TOP_MANUAL = '''
 [帮助pcr订阅]
 [帮助pcr娱乐]
 [帮助贵族功能]
+[帮助推特]
 
 ========
 ※本bot开源，可自行搭建
 '''.strip()
+
 
 def gen_bundle_manual(bundle_name, service_list, gid):
     manual = [bundle_name]

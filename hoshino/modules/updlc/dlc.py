@@ -17,7 +17,7 @@ UNKNOWN = 1000
 
 sv = Service('自定义DLC', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, bundle='贵族功能', help_=
 '''[增加dlc] 仅维护人员可用
-[子定义dlc列表]
+[自定义dlc列表]
 [添加女友]
 [更新女友]
 [删除女友]

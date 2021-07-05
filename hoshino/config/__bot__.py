@@ -44,6 +44,6 @@ MODULES_ON = {
     'saucenao',
     'setu',
     'updlc',
-    # 'twitter',            # 轮询版转推（old）
+    'twitter',  # 轮询版转推（old）
     # 'twitter_stream',     # 推流版转推（beta）
 }

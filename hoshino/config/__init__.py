@@ -1,7 +1,6 @@
 """
 初始化加载内容
 """
-__all__ = ['groupmaster', 'hourcall', 'mikan', 'priconne', 'pcrclanbattle', 'twitter']
 
 import importlib
 import os

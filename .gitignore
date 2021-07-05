@@ -9,8 +9,7 @@ log/
 
 # Distribution / packaging
 .Python
-build/
-data/
+build/s
 develop-eggs/
 dist/
 downloads/
