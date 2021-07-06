@@ -43,7 +43,7 @@ CACHE_FULL_FILE = 'ghs/full/'
 
 DB_PATH = os.path.expanduser(BASE_DB_PATH + "ghs.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-db = SqliteDatabase(DB_PATH)
+db = SqliteDatabase(DB_PATH, threadlocals=True)
 
 
 class BaseModel(Model):
@@ -293,7 +293,7 @@ async def sublist(bot, ev: CQEvent):
     user_infos = [str(sub.type_user) for sub in
                   Subscribe.select().where(
                       (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                                  Subscribe.type == 'user'))]
+                              Subscribe.type == 'user'))]
     return_msg = ''
     if pack_info:
         return_msg += '套餐\n' + '\n'.join(pack_info) + '\n\n'
@@ -368,28 +368,32 @@ async def scan_job():
         sv_img.logger.info(f"扫描失败{e}")
         return
 
+
 @sv_img.on_prefix(['抓取订阅'])
 async def fetch_sub(bot, ev: CQEvent):
-    msg=str(ev.message).strip()
+    msg = str(ev.message).strip()
     type = ev.detail_type
-    limit=1
+    limit = 1
     if msg:
         if msg.isnumeric():
-            if int(msg)>5 or int(msg)<1:
-                bot.finish(ev,"请输入1-5的数字")
+            if int(msg) > 5 or int(msg) < 1:
+                bot.finish(ev, "请输入1-5的数字")
             else:
-                limit=int(msg)
+                limit = int(msg)
         else:
             bot.finish(ev, "请输入1-5的数字")
 
-    query = SubscribeSendLog.select().where((SubscribeSendLog.user_id == ev.group_id)&(SubscribeSendLog.send_flag == False)&(SubscribeSendLog.user_type==type)).limit(limit)
+    query = SubscribeSendLog.select().where(
+        (SubscribeSendLog.user_id == ev.group_id) & (SubscribeSendLog.send_flag == False) & (
+                    SubscribeSendLog.user_type == type)).limit(limit)
     if not query.count():
         await bot.finish(ev, "已经一滴也没有了")
     for e in query:
-        await bot.send(ev,e.message_info)
+        await bot.send(ev, e.message_info)
         e.send_flag = True
         e.save()
         await asyncio.sleep(3)
+
 
 @sv_img.scheduled_job('cron', minute='0,15,30,45')
 async def send_job():
