@@ -43,7 +43,7 @@ CACHE_FULL_FILE = 'ghs/full/'
 
 DB_PATH = os.path.expanduser(BASE_DB_PATH + "ghs.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-db = SqliteDatabase(DB_PATH, threadlocals=True)
+db = SqliteDatabase(DB_PATH)
 
 
 class BaseModel(Model):
@@ -572,7 +572,7 @@ def package_pixiv_img(illust, group=False):
         new_cache.message = result
         new_cache.save()
     except:
-        sv_img.logger.info("存储缓存失败")
+        sv_img.logger.error("存储缓存失败")
     return result
 
 

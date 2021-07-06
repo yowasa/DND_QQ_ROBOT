@@ -896,7 +896,7 @@ async def inquire_noble(bot, ev: CQEvent):
   {partmsg}
   您共可拥有{girlnum}名女友
   您目前没有女友。
-  发送[贵族约会]
+  发送[贵族舞会]
   可以招募女友哦。
   
 ╚                          ╝
@@ -1800,7 +1800,10 @@ async def search_girl(bot, ev: CQEvent):
         await bot.finish(ev, f'\n{c.name}现在是\n[CQ:at,qq={owner}]的妻子哦。{nvmes}{lh_msg}', at_sender=True)
 
     if owner == 0:
-        await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}{lh_msg}', at_sender=True)
+        try:
+            await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}{lh_msg}', at_sender=True)
+        except Exception as e:
+            print(e)
         return
     else:
         store_flag = duel._get_store(gid, owner, cid)
@@ -2939,20 +2942,20 @@ async def fashion_list(bot, ev: CQEvent):
                 }
             }
             tas_list.append(data)
-        for fashion in fashionlist:
-            if fashionlist[fashion]['cid'] in cidlist:
-                if fashionlist[fashion]['xd_flag'] == 0:
-                    buy_info = duel._get_fashionbuy(gid, uid, fashionlist[fashion]['cid'], fashionlist[fashion]['fid'])
+        for fashion in cfg.fashionlist:
+            if cfg.fashionlist[fashion]['cid'] in cidlist:
+                if cfg.fashionlist[fashion]['xd_flag'] == 0:
+                    buy_info = duel._get_fashionbuy(gid, uid, cfg.fashionlist[fashion]['cid'], cfg.fashionlist[fashion]['fid'])
                     if buy_info == 0:
                         jishu = jishu + 1
                         # if jishu<7:
                         lh_msg = ''
-                        icon = get_fashion_icon(fashionlist[fashion]['fid'])
-                        lh_msg = lh_msg + f"\n{icon}\n{fashionlist[fashion]['name']}"
-                        if fashionlist[fashion]['pay_score'] > 0:
-                            lh_msg = lh_msg + f"\n需要金币:{fashionlist[fashion]['pay_score']}"
-                        if fashionlist[fashion]['pay_sw'] > 0:
-                            lh_msg = lh_msg + f"\n需要声望:{fashionlist[fashion]['pay_sw']}"
+                        icon = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
+                        lh_msg = lh_msg + f"\n{icon}\n{cfg.fashionlist[fashion]['name']}"
+                        if cfg.fashionlist[fashion]['pay_score'] > 0:
+                            lh_msg = lh_msg + f"\n需要金币:{cfg.fashionlist[fashion]['pay_score']}"
+                        if cfg.fashionlist[fashion]['pay_sw'] > 0:
+                            lh_msg = lh_msg + f"\n需要声望:{cfg.fashionlist[fashion]['pay_sw']}"
                         data = {
                             "type": "node",
                             "data": {
