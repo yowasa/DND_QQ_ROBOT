@@ -1,13 +1,13 @@
 from hoshino import R, Service, priv
 import hoshino
 from peewee import *
-from hoshino.config.__bot__ import BASE_DB_PATH
-import os
+from functools import partial
 import random
 import json
 from PIL import Image
 import asyncio
 from pixivpy3 import *
+from .CacheCounter import *
 
 from hoshino.typing import CQEvent
 
@@ -29,7 +29,7 @@ sv_img = Service('pixiv功能', enable_on_default=True, bundle='图片功能', h
 [抓取订阅] 从扫描订阅的图片中手动抓取未发送过的图片
 ''')
 
-sv_ghs = Service('搞黄色', enable_on_default=False, visible=True, bundle='图片功能', help_=
+sv_ghs = Service('搞黄色', enable_on_default=False, bundle='图片功能', help_=
 '''[ghs]{标签} pixiv搜索图片（R18版本）不加标签则会随机抽取日榜图片
 [gghs]{标签} pixiv搜索图片（R18版本） 会返回图组 不加标签则会随机抽取日榜图片
 [启用自动撤回] 开启r18图片自动撤回 仅管理员可用，对群组设置
@@ -73,13 +73,6 @@ class SubscribeSendLog(BaseModel):
     send_flag = BooleanField(null=False, default=False)
 
 
-# 数据库缓存
-class PixivCache(BaseModel):
-    pixiv_id = IntegerField(index=True)
-    group = BooleanField()
-    message = CharField(max_length=2000)  # cq码
-
-
 # 用户配置
 class User(BaseModel):
     qq_number = BigIntegerField(index=True, unique=True)
@@ -96,22 +89,8 @@ Subscribe.create_table()
 SubscribeSendLog.create_table()
 User.create_table()
 Group.create_table()
-PixivCache.create_table()
 
 api = AppPixivAPI()
-
-
-# # Pixiv WEB客户端
-# web_api = PixivAPI()
-
-
-# # web客户端登录
-# def web_pixiv_login():
-#     token = get_token()
-#     web_api.set_auth(access_token=token['access_token'], refresh_token=token['refresh_token'])
-#     web_api.auth(refresh_token=token['refresh_token'])
-#     token['refresh_token'] = web_api.refresh_token
-#     write_refresh_token(token)
 
 @sv_ghs.on_fullmatch(['启用自动撤回', '开启自动撤回'])
 async def pixiv_detail_open(bot, ev: CQEvent):
@@ -327,7 +306,7 @@ async def unsubscribe(bot, ev: CQEvent):
         await bot.send(ev, '取消订阅成功')
 
 
-@sv_img.scheduled_job('cron', hour='2')
+@sv_img.scheduled_job('cron', hour='*/4',minute='5')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
     try:
@@ -357,9 +336,10 @@ async def scan_job():
                 await build_result(each, result_public.illusts)
                 sv_img.logger.info("存储公开收藏夹信息成功")
             if each.type == 'user':
-                await sv_img.logger.info(f"开始扫描画师{each.type_user}作品信息")
-                results_users = api.user_illusts(each.type_user)
-                await sv_img.logger.info(f"扫描画师{each.type_user}作品信息成功 准备存储")
+                sv_img.logger.info(f"开始扫描画师{each.type_user}作品信息")
+                results_users = await asyncio.get_event_loop().run_in_executor(
+                    None, partial(api.user_illusts, each.type_user))
+                sv_img.logger.info(f"扫描画师{each.type_user}作品信息成功 准备存储")
                 await build_result(each, results_users.illusts)
                 sv_img.logger.info(f"存储指定画师{each.type_user}作品信息成功")
         sv_img.logger.info("扫描结束")
@@ -394,8 +374,7 @@ async def fetch_sub(bot, ev: CQEvent):
         e.save()
         await asyncio.sleep(3)
 
-
-@sv_img.scheduled_job('cron', minute='0,15,30,45')
+@sv_img.scheduled_job('cron', minute='0,15,30,45',jitter=20)
 async def send_job():
     sv_img.logger.info("开始投放订阅图片")
     try:
@@ -522,9 +501,10 @@ def combine_app_result(illust, group=False, need_detail=False):
 # 将查询到的illust对象缓存并转化为cq码
 def package_pixiv_img(illust, group=False):
     url = illust.meta_single_page.get('original_image_url')
-    cache = PixivCache.get_or_none((PixivCache.pixiv_id == illust.get('id')) & (PixivCache.group == group))
-    if cache:
-        return cache.message
+    cache = CacheCounter()
+    message=cache._get_cache(illust.get('id'),group)
+    if message:
+        return message
     if not url:
         urls = []
         for i in illust.meta_pages:
@@ -566,13 +546,9 @@ def package_pixiv_img(illust, group=False):
         name = trance_png(name, R.img(CACHE_FILE).path)
         result = R.img(CACHE_FILE + name).cqcode
     try:
-        new_cache = PixivCache()
-        new_cache.pixiv_id = illust.get('id')
-        new_cache.group = group
-        new_cache.message = result
-        new_cache.save()
-    except:
-        sv_img.logger.error("存储缓存失败")
+        cache._set_cache(illust.get('id'),group,str(result))
+    except Exception as e:
+        sv_img.logger.error("存储p站缓存失败")
     return result
 
 
@@ -658,7 +634,8 @@ async def build_result(subscribe, illusts):
             ill_ids.remove(log.message_id)
     for i in ill_ids:
         illust = mapping.get(i)
-        message = package_pixiv_img(illust, group=True)
+        message=await asyncio.get_event_loop().run_in_executor(
+            None, partial(package_pixiv_img,illust,True))
         sublog = SubscribeSendLog()
         sublog.user_id = subscribe.user_id
         sublog.user_type = subscribe.user_type
@@ -671,12 +648,9 @@ async def build_result(subscribe, illusts):
 
 def send_list():
     result = []
-    query = SubscribeSendLog.select().where(SubscribeSendLog.send_flag == False)
-    filter_mapping = []
+    query = SubscribeSendLog.select().where(SubscribeSendLog.send_flag == False).group_by(SubscribeSendLog.user_id)
+
     for e in query:
-        if str(e.user_id) + e.user_type in filter_mapping:
-            continue
-        filter_mapping.append(str(e.user_id) + e.user_type)
         content = bulid_context(e.user_id, e.user_type)
         each = {}
         each['content'] = content

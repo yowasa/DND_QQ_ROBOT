@@ -1608,9 +1608,6 @@ async def start_huizhan(bot, ev: CQEvent):
         # 计算最终输出伤害
         shanghai = math.ceil((shuchu * fudong) / zhanbi)
         msg = ''
-        # for cid in defen:
-        # duel._add_favor(gid,uid,cid,dungeoninfo['add_favor'])
-        # card_level=add_exp(gid,uid,cid,bossinfo['add_exp'])
         # 判断造成的伤害是否大于boss血量
         card_jk = 0
         if shanghai > bossinfo['hp']:
@@ -1648,15 +1645,33 @@ async def start_huizhan(bot, ev: CQEvent):
             msg = msg + f"您对boss造成了{shanghai}点伤害，{boss_msg}"
         CE._up_bossinfo(sendgid, nextzhoumu, nextboss, nexthp)
         CE._add_bossfight(gid, uid, bossinfo['zhoumu'], bossinfo['bossid'], shanghai, shijieflag)
-        for cid in defen:
-            CE._add_cardfight(gid, uid, cid, fighttime, card_jk, shijieflag)
-            card_level = add_exp(gid, uid, cid, bossinfo['add_exp'])
         data = {
             "type": "node",
             "data": {
                 "name": "ご主人様",
                 "uin": "1587640710",
                 "content": msg
+            }
+        }
+        tas_list.append(data)
+        #增加经验值
+        record_msg='出刀奖励结算：'
+        for cid in defen:
+            c = chara.fromid(cid)
+            CE._add_cardfight(gid, uid, cid, fighttime, card_jk, shijieflag)
+            card_level = add_exp(gid, uid, cid, bossinfo['add_exp'])
+            record_msg+=f"\n你的女友 {c.name} 获取了{bossinfo['add_exp']}点经验，{card_level[2]}"
+        #奖励声望
+        score_counter = ScoreCounter2()
+        sw_add=len(defen)*100
+        score_counter._add_prestige(gid,uid,sw_add)
+        record_msg+=f'\n由于你的英勇出战你获得了{sw_add}声望'
+        data = {
+            "type": "node",
+            "data": {
+                "name": "ご主人様",
+                "uin": "1587640710",
+                "content": record_msg
             }
         }
         tas_list.append(data)

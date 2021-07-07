@@ -140,8 +140,24 @@ async def twitter_poller():
             twts.extend(buf.get(account, []))
         if twts:
             await ssv.broadcast(twts, ssv.name, 0.5)
+import hashlib
+import requests
+import os
+def md5(str):
+    m = hashlib.md5()
+    m.update(str.encode("utf8"))
+    print(m.hexdigest())
+    return m.hexdigest()
 
-
+def requests_download_url(url, path):
+    name = url[url.rfind("/") + 1:]
+    if os.path.exists(os.path.join(path,name)):
+        return name
+    r = requests.get(url, stream=True)
+    if r.status_code == 200:
+        open(os.path.join(path, name), 'wb').write(r.content)
+    return name
+from hoshino import R
 # 封装id查询结果
 def tweet_id_formatter(item):
     name = item['user']['name']
@@ -153,7 +169,9 @@ def tweet_id_formatter(item):
         try:
             img = media['media_url']
             if re.search(r'\.(jpg|jpeg|png|gif|jfif|webp)$', img, re.I):
-                imgs.append(str(ms.image(img)))
+                name=requests_download_url(img,R.img('twitter').path)
+                imgs.append(str(R.img(f'twitter/{name}').cqcode))
+                # imgs.append(str(ms.image(img)))
         except Exception as e:
             sv.logger.exception(e)
     imgs = ' '.join(imgs)

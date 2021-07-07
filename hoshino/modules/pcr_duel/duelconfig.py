@@ -486,11 +486,11 @@ def add_exp(gid, uid, cid, exp):
     if level_flag == 1:
         CE._add_card_exp(gid, uid, cid, now_level, now_exp)
         CE._add_exp_chizi(gid, uid, last_exp)
-        msg = f"\n目前等级为{now_level}，由于超出等级上限，{last_exp}点经验加入经验池"
+        msg = f"目前等级为{now_level}，由于超出等级上限，{last_exp}点经验加入经验池"
         return [1, last_exp, msg]
     else:
         CE._add_card_exp(gid, uid, cid, now_level, now_exp)
-        msg = f"\n目前等级为{now_level}"
+        msg = f"目前等级为{now_level}"
         return [0, now_level, msg]
 
 

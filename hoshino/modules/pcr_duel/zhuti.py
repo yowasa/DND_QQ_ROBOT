@@ -23,7 +23,7 @@ async def duel_help(bot, ev: CQEvent):
 [贵族舞会] 招募新角色
 [声望招募] 等级到神才可以操作
 [免费招募] 庆典开启才能使用 每日限一次
-[领金币] 金币为0才能使用
+[领金币] 金币过低的时候才能使用
 [查金币]
 [查声望]
 [查女友]{角色名}
@@ -1656,14 +1656,14 @@ async def add_score(bot, ev: CQEvent):
             return
 
         current_score = score_counter._get_score(gid, uid)
-        if current_score == 0:
+        if current_score <= 300:
             score_counter._add_score(gid, uid, ZERO_GET_AMOUNT)
             msg = f'您已领取{ZERO_GET_AMOUNT}金币'
             daily_zero_get_limiter.increase(guid)
             await bot.send(ev, msg, at_sender=True)
             return
         else:
-            msg = '金币为0才能领取哦。'
+            msg = '金币为低于300才能领取哦。'
             await bot.send(ev, msg, at_sender=True)
             return
     except Exception as e:
@@ -1742,8 +1742,8 @@ async def cheat_score(bot, ev: CQEvent):
     score_counter = ScoreCounter2()
     if duel._get_level(gid, id) == 0:
         await bot.finish(ev, '该用户还未在本群创建贵族哦。', at_sender=True)
-    if duel._get_level(gid, id) < 7:
-        await bot.finish(ev, '该用户等级过低，无法接受转账喔（接受转账需要等级达到伯爵）。', at_sender=True)
+    # if duel._get_level(gid, id) < 7:
+    #     await bot.finish(ev, '该用户等级过低，无法接受转账喔（接受转账需要等级达到伯爵）。', at_sender=True)
     score = score_counter._get_score(gid, uid)
     if score < num:
         msg = f'您的金币不足{num}哦。'

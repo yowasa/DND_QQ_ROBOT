@@ -1,8 +1,5 @@
 import os
 import sqlite3
-from hoshino.config.__bot__ import BASE_DB_PATH
-import os
-import sqlite3
 
 from hoshino.config.__bot__ import BASE_DB_PATH
 
