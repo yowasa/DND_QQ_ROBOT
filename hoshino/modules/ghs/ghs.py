@@ -8,6 +8,10 @@ from PIL import Image
 import asyncio
 from pixivpy3 import *
 from .CacheCounter import *
+import zipfile
+import imageio
+from pygifsicle import optimize
+import math
 
 from hoshino.typing import CQEvent
 
@@ -92,6 +96,7 @@ Group.create_table()
 
 api = AppPixivAPI()
 
+
 @sv_ghs.on_fullmatch(['启用自动撤回', '开启自动撤回'])
 async def pixiv_detail_open(bot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
@@ -138,19 +143,19 @@ async def pixiv_tag(bot, ev: CQEvent):
 
 @sv_img.on_prefix(["img"])
 async def pixiv_search(bot, ev: CQEvent):
-    msg = img_search(ev, group=False, r18=False)
+    msg = await img_search(ev, group=False, r18=False)
     await bot.send(ev, msg)
 
 
 @sv_img.on_prefix(["gimg"])
 async def group_pixiv_search(bot, ev: CQEvent):
-    msg = img_search(ev, group=True, r18=False)
+    msg = await img_search(ev, group=True, r18=False)
     await bot.send(ev, msg)
 
 
 @sv_ghs.on_prefix(["ghs", "搞黄色"])
 async def group_pixiv_search(bot, ev: CQEvent):
-    msg = img_search(ev, group=False, r18=True)
+    msg = await img_search(ev, group=False, r18=True)
     data = await bot.send(ev, msg)
     if get_auto_delete(ev.group_id):
         await asyncio.sleep(30)
@@ -159,7 +164,7 @@ async def group_pixiv_search(bot, ev: CQEvent):
 
 @sv_ghs.on_prefix(["gghs"])
 async def group_pixiv_search(bot, ev: CQEvent):
-    msg = img_search(ev, group=True, r18=True)
+    msg = await img_search(ev, group=True, r18=True)
     data = await bot.send(ev, msg)
     if get_auto_delete(ev.group_id):
         await asyncio.sleep(30)
@@ -178,10 +183,8 @@ async def pid(bot, ev: CQEvent):
     for i in range(3):
         try:
             result = api.illust_detail(int(cmd_msg))
-            if result.get('error'):
-                pixiv_login()
             illust = result.get('illust')
-            msg = combine_app_result(illust, group=True, need_detail=get_need_detail(ev.user_id))
+            msg = await combine_app_result(illust, group=True, need_detail=get_need_detail(ev.user_id))
             data = await bot.send(ev, msg)
             if not illust.get('sanity_level') < 6:
                 if get_auto_delete(ev.group_id):
@@ -306,7 +309,7 @@ async def unsubscribe(bot, ev: CQEvent):
         await bot.send(ev, '取消订阅成功')
 
 
-@sv_img.scheduled_job('cron', hour='*/4',minute='5')
+@sv_img.scheduled_job('cron', hour='*/4', minute='5')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
     try:
@@ -365,7 +368,7 @@ async def fetch_sub(bot, ev: CQEvent):
 
     query = SubscribeSendLog.select().where(
         (SubscribeSendLog.user_id == ev.group_id) & (SubscribeSendLog.send_flag == False) & (
-                    SubscribeSendLog.user_type == type)).limit(limit)
+                SubscribeSendLog.user_type == type)).limit(limit)
     if not query.count():
         await bot.finish(ev, "已经一滴也没有了")
     for e in query:
@@ -374,7 +377,8 @@ async def fetch_sub(bot, ev: CQEvent):
         e.save()
         await asyncio.sleep(3)
 
-@sv_img.scheduled_job('cron', minute='0,15,30,45',jitter=20)
+
+@sv_img.scheduled_job('cron', minute='0,15,30,45', jitter=20)
 async def send_job():
     sv_img.logger.info("开始投放订阅图片")
     try:
@@ -435,7 +439,7 @@ def set_need_detail(qq_number, switch):
         user.save()
 
 
-def img_search(ev: CQEvent, group=False, r18=False):
+async def img_search(ev: CQEvent, group=False, r18=False):
     msg = str(ev.message)
     need_detail = get_need_detail(ev.user_id)
     for i in range(3):
@@ -449,14 +453,14 @@ def img_search(ev: CQEvent, group=False, r18=False):
                     pixiv_login()
                 illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
                 sv_img.logger.info(f"解析的图片id为{illust.get('id')}")
-                return combine_app_result(illust, group=group, need_detail=need_detail)
+                return await combine_app_result(illust, group=group, need_detail=need_detail)
             else:
                 # 多页搜索
                 illust = page_search(msg, r18=r18)
                 if not illust:
                     return "未搜索到结果"
                 sv_img.logger.info(f"解析的图片id为{illust.get('id')}")
-                return combine_app_result(illust, group=group, need_detail=need_detail)
+                return await combine_app_result(illust, group=group, need_detail=need_detail)
         except Exception as pe:
             pixiv_login()
     return "Pixiv登陆异常 请稍后再试"
@@ -490,8 +494,9 @@ def page_search(cmd_msg, r18=False):
 
 
 # 组装app端的查询结果
-def combine_app_result(illust, group=False, need_detail=False):
-    cq_img = package_pixiv_img(illust, group=group)
+async def combine_app_result(illust, group=False, need_detail=False):
+    cq_img = await asyncio.get_event_loop().run_in_executor(
+        None, partial(package_pixiv_img, illust, group))
     if need_detail:
         return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("name") for x in illust.get("tags")])}\n{cq_img}'
     else:
@@ -502,9 +507,17 @@ def combine_app_result(illust, group=False, need_detail=False):
 def package_pixiv_img(illust, group=False):
     url = illust.meta_single_page.get('original_image_url')
     cache = CacheCounter()
-    message=cache._get_cache(illust.get('id'),group)
+    message = cache._get_cache(illust.get('id'), group)
     if message:
         return message
+    if illust.get('type') == "ugoira":
+        result=gen_gif_response(illust.get('id'))
+        # result=gen_gif_response(illust.get('id'))
+        try:
+            cache._set_cache(illust.get('id'), group, str(result))
+        except Exception as e:
+            sv_img.logger.error("存储p站缓存失败")
+        return result
     if not url:
         urls = []
         for i in illust.meta_pages:
@@ -546,10 +559,74 @@ def package_pixiv_img(illust, group=False):
         name = trance_png(name, R.img(CACHE_FILE).path)
         result = R.img(CACHE_FILE + name).cqcode
     try:
-        cache._set_cache(illust.get('id'),group,str(result))
+        cache._set_cache(illust.get('id'), group, str(result))
     except Exception as e:
         sv_img.logger.error("存储p站缓存失败")
     return result
+
+
+def gen_gif_response(ill_id):
+    result = api.ugoira_metadata(ill_id)
+    url = result.get('ugoira_metadata').get('zip_urls').get('medium')
+    delay = result.get('ugoira_metadata').get('frames')[0].get('delay')
+    fps = int(1000 / delay)
+    zip_name = url[url.rfind("/") + 1:]
+    name = zip_name.replace('.zip', '')
+    path = R.img(f'ghs/gif/{name}').path
+    gif_name = name + '.gif'
+    target_name = R.img(f'ghs/gif/{gif_name}').path
+    if not os.path.exists(target_name):
+        api.download(url, path=R.img(f'ghs/gif').path, replace=True)
+        unzip_single(R.img(f'ghs/gif/{zip_name}').path, path)
+        filenames = sorted((os.path.join(path,fn)  for fn in os.listdir(path)))
+        package_2_gif(filenames, target_name, fps=fps)
+    return str(R.img(f'ghs/gif/{gif_name}').cqcode)
+
+def gen_webp_response(ill_id):
+    result = api.ugoira_metadata(ill_id)
+    url = result.get('ugoira_metadata').get('zip_urls').get('medium')
+    duration=[i.get('delay') for i in result.get('ugoira_metadata').get('frames')]
+    zip_name = url[url.rfind("/") + 1:]
+    name = zip_name.replace('.zip', '')
+    path = R.img(f'ghs/gif/{name}').path
+    gif_name = name + '.webp'
+    target_name = R.img(f'ghs/gif/{gif_name}').path
+    if not os.path.exists(target_name):
+        api.download(url, path=R.img(f'ghs/gif').path, replace=True)
+        unzip_single(R.img(f'ghs/gif/{zip_name}').path, path)
+        filenames = sorted((os.path.join(path,fn)  for fn in os.listdir(path)))
+        package_2_webp(filenames, target_name, duration=duration)
+    return str(R.img(f'ghs/gif/{gif_name}').cqcode)
+
+def unzip_single(src_file, dest_dir):
+    zf = zipfile.ZipFile(src_file)
+    try:
+        zf.extractall(path=dest_dir)
+    except RuntimeError as e:
+        print(e)
+    zf.close()
+
+def package_2_webp(filenames, target_file, duration):
+    filestreams = []
+    for i in filenames:
+        filestreams += [Image.open(i)]
+    filestreams[0].save(target_file, "webp", save_all=True,
+                        append_images=filestreams[1:], duration=duration)
+
+def package_2_gif(filenames, target_file, fps=12):
+    images = []
+    for filename in filenames:
+        images.append(imageio.imread(filename))
+    imageio.mimsave(target_file, images, fps=fps)
+    optimize(target_file, options=["--lossy"], colors=64)
+    optimize_gif(target_file)
+
+def optimize_gif(target_file):
+    size = os.path.getsize(target_file) / (1024 * 1024)
+    if size < 3:
+        return
+    ratio = math.sqrt((3/size))
+    optimize(target_file, options=["--lossy", f"--scale={ratio}"])
 
 
 # 修正图片 对图片类型为WEBP进行转换 对JPEG,PNG进行压缩和抖动
@@ -634,8 +711,8 @@ async def build_result(subscribe, illusts):
             ill_ids.remove(log.message_id)
     for i in ill_ids:
         illust = mapping.get(i)
-        message=await asyncio.get_event_loop().run_in_executor(
-            None, partial(package_pixiv_img,illust,True))
+        message = await asyncio.get_event_loop().run_in_executor(
+            None, partial(package_pixiv_img, illust, True))
         sublog = SubscribeSendLog()
         sublog.user_id = subscribe.user_id
         sublog.user_type = subscribe.user_type
