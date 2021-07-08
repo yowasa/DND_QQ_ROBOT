@@ -1164,15 +1164,10 @@ async def add_girl(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
         return
 
-    if level > 5:
-        if prestige == None:
-            score_counter._set_prestige(gid, uid, 0)
-            await bot.finish(ev, '您还未开启声望系统哦，已为您开启！', at_sender=True)
+    if prestige < needSW:
+        await bot.finish(ev, f'您的声望不足哦。升级到{futurename}需要{needSW}声望。', at_sender=True)
 
-        if prestige < needSW:
-            await bot.finish(ev, '您的声望不足哦。', at_sender=True)
-
-        score_counter._reduce_prestige(gid, uid, needSW)
+    score_counter._reduce_prestige(gid, uid, needSW)
     score_counter._reduce_score(gid, uid, needscore)
     duel._add_level(gid, uid)
     newlevel = duel._get_level(gid, uid)
@@ -1392,7 +1387,7 @@ async def nobleduel(bot, ev: CQEvent):
         favor = duel._get_favor(gid, loser, selected_girl)
         if favor >= favor_reduce:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
-            msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了50点。\n{c.icon.cqcode}'
+            msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了{favor_reduce}点。\n{c.icon.cqcode}'
             await bot.send(ev, msg)
         else:
             duel._delete_card(gid, loser, selected_girl)
@@ -1405,7 +1400,7 @@ async def nobleduel(bot, ev: CQEvent):
         c = duel_chara.fromid(selected_girl)
         if favor >= favor_reduce:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
-            msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了50点。\n{c.icon.cqcode}'
+            msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了{favor_reduce}点。\n{c.icon.cqcode}'
             await bot.send(ev, msg)
             score_counter._add_score(gid, winner, 300)
             msg = f'[CQ:at,qq={winner}]您赢得了决斗，对方女友仍有一定好感。\n本次决斗获得了300金币。'
@@ -2475,7 +2470,7 @@ async def gift_help(bot, ev: CQEvent):
 [确认离婚]
 注:
 通过约会或者送礼可以提升好感
-决斗输掉某女友会扣除50好感，不够则被抢走
+决斗输掉某女友会扣除30好感，不够则被抢走
 女友喜好与原角色无关，只是随机生成，仅供娱乐
 ╚                                        ╝
  '''

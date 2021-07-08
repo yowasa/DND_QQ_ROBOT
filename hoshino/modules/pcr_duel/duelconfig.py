@@ -24,8 +24,8 @@ CARD_LEVEL_MAX = 100  # 女友等级上限
 GECHA_DUNDCORE = 100  # 抽武器所需副本币
 # 这里是参数设置区
 SIGN_DAILY_LIMIT = 1  # 机器人每天签到的次数
-DUEL_DAILY_LIMIT = 10  # 每个人每日发起决斗上限
-DUN_DAILY_LIMIT = 6  # 每个人每日副本上限
+DUEL_DAILY_LIMIT = 5  # 每个人每日发起决斗上限
+DUN_DAILY_LIMIT = 10  # 每个人每日副本上限
 BOSS_DAILY_LIMIT = 3  # 会战与世界boss次数
 EQUIP_DAILY_LIMIT = 5  # 副本商城兑换次数
 RESET_HOUR = 0  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
@@ -46,7 +46,7 @@ LoseSWBasics = 150  # 输了掉的基础声望
 
 Remake_allow = False  # 是否允许重开
 
-SW_COST = 500  # 声望招募的声望需求量
+SW_COST = 100  # 声望招募的声望需求量
 DJ_NEED_SW = 5000  # 加冕称帝消耗的声望
 DJ_NEED_GOLD = 400000  # 加冕称帝消耗的金币
 FS_NEED_SW = 10000  # 飞升所需的声望
@@ -55,7 +55,7 @@ DATE_DAILY_LIMIT = 1  # 每天女友约会次数上限
 GIFT_DAILY_LIMIT = 5  # 每日购买礼物次数上限
 WAIT_TIME_CHANGE = 30  # 礼物交换等待时间
 NEED_favor = 300  # 成为妻子所需要的好感，为0表示关闭
-favor_reduce = 50  # 当输掉女友时，损失的好感度
+favor_reduce = 30  # 当输掉女友时，损失的好感度
 
 Suo_allow = True  # 是否允许梭哈
 Suo = 1  # 梭哈额外获取的金币倍率
