@@ -1,5 +1,5 @@
-consumer_key = ""
-consumer_secret = ""
+consumer_key = "LtEisW6lcwpuSND79uyF24Fqz"
+consumer_secret = "nSOenHwEmpjbGL3whVhY7kjwfI94nZFMG3qf2dL8UXH68cAfPE"
 access_token_key = ""
 access_token_secret = ""
 proxy = None    # 代理设置 当你的服务器需要使用代理访问Twitter时设置

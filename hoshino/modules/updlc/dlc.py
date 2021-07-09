@@ -104,8 +104,8 @@ async def fashion_update(session: CommandSession):
 
     new_name = session.get('new_name', prompt=f'输入新的时装名称（原名称为{name}）')
     for each in fashioninfo:
-        if each['name']==name and each['fid']!=fid:
-            await bot.finish(ev, f'时装名{name}已经存在,请换一个')
+        if each['name']==new_name and each['fid']!=fid:
+            await bot.finish(ev, f'时装名{new_name}已经存在,请换一个')
     img = session.get('imgs', prompt='输入时装图片（不要太大，否则会限制发送无法展示）')
     if type(img) == list:
         img = img[0]

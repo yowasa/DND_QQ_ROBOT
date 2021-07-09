@@ -1,17 +1,9 @@
-import json
-import os
 import random
-import re
-import time
-from enum import Enum
-from peewee import *
-from hoshino.modules.dnd.DndSearchCounter import *
-from PIL import Image, ImageDraw, ImageFont
-from hoshino.typing import CommandSession
-from hoshino import R
+
 from hoshino import Service
-from hoshino.config.__bot__ import BASE_DB_PATH
-from hoshino.typing import CQEvent, MessageSegment as Seg
+from hoshino.modules.dnd.DndSearchCounter import *
+from hoshino.typing import CQEvent
+from hoshino.typing import CommandSession
 
 sv = Service('DND', enable_on_default=True, bundle='跑团', help_=
 '''
@@ -34,7 +26,7 @@ async def random_attribute(bot, ev: CQEvent):
         num = int(cmd_msg)
         if num > 20:
             await bot.finish(ev, f'[CQ:at,qq={ev.user_id}]单次生成不得高于20次')
-    sb = '[CQ:at,qq={ev.user_id}] 生成的属性为：\n'
+    sb = f'[CQ:at,qq={ev.user_id}] 生成的属性为：\n'
     for _ in range(num):
         attr = init_attribute()
         sb += attr_dict2str(attr) + '\n'
@@ -62,16 +54,16 @@ async def random_name(bot, ev: CQEvent):
     result_li.extend(ds._radom_cn_name(li[0]))
     result_li.extend(ds._radom_en_name(li[1]))
     result_li.extend(ds._radom_jp_name(li[2]))
-    sb = '[CQ:at,qq={ev.user_id}] 生成的名称为：\n'
-    sb += '\n'.join(result_li)
+    sb = f'[CQ:at,qq={ev.user_id}] 生成的名称为：\n'
+    sb += '\n'.join([i[0] for i in result_li])
     await bot.send(ev, sb)
 
 
-@sv.on_prefix(['.dr', '。dr'])
+@sv.on_command('.dr', aliases=('。dr'))
 async def dnd_search(session: CommandSession):
     bot = session.bot
     ev = session.event
-    cmd_msg = str(ev.message).strip()
+    cmd_msg = session.get('search_name', prompt="请输入要搜索的内容")
     ds = DndSearchCounter()
     result_li = []
     result_li.extend(ds._search_skill(cmd_msg))
@@ -107,6 +99,20 @@ async def dnd_search(session: CommandSession):
         detail = result_li[0][2].replace('\n\n', '\n')
         msg = f"{result_li[0][1]}:\n{detail}"
         await bot.finish(ev, msg)
+
+
+@dnd_search.args_parser
+async def _(session: CommandSession):
+    text = session.current_arg_text
+    img = session.current_arg_images
+    if session.is_first_run:
+        if text:
+            session.state['search_name'] = text.strip()
+        return
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text
 
 
 # 初始化一组属性

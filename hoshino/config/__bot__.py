@@ -35,6 +35,7 @@ BASE_DB_PATH = "D:/DB/"
 MODULES_ON = {
     'botmanage',
     'dice',
+    'dnd',
     'ghs',
     'groupmaster',
     'hourcall',
@@ -43,7 +44,7 @@ MODULES_ON = {
     'priconne',
     'saucenao',
     'setu',
-    'updlc',
     'twitter',  # 轮询版转推（old）
     # 'twitter_stream',     # 推流版转推（beta）
+    'updlc',
 }
