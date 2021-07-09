@@ -1972,8 +1972,8 @@ async def breakup_yj(bot, ev: CQEvent):
         for cid in defen:
             c = duel_chara.fromid(cid)
 
-            needscore = 400 + level * 100
-            needSW = 100 + level * 15
+            needscore =  level * 100
+            needSW = level * 15
             if level == 20:
                 needSW = 600
             score = score_counter._get_score(gid, uid)
