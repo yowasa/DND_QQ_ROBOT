@@ -11,13 +11,14 @@ from hoshino.typing import CQEvent
 from .ScoreCounter import ScoreCounter2
 from .ItemCounter import ItemCounter
 from hoshino import priv
+from hoshino.typing import CommandSession
 
 ITEM_INFO = {
     "1": {
         "id": "1",
         "name": "天命之子",
         "rank": "S",
-        "desc": "无视100的等级上限 为自己的女友增加10级 最高不超过200级(仅100满级可以使用)",
+        "desc": "无视100的等级上限 为自己的女友增加10级 最高不超过200级(仅100满级以上可以使用)",
     },
     "2": {
         "id": "2",
@@ -53,13 +54,13 @@ ITEM_INFO = {
         "id": "7",
         "name": "狂赌之渊",
         "rank": "B",
-        "desc": "为本群开启梭哈庆典 持续一小时",
+        "desc": "为本群开启梭哈庆典 持续到这个小时结束",
     },
     "8": {
         "id": "8",
         "name": "咲夜怀表",
         "rank": "B",
-        "desc": "使用后刷新自己的副本 签到 低保 约会 决斗次数",
+        "desc": "使用后刷新自己的副本 签到 低保 约会 决斗 礼物次数",
     },
     "9": {
         "id": "9",
@@ -126,7 +127,7 @@ ITEM_INFO = {
         "id": "19",
         "name": "派对狂欢",
         "rank": "D",
-        "desc": "为本群开启免费招募庆典 持续一小时",
+        "desc": "为本群开启免费招募庆典 持续到这个小时结束",
     },
     "20": {
         "id": "20",
@@ -178,7 +179,7 @@ async def gift_help(bot, ev: CQEvent):
              道具系统帮助
 [我的道具]
 [道具效果] {道具名称}
-[使用道具] 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
+[使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
 [投放道具] 维护组指令 用来测试道具
 
 注:
@@ -200,7 +201,7 @@ async def my_item(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     items = counter._get_item(gid, uid)
-    msg = "==== 道具列表 ===="
+    msg = "\n==== 道具列表 ===="
     for i in items:
         msg += f"\n{ITEM_INFO[str(i[0])]['name']} *{i[1]}"
     await bot.send(ev, msg, at_sender=True)
@@ -209,7 +210,7 @@ async def my_item(bot, ev: CQEvent):
 @sv.on_prefix(['道具效果'])
 async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
-    info = ITEM_NAME_MAP.get("name")
+    info = ITEM_NAME_MAP.get(name)
     if info:
         await bot.send(ev, f"道具{name}的效果为：{info['desc']}")
     else:
@@ -229,6 +230,7 @@ async def item_info(bot, ev: CQEvent):
     item_id = int(item_info['id'])
     counter = ItemCounter()
     counter._add_item(gid, fa_uid, item_id)
+    await bot.send(ev, f"投放成功", at_sender=True)
 
 
 @sv.on_prefix(['使用道具'])
@@ -263,8 +265,8 @@ async def use_item(name, msg, bot, ev):
 # 注解msg 传入正则表达式进行匹配
 def msg_route(item_name):
     def show(func):
-        def warpper(content):
-            func(content)
+        async def warpper(msg, bot, ev: CQEvent):
+            return await func(msg, bot, ev)
 
         register[item_name] = warpper
         return warpper
@@ -352,11 +354,163 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
 
 
 @msg_route("空想之物")
-async def add_zhuansheng(msg, bot, ev: CQEvent):
+async def add_zhuangbei(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     num = random.randint(1, 100)
     if num <=10:
-        pass
+        awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
+        return (True, f"你使用了空想之物，一道金光闪过，你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
     else:
-        pass
+        awardequip_info=add_equip_info(gid, uid, 5, [108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,195,196,197,198,199,200,201,202,204,205,206,207,208,209,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,260,265,266,267,278,279,280,282,283,284,285,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,312,313,314,315,316,317,318,319,320])
+        return (True,f"你使用了空想之物，但你的想象不足以触及幻想，你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
+
+@msg_route("好事成双")
+async def add_item_2(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    item_info = ITEM_NAME_MAP[msg[0]]
+    if not item_info:
+        return (False, f"未找到名称为{msg[0]}的道具")
+    counter = ItemCounter()
+    num = counter._get_item_num(gid, uid, int(item_info['id']))
+    if num < 1:
+        return (False, f"背包中不存在道具{msg[0]}")
+    counter._add_item(gid,uid,int(item_info['id']))
+    return (True, f"你消耗了好事成双背包中的{msg[0]}增加了一个")
+
+@msg_route("四重存在")
+async def add_item_4(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    item_info = ITEM_NAME_MAP[msg[0]]
+    if not item_info:
+        return (False, f"未找到名称为{msg[0]}的道具")
+    if item_info['rank'] in ['S','A']:
+        return (False, f"四重存在只能对A级一下（不包括A）的道具使用")
+    counter = ItemCounter()
+    num = counter._get_item_num(gid, uid, int(item_info['id']))
+    if num < 1:
+        return (False, f"背包中不存在道具{msg[0]}")
+    counter._add_item(gid,uid,int(item_info['id']),num=3)
+    return (True, f"你消耗了好事成双，背包中的一个{msg[0]}分裂成了四个")
+
+@msg_route("狂赌之渊")
+async def open_sou(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    duel = DuelCounter()
+    if duel._get_SW_CELE(gid) == None:
+        duel._initialization_CELE(gid, Gold_Cele, QD_Cele, Suo_Cele, SW_add, FREE_DAILY)
+    GC_Data = duel._get_GOLD_CELE(gid)
+    QC_Data = duel._get_QC_CELE(gid)
+    SW_Data = duel._get_SW_CELE(gid)
+    FREE_Data = duel._get_FREE_CELE(gid)
+    duel._initialization_CELE(gid, GC_Data, QC_Data, 1, SW_Data, FREE_Data)
+    counter = ItemCounter()
+    counter._save_group_state(gid,0,1)
+
+    return (True, f'在本小时结束前已开启本群梭哈倍率庆典，梭哈时的倍率将额外提升{Suo_Cele_Num}倍')
+
+@msg_route("咲夜怀表")
+async def open_sou(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    guid = gid, uid
+    #副本 签到 低保 约会 决斗 礼物
+    daily_dun_limiter.reset(guid)
+    daily_sign_limiter.reset(guid)
+    daily_zero_get_limiter.reset(guid)
+    daily_date_limiter.reset(guid)
+    daily_duel_limiter.reset(guid)
+    daily_gift_limiter.reset(guid)
+    return (True, f'时间穿梭，你仿佛来到了第二天，身上的疲劳一扫而空（副本 签到 低保 约会 决斗 礼物次数限制已重置）')
+
+@msg_route("梦境巡游")
+async def xunyou(msg, bot, ev: CQEvent):
+    return (False, f'使用"开始巡游"指令开始你的梦境之旅')
+
+from .zhuti import duel_judger
+@sv.on_command("开始巡游")
+async def start_xunyou(session: CommandSession):
+    bot = session.bot
+    ev = session.event
+    gid=ev.group_id
+    uid=ev.user_id
+    item_info = ITEM_NAME_MAP["梦境巡游"]
+    counter = ItemCounter()
+    num = counter._get_item_num(gid, uid, int(item_info['id']))
+    if num < 1:
+        await bot.finish(ev, f"背包中道具梦境巡游数量不足", at_sender=True)
+
+    duel = DuelCounter()
+    score_counter = ScoreCounter2()
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再开始吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
+    if duel._get_level(gid, uid) == 0:
+        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        duel_judger.turn_off(ev.group_id)
+        await bot.send(ev, msg, at_sender=True)
+        return
+    else:
+        # 防止女友数超过上限
+        level = duel._get_level(gid, uid)
+        girlnum = get_girlnum_buy(gid, uid)
+        cidlist = duel._get_cards(gid, uid)
+        cidnum = len(cidlist)
+        if cidnum >= girlnum:
+            msg = '您的女友已经满了哦，快点发送[升级贵族]进行升级吧。'
+            await bot.send(ev, msg, at_sender=True)
+            return
+
+        newgirllist = get_newgirl_list(gid)
+        # 判断女友是否被抢没和该用户是否已经没有女友
+        if len(newgirllist) == 0:
+            if cidnum != 0:
+                await bot.send(ev, '这个群已经没有可以约到的新女友了哦。', at_sender=True)
+                return
+            else:
+                score_counter._reduce_score(gid, uid, GACHA_COST)
+                cid = 9999
+                c = duel_chara.fromid(1059)
+                duel._add_card(gid, uid, cid)
+                msg = f'本群已经没有可以约的女友了哦，一位神秘的可可萝在你孤单时来到了你身边。{c.icon.cqcode}。'
+                await bot.send(ev, msg, at_sender=True)
+                return
+
+        time=session.state["time"]
+        cid=session.state.get("cid")
+        jieshou=session.state.get("jieshou")
+        if jieshou != "是" or time>10:
+            c = duel_chara.fromid(cid)
+            nvmes = get_nv_icon(cid)
+            duel._add_card(gid, uid, cid)
+            counter._add_item(gid, uid, int(item_info['id']), num=-1)
+            await bot.send(ev,f"你的梦醒了，当天招募到了女友{c.name}{nvmes}",at_sender=True)
+            return
+        if jieshou:
+            del session.state['jieshou']
+        cid = random.choice(newgirllist)
+        session.state['cid']=cid
+        c = duel_chara.fromid(cid)
+        nvmes = get_nv_icon(cid)
+        jieshou = session.get('jieshou', prompt=f'你梦到的女友为：{c.name}{nvmes}，是否继续寻找（是/否）')
+        print(jieshou)
+
+
+
+@start_xunyou.args_parser
+async def _(session: CommandSession):
+    text = session.current_arg_text
+    img = session.current_arg_images
+    if session.is_first_run:
+        session.state['time'] = 1
+        session.state["jieshou"]='是'
+        return
+    else:
+        session.state['time'] +=1
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text

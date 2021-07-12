@@ -11,6 +11,7 @@ class ItemCounter:
     def __init__(self):
         os.makedirs(os.path.dirname(DUEL_DB_PATH), exist_ok=True)
         self._create_item()
+        self._create_group()
 
     def _connect(self):
         return sqlite3.connect(DUEL_DB_PATH)
@@ -24,7 +25,35 @@ class ItemCounter:
                            ITEM_COUNT           INT    NOT NULL,
                            PRIMARY KEY(GID, UID,ITEM_ID));''')
         except:
-            raise Exception('创建角色等级经验表发生错误')
+            raise Exception('创建角道具表发生错误')
+
+    def _create_group(self):
+        try:
+            self._connect().execute('''CREATE TABLE IF NOT EXISTS GROUP_INFO
+                          (GID             INT    NOT NULL,
+                           INFO_TYPE           INT    NOT NULL,
+                           INFO_FLAG           INT    NOT NULL,
+                           PRIMARY KEY(GID, INFO_TYPE));''')
+        except:
+            raise Exception('创建群状态表发生错误')
+
+    def _save_group_state(self, gid, type, type_flag):
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO GROUP_INFO (GID, INFO_TYPE, INFO_FLAG) VALUES (?, ?, ?)",
+                (gid, type, type_flag),
+            )
+    # 0 为梭哈标识 到准点自动关闭
+    def _get_sou_state(self):
+        try:
+            r = self._connect().execute("SELECT GID FROM GROUP_INFO WHERE INFO_TYPE=0 AND INFO_FLAG=1",
+                                        ).fetchall()
+            if r is None:
+                return []
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return []
 
     # 获取道具列表
     def _get_item(self, gid, uid):
@@ -42,7 +71,7 @@ class ItemCounter:
     def _get_item_num(self, gid, uid, iid):
         try:
             r = self._connect().execute(
-                "SELECT ITEM_ID,ITEM_COUNT FROM ITEM WHERE GID=? AND UID=? AND ITEM_ID=?",
+                "SELECT ITEM_COUNT FROM ITEM WHERE GID=? AND UID=? AND ITEM_ID=?",
                 (gid, uid, iid)).fetchone()
             if r is None:
                 return 0

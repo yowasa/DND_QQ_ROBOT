@@ -9,6 +9,7 @@ from . import sv
 from .duelconfig import *
 from hoshino.typing import CQEvent
 from .ScoreCounter import ScoreCounter2
+from .ItemCounter import ItemCounter
 
 
 @sv.on_fullmatch(['培养帮助', '战斗帮助'])
@@ -2427,8 +2428,28 @@ async def paiming_list(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=gid, messages=tas_list)
 
 
+@sv.on_prefix(['测试cron'])
+async def clock(bot, ev: CQEvent):
+    result=await clock()
+    print(result)
+
 @sv.scheduled_job('cron', hour='*', )
 async def clock():
+    bot = nonebot.get_bot()
+    i_c=ItemCounter()
+    sou_li=i_c._get_sou_state()
+    duel = DuelCounter()
+    for i in sou_li:
+        gid=i[0]
+        GC_Data = duel._get_GOLD_CELE(gid)
+        QC_Data = duel._get_QC_CELE(gid)
+        SW_Data = duel._get_SW_CELE(gid)
+        FREE_Data = duel._get_FREE_CELE(gid)
+        duel._initialization_CELE(gid, GC_Data, QC_Data, 0, SW_Data, FREE_Data)
+        i_c._save_group_state(gid,0,0)
+        await bot.send_group_msg(group_id=gid, message="本群梭哈庆典已关闭")
+
+
     now = datetime.now(pytz.timezone('Asia/Shanghai'))
     nowyear = now.year
     nowmonth = now.month
@@ -2461,7 +2482,6 @@ async def clock():
         20: 1000,
     }
 
-    bot = nonebot.get_bot()
     CE = CECounter()
 
     nowyear = datetime.now().year
