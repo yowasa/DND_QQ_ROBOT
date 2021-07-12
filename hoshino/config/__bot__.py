@@ -44,6 +44,7 @@ MODULES_ON = {
     'priconne',
     'saucenao',
     'setu',
+    'traceanime',
     'twitter',  # 轮询版转推（old）
     # 'twitter_stream',     # 推流版转推（beta）
     'updlc',

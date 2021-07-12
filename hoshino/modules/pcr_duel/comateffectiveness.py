@@ -991,7 +991,7 @@ async def moni_huizhan(bot, ev: CQEvent):
 
     # 处理输入数据
     match = ev['match']
-    gotype = str(match.group(2))
+    gotype = str(match.group(2)).strip()
     gotype = re.sub(r'[?？，,_ ]', '', gotype)
     if gotype == "世界boss":
         sendgid = 999
@@ -1001,7 +1001,7 @@ async def moni_huizhan(bot, ev: CQEvent):
         shijieflag = 0
     else:
         await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
-    defen = str(match.group(1))
+    defen = str(match.group(1)).strip()
     defen = re.sub(r'[?？，,_]', '', defen)
     if not defen:
         await bot.finish(ev, '请发送"编队+女友名/队伍名+模拟+(boss战/世界boss)"，无需+号', at_sender=True)
@@ -1490,7 +1490,7 @@ async def start_huizhan(bot, ev: CQEvent):
         return
 
     match = ev['match']
-    gotype = str(match.group(2))
+    gotype = str(match.group(2)).strip()
     gotype = re.sub(r'[?？，,_ ]', '', gotype)
     if gotype == "世界boss":
         sendgid = 999
@@ -1510,7 +1510,7 @@ async def start_huizhan(bot, ev: CQEvent):
     if not daily_boss_limiter.check(guid):
         await bot.send(ev, f'今天的{gotype}次数已经超过上限了哦，明天再来吧。', at_sender=True)
         return
-    defen = str(match.group(1))
+    defen = str(match.group(1)).strip()
     defen = re.sub(r'[?？，,_]', '', defen)
     if not defen:
         await bot.finish(ev, '请发送"编队+女友名/队伍名+开始+(boss战/世界boss)"，无需+号', at_sender=True)
@@ -1825,7 +1825,7 @@ async def add_team(bot, ev: CQEvent):
     teamname = re.sub(r'[?？，,_ ]', '', teamname)
     if not teamname:
         await bot.finish(ev, '请发送"创建队伍+女友名+队名+队伍名称"，无需+号', at_sender=True)
-    defen = str(match.group(1))
+    defen = str(match.group(1)).strip()
     defen = re.sub(r'[?？，,_]', '', defen)
     defen, unknown = chara.roster.parse_team(defen)
     duel = DuelCounter()
@@ -1842,8 +1842,6 @@ async def add_team(bot, ev: CQEvent):
         await bot.finish(ev, '编队不能多于5名角色', at_sender=True)
     if len(defen) != len(set(defen)):
         await bot.finish(ev, '编队中含重复角色', at_sender=True)
-    if 1004 in defen:
-        await bot.finish(ev, '\n⚠️您正在查询普通版炸弹人\n※万圣版可用万圣炸弹人/瓜炸等别称', at_sender=True)
     for cid in defen:
         c = chara.fromid(cid)
         nvmes = get_nv_icon(cid)

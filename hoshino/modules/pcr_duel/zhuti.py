@@ -1230,7 +1230,6 @@ async def nobleduel(bot, ev: CQEvent):
         await bot.send(ev, '今天的决斗次数已经超过上限了哦，明天再来吧。', at_sender=True)
         duel_judger.turn_off(ev.group_id)
         return
-    daily_duel_limiter.increase(guid)
 
     # 判定双方的女友是否已经超过上限
 
@@ -1254,6 +1253,8 @@ async def nobleduel(bot, ev: CQEvent):
         duel_judger.turn_off(gid)
         await bot.send(ev, msg, at_sender=True)
         return
+    #接受决斗后再增加每日判定次数
+    daily_duel_limiter.increase(guid)
     duel = DuelCounter()
     level1 = duel._get_level(gid, id1)
     noblename1 = get_noblename(level1)
@@ -1402,8 +1403,8 @@ async def nobleduel(bot, ev: CQEvent):
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             msg = f'[CQ:at,qq={loser}]您输掉了贵族决斗，您与{c.name}的好感下降了{favor_reduce}点。\n{c.icon.cqcode}'
             await bot.send(ev, msg)
-            score_counter._add_score(gid, winner, 300)
-            msg = f'[CQ:at,qq={winner}]您赢得了决斗，对方女友仍有一定好感。\n本次决斗获得了300金币。'
+            score_counter._add_score(gid, winner, 500)
+            msg = f'[CQ:at,qq={winner}]您赢得了决斗，对方女友仍有一定好感。\n本次决斗额外获得了500金币。'
             await bot.send(ev, msg)
         else:
             duel._delete_card(gid, loser, selected_girl)
@@ -2311,7 +2312,7 @@ async def my_gift(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_rex(f'^用(.*)与(.*)交换(.*)$')
+@sv.on_rex(f'^用([1-9][0-9]*个)?(.*)与(.*)交换(.*)$')
 async def change_gift(bot, ev: CQEvent):
     gid = ev.group_id
     duel = DuelCounter()
@@ -2329,8 +2330,13 @@ async def change_gift(bot, ev: CQEvent):
         await bot.send(ev, "不能和自己交换礼物！", at_sender=True)
         gift_change.turn_off_giftchange(ev.group_id)
         return
-    gift1 = match.group(1)
-    gift2 = match.group(3)
+    number = match.group(1)
+    if not number:
+        number=1
+    else:
+        number=int(str(number).replace('个',''))
+    gift1 = match.group(2)
+    gift2 = match.group(4)
     if gift1 not in GIFT_DICT.keys():
         gift_change.turn_off_giftchange(ev.group_id)
         await bot.finish(ev, f'礼物1不存在。')
@@ -2344,10 +2350,10 @@ async def change_gift(bot, ev: CQEvent):
         gift_change.turn_off_giftchange(ev.group_id)
         return
 
-    if duel._get_gift_num(gid, id1, gfid1) == 0:
+    if duel._get_gift_num(gid, id1, gfid1) < number:
         gift_change.turn_off_giftchange(ev.group_id)
         await bot.finish(ev, f'[CQ:at,qq={id1}]\n您的{gift1}的库存不足哦。')
-    if duel._get_gift_num(gid, id2, gfid2) == 0:
+    if duel._get_gift_num(gid, id2, gfid2) < number:
         gift_change.turn_off_giftchange(ev.group_id)
         await bot.finish(ev, f'[CQ:at,qq={id2}]\n您的{gift2}的库存不足哦。')
     level2 = duel._get_level(gid, id2)
@@ -2355,7 +2361,7 @@ async def change_gift(bot, ev: CQEvent):
     gift_change.turn_on_waitchange(gid)
     gift_change.set_changeid(gid, id2)
     gift_change.turn_off_accept_giftchange(gid)
-    msg = f'[CQ:at,qq={id2}]\n尊敬的{noblename}您好：\n\n[CQ:at,qq={id1}]试图用[{gift1}]交换您的礼物[{gift2}]。\n\n请在{WAIT_TIME_CHANGE}秒内[接受交换/拒绝交换]。'
+    msg = f'[CQ:at,qq={id2}]\n尊敬的{noblename}您好：\n\n[CQ:at,qq={id1}]试图用[{gift1}]交换您的礼物[{gift2}],数量为{number}个。\n\n请在{WAIT_TIME_CHANGE}秒内[接受交换/拒绝交换]。'
     await bot.send(ev, msg)
     await asyncio.sleep(WAIT_TIME_CHANGE)
     gift_change.turn_off_waitchange(gid)
@@ -2364,11 +2370,11 @@ async def change_gift(bot, ev: CQEvent):
         gift_change.init_changeid(gid)
         gift_change.turn_off_giftchange(gid)
         await bot.finish(ev, msg, at_sender=True)
-    duel._reduce_gift(gid, id1, gfid1)
-    duel._add_gift(gid, id1, gfid2)
-    duel._reduce_gift(gid, id2, gfid2)
-    duel._add_gift(gid, id2, gfid1)
-    msg = f'\n礼物交换成功！\n您使用[{gift1}]交换了\n[CQ:at,qq={id2}]的[{gift2}]。'
+    duel._reduce_gift(gid, id1, gfid1,num=number)
+    duel._add_gift(gid, id1, gfid2,num=number)
+    duel._reduce_gift(gid, id2, gfid2,num=number)
+    duel._add_gift(gid, id2, gfid1,num=number)
+    msg = f'\n礼物交换成功！\n您使用[{gift1}]交换了\n[CQ:at,qq={id2}]的[{gift2}],共计{number}个。'
     gift_change.init_changeid(gid)
     gift_change.turn_off_giftchange(gid)
     await bot.finish(ev, msg, at_sender=True)
@@ -2465,7 +2471,7 @@ async def gift_help(bot, ev: CQEvent):
 [一键送礼]{角色名} {礼物名} 将库存的礼物全部送出
 [买礼物]
 [礼物列表]
-[用{礼物名}与@群友交换{礼物名}]
+[用{数量}个{礼物名}与@群友交换{礼物名}] 不输入"{数量}个"时数量为1
 [好感列表]
 [确认离婚]
 注:
