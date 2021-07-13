@@ -1711,6 +1711,7 @@ async def start_huizhan(bot, ev: CQEvent):
                     }
                 }
                 tas_list.append(data)
+                user_card_dict = await get_user_card_dict(bot, ev.group_id)
                 for shuchu in shuchulist:
                     if groupid == shuchu[0]:
                         get_equip = ''
@@ -1727,7 +1728,7 @@ async def start_huizhan(bot, ev: CQEvent):
                             "data": {
                                 "name": "ご主人様",
                                 "uin": "1587640710",
-                                "content": f"[CQ:at,qq={shuchu[1]}]您对boss造成了{shuchu[2]}点伤害，获得了装备\n{get_equip}{get_awardequip}"
+                                "content": f"{user_card_dict[shuchu[1]][0]}，您对boss造成了{shuchu[2]}点伤害，获得了装备\n{get_equip}{get_awardequip}"
                             }
                         }
                         tas_list.append(data)
@@ -1789,6 +1790,7 @@ async def shuchu_list(bot, ev: CQEvent):
             }
         }
         tas_list.append(data)
+    user_card_dict = await get_user_card_dict(bot, ev.group_id)
     for shuchu in shuchu_list:
         # print(shuchu)
         data = {
@@ -1796,7 +1798,7 @@ async def shuchu_list(bot, ev: CQEvent):
             "data": {
                 "name": "ご主人様",
                 "uin": "1587640710",
-                "content": f"[CQ:at,qq={shuchu[0]}]总共造成了{shuchu[1]}点伤害"
+                "content": f"{user_card_dict[shuchu[0]][0]}总共造成了{shuchu[1]}点伤害"
             }
         }
         tas_list.append(data)
