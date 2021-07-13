@@ -67,6 +67,7 @@ class ItemCounter:
         try:
             r = self._connect().execute(
                 "SELECT BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE=0 AND BUFF_INFO>0",
+                (gid, uid),
             ).fetchone()
             if r is None:
                 return 0

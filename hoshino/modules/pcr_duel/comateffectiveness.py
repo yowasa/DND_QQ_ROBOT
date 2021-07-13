@@ -1723,12 +1723,15 @@ async def start_huizhan(bot, ev: CQEvent):
                             awardequip_info = add_equip_info(shuchu[0], shuchu[1], bossinfo['awardequip'],
                                                              bossinfo['awardlist'])
                             get_awardequip = get_awardequip + f"由于您的本次输出为前三名，额外获得装备：{awardequip_info['model']}品质{awardequip_info['type']}:{awardequip_info['name']}\n"
+                        u_n=user_card_dict.get(shuchu[1])
+                        if not u_n:
+                            u_n="未知角色"
                         data = {
                             "type": "node",
                             "data": {
                                 "name": "ご主人様",
                                 "uin": "1587640710",
-                                "content": f"{user_card_dict[shuchu[1]][0]}，您对boss造成了{shuchu[2]}点伤害，获得了装备\n{get_equip}{get_awardequip}"
+                                "content": f"{u_n}，您对boss造成了{shuchu[2]}点伤害，获得了装备\n{get_equip}{get_awardequip}"
                             }
                         }
                         tas_list.append(data)
@@ -1792,13 +1795,16 @@ async def shuchu_list(bot, ev: CQEvent):
         tas_list.append(data)
     user_card_dict = await get_user_card_dict(bot, ev.group_id)
     for shuchu in shuchu_list:
-        # print(shuchu)
+        print(shuchu)
+        u_n=user_card_dict.get(shuchu[0])
+        if not u_n:
+            u_n='未知角色'
         data = {
             "type": "node",
             "data": {
                 "name": "ご主人様",
                 "uin": "1587640710",
-                "content": f"{user_card_dict[shuchu[0]][0]}总共造成了{shuchu[1]}点伤害"
+                "content": f"{u_n}总共造成了{shuchu[1]}点伤害"
             }
         }
         tas_list.append(data)

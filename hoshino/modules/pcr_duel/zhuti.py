@@ -52,6 +52,7 @@ async def duel_help(bot, ev: CQEvent):
 [会战帮助]
 [装备帮助]
 [副本帮助]
+[道具帮助]
 
     *一个女友只属于一位群友
     
@@ -681,6 +682,12 @@ async def noblelogin(bot, ev: CQEvent):
     gfid = GIFT_DICT[select_gift]
     duel._add_gift(gid, uid, gfid)
     msg += f'\n随机获得了礼物[{select_gift}]'
+    from .item_manage import choose_item
+    from .ItemCounter import ItemCounter
+    item=choose_item()
+    i_c=ItemCounter()
+    i_c._add_item(gid,uid,int(item['id']))
+    msg += f'\n随机获得了{item["rank"]}级道具[{item["name"]}]'
     await bot.send(ev, msg, at_sender=True)
 
 

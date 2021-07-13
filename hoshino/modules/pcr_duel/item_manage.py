@@ -130,7 +130,7 @@ ITEM_INFO = {
         "id": "20",
         "name": "公主之心",
         "rank": "D",
-        "desc": "全部女友增加10好感",
+        "desc": "全部女友增加30好感",
     },
     "21": {
         "id": "21",
@@ -169,7 +169,7 @@ ITEM_NAME_MAP = {ITEM_INFO[i]["name"]: ITEM_INFO[i] for i in ITEM_INFO.keys()}
 ITEM_RANK_MAP = {}
 
 for k, v in ITEM_INFO.items():
-    if ITEM_RANK_MAP.get(v['rank']):
+    if not ITEM_RANK_MAP.get(v['rank']):
         ITEM_RANK_MAP[v['rank']] = []
     ITEM_RANK_MAP.get(v['rank']).append(v['id'])
 
@@ -205,7 +205,7 @@ async def my_item(bot, ev: CQEvent):
     items = counter._get_item(gid, uid)
     msg = "\n==== 道具列表 ===="
     for i in items:
-        msg += f"\n{ITEM_INFO[str(i[0])]['name']} *{i[1]}"
+        msg += f"\n{ITEM_INFO[str(i[0])]['rank']}级：{ITEM_INFO[str(i[0])]['name']} *{i[1]}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -352,7 +352,7 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
     if zllevel == MAX_ZS:
         return (False, '该女友已经到最高转生等级，无法继续转生啦。')
     CE._add_zhuansheng(gid, uid, cid)
-    await bot.send(ev, f'您的女友{name}想起了前世的记忆，基础战力加成提升了{nvmes}')
+    return (True, f'您的女友{name}想起了前世的记忆，基础战力加成提升了{nvmes}')
 
 
 @msg_route("空想之物")
@@ -571,7 +571,7 @@ async def wabao(msg, bot, ev: CQEvent):
         msg_li.append(f"你获得了{sw}声望")
     if len(msg_li) == 0:
         return (True, f"你进行了一场愉快的探险，但是什么也没有发现")
-    return (True, f"你进行了一场惊现的探险:\n" + "\n".join(msg_li))
+    return (True, f"你进行了一场惊险的探险:\n" + "\n".join(msg_li))
 
 
 def choose_item():
@@ -651,8 +651,8 @@ async def princess_heart(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     cidlist = duel._get_cards(gid, uid)
     for cid in cidlist:
-        duel._add_favor(gid, uid, cid, 10)
-    return (True, f'你使用了公主之心，所有的女友好感度提升了10点')
+        duel._add_favor(gid, uid, cid, 30)
+    return (True, f'你使用了公主之心，所有的女友好感度提升了30点')
 
 
 @msg_route("生财有道")
