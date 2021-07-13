@@ -1,15 +1,16 @@
+import asyncio
 import re
 import time
 from decimal import Decimal
-import asyncio
+
 import nonebot
 import pytz
 
-from . import sv
-from .duelconfig import *
 from hoshino.typing import CQEvent
-from .ScoreCounter import ScoreCounter2
+from . import sv
 from .ItemCounter import ItemCounter
+from .ScoreCounter import ScoreCounter2
+from .duelconfig import *
 
 
 @sv.on_fullmatch(['培养帮助', '战斗帮助'])
@@ -412,6 +413,13 @@ async def add_duiwu_t(bot, ev: CQEvent):
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
         # 获取进入副本信息
+        # 获取buff信息 TODO 测试
+        i_c = ItemCounter()
+        buff = i_c._get_buff_state(gid, uid)
+        rate = 1 + buff / 100
+        old = z_ce
+        z_ce = rate * z_ce
+        i_c._save_user_state(gid, uid, 0, 0)
         # 判定每日上限
         guid = gid, uid
         if not daily_dun_limiter.check(guid):
@@ -427,7 +435,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
         res.save(bio, format='PNG')
         base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
         mes = f"[CQ:image,file={base64_str}]"
-        msg1 = f"编组成功{bianzu}\n开始进入{dun_nd}副本{dunname}\n当前副本推荐战力{recommend_ce}，您的编组战力为{z_ce}，您的胜率为{is_win}%，开始战斗{mes}"
+        msg1 = f"编组成功{bianzu}\n开始进入{dun_nd}副本{dunname}\n当前副本推荐战力{recommend_ce}，您的编组战力为{z_ce}({old})，您的胜率为{is_win}%，开始战斗{mes}"
         tas_list = []
         data = {
             "type": "node",
@@ -454,8 +462,8 @@ async def add_duiwu_t(bot, ev: CQEvent):
             CE._add_dunscore(gid, uid, get_dun_score)
             msg = msg + f"您获得了{get_dun_score}副本币\n"
 
-            get_money=dungeoninfo['dun_score'] * sp_d*20*3
-            get_SW = dungeoninfo['dun_score'] * sp_d*3
+            get_money = dungeoninfo['dun_score'] * sp_d * 20 * 3
+            get_SW = dungeoninfo['dun_score'] * sp_d * 3
 
             score_counter = ScoreCounter2()
             score_counter._add_prestige(gid, uid, get_SW)
@@ -1655,18 +1663,18 @@ async def start_huizhan(bot, ev: CQEvent):
             }
         }
         tas_list.append(data)
-        #增加经验值
-        record_msg='出刀奖励结算：'
+        # 增加经验值
+        record_msg = '出刀奖励结算：'
         for cid in defen:
             c = chara.fromid(cid)
             CE._add_cardfight(gid, uid, cid, fighttime, card_jk, shijieflag)
             card_level = add_exp(gid, uid, cid, bossinfo['add_exp'])
-            record_msg+=f"\n你的女友 {c.name} 获取了{bossinfo['add_exp']}点经验，{card_level[2]}"
-        #奖励声望
+            record_msg += f"\n你的女友 {c.name} 获取了{bossinfo['add_exp']}点经验，{card_level[2]}"
+        # 奖励声望
         score_counter = ScoreCounter2()
-        sw_add=len(defen)*100
-        score_counter._add_prestige(gid,uid,sw_add)
-        record_msg+=f'\n由于你的英勇出战你获得了{sw_add}声望'
+        sw_add = len(defen) * 100
+        score_counter._add_prestige(gid, uid, sw_add)
+        record_msg += f'\n由于你的英勇出战你获得了{sw_add}声望'
         data = {
             "type": "node",
             "data": {
@@ -2430,25 +2438,36 @@ async def paiming_list(bot, ev: CQEvent):
 
 @sv.on_prefix(['测试cron'])
 async def clock(bot, ev: CQEvent):
-    result=await clock()
+    result = await clock()
     print(result)
+
 
 @sv.scheduled_job('cron', hour='*', )
 async def clock():
     bot = nonebot.get_bot()
-    i_c=ItemCounter()
-    sou_li=i_c._get_sou_state()
+    i_c = ItemCounter()
+    sou_li = i_c._get_sou_state()
+    free_li = i_c._get_free_state()
     duel = DuelCounter()
     for i in sou_li:
-        gid=i[0]
+        gid = i[0]
         GC_Data = duel._get_GOLD_CELE(gid)
         QC_Data = duel._get_QC_CELE(gid)
         SW_Data = duel._get_SW_CELE(gid)
         FREE_Data = duel._get_FREE_CELE(gid)
         duel._initialization_CELE(gid, GC_Data, QC_Data, 0, SW_Data, FREE_Data)
-        i_c._save_group_state(gid,0,0)
+        i_c._save_group_state(gid, 0, 0)
         await bot.send_group_msg(group_id=gid, message="本群梭哈庆典已关闭")
 
+    for i in free_li:
+        gid = i[0]
+        GC_Data = duel._get_GOLD_CELE(gid)
+        QC_Data = duel._get_QC_CELE(gid)
+        SUO_Data = duel._get_SUO_CELE(gid)
+        SW_Data = duel._get_SW_CELE(gid)
+        duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 0)
+        i_c._save_group_state(gid, 0, 0)
+        await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
     now = datetime.now(pytz.timezone('Asia/Shanghai'))
     nowyear = now.year

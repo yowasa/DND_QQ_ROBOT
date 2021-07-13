@@ -12,10 +12,12 @@ class ItemCounter:
         os.makedirs(os.path.dirname(DUEL_DB_PATH), exist_ok=True)
         self._create_item()
         self._create_group()
+        self._create_user()
 
     def _connect(self):
         return sqlite3.connect(DUEL_DB_PATH)
 
+    # 道具表
     def _create_item(self):
         try:
             self._connect().execute('''CREATE TABLE IF NOT EXISTS ITEM
@@ -27,7 +29,9 @@ class ItemCounter:
         except:
             raise Exception('创建角道具表发生错误')
 
+    # 群组状态表
     def _create_group(self):
+        # type为0为定时关闭庆典标识 1位定时关闭免费招募标识
         try:
             self._connect().execute('''CREATE TABLE IF NOT EXISTS GROUP_INFO
                           (GID             INT    NOT NULL,
@@ -37,16 +41,64 @@ class ItemCounter:
         except:
             raise Exception('创建群状态表发生错误')
 
+    # 用户状态表
+    def _create_user(self):
+        # type为0为战斗力加成
+        try:
+            self._connect().execute('''CREATE TABLE IF NOT EXISTS USER_INFO
+                          (GID             INT    NOT NULL,
+                           UID           INT    NOT NULL,
+                           BUFF_TYPE           INT    NOT NULL,
+                           BUFF_INFO           INT    NOT NULL,
+                           PRIMARY KEY(GID, UID,BUFF_TYPE));''')
+        except:
+            raise Exception('创建用户状态表发生错误')
+
+    # 覆盖存储用户状态
+    def _save_user_state(self, gid, uid, type, type_flag):
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO USER_INFO (GID, UID, BUFF_TYPE, BUFF_INFO) VALUES (?, ?, ?, ?)",
+                (gid, uid, type, type_flag),
+            )
+
+    # 获取用户战斗buff状态
+    def _get_buff_state(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                "SELECT BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE=0 AND BUFF_INFO>0",
+            ).fetchone()
+            if r is None:
+                return 0
+            return r[0]
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return 0
+
+    # 覆盖存储群组状态
     def _save_group_state(self, gid, type, type_flag):
         with self._connect() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO GROUP_INFO (GID, INFO_TYPE, INFO_FLAG) VALUES (?, ?, ?)",
                 (gid, type, type_flag),
             )
-    # 0 为梭哈标识 到准点自动关闭
+
+    # 获取有梭哈庆典自动关闭标识的群
     def _get_sou_state(self):
         try:
             r = self._connect().execute("SELECT GID FROM GROUP_INFO WHERE INFO_TYPE=0 AND INFO_FLAG=1",
+                                        ).fetchall()
+            if r is None:
+                return []
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return []
+
+    # 获取有免费招募自动关闭标识的群
+    def _get_free_state(self):
+        try:
+            r = self._connect().execute("SELECT GID FROM GROUP_INFO WHERE INFO_TYPE=1 AND INFO_FLAG=1",
                                         ).fetchall()
             if r is None:
                 return []
@@ -89,4 +141,3 @@ class ItemCounter:
                 (gid, uid, iid, now_num),
             )
             return now_num
-
