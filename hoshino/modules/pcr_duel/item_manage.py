@@ -8,170 +8,9 @@ from . import sv
 from .ItemCounter import ItemCounter
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
-from .zhuti import duel_judger, r_gold
 
-ITEM_INFO = {
-    "1": {
-        "id": "1",
-        "name": "天命之子",
-        "rank": "S",
-        "desc": "无视100的等级上限 为自己的女友增加10级 最高不超过200级(仅100满级以上可以使用)",
-    },
-    "2": {
-        "id": "2",
-        "name": "前世之忆",
-        "rank": "S",
-        "desc": "保留女友的等级rank为自己女友增加一次转生次数 不能超过转生次数限制",
-    },
-    "3": {
-        "id": "3",
-        "name": "命运牵引",
-        "rank": "S",
-        "desc": "定向招募卡池中的女友,无视卡池限制与女友上限",
-    },
-    "4": {
-        "id": "4",
-        "name": "空想之物",
-        "rank": "A",
-        "desc": "90%概率随机获得一件UR装备 10%概率获得MR装备",
-    },
-    "5": {
-        "id": "5",
-        "name": "好事成双",
-        "rank": "A",
-        "desc": "选择自己已拥有的一件道具 令其数量+1",
-    },
-    "6": {
-        "id": "6",
-        "name": "四重存在",
-        "rank": "A",
-        "desc": "选择自己一个A级以下的道具 令其数量+3",
-    },
-    "7": {
-        "id": "7",
-        "name": "狂赌之渊",
-        "rank": "B",
-        "desc": "为本群开启梭哈庆典 持续到这个小时结束",
-    },
-    "8": {
-        "id": "8",
-        "name": "咲夜怀表",
-        "rank": "A",
-        "desc": "使用后刷新自己的副本 签到 低保 约会 决斗 礼物次数",
-    },
-    "9": {
-        "id": "9",
-        "name": "梦境巡游",
-        "rank": "B",
-        "desc": "发现女友，可以刷新发现结果，选择要或不要，至多10次",
-    },
 
-    "10": {
-        "id": "10",
-        "name": "超再生力",
-        "rank": "B",
-        "desc": "使用后刷新自己当日副本限制次数及决斗次数",
-    },
-    "11": {
-        "id": "11",
-        "name": "有效分裂",
-        "rank": "B",
-        "desc": "使用后随机获取两个道具",
-    },
-    "12": {
-        "id": "12",
-        "name": "异界馈赠",
-        "rank": "C",
-        "desc": "随机增加财富(10000-100000)",
-    },
-    "13": {
-        "id": "13",
-        "name": "乐善好施",
-        "rank": "C",
-        "desc": "发送一次50000金币5个的红包(不消耗自己的金币) 每有一个人领取 增加500声望",
-    },
-    "14": {
-        "id": "14",
-        "name": "藏宝图",
-        "rank": "C",
-        "desc": "进行一次愉快的挖宝 随机金币 声望 装备 道具",
-    },
-    "15": {
-        "id": "15",
-        "name": "战无不胜",
-        "rank": "C",
-        "desc": "使用后下一次副本战斗战力计算增加2倍",
-    },
-    "16": {
-        "id": "16",
-        "name": "战斗记忆",
-        "rank": "C",
-        "desc": "增加300000经验到自己经验池",
-    },
-    "17": {
-        "id": "17",
-        "name": "零时迷子",
-        "rank": "C",
-        "desc": "使用后刷新自己当日副本限制次数",
-    },
-    "18": {
-        "id": "18",
-        "name": "鬼人药剂",
-        "rank": "D",
-        "desc": "使用后下一次副本战斗战力计算增加1倍",
-    },
-    "19": {
-        "id": "19",
-        "name": "派对狂欢",
-        "rank": "D",
-        "desc": "为本群开启免费招募庆典 持续到这个小时结束",
-    },
-    "20": {
-        "id": "20",
-        "name": "公主之心",
-        "rank": "D",
-        "desc": "全部女友增加30好感",
-    },
-    "21": {
-        "id": "21",
-        "name": "生财有道",
-        "rank": "D",
-        "desc": "随机增加财富(1000-30000)",
-    },
-    "22": {
-        "id": "22",
-        "name": "小恩小惠",
-        "rank": "D",
-        "desc": "随机增加声望(100-3000)",
-    },
-    "23": {
-        "id": "23",
-        "name": "再来一瓶",
-        "rank": "D",
-        "desc": "刷新自己签到次数",
-    },
-    "24": {
-        "id": "24",
-        "name": "精英对局",
-        "rank": "D",
-        "desc": "刷新自己的决斗次数",
-    },
-    "25": {
-        "id": "25",
-        "name": "经验之书",
-        "rank": "D",
-        "desc": "增加100000经验到自己经验池",
-    },
-}
 
-ITEM_NAME_MAP = {ITEM_INFO[i]["name"]: ITEM_INFO[i] for i in ITEM_INFO.keys()}
-
-ITEM_RANK_MAP = {}
-
-for k, v in ITEM_INFO.items():
-    if not ITEM_RANK_MAP.get(v['rank']):
-        ITEM_RANK_MAP[v['rank']] = []
-    ITEM_RANK_MAP.get(v['rank']).append(v['id'])
 
 
 @sv.on_fullmatch(['物品帮助', '道具帮助'])
@@ -214,7 +53,7 @@ async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
     info = ITEM_NAME_MAP.get(name)
     if info:
-        await bot.send(ev, f"道具{name}的效果为：{info['desc']}")
+        await bot.send(ev, f"{name}:{info['rank']}级道具 {info['desc']}")
     else:
         await bot.send(ev, f"未找到名称为{name}的道具")
 
@@ -574,22 +413,6 @@ async def wabao(msg, bot, ev: CQEvent):
     return (True, f"你进行了一场惊险的探险:\n" + "\n".join(msg_li))
 
 
-def choose_item():
-    number = random.randint(1, 100)
-    if number == 1:
-        i_ids = ITEM_RANK_MAP['S']
-    elif number <= 6:
-        i_ids = ITEM_RANK_MAP['A']
-    elif number <= 16:
-        i_ids = ITEM_RANK_MAP['B']
-    elif number <= 36:
-        i_ids = ITEM_RANK_MAP['C']
-    else:
-        i_ids = ITEM_RANK_MAP['D']
-    id = random.choice(i_ids)
-    return ITEM_INFO.get(id)
-
-
 @msg_route("战无不胜")
 async def battle_match(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -700,6 +523,30 @@ async def battle_exp(msg, bot, ev: CQEvent):
     CE = CECounter()
     CE._add_exp_chizi(gid, uid, 100000)
     return (True, f"你通读了一本经验之书，获得了100000经验(加入经验池)")
+
+
+@msg_route("许愿神灯")
+async def hope(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if not msg:
+        return (False, f"请在后面加上道具名称")
+    name = msg[0]
+    item = get_item_by_name(name)
+    if not item:
+        return (False, f"未找到名为{name}的道具")
+    add_item(gid, uid, item)
+    return (True, f"你通过向神灯许愿，获得了{item['rank']}级道具{item['name']}！！！")
+
+
+@msg_route("永恒爱恋")
+async def battle_exp(msg, bot, ev: CQEvent):
+    return (False, f"该道具无法使用，只要持有就能增加妻子100%战斗力")
+
+
+@msg_route("光学迷彩")
+async def battle_exp(msg, bot, ev: CQEvent):
+    return (False, f"该道具无法使用，只要持有就能免受决斗失败的惩罚")
 
 
 @sv.on_command("开始巡游")

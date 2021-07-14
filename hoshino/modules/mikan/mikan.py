@@ -79,7 +79,7 @@ DEVICES = [
     '试制景云(舰侦型)',
 ]
 
-@sv.scheduled_job('cron', hour='*/2')
+@sv.scheduled_job('cron', hour='*/2', minute='5', second='30')
 async def mikan_poller():
     if not Mikan.rss_cache:
         await Mikan.update_cache()

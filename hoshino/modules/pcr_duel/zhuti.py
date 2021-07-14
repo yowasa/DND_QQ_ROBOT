@@ -1,7 +1,7 @@
 import asyncio
 import copy
 import re
-from hoshino.config import pcr_duel as cfg
+import pytz
 from hoshino import priv
 from hoshino.typing import CQEvent
 from . import duel_chara
@@ -178,195 +178,6 @@ async def duel_biao(bot, ev: CQEvent):
 "11": "神"升级需要{FS_NEED_SW}声望和{FS_NEED_GOLD}金币，最多可持有{LEVEL_GIRL_NEED[str(20)]}名女友，每日签到额外获得2000金币，当输光女友时贬为平民，可拥有一名妻子。
 '''
     await bot.send(ev, msg)
-
-
-# 记录决斗和下注数据
-
-
-class DuelJudger:
-    def __init__(self):
-        self.on = {}
-        self.accept_on = {}
-        self.support_on = {}
-        self.fire_on = {}
-        self.deadnum = {}
-        self.support = {}
-        self.turn = {}
-        self.duelid = {}
-        self.isaccept = {}
-        self.hasfired_on = {}
-
-    def set_support(self, gid):
-        self.support[gid] = {}
-
-    def get_support(self, gid):
-        return self.support[gid] if self.support.get(gid) is not None else 0
-
-    def add_support(self, gid, uid, id, score):
-        self.support[gid][uid] = [id, score]
-
-    def get_support_id(self, gid, uid):
-        if self.support[gid].get(uid) is not None:
-            return self.support[gid][uid][0]
-        else:
-            return 0
-
-    def get_support_score(self, gid, uid):
-        if self.support[gid].get(uid) is not None:
-            return self.support[gid][uid][1]
-        else:
-            return 0
-
-    # 五个开关：决斗，接受，下注， 开枪, 是否已经开枪
-
-    def get_on_off_status(self, gid):
-        return self.on[gid] if self.on.get(gid) is not None else False
-
-    def turn_on(self, gid):
-        self.on[gid] = True
-
-    def turn_off(self, gid):
-        self.on[gid] = False
-
-    def get_on_off_accept_status(self, gid):
-        return self.accept_on[gid] if self.accept_on.get(gid) is not None else False
-
-    def turn_on_accept(self, gid):
-        self.accept_on[gid] = True
-
-    def turn_off_accept(self, gid):
-        self.accept_on[gid] = False
-
-    def get_on_off_support_status(self, gid):
-        return self.support_on[gid] if self.support_on.get(gid) is not None else False
-
-    def turn_on_support(self, gid):
-        self.support_on[gid] = True
-
-    def turn_off_support(self, gid):
-        self.support_on[gid] = False
-
-    def get_on_off_fire_status(self, gid):
-        return self.fire_on[gid] if self.fire_on.get(gid) is not None else False
-
-    def turn_on_fire(self, gid):
-        self.fire_on[gid] = True
-
-    def turn_off_fire(self, gid):
-        self.fire_on[gid] = False
-
-    def get_on_off_hasfired_status(self, gid):
-        return self.hasfired_on[gid] if self.hasfired_on.get(gid) is not None else False
-
-    def turn_on_hasfired(self, gid):
-        self.hasfired_on[gid] = True
-
-    def turn_off_hasfired(self, gid):
-        self.hasfired_on[gid] = False
-
-    # 记录决斗者id
-    def init_duelid(self, gid):
-        self.duelid[gid] = []
-
-    def set_duelid(self, gid, id1, id2):
-        self.duelid[gid] = [id1, id2]
-
-    def get_duelid(self, gid):
-        return self.duelid[gid] if self.accept_on.get(gid) is not None else [0, 0]
-
-    # 查询一个决斗者是1号还是2号
-    def get_duelnum(self, gid, uid):
-        return self.duelid[gid].index(uid) + 1
-
-    # 记录由谁开枪
-    def init_turn(self, gid):
-        self.turn[gid] = 1
-
-    def get_turn(self, gid):
-        return self.turn[gid] if self.turn[gid] is not None else 0
-
-    def change_turn(self, gid):
-        if self.get_turn(gid) == 1:
-            self.turn[gid] = 2
-            return 2
-        else:
-            self.turn[gid] = 1
-            return 1
-
-    # 记录子弹位置
-    def init_deadnum(self, gid):
-        self.deadnum[gid] = None
-
-    def set_deadnum(self, gid, num):
-        self.deadnum[gid] = num
-
-    def get_deadnum(self, gid):
-        return self.deadnum[gid] if self.deadnum[gid] is not None else False
-
-    # 记录是否接受
-    def init_isaccept(self, gid):
-        self.isaccept[gid] = False
-
-    def on_isaccept(self, gid):
-        self.isaccept[gid] = True
-
-    def off_isaccept(self, gid):
-        self.isaccept[gid] = False
-
-    def get_isaccept(self, gid):
-        return self.isaccept[gid] if self.isaccept[gid] is not None else False
-
-
-class GiftChange:
-    def __init__(self):
-        self.giftchange_on = {}
-        self.waitchange = {}
-        self.isaccept = {}
-        self.changeid = {}
-
-    # 礼物交换开关
-    def get_on_off_giftchange_status(self, gid):
-        return self.giftchange_on[gid] if self.giftchange_on.get(gid) is not None else False
-
-    def turn_on_giftchange(self, gid):
-        self.giftchange_on[gid] = True
-
-    def turn_off_giftchange(self, gid):
-        self.giftchange_on[gid] = False
-
-    # 礼物交换发起开关
-    def get_on_off_waitchange_status(self, gid):
-        return self.waitchange[gid] if self.waitchange.get(gid) is not None else False
-
-    def turn_on_waitchange(self, gid):
-        self.waitchange[gid] = True
-
-    def turn_off_waitchange(self, gid):
-        self.waitchange[gid] = False
-
-    # 礼物交换是否接受开关
-    def turn_on_accept_giftchange(self, gid):
-        self.isaccept[gid] = True
-
-    def turn_off_accept_giftchange(self, gid):
-        self.isaccept[gid] = False
-
-    def get_isaccept_giftchange(self, gid):
-        return self.isaccept[gid] if self.isaccept[gid] is not None else False
-
-    # 记录礼物交换请求接收者id
-    def init_changeid(self, gid):
-        self.changeid[gid] = []
-
-    def set_changeid(self, gid, id2):
-        self.changeid[gid] = id2
-
-    def get_changeid(self, gid):
-        return self.changeid[gid] if self.changeid.get(gid) is not None else 0
-
-
-duel_judger = DuelJudger()
-gift_change = GiftChange()
 
 
 class NvYouJiaoYi:
@@ -682,12 +493,18 @@ async def noblelogin(bot, ev: CQEvent):
     gfid = GIFT_DICT[select_gift]
     duel._add_gift(gid, uid, gfid)
     msg += f'\n随机获得了礼物[{select_gift}]'
-    from .item_manage import choose_item
-    from .ItemCounter import ItemCounter
-    item=choose_item()
-    i_c=ItemCounter()
-    i_c._add_item(gid,uid,int(item['id']))
+    item = choose_item()
+    add_item(gid, uid, item)
     msg += f'\n随机获得了{item["rank"]}级道具[{item["name"]}]'
+    now = datetime.now(pytz.timezone('Asia/Shanghai'))
+    hour = now.hour
+    minu = now.minute
+    if hour == 0 and minu == 0:
+        r_num = random.randint(1, 20)
+        if r_num == 1:
+            i_2 = get_item_by_name("零时迷子")
+            add_item(gid, uid, i_2)
+            msg += f'\n你隐约听到了午夜的钟声 获得了{i_2["rank"]}级道具[{i_2["name"]}]'
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -1260,7 +1077,7 @@ async def nobleduel(bot, ev: CQEvent):
         duel_judger.turn_off(gid)
         await bot.send(ev, msg, at_sender=True)
         return
-    #接受决斗后再增加每日判定次数
+    # 接受决斗后再增加每日判定次数
     daily_duel_limiter.increase(guid)
     duel = DuelCounter()
     level1 = duel._get_level(gid, id1)
@@ -1339,9 +1156,7 @@ async def nobleduel(bot, ev: CQEvent):
     score_counter = ScoreCounter2()
 
     cidlist = duel._get_cards(gid, loser)
-    selected_girl = random.choice(cidlist)
     queen = duel._search_queen(gid, loser)
-
     CE = CECounter()
     bangdinwin = CE._get_guaji(gid, winner)
     bangdinlose = CE._get_guaji(gid, loser)
@@ -1356,9 +1171,21 @@ async def nobleduel(bot, ev: CQEvent):
             fashion_info = get_fashion_info(up_info)
             nvmes = fashion_info['icon']
         bd_msg = f"\n您绑定的女友{bd_info.name}获得了{WIN_EXP}点经验，{card_level[2]}\n{nvmes}"
+    item = get_item_by_name("光学迷彩")
+    have_item = check_have_item(gid, loser, item)
+    if have_item:
+        rn = random.randint(1, 10)
+        if rn == 1:
+            use_item(gid, loser, item)
+            msg = f'[CQ:at,qq={loser}] 你在失败逃窜时不小心划破了光学迷彩，你的光学迷彩不能继续使用了。'
+            await bot.send(ev, msg)
 
+    selected_girl = random.choice(cidlist)
     # 判定被输掉的是否是复制人可可萝，是则换成金币。
-    if selected_girl == 9999:
+    if have_item:
+        msg = f'[CQ:at,qq={loser}]\n你使用光学迷彩逃脱了，本次决斗不会对你造成损失'
+        await bot.send(ev, msg)
+    elif selected_girl == 9999:
         score_counter._add_score(gid, winner, 300)
         c = duel_chara.fromid(1059)
         nvmes = get_nv_icon(1059)
@@ -1452,28 +1279,29 @@ async def nobleduel(bot, ev: CQEvent):
         score_counter._add_prestige(gid, winner, winSW)
         msg = f'[CQ:at,qq={winner}]决斗胜利使您的声望上升了{winSW}点。'
         await bot.send(ev, msg)
-    loseprestige = score_counter._get_prestige(gid, loser)
-    if loseprestige == -1:
-        loseprestige == 0
-    if loseprestige != -1:
-        level_cha = level_loser - level_winner
-        level_zcha = max(level_cha, 0)
-        LOSESW = LoseSWBasics + (level_zcha * 10)
-        score_counter._reduce_prestige(gid, loser, LOSESW)
-        msg = f'[CQ:at,qq={loser}]决斗失败使您的声望下降了{LOSESW}点。'
-        await bot.send(ev, msg)
-
-    # 判定败者是否掉爵位，皇帝不会因为决斗掉爵位。
-    level_loser = duel._get_level(gid, loser)
-    if level_loser > 1 and level_loser < 8:
-        girlnum_loser = get_girlnum(level_loser - 1)
-        cidlist_loser = duel._get_cards(gid, loser)
-        cidnum_loser = len(cidlist_loser)
-        if cidnum_loser < girlnum_loser:
-            duel._reduce_level(gid, loser)
-            new_noblename = get_noblename(level_loser - 1)
-            msg = f'[CQ:at,qq={loser}]\n您的女友数为{cidnum_loser}名\n小于爵位需要的女友数{girlnum_loser}名\n您的爵位下降到了{new_noblename}'
+    if not have_item:
+        loseprestige = score_counter._get_prestige(gid, loser)
+        if loseprestige == -1:
+            loseprestige == 0
+        if loseprestige != -1:
+            level_cha = level_loser - level_winner
+            level_zcha = max(level_cha, 0)
+            LOSESW = LoseSWBasics + (level_zcha * 10)
+            score_counter._reduce_prestige(gid, loser, LOSESW)
+            msg = f'[CQ:at,qq={loser}]决斗失败使您的声望下降了{LOSESW}点。'
             await bot.send(ev, msg)
+
+        # 判定败者是否掉爵位，皇帝不会因为决斗掉爵位。
+        level_loser = duel._get_level(gid, loser)
+        if level_loser > 1 and level_loser < 8:
+            girlnum_loser = get_girlnum(level_loser - 1)
+            cidlist_loser = duel._get_cards(gid, loser)
+            cidnum_loser = len(cidlist_loser)
+            if cidnum_loser < girlnum_loser:
+                duel._reduce_level(gid, loser)
+                new_noblename = get_noblename(level_loser - 1)
+                msg = f'[CQ:at,qq={loser}]\n您的女友数为{cidnum_loser}名\n小于爵位需要的女友数{girlnum_loser}名\n您的爵位下降到了{new_noblename}'
+                await bot.send(ev, msg)
 
     # 结算下注金币，判定是否为超时局。
     if is_overtime == 1:
@@ -1663,6 +1491,11 @@ async def add_score(bot, ev: CQEvent):
             score_counter._add_score(gid, uid, ZERO_GET_AMOUNT)
             msg = f'您已领取{ZERO_GET_AMOUNT}金币'
             daily_zero_get_limiter.increase(guid)
+            r_n = random.randint(1, 100)
+            if r_n == 1:
+                i_2 = get_item_by_name("生财有道")
+                add_item(gid, uid, i_2)
+                msg += f'\n发低保的人看你太可怜了，偷偷的告诉了你几个赚钱的办法，你获得了{i_2["rank"]}级道具[{i_2["name"]}]'
             await bot.send(ev, msg, at_sender=True)
             return
         else:
@@ -1912,8 +1745,8 @@ async def breakup(bot, ev: CQEvent):
         if cid == 1000:
             await bot.finish(ev, '请输入正确的角色名。', at_sender=True)
         score_counter = ScoreCounter2()
-        needscore =  level * 100
-        needSW =  level * 15
+        needscore = level * 100
+        needSW = level * 15
         if level == 20:
             needSW = 600
         score = score_counter._get_score(gid, uid)
@@ -1980,7 +1813,7 @@ async def breakup_yj(bot, ev: CQEvent):
         for cid in defen:
             c = duel_chara.fromid(cid)
 
-            needscore =  level * 100
+            needscore = level * 100
             needSW = level * 15
             if level == 20:
                 needSW = 600
@@ -2201,6 +2034,12 @@ async def daily_date(bot, ev: CQEvent):
     relationship = get_relationship(current_favor)[0]
     msg = f'\n\n{text}\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     daily_date_limiter.increase(guid)
+    if num == '4':
+        r_n = random.randint(1, 10)
+        if r_n == 1:
+            item = choose_item()
+            add_item(gid, uid, item)
+            msg += f'\n{c.name}对你这次的表现十分满意，赠送给了你{item["rank"]}级道具[{item["name"]}]'
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -2295,6 +2134,11 @@ async def buy_gift(bot, ev: CQEvent):
     msg = f'\n您花费了300金币，\n买到了[{select_gift}]哦，\n欢迎下次惠顾。'
     score_counter._reduce_score(gid, uid, 300)
     daily_gift_limiter.increase(guid)
+    r_n = random.randint(1, 100)
+    if r_n == 1:
+        item = choose_item()
+        add_item(gid, uid, item)
+        msg += f'\n礼物店老板回馈消费者抽奖抽到了你，你获得了{item["rank"]}级道具[{item["name"]}]'
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -2339,9 +2183,9 @@ async def change_gift(bot, ev: CQEvent):
         return
     number = match.group(1)
     if not number:
-        number=1
+        number = 1
     else:
-        number=int(str(number).replace('个',''))
+        number = int(str(number).replace('个', ''))
     gift1 = match.group(2)
     gift2 = match.group(4)
     if gift1 not in GIFT_DICT.keys():
@@ -2377,10 +2221,10 @@ async def change_gift(bot, ev: CQEvent):
         gift_change.init_changeid(gid)
         gift_change.turn_off_giftchange(gid)
         await bot.finish(ev, msg, at_sender=True)
-    duel._reduce_gift(gid, id1, gfid1,num=number)
-    duel._add_gift(gid, id1, gfid2,num=number)
-    duel._reduce_gift(gid, id2, gfid2,num=number)
-    duel._add_gift(gid, id2, gfid1,num=number)
+    duel._reduce_gift(gid, id1, gfid1, num=number)
+    duel._add_gift(gid, id1, gfid2, num=number)
+    duel._reduce_gift(gid, id2, gfid2, num=number)
+    duel._add_gift(gid, id2, gfid1, num=number)
     msg = f'\n礼物交换成功！\n您使用[{gift1}]交换了\n[CQ:at,qq={id2}]的[{gift2}],共计{number}个。'
     gift_change.init_changeid(gid)
     gift_change.turn_off_giftchange(gid)
@@ -2953,7 +2797,8 @@ async def fashion_list(bot, ev: CQEvent):
         for fashion in cfg.fashionlist:
             if cfg.fashionlist[fashion]['cid'] in cidlist:
                 if cfg.fashionlist[fashion]['xd_flag'] == 0:
-                    buy_info = duel._get_fashionbuy(gid, uid, cfg.fashionlist[fashion]['cid'], cfg.fashionlist[fashion]['fid'])
+                    buy_info = duel._get_fashionbuy(gid, uid, cfg.fashionlist[fashion]['cid'],
+                                                    cfg.fashionlist[fashion]['fid'])
                     if buy_info == 0:
                         jishu = jishu + 1
                         # if jishu<7:
@@ -3073,7 +2918,7 @@ async def up_fashion(bot, ev: CQEvent):
         await bot.finish(ev, '请输入正确的时装名。', at_sender=True)
 
 
-@sv.on_prefix(['我的女友','女友信息'])
+@sv.on_prefix(['我的女友', '女友信息'])
 async def my_fashion(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
@@ -3183,58 +3028,6 @@ async def up_fashion(bot, ev: CQEvent):
         else:
             msg = f"您的女友{c.name}没有穿戴时装，无法取消哦\n{nvmes}"
         await bot.send(ev, msg, at_sender=True)
-
-
-class duelrandom():
-    def __init__(self):
-        self.random_gold_on = {}
-        self.random_gold = {}
-        self.rdret = {}
-        self.user = {}
-
-    def turn_on_random_gold(self, gid):
-        self.random_gold_on[gid] = True
-
-    def turn_off_random_gold(self, gid):
-        self.random_gold_on[gid] = False
-
-    def set_gold(self, gid):
-        self.user[gid] = []
-
-    def add_gold(self, gid, gold, num):
-        self.random_gold[gid] = {'GOLD': gold, 'NUM': num}
-
-    def get_gold(self, gid):
-        return self.random_gold[gid]['GOLD']
-
-    def get_num(self, gid):
-        return self.random_gold[gid]['NUM']
-
-    def add_user(self, gid, uid):
-        self.user[gid].append(uid)
-
-    def get_on_off_random_gold(self, gid):
-        return self.random_gold_on[gid] if self.random_gold_on.get(gid) is not None else False
-
-    def random_g(self, gid, gold, num):
-        z = []
-        ret = random.sample(range(1, gold), num - 1)
-        ret.append(0)
-        ret.append(gold)
-        ret.sort()
-        for i in range(len(ret) - 1):
-            z.append(ret[i + 1] - ret[i])
-        self.rdret[gid] = z
-
-    def get_user_random_gold(self, gid, num):
-        rd = random.randint(0, num - 1)
-        print(rd)
-        ugold = self.rdret[gid][rd]
-        self.rdret[gid].remove(ugold)
-        return ugold
-
-
-r_gold = duelrandom()
 
 
 @sv.on_prefix('发送红包')

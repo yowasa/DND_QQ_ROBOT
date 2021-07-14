@@ -2450,7 +2450,7 @@ async def clock(bot, ev: CQEvent):
     print(result)
 
 
-@sv.scheduled_job('cron', hour='*', )
+@sv.scheduled_job('cron', hour='*', minute='5', second='30')
 async def clock():
     bot = nonebot.get_bot()
     i_c = ItemCounter()
@@ -2474,7 +2474,7 @@ async def clock():
         SUO_Data = duel._get_SUO_CELE(gid)
         SW_Data = duel._get_SW_CELE(gid)
         duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 0)
-        i_c._save_group_state(gid, 0, 0)
+        i_c._save_group_state(gid, 1, 0)
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
     now = datetime.now(pytz.timezone('Asia/Shanghai'))

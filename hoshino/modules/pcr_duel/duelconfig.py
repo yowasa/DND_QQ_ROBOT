@@ -3,7 +3,6 @@ from .DuelCounter import *
 import json
 from datetime import datetime, timedelta
 from hoshino.util import DailyNumberLimiter
-import random
 import math
 from PIL import Image
 from io import BytesIO
@@ -11,6 +10,7 @@ import base64
 from . import duel_chara as chara
 from hoshino import R
 from hoshino.config import pcr_duel as cfg
+from .common_util import *
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
                 9604]  # 黑名单ID
@@ -79,7 +79,7 @@ FREE_DAILY_LIMIT = 1  # 每天免费招募的次数
 SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
 
 # 挂机修炼获取经验倍率（每分钟）
-GJ_EXP_RATE=10
+GJ_EXP_RATE = 10
 
 FILE_PATH = os.path.dirname(__file__)  # 用于加载dlcjson
 LEVEL_GIRL_NEED = {
@@ -305,11 +305,7 @@ def save_dlc_switch():
         json.dump(dlc_switch, f, ensure_ascii=False)
 
 
-
-
-
 cfg.refresh_config()
-
 
 
 # noinspection SqlResolve
@@ -799,6 +795,12 @@ def get_card_ce(gid, uid, cid):
     # 计算角色rank战力加成
     rank = CE._get_rank(gid, uid, cid)
     card_ce = math.ceil((100 + fashion_ce + level_ce * addsrat + favor_ce + equip_ce) * (1 + rank / 8) * zlzf)
+    if duel._get_queen_owner(gid, cid) != 0:
+
+        item = get_item_by_name("永恒爱恋")
+        num = check_have_item(gid, uid, item)
+        if num:
+            card_ce *= 2
     return card_ce
 
 

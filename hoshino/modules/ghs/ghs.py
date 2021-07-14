@@ -309,7 +309,7 @@ async def unsubscribe(bot, ev: CQEvent):
         await bot.send(ev, '取消订阅成功')
 
 
-@sv_img.scheduled_job('cron', hour='*/4', minute='5')
+@sv_img.scheduled_job('cron', hour='*/4', minute='10',second='30')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
     try:
@@ -378,7 +378,7 @@ async def fetch_sub(bot, ev: CQEvent):
         await asyncio.sleep(3)
 
 
-@sv_img.scheduled_job('cron', minute='0,15,30,45', jitter=20)
+@sv_img.scheduled_job('cron', minute='2,17,32,47', second='30')
 async def send_job():
     sv_img.logger.info("开始投放订阅图片")
     try:
