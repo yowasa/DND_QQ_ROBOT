@@ -57,12 +57,12 @@ async def card_bangdin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     if not args:
-        await bot.send(ev, '请输入绑定女友+pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入绑定女友+角色名。', at_sender=True)
         return
     name = args[0]
     cid = chara.name2id(name)
     if cid == 1000:
-        await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
@@ -413,7 +413,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
         # 获取进入副本信息
-        # 获取buff信息 TODO 测试
+        # 获取buff信息
         i_c = ItemCounter()
         buff = i_c._get_buff_state(gid, uid)
         rate = 1 + buff / 100
@@ -452,11 +452,25 @@ async def add_duiwu_t(bot, ev: CQEvent):
         # 战斗胜利
         if if_win <= is_win:
             msg = "战斗胜利了！\n"
+            max_card = 0
             for cid in defen:
                 get_exp = dungeoninfo['add_exp'] * sp_d
                 duel._add_favor(gid, uid, cid, dungeoninfo['add_favor'])
                 card_level = add_exp(gid, uid, cid, get_exp)
+                if card_level[1] >= 100:
+                    max_card += 1
             msg = msg + f"您的女友{bianzu}获得了{get_exp}点经验，{dungeoninfo['add_favor']}点好感\n"
+            # TODO 测试彩蛋
+            if max_card == 5:
+                chizi_exp = CE._get_exp_chizi(gid, uid)
+                if chizi_exp >= 1000000:
+                    rn = random.randint(1, 100)
+                    if rn == 1:
+                        last_exp = 0 - chizi_exp
+                        CE._add_exp_chizi(gid, uid, last_exp)
+                        item = get_item_by_name("天命之子")
+                        add_item(gid, uid, item)
+                        msg += f"一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n"
             # 增加副本币
             get_dun_score = dungeoninfo['dun_score'] * sp_d
             CE._add_dunscore(gid, uid, get_dun_score)
@@ -524,6 +538,14 @@ async def add_duiwu_t(bot, ev: CQEvent):
                 for equip_num_quality in dungeoninfo['drop']['equipment']['quality']:
                     if int(equip_num_quality) > max_equip_quality:
                         max_equip_quality = int(equip_num_quality)
+            # 判断是否触发贤者之石
+            ic = ItemCounter()
+            count = ic._get_user_info(gid, uid, UserModel.EQUIP_UP)
+            flag = 0
+            if count > 0:
+                flag = 1
+                count -= 1
+                ic._save_user_info(gid, uid, UserModel.EQUIP_UP, count)
             if dun_get_equip > 0:
                 for y in range(dun_get_equip):
                     equip_type_run = int(math.floor(random.uniform(1, 100) * e_d))
@@ -548,15 +570,27 @@ async def add_duiwu_t(bot, ev: CQEvent):
                             get_equip_quality = get_equip_quality + 1
                             if get_equip_quality > max_equip_quality:
                                 get_equip_quality = max_equip_quality
-                    down_list = []
-                    for equip_down in dungeoninfo['drop']['equipment']['equip']:
-
-                        if int(get_equip_quality) == int(equip_down):
-                            down_list = dungeoninfo['drop']['equipment']['equip'][equip_down]
-                    # 随机获得一个品质的装备
-                    equip_info = add_equip_info(gid, uid, get_equip_quality, down_list)
-                    # print(equip_info)
-                    equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
+                    # TODO 贤者之石测试
+                    if flag:
+                        # 触发贤者之石
+                        if get_equip_quality < 5:
+                            get_equip_quality += 1
+                        gecha = get_gecha_info("红魔的夜宴")
+                        for i in gecha['gecha']['equip'].keys():
+                            if i == str(get_equip_quality):
+                                get_ids = gecha['gecha']['equip'][i]
+                                break
+                        equip_info = add_equip_info(gid, uid, get_equip_quality, get_ids)
+                        equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
+                    else:
+                        down_list = []
+                        for equip_down in dungeoninfo['drop']['equipment']['equip']:
+                            if int(get_equip_quality) == int(equip_down):
+                                down_list = dungeoninfo['drop']['equipment']['equip'][equip_down]
+                        # 随机获得一个品质的装备
+                        equip_info = add_equip_info(gid, uid, get_equip_quality, down_list)
+                        # print(equip_info)
+                        equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
             if equip_list:
                 msg = msg + f"获得了装备:\n{equip_list}"
             data = {
@@ -1723,9 +1757,9 @@ async def start_huizhan(bot, ev: CQEvent):
                             awardequip_info = add_equip_info(shuchu[0], shuchu[1], bossinfo['awardequip'],
                                                              bossinfo['awardlist'])
                             get_awardequip = get_awardequip + f"由于您的本次输出为前三名，额外获得装备：{awardequip_info['model']}品质{awardequip_info['type']}:{awardequip_info['name']}\n"
-                        u_n=user_card_dict.get(shuchu[1])
+                        u_n = user_card_dict.get(shuchu[1])
                         if not u_n:
-                            u_n="未知角色"
+                            u_n = "未知角色"
                         data = {
                             "type": "node",
                             "data": {
@@ -1796,9 +1830,9 @@ async def shuchu_list(bot, ev: CQEvent):
     user_card_dict = await get_user_card_dict(bot, ev.group_id)
     for shuchu in shuchu_list:
         print(shuchu)
-        u_n=user_card_dict.get(shuchu[0])
+        u_n = user_card_dict.get(shuchu[0])
         if not u_n:
-            u_n='未知角色'
+            u_n = '未知角色'
         data = {
             "type": "node",
             "data": {
@@ -1984,7 +2018,7 @@ async def xiulian_start(bot, ev: CQEvent):
     name = args[0]
     cid = chara.name2id(name)
     if cid == 1000:
-        await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
@@ -2065,7 +2099,7 @@ async def add_exp_chizi(bot, ev: CQEvent):
     if addexp < 1:
         await bot.finish(ev, '请输入正确的经验数。', at_sender=True)
     if cid == 1000:
-        await bot.send(ev, '请输入正确的pcr角色名。', at_sender=True)
+        await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
@@ -2802,7 +2836,7 @@ async def fragment_exp(bot, ev: CQEvent):
     else:
         cid = chara.name2id(name)
     if cid == 1000:
-        await bot.finish(ev, '请输入正确的pcr角色名1。', at_sender=True)
+        await bot.finish(ev, '请输入正确的角色名1。', at_sender=True)
 
     if match.group(1):
         num = int(match.group(1))
@@ -2840,12 +2874,12 @@ async def fragment_duihuan(bot, ev: CQEvent):
     name1 = str(match.group(1))
     cid1 = chara.name2id(name1)
     if cid1 == 1000:
-        await bot.finish(ev, '请输入正确的pcr角色名1。', at_sender=True)
+        await bot.finish(ev, '请输入正确的角色名1。', at_sender=True)
 
     name2 = str(match.group(2))
     cid2 = chara.name2id(name2)
     if cid2 == 1000:
-        await bot.finish(ev, '请输入正确的pcr角色名2。', at_sender=True)
+        await bot.finish(ev, '请输入正确的角色名2。', at_sender=True)
 
     if match.group(3):
         num = int(match.group(3))

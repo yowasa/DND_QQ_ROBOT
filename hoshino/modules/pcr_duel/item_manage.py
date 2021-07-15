@@ -5,12 +5,8 @@ from hoshino.typing import CQEvent
 from hoshino.typing import CommandSession
 from . import duel_chara
 from . import sv
-from .ItemCounter import ItemCounter
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
-
-
-
 
 
 @sv.on_fullmatch(['物品帮助', '道具帮助'])
@@ -36,7 +32,7 @@ D:64%概率
     await bot.send(ev, msg)
 
 
-@sv.on_fullmatch(['道具查询', '我的道具'])
+@sv.on_fullmatch(['我的道具', '道具列表'])
 async def my_item(bot, ev: CQEvent):
     counter = ItemCounter()
     gid = ev.group_id
@@ -48,7 +44,7 @@ async def my_item(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_prefix(['道具效果'])
+@sv.on_prefix(['道具效果', '道具查询'])
 async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
     info = ITEM_NAME_MAP.get(name)
@@ -68,9 +64,7 @@ async def item_info(bot, ev: CQEvent):
     item_info = ITEM_NAME_MAP[msg[1]]
     if not item_info:
         await bot.finish(ev, f"未找到名称为{msg[1]}的道具", at_sender=True)
-    item_id = int(item_info['id'])
-    counter = ItemCounter()
-    counter._add_item(gid, fa_uid, item_id)
+    add_item(gid, fa_uid, item_info)
     await bot.send(ev, f"投放成功", at_sender=True)
 
 
@@ -547,6 +541,57 @@ async def battle_exp(msg, bot, ev: CQEvent):
 @msg_route("光学迷彩")
 async def battle_exp(msg, bot, ev: CQEvent):
     return (False, f"该道具无法使用，只要持有就能免受决斗失败的惩罚")
+
+
+@msg_route("贤者之石")
+async def equip_up(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ic = ItemCounter()
+    count = ic._get_user_info(gid, uid, UserModel.EQUIP_UP)
+    count += 5
+    ic._save_user_info(gid, uid, UserModel.EQUIP_UP, count)
+    return (True, f"你使用了贤者之石，接下来5次副本的装备将会被转化(如果还留存上一次的buff会叠加次数)")
+
+
+@msg_route("击鼓传花")
+async def battle_exp(msg, bot, ev: CQEvent):
+    return (False, f"该道具无法使用，只要持有增加决斗收益")
+
+
+@msg_route("投影魔术")
+async def copy_magic(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if ev.message[0].type == 'at':
+        id2 = int(ev.message[0].data['qq'])
+    else:
+        return (False, '参数格式错误, 请真实的在使用道具后at对方')
+    ic = ItemCounter()
+    items = ic._get_item(gid, id2)
+    if not items:
+        return (False, "对方身上没有道具")
+    map = {}
+    for i in items:
+        if map.get(ITEM_INFO[str(i[0])]['rank']):
+            map[ITEM_INFO[str(i[0])]['rank']] = []
+        map[ITEM_INFO[str(i[0])]['rank']].append(i[0])
+    if len(map) < 2:
+        return (False, "对方身上没有不同稀有度的道具")
+    max = 0
+    items = []
+    for rank in ['S', 'A', 'B', 'C', 'D']:
+        if map.get(rank):
+            if not max:
+                max = rank
+            if max == rank:
+                continue
+            li = map.get(rank)
+            items.extend(li)
+
+    i_id = random.choice(items)
+    add_item(gid, uid, ITEM_INFO[i_id])
+    return (True, f"你使用了投影魔术，复制了对方身上的{ITEM_INFO[i_id]['rank']}级道具{ITEM_INFO[i_id]['name']}")
 
 
 @sv.on_command("开始巡游")

@@ -1,5 +1,6 @@
 import random
-from .ItemCounter import ItemCounter
+from .ItemCounter import *
+
 
 # 记录决斗和下注数据
 class DuelJudger:
@@ -411,6 +412,24 @@ ITEM_INFO = {
         "rank": "A",
         "desc": "无需使用，只要带在身上决斗时就不会承受损失，但是决斗失败有10%的概率被消耗掉",
     },
+    "29": {
+        "id": "29",
+        "name": "贤者之石",
+        "rank": "B",
+        "desc": "使用后接下来5次副本掉落装备随机替换为品质高一级的红魔馆系列装备(最高不超过UR)",
+    },
+    "30": {
+        "id": "30",
+        "name": "击鼓传花",
+        "rank": "B",
+        "desc": "决斗胜利时获得金币声望增加20% 决斗失败时转移到获胜者的身上 一个人不能持有两件击鼓传花（会被覆盖）",
+    },
+    "31": {
+        "id": "31",
+        "name": "投影魔术",
+        "rank": "C",
+        "desc": "选择一名其他角色，获得一件稀有度低于其持有的最高稀有度的道具的复制",
+    },
 
 }
 
@@ -455,6 +474,9 @@ def check_have_item(gid, uid, item):
 
 # 添加道具
 def add_item(gid, uid, item):
+    if item['name'] == '击鼓传花':
+        if check_have_item(gid, uid, item):
+            return
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']))
 
@@ -463,3 +485,15 @@ def add_item(gid, uid, item):
 def use_item(gid, uid, item):
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num=-1)
+
+
+# 获取指定用户状态
+def get_user_counter(gid, uid, state: UserModel):
+    i_c = ItemCounter()
+    return i_c._get_user_info(gid, uid, state)
+
+
+# 存储指定用户状态
+def save_user_counter(gid, uid, state: UserModel, num):
+    i_c = ItemCounter()
+    i_c._save_user_info(gid, uid, state, num)

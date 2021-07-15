@@ -271,6 +271,10 @@ async def nobleduel(bot, ev: CQEvent):
     if duel_jiaoyier.get_jiaoyi_on_off_status(ev.group_id):
         await bot.send(ev, "此轮交易还没结束，请勿重复使用指令。")
         return
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再进行交易吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
     gid = ev.group_id
     match = ev['match']
     try:
@@ -1179,6 +1183,16 @@ async def nobleduel(bot, ev: CQEvent):
             use_item(gid, loser, item)
             msg = f'[CQ:at,qq={loser}] 你在失败逃窜时不小心划破了光学迷彩，你的光学迷彩不能继续使用了。'
             await bot.send(ev, msg)
+    #TODO 测试击鼓传花
+    item_jigu = get_item_by_name("击鼓传花")
+    win_have_jigu = check_have_item(gid, winner, item_jigu)
+    lose_have_jigu = check_have_item(gid, loser, item_jigu)
+    if lose_have_jigu:
+        use_item(gid, loser, item_jigu)
+        add_item(gid, winner, item_jigu)
+        msg = f'[CQ:at,qq={loser}] 由于你决斗失败，失去了道具[击鼓传花]'
+        msg += f'[CQ:at,qq={winner}] 由于你战胜了对手，获得了对手的道具[击鼓传花]。'
+        await bot.send(ev, msg)
 
     selected_girl = random.choice(cidlist)
     # 判定被输掉的是否是复制人可可萝，是则换成金币。
@@ -1257,6 +1271,9 @@ async def nobleduel(bot, ev: CQEvent):
     level_loser = duel._get_level(gid, loser)
     level_winner = duel._get_level(gid, winner)
     wingold = 800 + (level_loser * 100)
+    if win_have_jigu:
+        wingold = int(wingold * 1.2)
+        bd_msg = '（击鼓传花）' + bd_msg
     if is_overtime == 1:
         if n != 6:
             wingold = 100
@@ -1276,8 +1293,12 @@ async def nobleduel(bot, ev: CQEvent):
                     winSW = 0
                 else:
                     winSW = 150
+        if win_have_jigu:
+            winSW = int(winSW * 1.2)
         score_counter._add_prestige(gid, winner, winSW)
         msg = f'[CQ:at,qq={winner}]决斗胜利使您的声望上升了{winSW}点。'
+        if win_have_jigu:
+            msg += "（击鼓传花）"
         await bot.send(ev, msg)
     if not have_item:
         loseprestige = score_counter._get_prestige(gid, loser)
@@ -1336,6 +1357,14 @@ async def nobleduel(bot, ev: CQEvent):
             else:
                 score_counter._reduce_score(gid, uid, support_score)
                 supportmsg += f'[CQ:at,qq={uid}]-{support_score}金币\n'
+                # TODO 测试
+                if support_score >= 1000000:
+                    rn = random.randint(1, 10)
+                    if rn == 1:
+                        item = get_item_by_name("狂赌之渊")
+                        add_item(gid, uid, item)
+                        supportmsg += f'[CQ:at,qq={uid}] 这一次赌博的结果让你出离愤怒，获得了{item["rank"]}级道具{item["name"]}\n'
+
     await bot.send(ev, supportmsg)
     duel_judger.set_support(ev.group_id)
     duel_judger.turn_off(ev.group_id)
@@ -1491,6 +1520,7 @@ async def add_score(bot, ev: CQEvent):
             score_counter._add_score(gid, uid, ZERO_GET_AMOUNT)
             msg = f'您已领取{ZERO_GET_AMOUNT}金币'
             daily_zero_get_limiter.increase(guid)
+            # TODO 测试
             r_n = random.randint(1, 100)
             if r_n == 1:
                 i_2 = get_item_by_name("生财有道")
@@ -1576,6 +1606,10 @@ async def cheat_score(bot, ev: CQEvent):
     num = int(match.group(2))
     duel = DuelCounter()
     score_counter = ScoreCounter2()
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再进行转账吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
     if duel._get_level(gid, id) == 0:
         await bot.finish(ev, '该用户还未在本群创建贵族哦。', at_sender=True)
     # if duel._get_level(gid, id) < 7:
@@ -1592,6 +1626,13 @@ async def cheat_score(bot, ev: CQEvent):
         score_counter._add_score(gid, id, num2)
         score = score_counter._get_score(gid, id)
         msg = f'已为[CQ:at,qq={id}]转账{num}金币。\n扣除{Zhuan_Need * 100}%手续费，您的金币剩余{scoreyou}金币，对方金币剩余{score}金币。'
+        # TODO 测试
+        if num >= 100000:
+            if random.randint(1, 10) == 1:
+                item = get_item_by_name("小恩小惠")
+                add_item(gid, uid, item)
+                msg += f"你的慷慨行为被别人看在眼里记在心里，获得了{item['rank']}级道具{item['name']}"
+
         await bot.send(ev, msg)
 
 
@@ -1767,8 +1808,17 @@ async def breakup(bot, ev: CQEvent):
         score_counter._reduce_score(gid, uid, needscore)
         score_counter._reduce_prestige(gid, uid, needSW)
         duel._delete_card(gid, uid, cid)
+        # TODO 测试
+        count = get_user_counter(gid, uid, UserModel.FENSHOU)
+        count += 1
         c = duel_chara.fromid(cid)
         msg = f'\n“真正离开的那次，关门声最小。”\n你和{c.name}分手了。失去了{needscore}金币分手费,声望减少了{needSW}。\n{c.icon.cqcode}'
+        if count >= 100:
+            count = 0
+            item = get_item_by_name("梦境巡游")
+            add_item(gid, uid, item)
+            msg += f"\n最近的分手让你感到十分疲惫了，很想睡一觉来回复心情。获取了{item['rank']}级道具{item['name']}"
+        save_user_counter(gid, uid, UserModel.FENSHOU, count)
         await bot.send(ev, msg, at_sender=True)
 
 
@@ -2071,9 +2121,17 @@ async def give_gift(bot, ev: CQEvent):
     duel._add_favor(gid, uid, cid, favor)
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
+
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
+    # TODO 测试
+    if (current_favor >= 1000):
+        rn = random.randint(1, 100)
+        if rn == 1:
+            item = get_item_by_name("公主之心")
+            add_item(gid, uid, item)
+            msg += f"爱情是相对的，不能只是单方面付出，今天她也为你准备了一份礼物，获得了{item['rank']}级道具{item['name']}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -2110,6 +2168,13 @@ async def give_gift_all(bot, ev: CQEvent):
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n您送给了{c.name}{gift}x{gift_num}\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
+    # TODO 测试
+    if (current_favor >= 1000):
+        rn = random.randint(1, 100)
+        if rn <= gift_num:
+            item = get_item_by_name("公主之心")
+            add_item(gid, uid, item)
+            msg += f"爱情是相对的，不能只是单方面付出，今天她也为你准备了一份礼物，获得了{item['rank']}级道具{item['name']}"
     await bot.send(ev, msg, at_sender=True)
 
 

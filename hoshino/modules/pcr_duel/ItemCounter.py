@@ -1,10 +1,29 @@
 import os
 import sqlite3
 from datetime import datetime
+from enum import Enum
 
 from hoshino.config.__bot__ import BASE_DB_PATH
 
 DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'item.db')
+
+
+# 用户状态储存枚举类
+class UserModel(Enum):
+    BATTLE = [0, "战斗力BUFF，数字是{num}%增加计算"]
+    FENSHOU = [1, "分手次数计数器"]
+    FENJIE = [2, "分解装备次数计数器"]
+    CHOU = [3, "抽取装备次数计数器"]
+    WIN = [4, "决斗胜利计数器"]
+    LOSE = [5, "决斗失败计数器"]
+    YUE_FAILE = [6, "约会失败计数器"]
+    EQUIP_UP = [7, "贤者之石计数器"]
+
+
+# 群组状态储存枚举类
+class GroupModel(Enum):
+    OFF_SUO = [0, "定时关闭梭哈庆典标识"]
+    OFF_FREE = [1, "定时关闭免费招募庆典标识"]
 
 
 class ItemCounter:
@@ -31,7 +50,6 @@ class ItemCounter:
 
     # 群组状态表
     def _create_group(self):
-        # type为0为定时关闭庆典标识 1位定时关闭免费招募标识
         try:
             self._connect().execute('''CREATE TABLE IF NOT EXISTS GROUP_INFO
                           (GID             INT    NOT NULL,
@@ -43,7 +61,6 @@ class ItemCounter:
 
     # 用户状态表
     def _create_user(self):
-        # type为0为战斗力加成
         try:
             self._connect().execute('''CREATE TABLE IF NOT EXISTS USER_INFO
                           (GID             INT    NOT NULL,
@@ -61,6 +78,29 @@ class ItemCounter:
                 "INSERT OR REPLACE INTO USER_INFO (GID, UID, BUFF_TYPE, BUFF_INFO) VALUES (?, ?, ?, ?)",
                 (gid, uid, type, type_flag),
             )
+
+    # 存储用户信息
+    def _save_user_info(self, gid, uid, user_state: UserModel, flag):
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO USER_INFO (GID, UID, BUFF_TYPE, BUFF_INFO) VALUES (?, ?, ?, ?)",
+                (gid, uid, user_state.value[0], flag),
+            )
+
+    # 获取用户信息
+    def _get_user_info(self, gid, uid, user_state: UserModel):
+        try:
+            r = self._connect().execute(
+                "SELECT BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE=? AND BUFF_INFO>0",
+                (gid, uid, user_state.value[0]),
+            ).fetchone()
+            if r is None:
+                return 0
+            return r[0]
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return 0
+        pass
 
     # 获取用户战斗buff状态
     def _get_buff_state(self, gid, uid):
