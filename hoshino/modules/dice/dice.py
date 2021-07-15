@@ -187,22 +187,6 @@ class FortuneModel(Enum):
     DEFAULT_GEN = ["genshin", "default"]
 
 
-def download_chara_icon(id_, star):
-    url = f'https://redive.estertion.win/icon/unit/{id_}{star}1.webp'
-    save_path = R.img(f'priconne/unit/icon_unit_{id_}{star}1.png').path
-    logger.info(f'Downloading chara icon from {url}')
-    try:
-        rsp = requests.get(url, stream=True, timeout=5)
-    except Exception as e:
-        logger.error(f'Failed to download {url}. {type(e)}')
-        logger.exception(e)
-    if 200 == rsp.status_code:
-        img = Image.open(BytesIO(rsp.content))
-        img.save(save_path)
-        logger.info(f'Saved to {save_path}')
-    else:
-        logger.error(f'Failed to download {url}. HTTP {rsp.status_code}')
-
 
 # 画图
 def drawing(model, userQQ):

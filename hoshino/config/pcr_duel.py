@@ -1,13 +1,16 @@
 import json
+from . import RES_DIR
+import os
+from ._pcr_duel_data import OLD_CHARA_NAME
+
 dlcdict = {}
 dlcintro = {}
-chara_info={}
+chara_info = {}
 
 # 加载时装列表
 fashionlist = {}
 
-
-
+pcr = OLD_CHARA_NAME.keys()
 yozilist = range(1523, 1544)
 bangdreamlist = range(1601, 1636)
 millist = range(3001, 3055)
@@ -24,6 +27,7 @@ fgolist = range(8001, 8301)
 
 # 这里记录dlc名字和对应列表
 dlcdict_origin = {
+    'pcr': pcr,
     'blhx': blhxlist,
     'yozi': yozilist,
     'genshin': genshinlist,
@@ -40,6 +44,7 @@ dlcdict_origin = {
 }
 # 这里记录每个dlc的介绍
 dlcintro_origin = {
+    'pcr': '公主链接角色包',
     'blhx': '碧蓝航线手游角色包',
     'yozi': '柚子社部分角色包',
     'genshin': '原神角色包',
@@ -54,16 +59,17 @@ dlcintro_origin = {
     'fgo': 'FGO手游角色包',
     'mrfz': '明日方舟手游角色包'
 }
-from . import RES_DIR
-import os
+
+
 def refresh_chara():
     global chara_info
-    with open(os.path.join(RES_DIR,'duel/chara.json'), 'r', encoding='UTF-8') as f:
+    with open(os.path.join(RES_DIR, 'duel/chara.json'), 'r', encoding='UTF-8') as f:
         chara_info = json.load(f)
 
+
 def refresh_config():
-    global dlcdict,dlcintro
-    with open(os.path.join(RES_DIR,'duel/dlc_config.json'), 'r', encoding='UTF-8') as f:
+    global dlcdict, dlcintro
+    with open(os.path.join(RES_DIR, 'duel/dlc_config.json'), 'r', encoding='UTF-8') as f:
         ex_dlc_info = json.load(f)
     ex_info = {}
     ex_dict = {}
@@ -71,13 +77,16 @@ def refresh_config():
         ex_info[item['code']] = item['desc']
         ex_chara_ids = [int(id) for id in chara_info.keys() if item['index'] <= int(id) <= item['to']]
         ex_dict[item['code']] = ex_chara_ids
+
     dlcdict = {**dlcdict_origin, **ex_dict}
     dlcintro = {**dlcintro_origin, **ex_info}
+
 
 def refresh_fashion():
     global fashionlist
     with open(os.path.join(RES_DIR, 'duel/fashion_config.json'), 'r', encoding='UTF-8') as fa:
         fashionlist = json.load(fa)
+
 
 def save_fashion():
     global fashionlist

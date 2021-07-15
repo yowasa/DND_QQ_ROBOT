@@ -563,8 +563,8 @@ async def battle_exp(msg, bot, ev: CQEvent):
 async def copy_magic(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if ev.message[0].type == 'at':
-        id2 = int(ev.message[0].data['qq'])
+    if ev.message[1].type == 'at':
+        id2 = int(ev.message[1].data['qq'])
     else:
         return (False, '参数格式错误, 请真实的在使用道具后at对方')
     ic = ItemCounter()
@@ -573,7 +573,7 @@ async def copy_magic(msg, bot, ev: CQEvent):
         return (False, "对方身上没有道具")
     map = {}
     for i in items:
-        if map.get(ITEM_INFO[str(i[0])]['rank']):
+        if not map.get(ITEM_INFO[str(i[0])]['rank']):
             map[ITEM_INFO[str(i[0])]['rank']] = []
         map[ITEM_INFO[str(i[0])]['rank']].append(i[0])
     if len(map) < 2:
@@ -589,9 +589,48 @@ async def copy_magic(msg, bot, ev: CQEvent):
             li = map.get(rank)
             items.extend(li)
 
-    i_id = random.choice(items)
+    i_id = str(random.choice(items))
     add_item(gid, uid, ITEM_INFO[i_id])
     return (True, f"你使用了投影魔术，复制了对方身上的{ITEM_INFO[i_id]['rank']}级道具{ITEM_INFO[i_id]['name']}")
+
+
+@msg_route("等价交换")
+async def change_item(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if not msg:
+        return (False, "请选择一个道具")
+    item_name = msg[0]
+    if item_name == "等价交换":
+        return (False, f"不能指定自身")
+    item = get_item_by_name(item_name)
+    if not item:
+        return (False, f"不存在名为{item_name}的道具")
+    num = check_have_item(gid, uid, item)
+    if not num:
+        return (False, f"你身上未持有[{item_name}]")
+    i_c = ItemCounter()
+    i_c._add_item(gid, uid, int(item['id']), num=-1)
+    li = ITEM_RANK_MAP[item['rank']]
+    li.remove(item['id'])
+    new_id = random.choice(li)
+    new_item = ITEM_INFO[new_id]
+    add_item(gid, uid, new_item)
+    return (True, f"你发动了等价交换，使用[{item_name}]练成了{new_item['rank']}级道具{new_item['name']}")
+
+
+@msg_route("人海战术")
+async def change_item(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    li = ITEM_RANK_MAP['D']
+    msg = '你发动了人海战术获得了以下道具：'
+    for i in range(10):
+        c_ = random.choice(li)
+        item = ITEM_INFO[c_]
+        add_item(gid, uid, item)
+        msg += f'\n{item["name"]}'
+    return (True, msg)
 
 
 @sv.on_command("开始巡游")

@@ -470,7 +470,8 @@ async def add_duiwu_t(bot, ev: CQEvent):
                         CE._add_exp_chizi(gid, uid, last_exp)
                         item = get_item_by_name("天命之子")
                         add_item(gid, uid, item)
-                        msg += f"一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n"
+                        await bot.send(ev,f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
+
             # 增加副本币
             get_dun_score = dungeoninfo['dun_score'] * sp_d
             CE._add_dunscore(gid, uid, get_dun_score)
