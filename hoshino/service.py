@@ -357,7 +357,7 @@ class Service:
                     self.logger.error(f'{type(e)} occured when doing scheduled job {func.__name__}.')
                     self.logger.exception(e)
                     # self.bot.set_restart()
-                    #物理重启 勿学勿看 TODO
+                    #TODO 物理重启 勿学勿看
                     os.system('taskkill /f /t /im '+'go-cqhttp.exe')
                     main = 'start cmd /k "cd /d d:/workspace/bot/go-cqhttp_windows_amd64&&go-cqhttp.exe"'
                     r_v = os.system(main)

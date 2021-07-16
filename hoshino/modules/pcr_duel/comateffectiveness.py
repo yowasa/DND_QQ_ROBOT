@@ -460,7 +460,13 @@ async def add_duiwu_t(bot, ev: CQEvent):
                 if card_level[1] >= 100:
                     max_card += 1
             msg = msg + f"您的女友{bianzu}获得了{get_exp}点经验，{dungeoninfo['add_favor']}点好感\n"
-            # TODO 测试彩蛋
+            if is_win <= 10:
+                rn = random.randint(1, 10)
+                if rn == 1:
+                    item = get_item_by_name("经验之书")
+                    add_item(gid, uid, item)
+                    msg += f'你艰难的取得了胜利，获取到了大量的经验，得到了{item["rank"]}级道具{item["name"]}\n'
+
             if max_card == 5:
                 chizi_exp = CE._get_exp_chizi(gid, uid)
                 if chizi_exp >= 1000000:
@@ -470,7 +476,8 @@ async def add_duiwu_t(bot, ev: CQEvent):
                         CE._add_exp_chizi(gid, uid, last_exp)
                         item = get_item_by_name("天命之子")
                         add_item(gid, uid, item)
-                        await bot.send(ev,f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
+                        await bot.send(ev,
+                                       f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
 
             # 增加副本币
             get_dun_score = dungeoninfo['dun_score'] * sp_d
@@ -571,7 +578,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
                             get_equip_quality = get_equip_quality + 1
                             if get_equip_quality > max_equip_quality:
                                 get_equip_quality = max_equip_quality
-                    # TODO 贤者之石测试
                     if flag:
                         # 触发贤者之石
                         if get_equip_quality < 5:
@@ -2225,6 +2231,17 @@ async def add_equip_gecha(bot, ev: CQEvent):
         add_exp = gechanum * 500
         CE._add_exp_chizi(gid, uid, add_exp)
         msg = f"消耗{need_dunscore}副本币，剩余副本币{last_score}\n获得经验{add_exp}，已加入经验池\n本次{args[0]}获得的装备为：{getequip}"
+        # TODO 测试
+        counter = get_user_counter(gid, uid, UserModel.CHOU)
+        counter += gechanum
+        if counter >= 100:
+            counter = 0
+            rn = random.randint(1, 10)
+            if rn == 1:
+                item = get_item_by_name('空想之物')
+                add_item(gid, uid, item)
+                msg += f"\n你在抽取装备的时候抽到了一个神秘的宝箱，获得了{item['rank']}级道具{item['name']}"
+        save_user_counter(gid, uid, UserModel.CHOU, counter)
         await bot.send(ev, msg, at_sender=True)
     else:
         await bot.finish(ev, '请输入正确的武器池名称。', at_sender=True)
@@ -2251,8 +2268,22 @@ async def equip_fenjie_one(bot, ev: CQEvent):
         get_dunscore = fj_one * equipnum
         CE._add_dunscore(gid, uid, get_dunscore)
         deletenum = 0 - equipnum
+        # TODO 测试
+        ex_msg = ''
+        counter = get_user_counter(gid, uid, UserModel.FENJIE)
+        counter += equipnum
+        if counter >= 100:
+            counter = 0
+            rn = random.randint(1, 10)
+            if rn == 1:
+                item = get_item_by_name('贤者之石')
+                add_item(gid, uid, item)
+                ex_msg += f"\n你在分解装备的时候熔炉发生了爆炸，在残骸中发现了{item['rank']}级道具{item['name']}"
+        save_user_counter(gid, uid, UserModel.FENJIE, counter)
+
         CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
-        msg = f"您成功分解了{equipnum}件{equipinfo['model']}级装备，获得了{get_dunscore}副本币"
+
+        msg = f"您成功分解了{equipnum}件{equipinfo['model']}级装备，获得了{get_dunscore}副本币" + ex_msg
         await bot.send(ev, msg, at_sender=True)
     else:
         await bot.finish(ev, '请输入正确的装备名。', at_sender=True)
@@ -2282,6 +2313,7 @@ async def equip_fenjie_n(bot, ev: CQEvent):
     if len(equip_list) > 0:
         msg_list = ''
         dunscore = 0
+        total_equipnum = 0
         for i in equip_list:
             equipinfo = get_equip_info_id(i[0])
             if equipinfo['level'] == equiplevel:
@@ -2291,14 +2323,27 @@ async def equip_fenjie_n(bot, ev: CQEvent):
                     chenji = equipinfo['level']
                 fj_one = equipinfo['level'] * chenji * 10
                 equipnum = i[1]
+                total_equipnum += equipnum
                 get_dunscore = fj_one * equipnum
                 dunscore = dunscore + get_dunscore
                 deletenum = 0 - equipnum
                 CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
                 msg_list = msg_list + f"\n{equipnum}件{equipinfo['model']}级装备,{equipinfo['name']}"
+        # TODO 测试
+        ex_msg = ''
+        counter = get_user_counter(gid, uid, UserModel.FENJIE)
+        counter += total_equipnum
+        if counter >= 100:
+            counter = 0
+            rn = random.randint(1, 10)
+            if rn == 1:
+                item = get_item_by_name('贤者之石')
+                add_item(gid, uid, item)
+                ex_msg += f"\n你在分解装备的时候熔炉发生了爆炸，在残骸中发现了{item['rank']}级道具{item['name']}"
+        save_user_counter(gid, uid, UserModel.FENJIE, counter)
         if dunscore > 0:
             CE._add_dunscore(gid, uid, dunscore)
-            msg = f"分解成功，您分解了{msg_list}\n一共获得了{dunscore}副本币"
+            msg = f"分解成功，您分解了{msg_list}\n一共获得了{dunscore}副本币" + ex_msg
             await bot.send(ev, msg, at_sender=True)
         else:
             await bot.finish(ev, f'您没有{modelname}级及以下的装备哦。', at_sender=True)

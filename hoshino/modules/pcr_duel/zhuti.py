@@ -859,9 +859,18 @@ async def add_girl(bot, ev: CQEvent):
                 return
 
         score_counter._reduce_score(gid, uid, GACHA_COST)
-
+        # TODO 测试
         # 招募女友失败
         if random.random() < 0.4:
+            ex_msg = ''
+            count = get_user_counter(gid, uid, UserModel.YUE_FAILE)
+            count += 1
+            if count >= 10:
+                item = get_item_by_name('命运牵引')
+                add_item(gid, uid, item)
+                count = 0
+                ex_msg += f'\n今天的舞会很漫长，直到现在还没有约到一个人。但是命运不会缺席，你和她命中注定会在一起！获取到了{item["rank"]}级道具{item["name"]}'
+            save_user_counter(gid, uid, UserModel.YUE_FAILE, count)
             losetext = random.choice(Addgirlfail)
             msg = f'\n{losetext}\n您花费了{GACHA_COST}金币，但是没有约到新的女友。获得了{GACHA_COST_Fail}金币补偿。'
             score_counter._add_score(gid, uid, GACHA_COST_Fail)
@@ -870,6 +879,7 @@ async def add_girl(bot, ev: CQEvent):
             return
 
         # 招募女友成功
+        save_user_counter(gid, uid, UserModel.YUE_FAILE, 0)
         cid = random.choice(newgirllist)
         c = duel_chara.fromid(cid)
         nvmes = get_nv_icon(cid)
@@ -1183,7 +1193,6 @@ async def nobleduel(bot, ev: CQEvent):
             use_item(gid, loser, item)
             msg = f'[CQ:at,qq={loser}] 你在失败逃窜时不小心划破了光学迷彩，你的光学迷彩不能继续使用了。'
             await bot.send(ev, msg)
-    #TODO 测试击鼓传花
     item_jigu = get_item_by_name("击鼓传花")
     win_have_jigu = check_have_item(gid, winner, item_jigu)
     lose_have_jigu = check_have_item(gid, loser, item_jigu)
@@ -1335,6 +1344,27 @@ async def nobleduel(bot, ev: CQEvent):
             duel_judger.set_support(ev.group_id)
             duel_judger.turn_off(ev.group_id)
             return
+    # TODO 测试
+    else:
+        w_c = get_user_counter(gid, winner, UserModel.WIN)
+        w_c += 1
+        save_user_counter(gid, winner, UserModel.WIN, w_c)
+        save_user_counter(gid, winner, UserModel.LOSE, 0)
+        if w_c >= 10:
+            item = get_item_by_name('精英对局')
+            add_item(gid, winner, item)
+            msg = f'[CQ:at,qq={winner}]你越战越勇，无人可挡！获得了{item["rank"]}级道具{item["name"]}!!!'
+            await bot.send(ev, msg)
+        l_c = get_user_counter(gid, loser, UserModel.LOSE)
+        l_c += 1
+        if l_c >= 10:
+            item = get_item_by_name('光学迷彩')
+            add_item(gid, loser, item)
+            msg = f'[CQ:at,qq={loser}]你认真反思了近期的对局，认为逃避可耻但有用，获得了{item["rank"]}级道具{item["name"]}!!!'
+            l_c = 0
+            await bot.send(ev, msg)
+        save_user_counter(gid, loser, UserModel.WIN, 0)
+        save_user_counter(gid, loser, UserModel.LOSE, l_c)
 
     support = duel_judger.get_support(gid)
     winuid = []
@@ -1357,7 +1387,6 @@ async def nobleduel(bot, ev: CQEvent):
             else:
                 score_counter._reduce_score(gid, uid, support_score)
                 supportmsg += f'[CQ:at,qq={uid}]-{support_score}金币\n'
-                # TODO 测试
                 if support_score >= 1000000:
                     rn = random.randint(1, 10)
                     if rn == 1:
@@ -1520,7 +1549,6 @@ async def add_score(bot, ev: CQEvent):
             score_counter._add_score(gid, uid, ZERO_GET_AMOUNT)
             msg = f'您已领取{ZERO_GET_AMOUNT}金币'
             daily_zero_get_limiter.increase(guid)
-            # TODO 测试
             r_n = random.randint(1, 100)
             if r_n == 1:
                 i_2 = get_item_by_name("生财有道")
@@ -1626,7 +1654,6 @@ async def cheat_score(bot, ev: CQEvent):
         score_counter._add_score(gid, id, num2)
         score = score_counter._get_score(gid, id)
         msg = f'已为[CQ:at,qq={id}]转账{num}金币。\n扣除{Zhuan_Need * 100}%手续费，您的金币剩余{scoreyou}金币，对方金币剩余{score}金币。'
-        # TODO 测试
         if num >= 100000:
             if random.randint(1, 10) == 1:
                 item = get_item_by_name("小恩小惠")
@@ -1808,7 +1835,6 @@ async def breakup(bot, ev: CQEvent):
         score_counter._reduce_score(gid, uid, needscore)
         score_counter._reduce_prestige(gid, uid, needSW)
         duel._delete_card(gid, uid, cid)
-        # TODO 测试
         count = get_user_counter(gid, uid, UserModel.FENSHOU)
         count += 1
         c = duel_chara.fromid(cid)
@@ -2125,13 +2151,20 @@ async def give_gift(bot, ev: CQEvent):
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
-    # TODO 测试
-    if (current_favor >= 1000):
+    if current_favor >= 1000:
         rn = random.randint(1, 100)
         if rn == 1:
             item = get_item_by_name("公主之心")
             add_item(gid, uid, item)
             msg += f"爱情是相对的，不能只是单方面付出，今天她也为你准备了一份礼物，获得了{item['rank']}级道具{item['name']}"
+    # TODO 测试
+    if current_favor >= 10000:
+        count = get_user_counter(gid, uid, UserModel.YONGHENG)
+        if count == 0:
+            item = get_item_by_name("永恒爱恋")
+            add_item(gid, uid, item)
+            save_user_counter(gid, uid, UserModel.YONGHENG, 1)
+            msg += f"死生契阔，与子成说。执子之手，与子偕老。你获得了{item['rank']}级道具{item['name']}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -2168,7 +2201,6 @@ async def give_gift_all(bot, ev: CQEvent):
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     msg = f'\n{c.name}:“{text}”\n您送给了{c.name}{gift}x{gift_num}\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
-    # TODO 测试
     if (current_favor >= 1000):
         rn = random.randint(1, 100)
         if rn <= gift_num:

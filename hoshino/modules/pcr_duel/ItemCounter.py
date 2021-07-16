@@ -18,6 +18,12 @@ class UserModel(Enum):
     LOSE = [5, "决斗失败计数器"]
     YUE_FAILE = [6, "约会失败计数器"]
     EQUIP_UP = [7, "贤者之石计数器"]
+    YONGHENG = [8, "是否已经获取过永恒爱恋"]
+    MANOR_BEGIN = [9, "是否已经开启了领地"]
+    ZHI_AN = [10, "领地治安"]
+    GENGDI = [11, "耕地占比"]
+    BUILD_CD = [12, "建筑CD"]
+    BUILD_BUFFER = [13, "正在建造的建筑"]
 
 
 # 群组状态储存枚举类

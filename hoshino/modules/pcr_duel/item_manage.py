@@ -69,7 +69,7 @@ async def item_info(bot, ev: CQEvent):
 
 
 @sv.on_prefix(['使用道具'])
-async def use_item(bot, ev: CQEvent):
+async def consume_item(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     msg = str(ev.message).strip().split()
@@ -81,7 +81,7 @@ async def use_item(bot, ev: CQEvent):
     if num < 1:
         await bot.finish(ev, f"背包中道具{msg[0]}数量不足", at_sender=True)
 
-    result = await use_item(msg[0], msg[1:], bot, ev)
+    result = await _use_item(msg[0], msg[1:], bot, ev)
     if result[0]:
         counter._add_item(gid, uid, int(item_info['id']), num=-1)
     await bot.send(ev, result[1])
@@ -90,7 +90,7 @@ async def use_item(bot, ev: CQEvent):
 register = dict()
 
 
-async def use_item(name, msg, bot, ev):
+async def _use_item(name, msg, bot, ev):
     func = register.get(name)
     if func:
         return await func(msg, bot, ev)
@@ -630,6 +630,37 @@ async def change_item(msg, bot, ev: CQEvent):
         item = ITEM_INFO[c_]
         add_item(gid, uid, item)
         msg += f'\n{item["name"]}'
+    return (True, msg)
+
+
+@msg_route("公平交易")
+async def change_item(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if not msg:
+        return (False, "请选择一个道具")
+    item_name = msg[0]
+    if item_name == "公平交易":
+        return (False, f"不能指定自身")
+    item = get_item_by_name(item_name)
+    if not item:
+        return (False, f"不存在名为{item_name}的道具")
+    num = check_have_item(gid, uid, item)
+    if not num:
+        return (False, f"你身上未持有[{item_name}]")
+
+    ranks = ['S', 'A', 'B', 'C', 'D']
+    index = ranks.index(item['rank'])
+    if index != 4:
+        index += 1
+    rank = ranks[index]
+    li = ITEM_RANK_MAP[rank]
+    msg = f'你与商人用{item["rank"]}级的{item["name"]}进行了一场公平的交易，获得了以下道具：'
+    for i in range(2):
+        i_id = random.choice(li)
+        new_item = ITEM_INFO[i_id]
+        add_item(gid, uid, new_item)
+        msg += f'\n{new_item["name"]}'
     return (True, msg)
 
 
