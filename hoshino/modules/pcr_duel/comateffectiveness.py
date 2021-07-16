@@ -2530,7 +2530,7 @@ async def clock(bot, ev: CQEvent):
     print(result)
 
 
-@sv.scheduled_job('cron', hour='*', minute='5', second='30')
+@sv.scheduled_job('cron', hour='*', minute='55', second='30')
 async def clock():
     bot = nonebot.get_bot()
     i_c = ItemCounter()
