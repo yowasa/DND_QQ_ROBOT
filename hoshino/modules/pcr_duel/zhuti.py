@@ -861,7 +861,8 @@ async def add_girl(bot, ev: CQEvent):
         score_counter._reduce_score(gid, uid, GACHA_COST)
         # TODO 测试
         # 招募女友失败
-        if random.random() < 0.4:
+        rrn=random.random()
+        if rrn < 0.4:
             ex_msg = ''
             count = get_user_counter(gid, uid, UserModel.YUE_FAILE)
             count += 1
@@ -872,7 +873,7 @@ async def add_girl(bot, ev: CQEvent):
                 ex_msg += f'\n今天的舞会很漫长，直到现在还没有约到一个人。但是命运不会缺席，你和她命中注定会在一起！获取到了{item["rank"]}级道具{item["name"]}'
             save_user_counter(gid, uid, UserModel.YUE_FAILE, count)
             losetext = random.choice(Addgirlfail)
-            msg = f'\n{losetext}\n您花费了{GACHA_COST}金币，但是没有约到新的女友。获得了{GACHA_COST_Fail}金币补偿。'
+            msg = f'\n{losetext}\n您花费了{GACHA_COST}金币，但是没有约到新的女友。获得了{GACHA_COST_Fail}金币补偿。'+ex_msg
             score_counter._add_score(gid, uid, GACHA_COST_Fail)
             score = score_counter._get_score(gid, uid)
             await bot.send(ev, msg, at_sender=True)
