@@ -648,6 +648,8 @@ async def change_item(msg, bot, ev: CQEvent):
     num = check_have_item(gid, uid, item)
     if not num:
         return (False, f"你身上未持有[{item_name}]")
+    i_c = ItemCounter()
+    i_c._add_item(gid, uid, int(item['id']), num=-1)
 
     ranks = ['S', 'A', 'B', 'C', 'D']
     index = ranks.index(item['rank'])
