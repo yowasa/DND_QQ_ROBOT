@@ -12,6 +12,53 @@ sv_manor = Service('领地管理', enable_on_default=False, manage_priv=priv.SUP
 """[领地帮助]查看相关帮助
 """)
 
+daily_manor_limiter = DailyAmountLimiter("manor", 1, RESET_HOUR)
+
+
+class PolicyModel(Enum):
+    BALANCE = [0, "保持原样"]
+    GENG_INCREASE = [1, "开垦荒地"]
+    GENG_DECREASE = [2, "退耕还林"]
+
+    @staticmethod
+    def get_by_id(id):
+        for i in PolicyModel:
+            if i.value[0] == id:
+                return i
+        return None
+
+    @staticmethod
+    def get_by_name(name):
+        for i in PolicyModel:
+            if i.value[2] == id:
+                return i
+        return None
+
+
+class BuildModel(Enum):
+    CENTER = {"id": 101, "name": "市政中心", "sw": 1000, "gold": 10000, "area": 10, "time": 1, "limit": 1,
+              "desc": "城市管理枢纽只有拥有才能执行行政命令"}
+    MARKET = {"id": 102, "name": "贸易市场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
+              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加金币）"}
+    ITEM_SHOP = {"id": 103, "name": "道具商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
+                 "desc": "神秘的道具商店，只能盲盒购买"}
+    TV_STATION = {"id": 104, "name": "报社", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
+                  "desc": "城市的媒体部门，能宣传你的伟业（增加声望）"}
+
+    @staticmethod
+    def get_by_id(id):
+        for i in PolicyModel:
+            if i.value['id'] == id:
+                return i
+        return None
+
+    @staticmethod
+    def get_by_name(name):
+        for i in PolicyModel:
+            if i.value['name'] == name:
+                return i
+        return None
+
 
 @sv_manor.on_fullmatch(['领地帮助'])
 async def manor_help(bot, ev: CQEvent):
@@ -28,6 +75,8 @@ async def manor_help(bot, ev: CQEvent):
 ==建筑指令==
 [购买道具] 商店指令，花费1w金币随机买一个道具
 
+== 维护指令 ==
+[刷新结算] {qq号} 刷新结算次数
 注：税收与耕地面积有关，声望与林地面积有关
 领地面积为100*爵位
 城市面积为领地的1/10
@@ -37,6 +86,56 @@ async def manor_help(bot, ev: CQEvent):
 ╚                                        ╝
  '''
     await bot.send(ev, msg)
+
+
+# 爵位等级获取领地面积
+def get_all_manor(level):
+    return level * 100
+
+
+# 获取城市面积
+def get_city_manor(level):
+    return int(get_all_manor(level) * 0.1)
+
+
+# 获取耕地面积
+def get_geng_manor(level, geng):
+    return int((get_all_manor(level) - get_city_manor(level)) * (geng / 100))
+
+
+# 获取耕地税率
+def get_geng_profit(gid, uid):
+    return get_user_counter(gid, uid, UserModel.GENGDI)
+
+
+# 获取上缴税费
+def get_taxes(gid, uid, level):
+    return 2000 + 3000 * level
+
+
+# 获取建筑情况
+def get_all_build_counter(gid, uid):
+    i_c = ItemCounter()
+    info = i_c._get_build_info(gid, uid)
+    build_num_map = {}
+    for i in info:
+        b_m = BuildModel.get_by_id(i[0])
+        build_num_map[b_m] = i[1]
+    return build_num_map
+
+
+# 获取建筑情况
+def check_build_counter(gid, uid, b_m: BuildModel):
+    i_c = ItemCounter()
+    return i_c._get_user_state(gid, uid, b_m['id'])
+
+
+# 建造建筑
+def _build_new(gid, uid, b_m: BuildModel):
+    num = check_build_counter(gid, uid, b_m)
+    num += 1
+    i_c = ItemCounter()
+    i_c._save_user_state(gid, uid, b_m['id'], num)
 
 
 @sv_manor.on_fullmatch("接受封地")
@@ -51,8 +150,7 @@ async def manor_begin(bot, ev: CQEvent):
     level = duel._get_level(gid, uid)
     if level == 0:
         msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
-        await bot.send(ev, msg, at_sender=True)
-        return
+        await bot.finsh(ev, msg, at_sender=True)
     elif level < 3:
         msg = '必须达到准男爵以上才能接受封地'
         await bot.finsh(ev, msg, at_sender=True)
@@ -63,83 +161,287 @@ async def manor_begin(bot, ev: CQEvent):
     # 初始化治安
     zhian = 80
     save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
+
+    # 初始化税率
+    shui = 10
+    save_user_counter(gid, uid, UserModel.TAX_RATIO, shui)
+
+    all_manor = get_all_manor(level)
+    city_manor = get_city_manor(level)
+    geng_manor = get_geng_manor(level, geng)
+
     # 发送信息
     noblename = get_noblename(level)
     msg = f'''尊敬的{noblename}您好，您成功接受了册封，获得了封地
-    城市面积xx
-    领地面积xx
-    拥有xx耕地
-    当然治安状况xx
+    领地面积{all_manor}
+    城市面积{city_manor}
+    耕地面积{geng_manor}
+    当然治安状况{zhian}
+    耕地税比例为{shui}%
     请认真维护好自己的领地
-    '''
+    '''.strip()
     await bot.finsh(ev, msg, at_sender=True)
 
 
 @sv_manor.on_fullmatch("领地查询")
 async def manor_view(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
     # 检查是否已经开启
+    if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
+        bot.finsh("您还未接受封地")
+
     # 获取爵位and状态计算
-    msg = f'''尊敬的xx您好，您的领地状态如下:
-        城市面积xx
-        领地面积xx
-        拥有xx耕地
-        当然治安状况xx
+    duel = DuelCounter()
+    level = duel._get_level(gid, uid)
+
+    geng = get_user_counter(gid, uid, UserModel.GENGDI)
+    all_manor = get_all_manor(level)
+    city_manor = get_city_manor(level)
+    geng_manor = get_geng_manor(level, geng)
+    zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
+
+    taxes = get_taxes(gid, uid, level)
+
+    geng_gain = geng_manor * get_geng_profit(gid, uid)
+    # 正在建造的建筑查询
+
+    # 当前的政策
+
+    # 已经拥有的建筑查询
+
+    noblename = get_noblename(level)
+    msg = f'''尊敬的{noblename}您好，您的领地状态如下:
+        领地面积{all_manor}
+        城市面积{city_manor}
+        拥有{geng_manor}耕地
+        当然治安状况是{zhian}
+        预期收入{geng_gain}
+        预期上缴{taxes}
         '''
-    pass
+    await bot.finsh(ev, msg, at_sender=True)
 
 
 @sv_manor.on_fullmatch("建筑列表")
 async def build_view(bot, ev: CQEvent):
-    msg = f'''尊敬的xx您好，您的领地状态如下:
-            城市面积xx
-            领地面积xx
-            拥有xx耕地
-            当然治安状况xx
-            '''
-    pass
+    msg = "==== 建筑列表 ===="
+    for i in BuildModel:
+        msg += f'''
+{i['name']}:
+    花费:{i['gold']}金币,{i['sw']}声望
+    限制:最多拥有{i['limit']}个
+    建筑时间:{i['time']}次领地结算
+    描述:{i['desc']}\n
+'''.strip()
+    await bot.finsh(ev, msg, at_sender=True)
 
 
 @sv_manor.on_prefix("建造建筑")
 async def _build(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    build_name = str(ev.message).strip()
     # 检查是否已经开启
+    if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
+        await bot.finsh(ev, "您还未接受封地")
+    b_id = get_user_counter(gid, uid.UserModel.BUILD_BUFFER)
+    if b_id:
+        bm = BuildModel.get_by_id(b_id)
+        await bot.finsh(ev, f"施工队正在建设{bm['name']},无法接受新的委托")
+    b_m = BuildModel.get_by_name(build_name)
+    if not b_m:
+        await bot.finsh(ev, f"未找到名为{build_name}的建筑")
+    duel = DuelCounter()
+    level = duel._get_level(gid, uid)
     # 检查土地大小是否够用
-    # 检查建筑限制
+    build_map = get_all_build_counter(gid, uid)
+    total = 0
+    for i in build_map.keys():
+        total += i['area'] * build_map[i]
+    city_manor = get_city_manor(level)
+    if city_manor < total + b_m['area']:
+        await bot.finsh(ev, f"当前城市面积不足以建设{build_name}")
+    num = check_build_counter(gid, uid, b_m)
+    if num + 1 > b_m['limit']:
+        await bot.finsh(ev, f"{build_name}已经达到了可建筑上限")
+    save_user_counter(gid, uid, UserModel.BUILD_BUFFER, b_m['id'])
+    save_user_counter(gid, uid, UserModel.BUILD_CD, b_m['time'])
     # 增加建筑状态
-    msg = '''你大兴土木建造了xxx
-    '''
-    pass
+    await bot.finsh(ev, f"你大兴土木k开始建造了{b_m['name']}了,预期花费{b_m['time']}次计算时间可以建筑完成")
 
 
 @sv_manor.on_fullmatch("领地结算")
 async def manor_sign(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
     # 检查是否已经开启
-    # 每日结算次数限制（是否已经结算）
-    # 计算城市拥堵程度造成的治安损失
-    # 计算税收状况造成的治安损失
-    # 检查是否暴动
-    # 检查治安状况造成的损失
-    # 由于政策造成的耕地占比变化
-    # 获取耕地面积计算税收
-    # 获取林地面积计算声望
-    # 计算建筑带来的收益
-    # 建筑倒计时
-    # 检查爵位所需上供
-    msg = '''=== 领地结算 ===
-    '''
+    if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
+        await bot.finsh("您还未接受封地")
+    guid = gid, uid
+    if not daily_manor_limiter.check(guid):
+        await bot.finsh("你今日已经进行过结算，请明日再来")
+    daily_manor_limiter.increase(guid)
+    msg = '====领地结算===='
+    duel = DuelCounter()
+    level = duel._get_level(gid, uid)
 
-    pass
+    # == 治安结算 ==
+    zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
+    # 判定城市拥堵
+    build_map = get_all_build_counter(gid, uid)
+    total = 0
+    for i in build_map.keys():
+        total += i['area'] * build_map[i]
+    city_manor = get_city_manor(level)
+    if total / city_manor >= 0.8:
+        reduce = random.randint(8, 15)
+        zhian -= reduce
+        msg += f"\n由于城市过于拥挤,居民怨声载道，治安减少了{reduce}"
+    # 判定苛税乘法
+    tax_rate = get_user_counter(gid, uid, UserModel.TAX_RATIO)
+    if tax_rate < 10:
+        add = random.randint(8, 15)
+        zhian += add
+        msg += f"\n人民安居乐业,生活轻松，治安增加了{add}"
+    elif 30 < tax_rate < 50:
+        reduce = random.randint(8, 15)
+        zhian -= reduce
+        msg += f"\n人民朝九晚九，一周六天，工作十分辛苦，心中怨声载道，治安减少了{reduce}"
+    elif tax_rate >= 50:
+        msg += f"\n人民已经厌倦了领主的暴政,治安减少了{zhian}"
+        zhian = 0
+    daily_manor_limiter.increase(guid)
+    # 判定暴乱
+    bao_flag = 0
+    buffer_flag = 0
+    if zhian < 20:
+        msg += f"\n领地发生了暴乱，人民不认同你这个领主，当日没有收益"
+        bao_flag = 1
+    elif zhian < 50:
+        rn = random.randint(20, 49)
+        if rn < zhian:
+            msg += f"\n人民走上街头进行罢工游行示威，拒绝工作和缴纳税款"
+            bao_flag = 1
+    elif zhian >= 95:
+        msg += f"\n治安良好，社会稳定运行,GDP实现了高速增长"
+        buffer_flag = 1
+    else:
+        msg += f"\n领地一片祥和，没有什么特别需要注意的事情"
+
+    gold_sum = 0
+    sw_sum = 0
+    if not bao_flag:
+        # 计算耕地
+        geng = get_user_counter(gid, uid, UserModel.GENGDI)
+        p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
+        p_m = PolicyModel.get_by_id(p_id)
+        if p_m == PolicyModel.GENG_INCREASE:
+            rn = random.randint(3, 5)
+            if geng + rn <= 100:
+                geng += rn
+            else:
+                geng = 100
+        save_user_counter(gid, uid, UserModel.GENGDI, geng)
+        area_geng = get_geng_manor(level, geng)
+        tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
+        geng_gold = area_geng * tax * 10
+        msg += f"\n收取了耕地税收{area_geng}金币"
+        gold_sum += geng_gold
+        # 计算建筑
+        # 计算建筑进度
+        cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
+        if cd != 0:
+            cd -= 1
+            if cd == 0:
+                buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
+                build = BuildModel.get_by_id(buffer_build_id)
+                _build_new(gid, uid, build)
+                msg += f"\n施工队报告{build['name']}竣工了，已经可以投入使用"
+                save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
+            save_user_counter(gid, uid, UserModel.BUILD_CD, cd)
+
+        b_c = get_all_build_counter(gid, uid)
+        for i in b_c.keys():
+            if i == BuildModel.CENTER:
+                continue
+            elif i == BuildModel.MARKET:
+                market_gold = int(20000 * b_c[i] * random.uniform(0.9, 1.1))
+                if buffer_flag:
+                    market_gold = int(market_gold * 1.1)
+                msg += f'\n贸易市场为你带来了额外{market_gold}金币收益'
+                gold_sum += market_gold
+            elif i == BuildModel.TV_STATION:
+                tv_sw = int(1500 * b_c[i] * random.uniform(0.9, 1.1))
+                if buffer_flag:
+                    tv_sw = int(tv_sw * 1.1)
+                sw_sum += tv_sw
+                msg += f'\n报社为你带来了额外{tv_sw}声望'
+            elif i == BuildModel.ITEM_SHOP:
+                ct = b_c[i]
+                save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, ct)
+                msg += f'\n道具商店的物品刷新了，可以进行购买'
+
+    # 计算上缴金额
+    taxes = get_taxes(gid, uid, level)
+    msg += f'\n你接受了封地，要承担相应责任，需要上缴金币{taxes}'
+    gold_sum -= taxes
+    score_counter = ScoreCounter2()
+    score_counter._add_prestige(gid, uid, sw_sum)
+    if gold_sum >= 0:
+        score_counter._add_score(gid, uid, gold_sum)
+    else:
+        have_gold = score_counter._get_score(gid, uid)
+        if have_gold + gold_sum >= 0:
+            score_counter._reduce_score(gid, uid, -gold_sum)
+        else:
+            score_counter._reduce_score(gid, uid, have_gold)
+            sw_reduce = 1000 + 400 * level
+            score_counter._reduce_prestige(gid, uid, sw_reduce)
+            sw_sum -= sw_reduce
+            msg += f'\n由于你没有能力上供金额，被众人嘲笑，声望降低了{sw_reduce}'
+    msg = f"\n结算收益为：获得了{gold_sum}金币，{sw_sum}声望。"
+    await bot.send(ev, msg)
 
 
 @sv_manor.on_prefix("政策选择")
 async def manor_policy(bot, ev: CQEvent):
-    pass
+    gid = ev.group_id
+    uid = ev.user_id
+    name = str(ev.message).strip()
+    pm = PolicyModel.get_by_name(name)
+    if not pm:
+        await bot.finsh(ev, f'没有找到名为{name}的政策，请选择开垦林地，退耕还林，保持原样其中一种')
+    save_user_counter(gid, uid, UserModel.MANOR_POLICY, pm[0])
+    await bot.finsh(ev, f'你颁布了行政法令，要求{pm[1]}')
 
 
 @sv_manor.on_prefix("税率调整")
-async def manor_policy(bot, ev: CQEvent):
-    pass
+async def manor_tax(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    number = str(ev.message).strip()
+    if not number:
+        await bot.finsh(ev, f'请在指令后增加税率（30代表30%税率）')
+    if not number.isdigit():
+        await bot.finsh(ev, f'请在指令后增加"数字"作为税率（30代表30%税率）')
+    save_user_counter(gid, uid, UserModel.MANOR_POLICY, number)
+    await bot.finsh(ev, f'你颁布了行政法令，规定耕地征税{number}%')
 
 
 @sv_manor.on_prefix("购买道具")
-async def manor_policy(bot, ev: CQEvent):
-    pass
+async def buy_item(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    num = get_user_counter(gid, uid, UserModel.ITEM_BUY_TIME)
+    if num <= 0:
+        await bot.finsh(ev, f'你的城市没有商店或已经没有购买次数，无法购买道具')
+    score_counter = ScoreCounter2()
+    score = score_counter._get_score(gid, uid)
+    if score < 10000:
+        await bot.finsh(ev, f'你的金币不足1万，无法购买道具')
+    num -= 1
+    score_counter._reduce_score(gid, uid, 10000)
+    save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
+    item = choose_item()
+    add_item(gid, uid, item)
+    await bot.finsh(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')

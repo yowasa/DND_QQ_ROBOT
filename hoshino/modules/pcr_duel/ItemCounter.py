@@ -8,7 +8,7 @@ from hoshino.config.__bot__ import BASE_DB_PATH
 DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'item.db')
 
 
-# 用户状态储存枚举类
+# 用户状态储存枚举类 100-200被领地建筑占据，不要插入
 class UserModel(Enum):
     BATTLE = [0, "战斗力BUFF，数字是{num}%增加计算"]
     FENSHOU = [1, "分手次数计数器"]
@@ -24,6 +24,9 @@ class UserModel(Enum):
     GENGDI = [11, "耕地占比"]
     BUILD_CD = [12, "建筑CD"]
     BUILD_BUFFER = [13, "正在建造的建筑"]
+    MANOR_POLICY = [14, "领地政策"]
+    TAX_RATIO = [15, "领地税率"]
+    ITEM_BUY_TIME = [16, "购买道具次数"]
 
 
 # 群组状态储存枚举类
@@ -107,6 +110,34 @@ class ItemCounter:
             raise Exception('错误:\n' + str(e))
             return 0
         pass
+
+    # 获取建筑信息
+    def _get_build_info(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                "SELECT BUFF_TYPE,BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE>100 AND BUFF_TYPE<200 AND BUFF_INFO>0",
+                (gid, uid),
+            ).fetchall()
+            if r is None:
+                return []
+            return []
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return []
+
+    # 获取建筑信息
+    def _get_user_state(self, gid, uid, buff):
+        try:
+            r = self._connect().execute(
+                "SELECT BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE=? AND BUFF_INFO>0",
+                (gid, uid, buff),
+            ).fetchall()
+            if r is None:
+                return r[0]
+            return 0
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return 0
 
     # 获取用户战斗buff状态
     def _get_buff_state(self, gid, uid):

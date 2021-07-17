@@ -145,6 +145,10 @@ async def up_rank(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     duel = DuelCounter()
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再进行提升rank吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
     CE = CECounter()
     if len(args) != 1:
         await bot.finish(ev, '请输入 rank升级+女友名 中间用空格隔开。', at_sender=True)

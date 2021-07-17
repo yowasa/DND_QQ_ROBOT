@@ -40,7 +40,8 @@ WAREHOUSE_NUM = 40  # 仓库增加上限
 SHANGXIAN_SW = 2000  # 扩充女友上限，需要的声望值
 
 BREAK_UP_SWITCH = True  # 分手系统开关
-Zhuan_Need = 0.2  # 转账所需的手续费比例
+Zhuan_Need = 0.05  # 转账所需的手续费比例
+Jiao_Need = 0.05  # 交易女友所需手续费比例
 WinSWBasics = 400  # 赢了获得的基础声望
 LoseSWBasics = 150  # 输了掉的基础声望
 

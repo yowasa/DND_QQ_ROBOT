@@ -369,7 +369,10 @@ async def nobleduel(bot, ev: CQEvent):
     duel_jiaoyier.init_jiaoyiflag(gid)
     duel_jiaoyier.set_jiaoyiid(gid, id1, id2, cid)
     duel_jiaoyier.turn_on_jiaoyi(gid)
-    msg = f'[CQ:at,qq={id2}]尊敬的{noblename}您好\n[CQ:at,qq={id1}]试图以{num}金币的价格购买您的女友{c.name}，请在{WAIT_TIME_jy}秒内[接受交易/拒绝交易]，女友交易需要收5%手续费哦。'
+    cost = Jiao_Need
+    if duel._get_SUO_CELE(gid) == 1:
+        cost = 0.5
+    msg = f'[CQ:at,qq={id2}]尊敬的{noblename}您好\n[CQ:at,qq={id1}]试图以{num}金币的价格购买您的女友{c.name}，请在{WAIT_TIME_jy}秒内[接受交易/拒绝交易]，女友交易需要收{cost * 100}%手续费哦。'
     await bot.send(ev, msg)
 
     await asyncio.sleep(WAIT_TIME_jy)
@@ -381,7 +384,7 @@ async def nobleduel(bot, ev: CQEvent):
         return
 
     duel = DuelCounter()
-    get_num = num * 0.95
+    get_num = num * cost
     score_counter._add_score(gid, id2, get_num)
     score = score_counter._get_score(gid, id2)
 
@@ -392,7 +395,7 @@ async def nobleduel(bot, ev: CQEvent):
     duel_jiaoyier.turn_jiaoyioff(gid)
     nvmes = get_nv_icon(cid)
     # score_counter._reduce_prestige(gid, id1, num2)
-    msg = f'[CQ:at,qq={id1}]以{num}金币的价格购买了[CQ:at,qq={id2}]的女友{c.name}，交易成功\n[CQ:at,qq={id1}]您失去了{num}金币，剩余{scoreyou}金币\n[CQ:at,qq={id2}]扣除5%手续费，您能得到了{get_num}金币，剩余{score}金币。{nvmes}'
+    msg = f'[CQ:at,qq={id1}]以{num}金币的价格购买了[CQ:at,qq={id2}]的女友{c.name}，交易成功\n[CQ:at,qq={id1}]您失去了{num}金币，剩余{scoreyou}金币\n[CQ:at,qq={id2}]扣除{cost * 100}%手续费，您能得到了{get_num}金币，剩余{score}金币。{nvmes}'
     await bot.send(ev, msg)
 
 
@@ -861,7 +864,7 @@ async def add_girl(bot, ev: CQEvent):
         score_counter._reduce_score(gid, uid, GACHA_COST)
         # TODO 测试
         # 招募女友失败
-        rrn=random.random()
+        rrn = random.random()
         if rrn < 0.4:
             ex_msg = ''
             count = get_user_counter(gid, uid, UserModel.YUE_FAILE)
@@ -873,7 +876,7 @@ async def add_girl(bot, ev: CQEvent):
                 ex_msg += f'\n今天的舞会很漫长，直到现在还没有约到一个人。但是命运不会缺席，你和她命中注定会在一起！获取到了{item["rank"]}级道具{item["name"]}'
             save_user_counter(gid, uid, UserModel.YUE_FAILE, count)
             losetext = random.choice(Addgirlfail)
-            msg = f'\n{losetext}\n您花费了{GACHA_COST}金币，但是没有约到新的女友。获得了{GACHA_COST_Fail}金币补偿。'+ex_msg
+            msg = f'\n{losetext}\n您花费了{GACHA_COST}金币，但是没有约到新的女友。获得了{GACHA_COST_Fail}金币补偿。' + ex_msg
             score_counter._add_score(gid, uid, GACHA_COST_Fail)
             score = score_counter._get_score(gid, uid)
             await bot.send(ev, msg, at_sender=True)
@@ -1389,7 +1392,7 @@ async def nobleduel(bot, ev: CQEvent):
                 score_counter._reduce_score(gid, uid, support_score)
                 supportmsg += f'[CQ:at,qq={uid}]-{support_score}金币\n'
                 if support_score >= 1000000:
-                    rn = random.randint(1, 10)
+                    rn = random.randint(1, 100)
                     if rn == 1:
                         item = get_item_by_name("狂赌之渊")
                         add_item(gid, uid, item)
@@ -1651,10 +1654,13 @@ async def cheat_score(bot, ev: CQEvent):
     else:
         score_counter._reduce_score(gid, uid, num)
         scoreyou = score_counter._get_score(gid, uid)
-        num2 = num * (1 - Zhuan_Need)
+        cost = Zhuan_Need
+        if duel._get_SUO_CELE(gid) == 1:
+            cost = 0.5
+        num2 = num * (1 - cost)
         score_counter._add_score(gid, id, num2)
         score = score_counter._get_score(gid, id)
-        msg = f'已为[CQ:at,qq={id}]转账{num}金币。\n扣除{Zhuan_Need * 100}%手续费，您的金币剩余{scoreyou}金币，对方金币剩余{score}金币。'
+        msg = f'已为[CQ:at,qq={id}]转账{num}金币。\n扣除{cost * 100}%手续费，您的金币剩余{scoreyou}金币，对方金币剩余{score}金币。'
         if num >= 100000:
             if random.randint(1, 10) == 1:
                 item = get_item_by_name("小恩小惠")
