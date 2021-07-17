@@ -1,10 +1,6 @@
-import asyncio
 from hoshino import Service
 from hoshino import priv
 from hoshino.typing import CQEvent
-from hoshino.typing import CommandSession
-from . import duel_chara
-from . import sv
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
 
@@ -144,7 +140,7 @@ async def manor_begin(bot, ev: CQEvent):
     uid = ev.user_id
     # 检查是否已经开启
     if get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
-        bot.finsh("你已经接受了封地，无需再次领封")
+        await bot.finsh("你已经接受了封地，无需再次领封", at_sender=True)
     # 判断是否是准男爵以上
     duel = DuelCounter()
     level = duel._get_level(gid, uid)
@@ -189,7 +185,7 @@ async def manor_view(bot, ev: CQEvent):
     uid = ev.user_id
     # 检查是否已经开启
     if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
-        bot.finsh("您还未接受封地")
+        await bot.finsh("您还未接受封地", at_sender=True)
 
     # 获取爵位and状态计算
     duel = DuelCounter()
@@ -202,13 +198,22 @@ async def manor_view(bot, ev: CQEvent):
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
 
     taxes = get_taxes(gid, uid, level)
-
-    geng_gain = geng_manor * get_geng_profit(gid, uid)
+    gold_sum = 0
+    sw_sum = 0
+    geng_gain = geng_manor * get_geng_profit(gid, uid) * 10
+    gold_sum += geng_gain
     # 正在建造的建筑查询
-
-    # 当前的政策
-
-    # 已经拥有的建筑查询
+    # 建筑收益
+    b_c = get_all_build_counter(gid, uid)
+    for i in b_c.keys():
+        if i == BuildModel.CENTER:
+            continue
+        elif i == BuildModel.MARKET:
+            market_gold = 20000 * b_c[i]
+            gold_sum += market_gold
+        elif i == BuildModel.TV_STATION:
+            tv_sw = 1500 * b_c[i]
+            sw_sum += tv_sw
 
     noblename = get_noblename(level)
     msg = f'''尊敬的{noblename}您好，您的领地状态如下:
@@ -216,8 +221,8 @@ async def manor_view(bot, ev: CQEvent):
         城市面积{city_manor}
         拥有{geng_manor}耕地
         当然治安状况是{zhian}
-        预期收入{geng_gain}
-        预期上缴{taxes}
+        预期收入{gold_sum}金币{sw_sum}声望
+        预期上贡{taxes}金币
         '''
     await bot.finsh(ev, msg, at_sender=True)
 
@@ -243,14 +248,14 @@ async def _build(bot, ev: CQEvent):
     build_name = str(ev.message).strip()
     # 检查是否已经开启
     if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
-        await bot.finsh(ev, "您还未接受封地")
+        await bot.finsh(ev, "您还未接受封地", at_sender=True)
     b_id = get_user_counter(gid, uid.UserModel.BUILD_BUFFER)
     if b_id:
         bm = BuildModel.get_by_id(b_id)
-        await bot.finsh(ev, f"施工队正在建设{bm['name']},无法接受新的委托")
+        await bot.finsh(ev, f"施工队正在建设{bm['name']},无法接受新的委托", at_sender=True)
     b_m = BuildModel.get_by_name(build_name)
     if not b_m:
-        await bot.finsh(ev, f"未找到名为{build_name}的建筑")
+        await bot.finsh(ev, f"未找到名为{build_name}的建筑", at_sender=True)
     duel = DuelCounter()
     level = duel._get_level(gid, uid)
     # 检查土地大小是否够用
@@ -260,14 +265,21 @@ async def _build(bot, ev: CQEvent):
         total += i['area'] * build_map[i]
     city_manor = get_city_manor(level)
     if city_manor < total + b_m['area']:
-        await bot.finsh(ev, f"当前城市面积不足以建设{build_name}")
+        await bot.finsh(ev, f"当前城市面积不足以建设{build_name}", at_sender=True)
     num = check_build_counter(gid, uid, b_m)
     if num + 1 > b_m['limit']:
-        await bot.finsh(ev, f"{build_name}已经达到了可建筑上限")
+        await bot.finsh(ev, f"{build_name}已经达到了可建筑上限", at_sender=True)
+    s_c = ScoreCounter2()
+    if s_c._get_score(gid, uid) < b_m["gold"]:
+        await bot.finsh(ev, f"你没有足够的金币进行建造", at_sender=True)
+    if s_c._get_prestige(gid, uid) < b_m["sw"]:
+        await bot.finsh(ev, f"你没有足够的声望进行建造", at_sender=True)
+    s_c._reduce_score(gid, uid, b_m["gold"])
+    s_c._reduce_prestige(gid, uid, b_m["sw"])
     save_user_counter(gid, uid, UserModel.BUILD_BUFFER, b_m['id'])
     save_user_counter(gid, uid, UserModel.BUILD_CD, b_m['time'])
     # 增加建筑状态
-    await bot.finsh(ev, f"你大兴土木k开始建造了{b_m['name']}了,预期花费{b_m['time']}次计算时间可以建筑完成")
+    await bot.finsh(ev, f"你大兴土木k开始建造了{b_m['name']}了,预期花费{b_m['time']}次计算时间可以建筑完成", at_sender=True)
 
 
 @sv_manor.on_fullmatch("领地结算")
@@ -276,10 +288,10 @@ async def manor_sign(bot, ev: CQEvent):
     uid = ev.user_id
     # 检查是否已经开启
     if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
-        await bot.finsh("您还未接受封地")
+        await bot.finsh("您还未接受封地", at_sender=True)
     guid = gid, uid
     if not daily_manor_limiter.check(guid):
-        await bot.finsh("你今日已经进行过结算，请明日再来")
+        await bot.finsh("你今日已经进行过结算，请明日再来", at_sender=True)
     daily_manor_limiter.increase(guid)
     msg = '====领地结算===='
     duel = DuelCounter()
@@ -400,7 +412,7 @@ async def manor_sign(bot, ev: CQEvent):
             sw_sum -= sw_reduce
             msg += f'\n由于你没有能力上供金额，被众人嘲笑，声望降低了{sw_reduce}'
     msg = f"\n结算收益为：获得了{gold_sum}金币，{sw_sum}声望。"
-    await bot.send(ev, msg)
+    await bot.send(ev, msg, at_sender=True)
 
 
 @sv_manor.on_prefix("政策选择")
