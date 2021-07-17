@@ -120,7 +120,7 @@ class ItemCounter:
             ).fetchall()
             if r is None:
                 return []
-            return []
+            return r
         except Exception as e:
             raise Exception('错误:\n' + str(e))
             return []
@@ -131,10 +131,10 @@ class ItemCounter:
             r = self._connect().execute(
                 "SELECT BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_TYPE=? AND BUFF_INFO>0",
                 (gid, uid, buff),
-            ).fetchall()
-            if r is None:
-                return r[0]
-            return 0
+            ).fetchone()
+            if not r:
+                return 0
+            return r[0]
         except Exception as e:
             raise Exception('错误:\n' + str(e))
             return 0
