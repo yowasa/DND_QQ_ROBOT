@@ -233,13 +233,13 @@ async def build_view(bot, ev: CQEvent):
     tas_list.append(data)
     for i in BuildModel:
         msg = f'''
-        {i.value['name']}:
-        花费:{i.value['gold']}金币,{i.value['sw']}声望
-        限制:最多拥有{i.value['limit']}个
-        占地面积:{i.value['area']}
-        建筑时间:{i.value['time']}次领地结算
-        描述:{i.value['desc']}\n
-        '''.strip() + '\n\n'
+{i.value['name']}:
+花费:{i.value['gold']}金币,{i.value['sw']}声望
+限制:最多拥有{i.value['limit']}个
+占地面积:{i.value['area']}
+建筑时间:{i.value['time']}次领地结算
+描述:{i.value['desc']}
+'''.strip()
         data = {
             "type": "node",
             "data": {

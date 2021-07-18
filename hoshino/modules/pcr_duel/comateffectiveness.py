@@ -2081,7 +2081,7 @@ async def xiulian_end(bot, ev: CQEvent):
         jgtime = 86400
     xlmin = math.ceil(jgtime / 60)
     sj_msg = sj_msg + f"修炼时间为{xlmin}分钟，"
-    count = check_build_counter(uid, gid, BuildModel.KONGFU)
+    count = check_build_counter(gid, uid, BuildModel.KONGFU)
     addexp = xlmin * GJ_EXP_RATE
     ex_msg = ''
     if count != 0:
