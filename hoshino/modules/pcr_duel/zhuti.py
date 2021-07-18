@@ -384,7 +384,7 @@ async def nobleduel(bot, ev: CQEvent):
         return
 
     duel = DuelCounter()
-    get_num = num * cost
+    get_num = num * (1 - cost)
     score_counter._add_score(gid, id2, get_num)
     score = score_counter._get_score(gid, id2)
 
