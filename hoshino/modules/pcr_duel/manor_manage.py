@@ -221,17 +221,35 @@ async def manor_view(bot, ev: CQEvent):
 
 @sv_manor.on_fullmatch("建筑列表")
 async def build_view(bot, ev: CQEvent):
-    msg = "==== 建筑列表 ====\n"
+    tas_list = []
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": "==== 建筑列表 ===="
+        }
+    }
+    tas_list.append(data)
     for i in BuildModel:
-        msg += f'''
-{i.value['name']}:
-花费:{i.value['gold']}金币,{i.value['sw']}声望
-限制:最多拥有{i.value['limit']}个
-占地面积:{i.value['area']}
-建筑时间:{i.value['time']}次领地结算
-描述:{i.value['desc']}\n
-'''.strip() + '\n\n'
-    await bot.finish(ev, msg)
+        msg = f'''
+        {i.value['name']}:
+        花费:{i.value['gold']}金币,{i.value['sw']}声望
+        限制:最多拥有{i.value['limit']}个
+        占地面积:{i.value['area']}
+        建筑时间:{i.value['time']}次领地结算
+        描述:{i.value['desc']}\n
+        '''.strip() + '\n\n'
+        data = {
+            "type": "node",
+            "data": {
+                "name": "ご主人様",
+                "uin": "1587640710",
+                "content": msg
+            }
+        }
+        tas_list.append(data)
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
 @sv_manor.on_prefix("建造建筑")
