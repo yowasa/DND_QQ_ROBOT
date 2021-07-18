@@ -21,7 +21,7 @@ async def random_attribute(bot, ev: CQEvent):
     cmd_msg = str(ev.message).strip()
     num = 1
     if cmd_msg:
-        if not cmd_msg.isdigit():
+        if not cmd_msg.isdecimal():
             await bot.finish(ev, f'[CQ:at,qq={ev.user_id}]请输入一个数字')
         num = int(cmd_msg)
         if num > 20:
@@ -38,7 +38,7 @@ async def random_name(bot, ev: CQEvent):
     cmd_msg = str(ev.message).strip()
     num = 1
     if cmd_msg:
-        if not cmd_msg.isdigit():
+        if not cmd_msg.isdecimal():
             await bot.finish(ev, f'[CQ:at,qq={ev.user_id}]请输入一个数字')
         num = int(cmd_msg)
         if num > 20:
@@ -85,7 +85,7 @@ async def dnd_search(session: CommandSession):
         for i in range(20):
             msg += f'\n{i + 1}. {result_li[i][1]}'
         aliases_str = session.get('number', prompt=msg)
-        if not str(aliases_str).strip().isdigit():
+        if not str(aliases_str).strip().isdecimal():
             await bot.finish(ev, "无法识别输入内容")
         num = int(str(aliases_str).strip()) - 1
         # TODO 匹配前五个字符为怪物图鉴: 做额外下载图片展示的处理

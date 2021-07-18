@@ -8,8 +8,6 @@ sv_manor = Service('领地管理', enable_on_default=False, manage_priv=priv.SUP
 """[领地帮助]查看相关帮助
 """)
 
-daily_manor_limiter = DailyAmountLimiter("manor", 1, RESET_HOUR)
-
 
 class PolicyModel(Enum):
     BALANCE = [0, "保持原样"]
@@ -27,31 +25,6 @@ class PolicyModel(Enum):
     def get_by_name(name):
         for i in PolicyModel:
             if i.value[1] == name:
-                return i
-        return None
-
-
-class BuildModel(Enum):
-    CENTER = {"id": 101, "name": "市政中心", "sw": 1000, "gold": 10000, "area": 10, "time": 1, "limit": 1,
-              "desc": "城市管理枢纽只有拥有才能执行行政命令"}
-    MARKET = {"id": 102, "name": "贸易市场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
-              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加金币）"}
-    ITEM_SHOP = {"id": 103, "name": "道具商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
-                 "desc": "神秘的道具商店，只能盲盒购买"}
-    TV_STATION = {"id": 104, "name": "报社", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
-                  "desc": "城市的媒体部门，能宣传你的伟业（增加声望）"}
-
-    @staticmethod
-    def get_by_id(id):
-        for i in BuildModel:
-            if i.value['id'] == id:
-                return i
-        return None
-
-    @staticmethod
-    def get_by_name(name):
-        for i in BuildModel:
-            if i.value['name'] == name:
                 return i
         return None
 
@@ -119,12 +92,6 @@ def get_all_build_counter(gid, uid):
         b_m = BuildModel.get_by_id(i[0])
         build_num_map[b_m] = i[1]
     return build_num_map
-
-
-# 获取建筑情况
-def check_build_counter(gid, uid, b_m: BuildModel):
-    i_c = ItemCounter()
-    return i_c._get_user_state(gid, uid, b_m.value['id'])
 
 
 # 建造建筑
@@ -222,6 +189,13 @@ async def manor_view(bot, ev: CQEvent):
         elif i == BuildModel.TV_STATION:
             tv_sw = 1500 * b_c[i]
             sw_sum += tv_sw
+        elif i == BuildModel.HUANBAO:
+            area_geng = get_geng_manor(level, geng)
+            area_city = get_city_manor(level)
+            area_all = get_all_manor(level)
+            lin = area_all - area_geng - area_city
+            get_sw = lin * 5
+            sw_sum += get_sw
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     pm = PolicyModel.get_by_id(p_id)
     noblename = get_noblename(level)
@@ -337,14 +311,19 @@ async def manor_sign(bot, ev: CQEvent):
     if tax_rate < 10:
         add = random.randint(8, 15)
         zhian += add
+        if zhian >= 100:
+            zhian = 100
         msg += f"\n人民安居乐业,生活轻松，治安增加了{add}"
     elif 30 < tax_rate < 50:
         reduce = random.randint(8, 15)
         zhian -= reduce
+        if zhian < 0:
+            zhian = 0
         msg += f"\n人民朝九晚九，一周六天，工作十分辛苦，心中怨声载道，治安减少了{reduce}"
     elif tax_rate >= 50:
         msg += f"\n人民已经厌倦了领主的暴政,治安减少了{zhian}"
         zhian = 0
+
     save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
     # 判定暴乱
     bao_flag = 0
@@ -434,6 +413,44 @@ async def manor_sign(bot, ev: CQEvent):
                 ct = b_c[i]
                 save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, ct)
                 msg += f'\n道具商店的物品刷新了，可以进行购买'
+            elif i == BuildModel.POLICE_OFFICE:
+                ct = b_c[i]
+                zhian += ct * 10
+                if zhian >= 100:
+                    zhian = 100
+                save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
+                msg += f'\n警察局为你提高了{ct * 10}点治安，当前治安为{zhian}'
+            elif i == BuildModel.HUANBAO:
+                area_geng = get_geng_manor(level, geng)
+                area_city = get_city_manor(level)
+                area_all = get_all_manor(level)
+                lin = area_all - area_geng - area_city
+                get_sw = int(lin * 5 * random.uniform(0.9, 1.1))
+                sw_sum += get_sw
+                msg += f"\n环保局致力于维护林地，让领地环境变得更好，声望上升了{get_sw}"
+            elif i == BuildModel.DIZHI:
+                ct = b_c[i]
+                item = get_item_by_name("藏宝图")
+                add_item(gid, uid, item, num=ct)
+                msg += f'\n地质部门的人开始对领地进行勘测，你获得了{ct}张{item["name"]}'
+            elif i == BuildModel.KELA:
+                rn = random.randint(1, 20)
+                if rn == 1:
+                    item = get_item_by_name("咲夜怀表")
+                else:
+                    item = get_item_by_name("零时迷子")
+                add_item(gid, uid, item)
+                msg += f'\n科拉深井继续向地心钻探，你获得了{item["rank"]}级道具{item["name"]}'
+            elif i == BuildModel.FISSION_CENTER:
+                rn = random.randint(1, 20)
+                if rn == 1:
+                    item = get_item_by_name("四重存在")
+                elif rn == 2:
+                    item = get_item_by_name("好事成双")
+                else:
+                    item = get_item_by_name("有效分裂")
+                add_item(gid, uid, item)
+                msg += f'\n裂变中心正常运转，你获得了{item["rank"]}级道具{item["name"]}'
 
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
@@ -482,7 +499,7 @@ async def manor_tax(bot, ev: CQEvent):
     number = str(ev.message).strip()
     if not number:
         await bot.finish(ev, f'请在指令后增加税率（30代表30%税率）')
-    if not number.isdigit():
+    if not number.isdecimal():
         await bot.finish(ev, f'请在指令后增加"数字"作为税率（30代表30%税率）')
     save_user_counter(gid, uid, UserModel.TAX_RATIO, number)
     await bot.finish(ev, f'你颁布了行政法令，规定耕地征税{number}%')

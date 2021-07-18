@@ -177,7 +177,7 @@ async def pid(bot, ev: CQEvent):
     if not cmd_msg:
         await bot.send(ev, '请指定作品id')
         return
-    if not cmd_msg.isdigit():
+    if not cmd_msg.isdecimal():
         await bot.send(ev, '输入数字')
         return
     for i in range(3):
@@ -358,7 +358,7 @@ async def fetch_sub(bot, ev: CQEvent):
     type = ev.detail_type
     limit = 1
     if msg:
-        if msg.isnumeric():
+        if msg.isdecimal():
             if int(msg) > 5 or int(msg) < 1:
                 bot.finish(ev, "请输入1-5的数字")
             else:

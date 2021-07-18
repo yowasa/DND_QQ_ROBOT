@@ -491,12 +491,12 @@ def check_have_item(gid, uid, item):
 
 
 # 添加道具
-def add_item(gid, uid, item):
+def add_item(gid, uid, item, num=1):
     if item['name'] == '击鼓传花':
         if check_have_item(gid, uid, item):
             return
     i_c = ItemCounter()
-    i_c._add_item(gid, uid, int(item['id']))
+    i_c._add_item(gid, uid, int(item['id']), num)
 
 
 # 消耗道具
@@ -515,3 +515,49 @@ def get_user_counter(gid, uid, state: UserModel):
 def save_user_counter(gid, uid, state: UserModel, num):
     i_c = ItemCounter()
     i_c._save_user_info(gid, uid, state, num)
+
+
+class BuildModel(Enum):
+    CENTER = {"id": 101, "name": "市政中心", "sw": 1000, "gold": 10000, "area": 10, "time": 1, "limit": 1,
+              "desc": "城市管理枢纽只有拥有才能执行行政命令"}
+    MARKET = {"id": 102, "name": "贸易市场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
+              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加金币）"}
+    ITEM_SHOP = {"id": 103, "name": "道具商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
+                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）"}
+    TV_STATION = {"id": 104, "name": "报社", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
+                  "desc": "城市的媒体部门，能宣传你的伟业（增加声望）"}
+    POLICE_OFFICE = {"id": 105, "name": "警察局", "sw": 2000, "gold": 30000, "area": 10, "time": 3, "limit": 2,
+                     "desc": "谁还想暴乱？城市的治安部门，让你城市治安稳定"}
+    KONGFU = {"id": 106, "name": "练功房", "sw": 2500, "gold": 20000, "area": 6, "time": 2, "limit": 2,
+              "desc": "挂机是游戏的一部分，挂机修炼获得的经验增加5倍(复数个叠加而非叠乘)"}
+    HUANBAO = {"id": 107, "name": "环保局", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
+               "desc": "环境保护，人人有责，可以依据领地林地面积提供声望"}
+    ZHIHUI = {"id": 108, "name": "指挥部", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
+              "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+20%)"}
+    DIZHI = {"id": 109, "name": "地质局", "sw": 3500, "gold": 200000, "area": 25, "time": 4, "limit": 2,
+             "desc": "地址勘察中心，发现领地内不为人知的秘密(每日获取一个藏宝图)"}
+    KELA = {"id": 110, "name": "科拉超深井", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
+            "desc": "通向地球中心的超级深井，里面传来了地狱的声音(每日获取一个零时迷子，低概率产出咲夜怀表)"}
+    FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
+                      "desc": "拥有无限可能性的裂变中心，他的存在让人裂开（每日获取一个有效分裂,低概率产出四重存在或好事成双）"}
+
+
+    @staticmethod
+    def get_by_id(id):
+        for i in BuildModel:
+            if i.value['id'] == id:
+                return i
+        return None
+
+    @staticmethod
+    def get_by_name(name):
+        for i in BuildModel:
+            if i.value['name'] == name:
+                return i
+        return None
+
+
+# 获取建筑情况
+def check_build_counter(gid, uid, b_m: BuildModel):
+    i_c = ItemCounter()
+    return i_c._get_user_state(gid, uid, b_m.value['id'])

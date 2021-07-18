@@ -670,6 +670,10 @@ async def add_warehouse(bot, ev: CQEvent):
         msg = '只有成为皇帝后，才能扩充女友上限喔'
         await bot.send(ev, msg, at_sender=True)
         return
+    if duel._get_warehouse(gid, uid) >= SHANGXIAN_MAX:
+        msg = f'女友上限已经达到极限，无法继续扩充'
+        await bot.send(ev, msg, at_sender=True)
+        return
     if prestige < SHANGXIAN_SW:
         msg = f'扩充女友上限，需要{SHANGXIAN_SW}声望，您的声望不足喔'
         await bot.send(ev, msg, at_sender=True)
@@ -3141,9 +3145,9 @@ async def ramdom_gold(bot, ev: CQEvent):
             await bot.finish(ev, '该功能仅限超级管理员使用')
         gid = ev.group_id
         msg = ev.message.extract_plain_text().split()
-        if not msg[0].isdigit():
+        if not msg[0].isdecimal():
             await bot.finish(ev, '请输入正确的奖励金额')
-        if not msg[1].isdigit():
+        if not msg[1].isdecimal():
             await bot.finish(ev, '请输入正确的奖励个数')
         gold = int(msg[0])
         num = int(msg[1])

@@ -417,12 +417,15 @@ async def add_duiwu_t(bot, ev: CQEvent):
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
         # 获取进入副本信息
-        # 获取buff信息
+        # 获取道具buff信息
         i_c = ItemCounter()
         buff = i_c._get_buff_state(gid, uid)
         rate = 1 + buff / 100
         old = z_ce
         z_ce = rate * z_ce
+        zhihui = check_build_counter(gid, uid, BuildModel.ZHIHUI)
+        if zhihui:
+            z_ce *= 1.2
         i_c._save_user_state(gid, uid, 0, 0)
         # 判定每日上限
         guid = gid, uid
@@ -2078,12 +2081,17 @@ async def xiulian_end(bot, ev: CQEvent):
         jgtime = 86400
     xlmin = math.ceil(jgtime / 60)
     sj_msg = sj_msg + f"修炼时间为{xlmin}分钟，"
+    count = check_build_counter(uid, gid, BuildModel.KONGFU)
     addexp = xlmin * GJ_EXP_RATE
+    ex_msg = ''
+    if count != 0:
+        addexp *= 5 * count
+        ex_msg = "(练功房效果适用中)"
     card_level = add_exp(gid, uid, guajiinfo[0], addexp)
     CE._delete_xiulian(gid, uid)
     c = chara.fromid(guajiinfo[0])
     nvmes = get_nv_icon(guajiinfo[0])
-    bd_msg = f"修炼结束，{sj_msg}\n您的女友{c.name}获得了{addexp}点经验，{card_level[2]}\n{nvmes}"
+    bd_msg = f"修炼结束，{sj_msg}\n您的女友{c.name}获得了{addexp}点经验{ex_msg}，{card_level[2]}\n{nvmes}"
     await bot.send(ev, bd_msg, at_sender=True)
 
 

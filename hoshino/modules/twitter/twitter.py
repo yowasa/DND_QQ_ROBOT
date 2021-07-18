@@ -219,7 +219,7 @@ async def one_tweet(bot, ev: CQEvent):
 @sv_s.on_prefix('查推', only_to_me=True)
 async def one_tweet(bot, ev: CQEvent):
     args = str(ev.message).strip()
-    if not args or not args.isnumeric():
+    if not args or not args.isdecimal():
         await bot.finish(ev, "请在指令后输入推文id")
     rsp = api.request('statuses/show/:%d' % int(args))
     items = rsp.get_iterator()

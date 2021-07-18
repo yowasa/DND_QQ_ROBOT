@@ -31,6 +31,8 @@ class ScoreCounter2:
         try:
             current_score = self._get_score(gid, uid)
             inscore = math.ceil(current_score + score)
+            if inscore > 9999999:
+                inscore = 9999999
             conn = self._connect()
             conn.execute("INSERT OR REPLACE INTO SCORECOUNTER (GID,UID,SCORE) \
                                 VALUES (?,?,?)", (gid, uid, inscore))
@@ -43,6 +45,8 @@ class ScoreCounter2:
             current_score = self._get_score(gid, uid)
             if current_score >= score:
                 inscore = math.ceil(current_score - score)
+                if inscore > 9999999:
+                    inscore = 9999999
                 conn = self._connect()
                 conn.execute("INSERT OR REPLACE INTO SCORECOUNTER (GID,UID,SCORE) \
                                 VALUES (?,?,?)", (gid, uid, inscore))
@@ -107,6 +111,8 @@ class ScoreCounter2:
     def _add_prestige(self, gid, uid, num):
         prestige = self._get_prestige(gid, uid)
         prestige += num
+        if prestige > 999999:
+            prestige = 999999
         with self._connect() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO PRESTIGECOUNTER (GID, UID, PRESTIGE) VALUES (?, ?, ?)",

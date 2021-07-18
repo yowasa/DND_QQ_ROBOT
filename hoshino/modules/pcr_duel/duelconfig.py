@@ -28,6 +28,7 @@ DUEL_DAILY_LIMIT = 5  # 每个人每日发起决斗上限
 DUN_DAILY_LIMIT = 10  # 每个人每日副本上限
 BOSS_DAILY_LIMIT = 3  # 会战与世界boss次数
 EQUIP_DAILY_LIMIT = 5  # 副本商城兑换次数
+MANAGE_DAILY_LIMIT = 1  # 每日领地结算次数
 RESET_HOUR = 5  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
 GACHA_COST = 500  # 抽老婆需求
 GACHA_COST_Fail = 200  # 抽老婆失败补偿量
@@ -38,6 +39,7 @@ WIN_EXP = 100  # 决斗胜利获得经验
 SHANGXIAN_NUM = 100000  # 增加女友上限所需金币
 WAREHOUSE_NUM = 40  # 仓库增加上限
 SHANGXIAN_SW = 2000  # 扩充女友上限，需要的声望值
+SHANGXIAN_MAX = 10  # 扩充女友上限极限次数
 
 BREAK_UP_SWITCH = True  # 分手系统开关
 Zhuan_Need = 0.05  # 转账所需的手续费比例
@@ -80,7 +82,7 @@ FREE_DAILY_LIMIT = 1  # 每天免费招募的次数
 SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
 
 # 挂机修炼获取经验倍率（每分钟）
-GJ_EXP_RATE = 10
+GJ_EXP_RATE = 20
 
 FILE_PATH = os.path.dirname(__file__)  # 用于加载dlcjson
 LEVEL_GIRL_NEED = {
@@ -438,6 +440,7 @@ daily_gift_limiter = DailyAmountLimiter("gift", GIFT_DAILY_LIMIT, RESET_HOUR)
 daily_dun_limiter = DailyAmountLimiter("dun", DUN_DAILY_LIMIT, RESET_HOUR)
 daily_boss_limiter = DailyAmountLimiter("boss", BOSS_DAILY_LIMIT, RESET_HOUR)
 daily_equip_limiter = DailyAmountLimiter("equip", EQUIP_DAILY_LIMIT, RESET_HOUR)
+daily_manor_limiter = DailyAmountLimiter("manor", MANAGE_DAILY_LIMIT, RESET_HOUR)
 
 
 # 生成没被约过的角色列表
