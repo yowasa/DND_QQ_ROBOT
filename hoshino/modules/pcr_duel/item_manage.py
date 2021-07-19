@@ -17,6 +17,8 @@ async def gift_help(bot, ev: CQEvent):
 [我的道具]
 [道具效果] {道具名称}
 [使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
+[我的决斗币] 查看自己的决斗币数量
+[兑换物品] {物品等级} 用决斗币兑换指定等级的道具
 [投放道具] 维护组指令 用来测试道具
 
 注:
@@ -655,6 +657,44 @@ async def change_item(msg, bot, ev: CQEvent):
         add_item(gid, uid, new_item)
         msg += f'\n{new_item["name"]}'
     return (True, msg)
+
+
+@sv.on_fullmatch("我的决斗币")
+async def search_duel_coin(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    num = get_user_counter(gid, uid, UserModel.DUEL_COIN)
+    await bot.send(ev, f"当前拥有决斗币数量为{num}", at_sender=True)
+
+
+@sv.on_prefix("兑换物品")
+async def roll_item(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    rank = str(ev.message).strip()
+    price = {
+        'A': 50,
+        'B': 30,
+        'C': 15,
+        'D': 5,
+    }
+    if not rank:
+        await bot.finish(ev, f"请输入 兑换物品 + 物品等级 来兑换指定等级的物品", at_sender=True)
+    if rank == 'S':
+        await bot.finish(ev, f"S级物品无法兑换哦", at_sender=True)
+    if not price.get(rank):
+        await bot.finish(ev, f"未找到级别是'{rank}'的物品", at_sender=True)
+    cost = price.get(rank)
+    num = get_user_counter(gid, uid, UserModel.DUEL_COIN)
+    if cost > num:
+        await bot.finish(ev, f"兑换{rank}级物品需要{cost}个决斗币，你的决斗币数量不足", at_sender=True)
+    li = ITEM_RANK_MAP[rank]
+    i_id = random.choice(li)
+    new_item = ITEM_INFO[i_id]
+    num -= cost
+    save_user_counter(gid, uid, UserModel.DUEL_COIN, num)
+    add_item(gid, uid, new_item)
+    await bot.send(ev, f"你使用了{cost}枚决斗币兑换了{new_item['rank']}级物品{new_item['name']}!", at_sender=True)
 
 
 @sv.on_command("开始巡游")

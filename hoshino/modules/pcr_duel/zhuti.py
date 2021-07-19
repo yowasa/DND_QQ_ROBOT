@@ -1359,6 +1359,21 @@ async def nobleduel(bot, ev: CQEvent):
         w_c += 1
         save_user_counter(gid, winner, UserModel.WIN, w_c)
         save_user_counter(gid, winner, UserModel.LOSE, 0)
+        coin_num = 1
+        ex_msg = ''
+        if w_c >= 3:
+            coin_num += 1
+        if w_c >= 5:
+            coin_num += 1
+        if w_c >= 8:
+            coin_num += 1
+        if coin_num > 1:
+            ex_msg += f"由于你连续取得胜利，额外获取了{coin_num - 1}个决斗币!!!"
+        num = get_user_counter(gid, winner, UserModel.DUEL_COIN)
+        num += coin_num
+        save_user_counter(gid, winner, UserModel.DUEL_COIN, num)
+        msg = f'[CQ:at,qq={winner}]你获取了决斗胜利，获得了1个决斗币!!!' + ex_msg
+        await bot.send(ev, msg)
         if w_c >= 10:
             item = get_item_by_name('精英对局')
             add_item(gid, winner, item)

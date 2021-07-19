@@ -29,6 +29,7 @@ class UserModel(Enum):
     ITEM_BUY_TIME = [16, "购买道具次数"]
     TECHNOLOGY_BUFFER = [17, "正在研发的科技"]
     TECHNOLOGY_CD = [18, "研发CD"]
+    DUEL_COIN=[19,"决斗币数量"]
 
 
 # 群组状态储存枚举类
