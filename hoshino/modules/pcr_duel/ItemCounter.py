@@ -27,6 +27,8 @@ class UserModel(Enum):
     MANOR_POLICY = [14, "领地政策"]
     TAX_RATIO = [15, "领地税率"]
     ITEM_BUY_TIME = [16, "购买道具次数"]
+    TECHNOLOGY_BUFFER = [17, "正在研发的科技"]
+    TECHNOLOGY_CD = [18, "研发CD"]
 
 
 # 群组状态储存枚举类

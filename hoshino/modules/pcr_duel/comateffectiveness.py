@@ -425,7 +425,10 @@ async def add_duiwu_t(bot, ev: CQEvent):
         z_ce = rate * z_ce
         zhihui = check_build_counter(gid, uid, BuildModel.ZHIHUI)
         if zhihui:
-            z_ce *= 1.2
+            if check_technolog_counter(gid, uid, TechnologyModel.BATTLE_RADAR):
+                z_ce *= 1.4
+            else:
+                z_ce *= 1.2
         i_c._save_user_state(gid, uid, 0, 0)
         # 判定每日上限
         guid = gid, uid
@@ -2341,7 +2344,6 @@ async def equip_fenjie_n(bot, ev: CQEvent):
                 deletenum = 0 - equipnum
                 CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
                 msg_list = msg_list + f"\n{equipnum}件{equipinfo['model']}级装备,{equipinfo['name']}"
-        # TODO 测试
         ex_msg = ''
         counter = get_user_counter(gid, uid, UserModel.FENJIE)
         counter += total_equipnum

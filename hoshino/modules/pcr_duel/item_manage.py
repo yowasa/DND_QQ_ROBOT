@@ -192,23 +192,9 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
 async def add_zhuangbei(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    num = random.randint(1, 100)
-    if num <= 10:
-        awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
-        return (
-            True,
+    awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
+    return (True,
             f"你使用了空想之物，一道金光闪过，你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
-    else:
-        awardequip_info = add_equip_info(gid, uid, 5,
-                                         [108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
-                                          123, 124, 125, 126, 127, 128, 195, 196, 197, 198, 199, 200, 201, 202, 204,
-                                          205, 206, 207, 208, 209, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
-                                          238, 239, 240, 241, 242, 243, 244, 245, 246, 260, 265, 266, 267, 278, 279,
-                                          280, 282, 283, 284, 285, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297,
-                                          298, 299, 300, 301, 302, 303, 304, 305, 306, 312, 313, 314, 315, 316, 317,
-                                          318, 319, 320])
-        return (True,
-                f"你使用了空想之物，但你的想象不足以触及幻想，你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
 
 
 @msg_route("好事成双")
@@ -338,70 +324,75 @@ async def fa_money(msg, bot, ev: CQEvent):
         return (False, "本群现在已经有红包活动，请稍后再使用")
 
 
+def wa_all(gid, uid, msg_li, time=1):
+    wa_mr(gid, uid, msg_li, time=time)
+    wa_ur(gid, uid, msg_li, time=2 * time)
+    wa_item(gid, uid, msg_li, time=2 * time)
+    wa_gold(gid, uid, msg_li, time=3 * time)
+    wa_sw(gid, uid, msg_li, time=3 * time)
+
+
+def wa_mr(gid, uid, msg_li, time=1):
+    for i in range(time):
+        rn = random.randint(1, 100)
+        if rn == 1:
+            awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
+            msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
+
+
+def wa_ur(gid, uid, msg_li, time=2):
+    for i in range(time):
+        rn = random.randint(1, 100)
+        if rn <= 1:
+            awardequip_info = add_equip_info(gid, uid, 5,
+                                             [108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
+                                              123, 124, 125, 126, 127, 128, 195, 196, 197, 198, 199, 200, 201, 202, 204,
+                                              205, 206, 207, 208, 209, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
+                                              238, 239, 240, 241, 242, 243, 244, 245, 246, 260, 265, 266, 267, 278, 279,
+                                              280, 282, 283, 284, 285, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297,
+                                              298, 299, 300, 301, 302, 303, 304, 305, 306, 312, 313, 314, 315, 316, 317,
+                                              318, 319, 320])
+            msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
+
+
+def wa_item(gid, uid, msg_li, time=2):
+    for i in range(time):
+        rn = random.randint(1, 100)
+        if rn <= 10:
+            item = choose_item()
+            add_item(gid, uid, item)
+            msg_li.append(f"你获得了{item['name']}")
+
+
+def wa_gold(gid, uid, msg_li, time=3):
+    for i in range(time):
+        rn = random.randint(1, 100)
+        if rn <= 30:
+            CE = ScoreCounter2()
+            money = random.randint(1, 30000)
+            CE._add_score(gid, uid, money)
+            msg_li.append(f"你获得了{money}金币")
+
+
+def wa_sw(gid, uid, msg_li, time=3):
+    for i in range(time):
+        rn = random.randint(1, 100)
+        if rn <= 30:
+            CE = ScoreCounter2()
+            sw = random.randint(1, 3000)
+            CE._add_prestige(gid, uid, sw)
+            msg_li.append(f"你获得了{sw}声望")
+
+
 @msg_route("藏宝图")
 async def wabao(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     msg_li = []
-    sw_1 = random.randint(1, 100)
-    sw_2 = random.randint(1, 100)
-    sw_3 = random.randint(1, 100)
-    sw_4 = random.randint(1, 100)
-    sw_5 = random.randint(1, 100)
-    sw_6 = random.randint(1, 100)
-    sw_7 = random.randint(1, 100)
-    sw_8 = random.randint(1, 100)
-    sw_9 = random.randint(1, 100)
-
-    CE = ScoreCounter2()
-    counter = ItemCounter()
-    if sw_1 == 1:
-        awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
-        msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
-    if sw_2 <= 5:
-        awardequip_info = add_equip_info(gid, uid, 5,
-                                         [108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
-                                          123, 124, 125, 126, 127, 128, 195, 196, 197, 198, 199, 200, 201, 202, 204,
-                                          205, 206, 207, 208, 209, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
-                                          238, 239, 240, 241, 242, 243, 244, 245, 246, 260, 265, 266, 267, 278, 279,
-                                          280, 282, 283, 284, 285, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297,
-                                          298, 299, 300, 301, 302, 303, 304, 305, 306, 312, 313, 314, 315, 316, 317,
-                                          318, 319, 320])
-        msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
-    if sw_3 <= 5:
-        awardequip_info = add_equip_info(gid, uid, 5,
-                                         [108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
-                                          123, 124, 125, 126, 127, 128, 195, 196, 197, 198, 199, 200, 201, 202, 204,
-                                          205, 206, 207, 208, 209, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237,
-                                          238, 239, 240, 241, 242, 243, 244, 245, 246, 260, 265, 266, 267, 278, 279,
-                                          280, 282, 283, 284, 285, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297,
-                                          298, 299, 300, 301, 302, 303, 304, 305, 306, 312, 313, 314, 315, 316, 317,
-                                          318, 319, 320])
-        msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
-    if sw_4 <= 10:
-        item = choose_item()
-        counter._add_item(gid, uid, int(item['id']))
-        msg_li.append(f"你获得了{item['name']}")
-    if sw_5 <= 10:
-        item = choose_item()
-        counter._add_item(gid, uid, int(item['id']))
-        msg_li.append(f"你获得了{item['name']}")
-    if sw_6 <= 30:
-        money = random.randint(1, 30000)
-        CE._add_score(gid, uid, money)
-        msg_li.append(f"你获得了{money}金币")
-    if sw_7 <= 30:
-        money = random.randint(1, 30000)
-        CE._add_score(gid, uid, money)
-        msg_li.append(f"你获得了{money}金币")
-    if sw_8 <= 30:
-        sw = random.randint(1, 3000)
-        CE._add_prestige(gid, uid, sw)
-        msg_li.append(f"你获得了{sw}声望")
-    if sw_9 <= 30:
-        sw = random.randint(1, 3000)
-        CE._add_prestige(gid, uid, sw)
-        msg_li.append(f"你获得了{sw}声望")
+    time = 1
+    if check_technolog_counter(gid, uid, TechnologyModel.ARCHAEOLOGIST):
+        time = 2
+    wa_all(gid, uid, msg_li, time=time)
     if len(msg_li) == 0:
         return (True, f"你进行了一场愉快的探险，但是什么也没有发现")
     return (True, f"你进行了一场惊险的探险:\n" + "\n".join(msg_li))

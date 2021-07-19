@@ -265,7 +265,7 @@ ITEM_INFO = {
         "id": "4",
         "name": "空想之物",
         "rank": "A",
-        "desc": "90%概率随机获得一件UR装备 10%概率获得MR装备",
+        "desc": "获得一件MR装备",
     },
     "5": {
         "id": "5",
@@ -540,7 +540,10 @@ class BuildModel(Enum):
             "desc": "通向地球中心的超级深井，里面传来了地狱的声音(每日获取一个零时迷子，低概率产出咲夜怀表)"}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
                       "desc": "拥有无限可能性的裂变中心，他的存在让人裂开（每日获取一个有效分裂,低概率产出四重存在或好事成双）"}
-
+    EQUIP_CENTER = {"id": 112, "name": "装备工坊", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
+                    "desc": " 装备工坊 可以使用[装备熔炼]指令，用低级装备合成高级装备 合成品级越高失败率越高"}
+    TECHNOLOGY_CENTER = {"id": 113, "name": "科技研究所", "sw": 100000, "gold": 1000000, "area": 30, "time": 5, "limit": 1,
+                         "desc": "解锁领地科技 可以使用[科技列表],[我的科技]和[科技研发]指令，且仅在有科技研究所时科技效果才生效"}
 
     @staticmethod
     def get_by_id(id):
@@ -557,7 +560,58 @@ class BuildModel(Enum):
         return None
 
 
+class TechnologyModel(Enum):
+    TRANSPARENT_TRADE = {"id": 201, "name": "透明交易", "sw": 3000, "gold": 30000, "time": 2,
+                         "desc": "购买物品时可以先看物品再决定要不要买，同时价格会根据物品品质变化"}
+
+    BRANCH_STORE = {"id": 202, "name": "道具分店", "sw": 1000, "gold": 30000, "time": 2,
+                    "desc": "商店可以购物两次"}
+
+    BATTLE_RADAR = {"id": 203, "name": "作战雷达", "sw": 20000, "gold": 250000, "time": 2,
+                    "desc": "指挥部战力加成变为40%"}
+
+    ARCHAEOLOGIST = {"id": 204, "name": "考古专家", "sw": 6000, "gold": 350000, "time": 3,
+                     "desc": "藏宝图有更大的机会挖出更多的物品"}
+
+    REFINING_TECHNOLOGY = {"id": 205, "name": "精致冶炼", "sw": 3500, "gold": 70000, "time": 2,
+                           "desc": "装备工坊熔炼装备需求数量-1"}
+    MONETARY_POLICY = {"id": 206, "name": "货币政策", "sw": 30000, "gold": 50000, "time": 4,
+                       "desc": "贸易市场提供的金币增加50%"}
+
+    MANIPULATION = {"id": 207, "name": "舆论操纵", "sw": 50000, "gold": 30000, "time": 4,
+                    "desc": "报社提供的声望增加50%"}
+
+    SATELLITE_CITY = {"id": 208, "name": "卫星城市", "sw": 80000, "gold": 750000, "time": 8,
+                      "desc": "城市面积扩张到领地占比的1/8"}
+
+    ROAD_PLANNING = {"id": 209, "name": "道路规划", "sw": 10000, "gold": 150000, "time": 2,
+                     "desc": "拥堵状态阈值提高到90%"}
+
+    SAND_FIX = {"id": 210, "name": "防风固沙", "sw": 5000, "gold": 30000, "time": 2,
+                "desc": "提高沙尘天气的触发阈值"}
+
+    @staticmethod
+    def get_by_id(id):
+        for i in TechnologyModel:
+            if i.value['id'] == id:
+                return i
+        return None
+
+    @staticmethod
+    def get_by_name(name):
+        for i in TechnologyModel:
+            if i.value['name'] == name:
+                return i
+        return None
+
+
 # 获取建筑情况
 def check_build_counter(gid, uid, b_m: BuildModel):
     i_c = ItemCounter()
     return i_c._get_user_state(gid, uid, b_m.value['id'])
+
+
+# 获取建筑情况
+def check_technolog_counter(gid, uid, t_m: TechnologyModel):
+    i_c = ItemCounter()
+    return i_c._get_user_state(gid, uid, t_m.value['id'])

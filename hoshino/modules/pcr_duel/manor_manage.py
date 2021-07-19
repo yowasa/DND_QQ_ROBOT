@@ -37,17 +37,22 @@ async def manor_help(bot, ev: CQEvent):
 [接受封地] 准男爵以上可以接受封地，开始管理自己的领地
 [领地查询] 查询领地状态
 [建筑列表] 查看城市可建设建筑列表
-[建造建筑] 建造建筑
+[建造建筑] {建筑名称} 建造建筑
+[拆除建筑] {建筑名称} 拆除建筑
 [领地结算] 领地指令结算，一天只能执行一次
-[政策选择] {政策}可选政策：开垦林地，退耕还林，保持原样 结算时5%比例进行移动
+[政策选择] {政策}可选政策：开垦荒地，退耕还林，保持原样 结算时会按照政策调整领地耕地面积
 [税率调整] {数值}设置领地征税比例 默认10%
 ==建筑指令==
-[购买道具] 商店指令，花费1w金币随机买一个道具
+[购买道具] 道具商店指令，花费1w金币随机买一个道具
+[装备熔炼] {熔炼等级} 装备工坊指令，使用4个低等级装备熔炼一个更高等级的装备 等级越高失败率越高
+[科技列表] 科技研究所指令，查看科技列表级效果
+[我的科技] 科技研究所指令，查看自己已经研发的科技成果
+[科技研发] 科技研究所指令，研发新科技
 
 == 维护指令 ==
 [刷新结算] {qq号} 刷新结算次数
 
-注：税收与耕地面积有关，声望与林地面积有关
+注：税收与耕地面积有关，但耕地太多可能会有负面影响
 领地面积为100*爵位
 城市面积为领地的1/10
 接受封地的第一天只能建造市政中心
@@ -64,13 +69,15 @@ def get_all_manor(level):
 
 
 # 获取城市面积
-def get_city_manor(level):
+def get_city_manor(gid, uid, level):
+    if check_technolog_counter(gid, uid, TechnologyModel.SATELLITE_CITY):
+        return int(get_all_manor(level) * 0.125)
     return int(get_all_manor(level) * 0.1)
 
 
 # 获取耕地面积
-def get_geng_manor(level, geng):
-    return int((get_all_manor(level) - get_city_manor(level)) * (geng / 100))
+def get_geng_manor(gid, uid, level, geng):
+    return int((get_all_manor(level) - get_city_manor(gid, uid, level)) * (geng / 100))
 
 
 # 获取耕地税率
@@ -92,14 +99,6 @@ def get_all_build_counter(gid, uid):
         b_m = BuildModel.get_by_id(i[0])
         build_num_map[b_m] = i[1]
     return build_num_map
-
-
-# 建造建筑
-def _build_new(gid, uid, b_m: BuildModel):
-    num = check_build_counter(gid, uid, b_m)
-    num += 1
-    i_c = ItemCounter()
-    i_c._save_user_state(gid, uid, b_m.value['id'], num)
 
 
 @sv_manor.on_fullmatch("接受封地")
@@ -131,8 +130,8 @@ async def manor_begin(bot, ev: CQEvent):
     save_user_counter(gid, uid, UserModel.TAX_RATIO, shui)
 
     all_manor = get_all_manor(level)
-    city_manor = get_city_manor(level)
-    geng_manor = get_geng_manor(level, geng)
+    city_manor = get_city_manor(gid, uid, level)
+    geng_manor = get_geng_manor(gid, uid, level, geng)
 
     save_user_counter(gid, uid, UserModel.MANOR_BEGIN, 1)
 
@@ -163,8 +162,8 @@ async def manor_view(bot, ev: CQEvent):
 
     geng = get_user_counter(gid, uid, UserModel.GENGDI)
     all_manor = get_all_manor(level)
-    city_manor = get_city_manor(level)
-    geng_manor = get_geng_manor(level, geng)
+    city_manor = get_city_manor(gid, uid, level)
+    geng_manor = get_geng_manor(gid, uid, level, geng)
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
 
     taxes = get_taxes(gid, uid, level)
@@ -190,8 +189,8 @@ async def manor_view(bot, ev: CQEvent):
             tv_sw = 1500 * b_c[i]
             sw_sum += tv_sw
         elif i == BuildModel.HUANBAO:
-            area_geng = get_geng_manor(level, geng)
-            area_city = get_city_manor(level)
+            area_geng = get_geng_manor(gid, uid, level, geng)
+            area_city = get_city_manor(gid, uid, level)
             area_all = get_all_manor(level)
             lin = area_all - area_geng - area_city
             get_sw = lin * 5
@@ -252,6 +251,33 @@ async def build_view(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
+@sv_manor.on_prefix("拆除建筑")
+async def _build(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    build_name = str(ev.message).strip()
+    # 检查是否已经开启
+    if not get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
+        await bot.finish(ev, "您还未接受封地", at_sender=True)
+    if not build_name:
+        await bot.finish(ev, "请使用指令 拆除建筑 + 建筑名称 ", at_sender=True)
+    b_m = BuildModel.get_by_name(build_name)
+    if not b_m:
+        await bot.finish(ev, f"未找到名为{build_name}的建筑", at_sender=True)
+    b_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
+    if b_id == b_m.value['id']:
+        save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
+        save_user_counter(gid, uid, UserModel.BUILD_CD, 0)
+        await bot.finish(ev, f"施工队停止建造了{b_m.value['name']}", at_sender=True)
+    num = check_build_counter(gid, uid, b_m)
+    if num == 0:
+        await bot.finish(ev, f"你领地内没有{b_m.value['name']}", at_sender=True)
+    num -= 1
+    i_c = ItemCounter()
+    i_c._save_user_state(gid, uid, b_m.value['id'], num)
+    await bot.finish(ev, f"施工队对{b_m.value['name']}进行了爆破，随着一声巨响，这栋建筑永远的消失了", at_sender=True)
+
+
 @sv_manor.on_prefix("建造建筑")
 async def _build(bot, ev: CQEvent):
     gid = ev.group_id
@@ -278,7 +304,7 @@ async def _build(bot, ev: CQEvent):
     total = 0
     for i in build_map.keys():
         total += i.value['area'] * build_map[i]
-    city_manor = get_city_manor(level)
+    city_manor = get_city_manor(gid, uid, level)
     if city_manor < total + b_m.value['area']:
         await bot.finish(ev, f"当前城市面积不足以建设{build_name}", at_sender=True)
     num = check_build_counter(gid, uid, b_m)
@@ -312,15 +338,18 @@ async def manor_sign(bot, ev: CQEvent):
     duel = DuelCounter()
     level = duel._get_level(gid, uid)
 
-    # == 治安结算 ==
+    # 治安结算
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
     # 判定城市拥堵
     build_map = get_all_build_counter(gid, uid)
     total = 0
     for i in build_map.keys():
         total += i.value['area'] * build_map[i]
-    city_manor = get_city_manor(level)
-    if total / city_manor >= 0.8:
+    city_manor = get_city_manor(gid, uid, level)
+    yongdu = 0.8
+    if check_technolog_counter(gid, uid, TechnologyModel.ROAD_PLANNING):
+        yongdu = 0.9
+    if total / city_manor >= yongdu:
         reduce = random.randint(8, 15)
         zhian -= reduce
         msg += f"\n由于城市过于拥挤,居民怨声载道，治安减少了{reduce}"
@@ -382,23 +411,27 @@ async def manor_sign(bot, ev: CQEvent):
         save_user_counter(gid, uid, UserModel.GENGDI, geng)
         sha_flag = 0
         geng_gold = 0
-        if geng >= 80:
+        sha_ex = 80
+        sha_min = 50
+        if check_technolog_counter(gid, uid, TechnologyModel.SAND_FIX):
+            sha_ex = 90
+            sha_min = 60
+        if geng >= sha_ex:
             sha_flag = 1
             msg += f"由于你大肆扩张耕地，领地内出现了黄沙天气，农民颗粒无收"
 
-        elif geng >= 50:
-            rn = random.randint(50, 79)
+        elif geng >= sha_min:
+            rn = random.randint(sha_min, sha_ex - 1)
             if geng > rn:
                 sha_flag = 1
                 msg += f"由于你大肆扩张耕地，领地内出现了黄沙天气，农民颗粒无收"
         if not sha_flag:
-            area_geng = get_geng_manor(level, geng)
+            area_geng = get_geng_manor(gid, uid, level, geng)
             tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
             geng_gold = int(area_geng * tax * 10 * random.uniform(0.9, 1.1))
             msg += f"\n收取了耕地税收{geng_gold}金币"
 
         gold_sum += geng_gold
-        # 计算建筑
         # 计算建筑进度
         cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
         if cd != 0:
@@ -406,30 +439,54 @@ async def manor_sign(bot, ev: CQEvent):
             if cd == 0:
                 buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
                 build = BuildModel.get_by_id(buffer_build_id)
-                _build_new(gid, uid, build)
+                build_num = check_build_counter(gid, uid, build)
+                build_num += 1
+                i_c = ItemCounter()
+                i_c._save_user_state(gid, uid, build.value['id'], build_num)
                 msg += f"\n施工队报告{build.value['name']}竣工了，已经可以投入使用"
                 save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
             save_user_counter(gid, uid, UserModel.BUILD_CD, cd)
 
+        # 计算科研进度
+        t_cd = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+        if t_cd != 0:
+            t_cd -= 1
+            if t_cd == 0:
+                buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+                technology = TechnologyModel.get_by_id(buffer_technology_id)
+                i_c = ItemCounter()
+                i_c._save_user_state(gid, uid, technology.value['id'], 1)
+                msg += f"\n科研队报告{technology.value['name']}已经研发成功了！"
+                save_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER, 0)
+            save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_cd)
+        # 计算建筑收益
         b_c = get_all_build_counter(gid, uid)
         for i in b_c.keys():
             if i == BuildModel.CENTER:
                 continue
             elif i == BuildModel.MARKET:
-                market_gold = int(20000 * b_c[i] * random.uniform(0.9, 1.1))
+                rate = 1.0
+                if check_technolog_counter(gid, uid, TechnologyModel.MONETARY_POLICY):
+                    rate = 1.5
+                market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1))
                 if buffer_flag:
                     market_gold = int(market_gold * 1.1)
                 msg += f'\n贸易市场为你带来了额外{market_gold}金币收益'
                 gold_sum += market_gold
             elif i == BuildModel.TV_STATION:
-                tv_sw = int(1500 * b_c[i] * random.uniform(0.9, 1.1))
+                rate = 1.0
+                if check_technolog_counter(gid, uid, TechnologyModel.MANIPULATION):
+                    rate = 1.5
+                tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1))
                 if buffer_flag:
                     tv_sw = int(tv_sw * 1.1)
                 sw_sum += tv_sw
                 msg += f'\n报社为你带来了额外{tv_sw}声望'
             elif i == BuildModel.ITEM_SHOP:
-                ct = b_c[i]
-                save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, ct)
+                if check_technolog_counter(gid, uid, TechnologyModel.BRANCH_STORE):
+                    save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 2)
+                else:
+                    save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 1)
                 msg += f'\n道具商店的物品刷新了，可以进行购买'
             elif i == BuildModel.POLICE_OFFICE:
                 ct = b_c[i]
@@ -439,8 +496,8 @@ async def manor_sign(bot, ev: CQEvent):
                 save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
                 msg += f'\n警察局为你提高了{ct * 10}点治安，当前治安为{zhian}'
             elif i == BuildModel.HUANBAO:
-                area_geng = get_geng_manor(level, geng)
-                area_city = get_city_manor(level)
+                area_geng = get_geng_manor(gid, uid, level, geng)
+                area_city = get_city_manor(gid, uid, level)
                 area_all = get_all_manor(level)
                 lin = area_all - area_geng - area_city
                 get_sw = int(lin * 5 * random.uniform(0.9, 1.1))
@@ -523,23 +580,59 @@ async def manor_tax(bot, ev: CQEvent):
     await bot.finish(ev, f'你颁布了行政法令，规定耕地征税{number}%')
 
 
-@sv_manor.on_prefix("购买道具")
-async def buy_item(bot, ev: CQEvent):
+from hoshino.typing import CommandSession
+
+
+@sv_manor.on_command("购买道具")
+async def buy_item(session: CommandSession):
+    bot = session.bot
+    ev = session.event
     gid = ev.group_id
     uid = ev.user_id
     num = get_user_counter(gid, uid, UserModel.ITEM_BUY_TIME)
     if num <= 0:
         await bot.finish(ev, f'你的城市没有商店或已经没有购买次数，无法购买道具')
+
     score_counter = ScoreCounter2()
     score = score_counter._get_score(gid, uid)
     if score < 10000:
         await bot.finish(ev, f'你的金币不足1万，无法购买道具')
+    if check_technolog_counter(gid, uid, TechnologyModel.TRANSPARENT_TRADE):
+        if not session.state['item']:
+            item = choose_item()
+            session.state['item'] = item["name"]
+        jieshou = session.get('jieshou', prompt=f'商店老板拿出的道具为{item["rank"]}级道具{item["name"]},是否要购买(是|否)回答其他内容默认为是')
+        if jieshou != '否':
+            item = get_item_by_name(session.state['item'])
+            score_counter._reduce_score(gid, uid, 10000)
+            add_item(gid, uid, item)
+            num -= 1
+            save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
+            await bot.finish(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')
+        else:
+            num -= 1
+            save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
+            await bot.finish(ev, f'你花嫌弃的看着老板拿出的道具，拒绝了购买')
+
     num -= 1
     score_counter._reduce_score(gid, uid, 10000)
     save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
     item = choose_item()
     add_item(gid, uid, item)
     await bot.finish(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')
+
+
+@buy_item.args_parser
+async def _(session: CommandSession):
+    text = session.current_arg_text
+    img = session.current_arg_images
+    if session.is_first_run:
+        session.state['item'] = 0
+        return
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text
 
 
 @sv_manor.on_prefix("刷新结算")
@@ -552,3 +645,156 @@ async def refresh(bot, ev: CQEvent):
     guid = gid, to_id
     daily_manor_limiter.reset(guid)
     await bot.finish(ev, f"刷新结算成功")
+
+
+@sv_manor.on_prefix("装备熔炼")
+async def equip_fuse(bot, ev: CQEvent):
+    args = ev.message.extract_plain_text().split()
+    gid = ev.group_id
+    uid = ev.user_id
+    num = check_build_counter(gid, uid, BuildModel.EQUIP_CENTER)
+    if num <= 0:
+        await bot.finish(ev, f'你的城市没有装备工坊，无法熔炼装备')
+    modelname = args[0]
+    if len(args) != 1:
+        await bot.finish(ev, '请输入 装备熔炼+装备等级(N/R/SR/SSR/UR/MR) 中间用空格隔开。', at_sender=True)
+    with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
+        equiplist = json.load(fa, strict=False)
+    equiplevel = 0
+    for i in equiplist:
+        if str(modelname) == str(equiplist[i]['model']):
+            equiplevel = equiplist[i]['level']
+            break
+    if equiplevel == 0:
+        await bot.finish(ev, '请输入正确的装备等级(N/R/SR/SSR/UR/MR)。', at_sender=True)
+    CE = CECounter()
+    equip_list = CE._get_equip_list(gid, uid)
+    if len(equip_list) > 0:
+        need = 4  # 需要的装备数量
+        if equiplevel == 6:
+            need = 2  # 如果使用MR熔炼，则消耗变为2
+        if check_technolog_counter(gid, uid, TechnologyModel.REFINING_TECHNOLOGY):
+            need -= 1
+
+        # 统计是否拥有足够数量的装备
+        have_num = 0
+        filter_equip = []
+        for i in equip_list:
+            equipinfo = get_equip_info_id(i[0])
+            if equipinfo['level'] == equiplevel:
+                have_num += i[1]
+                filter_equip.append(i)
+        if have_num <= need:
+            await bot.finish(ev, f'你没有足够数量等级为{modelname}的装备,需求数量为{need}', at_sender=True)
+        # 消耗掉对应装备
+        for i in filter_equip:
+            equipinfo = get_equip_info_id(i[0])
+            equipnum = i[1]
+            if equipnum >= need:
+                deletenum = 0 - need
+                CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
+                break
+            else:
+                deletenum = 0 - equipnum
+                need -= equipnum
+                CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
+        # 获取更高一级的装备
+        eid = equiplevel
+        if equiplevel <= 5:
+            eid = equiplevel + 1
+        rate = [100, 100, 80, 60, 40, 20, 40]
+        rn = random.randint(1, 100)
+        if rn <= rate[equiplevel - 1]:
+            e_li = equiplist[str(eid)]["eid"]
+            awardequip_info = add_equip_info(gid, uid, 6, e_li)
+            await bot.finish(ev,
+                             f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}",
+                             at_sender=True)
+        else:
+            await bot.finish(ev, f'凯丽鼓励你再接再力，总有一天能出货的（熔炼失败）', at_sender=True)
+    else:
+        await bot.finish(ev, f'你背包中没有装备', at_sender=True)
+
+
+@sv_manor.on_fullmatch("科技列表")
+async def technology_li(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    num = check_build_counter(gid, uid, BuildModel.TECHNOLOGY_CENTER)
+    if num <= 0:
+        await bot.finish(ev, f'你的城市没有科技研究所，无法查看科技树', at_sender=True)
+    tas_list = []
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": "====== 科技列表 ======"
+        }
+    }
+    tas_list.append(data)
+    for i in TechnologyModel:
+        msg = f'''
+    {i.value['name']}
+    花费:{i.value['gold']}金币,{i.value['sw']}声望
+    研发时间:{i.value['time']}次领地结算
+    描述:{i.value['desc']}
+    '''.strip()
+        data = {
+            "type": "node",
+            "data": {
+                "name": "ご主人様",
+                "uin": "1587640710",
+                "content": msg
+            }
+        }
+        tas_list.append(data)
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+
+
+@sv_manor.on_fullmatch("我的科技")
+async def technology_my(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    num = check_build_counter(gid, uid, BuildModel.TECHNOLOGY_CENTER)
+    if num <= 0:
+        await bot.finish(ev, f'你的城市没有科技研究所，无法查看科技树', at_sender=True)
+    msg = "\n====== 我的科技 ======"
+    for i in TechnologyModel:
+        if check_technolog_counter(gid, uid, i):
+            msg += f"\n{i.value['name']}"
+    await bot.finish(ev, msg, at_sender=True)
+
+
+# [科技研发] 科技研究所指令，研发新科技
+
+@sv_manor.on_prefix("科技研发")
+async def technology_new(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if not check_build_counter(gid, uid, BuildModel.TECHNOLOGY_CENTER):
+        await bot.finish(ev, f'你的城市没有科技研究所，无法进行科技研发', at_sender=True)
+    technology_name = str(ev.message).strip()
+    # 检查是否已经开启
+    if not technology_name:
+        await bot.finish(ev, "请使用指令 科技研发 + 科技名称 ", at_sender=True)
+
+    t_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
+    if t_id:
+        tm = TechnologyModel.get_by_id(t_id)
+        await bot.finish(ev, f"研发人员正在研究{tm.value['name']},无法接受新的委托", at_sender=True)
+    t_m = TechnologyModel.get_by_name(technology_name)
+    if not t_m:
+        await bot.finish(ev, f"未找到名为{technology_name}的科技", at_sender=True)
+
+    s_c = ScoreCounter2()
+    if s_c._get_score(gid, uid) < t_m.value["gold"]:
+        await bot.finish(ev, f"你没有足够的金币进行研发", at_sender=True)
+    if s_c._get_prestige(gid, uid) < t_m.value["sw"]:
+        await bot.finish(ev, f"你没有足够的声望进行研发", at_sender=True)
+    s_c._reduce_score(gid, uid, t_m.value["gold"])
+    s_c._reduce_prestige(gid, uid, t_m.value["sw"])
+    save_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER, t_m.value['id'])
+    save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_m.value['time'])
+    # 增加研发状态
+    await bot.finish(ev, f"你的科研团队开始研究{t_m.value['name']}了,预期花费{t_m.value['time']}次计算时间可以研究完成", at_sender=True)

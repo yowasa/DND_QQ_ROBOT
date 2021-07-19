@@ -19,7 +19,7 @@ async def duel_help(bot, ev: CQEvent):
 [查询贵族]
 [贵族签到]
 [升级贵族]
-[贵族决斗]@群友
+[贵族决斗] @群友
 [贵族舞会] 招募新角色
 [声望招募] 等级到神才可以操作
 [免费招募] 庆典开启才能使用 每日限一次
@@ -53,6 +53,7 @@ async def duel_help(bot, ev: CQEvent):
 [装备帮助]
 [副本帮助]
 [道具帮助]
+[领地帮助]
 
     *一个女友只属于一位群友
     
@@ -1287,7 +1288,7 @@ async def nobleduel(bot, ev: CQEvent):
     # 判断胜者败者是否需要增减声望
     level_loser = duel._get_level(gid, loser)
     level_winner = duel._get_level(gid, winner)
-    wingold = 800 + (level_loser * 100)
+    wingold = 1500 + (level_loser * 400)
     if win_have_jigu:
         wingold = int(wingold * 1.2)
         bd_msg = '（击鼓传花）' + bd_msg
