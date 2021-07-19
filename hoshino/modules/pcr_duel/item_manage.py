@@ -658,6 +658,13 @@ async def change_item(msg, bot, ev: CQEvent):
         msg += f'\n{new_item["name"]}'
     return (True, msg)
 
+@msg_route("加速世界")
+async def rush_world(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    guid = gid, uid
+    daily_manor_limiter.reset(guid)
+    return (True, f'你的领地内时间忽然流逝了86400秒（领地结算已重置）')
 
 @sv.on_fullmatch("我的决斗币")
 async def search_duel_coin(bot, ev: CQEvent):
