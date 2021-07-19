@@ -18,7 +18,7 @@ async def gift_help(bot, ev: CQEvent):
 [道具效果] {道具名称}
 [使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
 [我的决斗币] 查看自己的决斗币数量
-[兑换物品] {物品等级} 用决斗币兑换指定等级的道具
+[兑换道具] {道具等级} 用决斗币兑换指定等级的道具
 [投放道具] 维护组指令 用来测试道具
 
 注:
@@ -667,7 +667,7 @@ async def search_duel_coin(bot, ev: CQEvent):
     await bot.send(ev, f"当前拥有决斗币数量为{num}", at_sender=True)
 
 
-@sv.on_prefix("兑换物品")
+@sv.on_prefix("兑换道具")
 async def roll_item(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id

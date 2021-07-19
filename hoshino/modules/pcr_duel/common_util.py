@@ -539,7 +539,7 @@ class BuildModel(Enum):
     KELA = {"id": 110, "name": "科拉超深井", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
             "desc": "通向地球中心的超级深井，里面传来了地狱的声音(每日获取一个零时迷子，低概率产出咲夜怀表)"}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
-                      "desc": "拥有无限可能性的裂变中心，他的存在让人裂开（每日获取一个有效分裂,低概率产出四重存在或好事成双）"}
+                      "desc": "拥有无限可能性的裂变中心，他的存在让人裂开（每日获取两个有效分裂,低概率产出四重存在或好事成双）"}
     EQUIP_CENTER = {"id": 112, "name": "装备工坊", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
                     "desc": " 装备工坊 可以使用[装备熔炼]指令，用低级装备合成高级装备 合成品级越高失败率越高"}
     TECHNOLOGY_CENTER = {"id": 113, "name": "科技研究所", "sw": 100000, "gold": 1000000, "area": 30, "time": 5, "limit": 1,
@@ -562,7 +562,7 @@ class BuildModel(Enum):
 
 class TechnologyModel(Enum):
     TRANSPARENT_TRADE = {"id": 201, "name": "透明交易", "sw": 3000, "gold": 30000, "time": 2,
-                         "desc": "购买物品时可以先看物品再决定要不要买，同时价格会根据物品品质变化"}
+                         "desc": "购买物品时可以先看物品再决定要不要买"}
 
     BRANCH_STORE = {"id": 202, "name": "道具分店", "sw": 1000, "gold": 30000, "time": 2,
                     "desc": "商店可以购物两次"}

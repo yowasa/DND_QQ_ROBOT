@@ -3,10 +3,7 @@ from hoshino import priv
 from hoshino.typing import CQEvent
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
-
-sv_manor = Service('领地管理', enable_on_default=False, manage_priv=priv.SUPERUSER, bundle='领地管理', help_=
-"""[领地帮助]查看相关帮助
-""")
+from . import sv
 
 
 class PolicyModel(Enum):
@@ -29,7 +26,7 @@ class PolicyModel(Enum):
         return None
 
 
-@sv_manor.on_fullmatch(['领地帮助'])
+@sv.on_fullmatch(['领地帮助'])
 async def manor_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
@@ -101,7 +98,7 @@ def get_all_build_counter(gid, uid):
     return build_num_map
 
 
-@sv_manor.on_fullmatch("接受封地")
+@sv.on_fullmatch("接受封地")
 async def manor_begin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -148,7 +145,7 @@ async def manor_begin(bot, ev: CQEvent):
     await bot.finish(ev, msg, at_sender=True)
 
 
-@sv_manor.on_fullmatch("领地查询")
+@sv.on_fullmatch("领地查询")
 async def manor_view(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -218,7 +215,7 @@ async def manor_view(bot, ev: CQEvent):
     await bot.finish(ev, msg, at_sender=True)
 
 
-@sv_manor.on_fullmatch("建筑列表")
+@sv.on_fullmatch("建筑列表")
 async def build_view(bot, ev: CQEvent):
     tas_list = []
     data = {
@@ -251,7 +248,7 @@ async def build_view(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
-@sv_manor.on_prefix("拆除建筑")
+@sv.on_prefix("拆除建筑")
 async def _build(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -278,7 +275,7 @@ async def _build(bot, ev: CQEvent):
     await bot.finish(ev, f"施工队对{b_m.value['name']}进行了爆破，随着一声巨响，这栋建筑永远的消失了", at_sender=True)
 
 
-@sv_manor.on_prefix("建造建筑")
+@sv.on_prefix("建造建筑")
 async def _build(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -323,7 +320,7 @@ async def _build(bot, ev: CQEvent):
     await bot.finish(ev, f"你大兴土木开始建造了{b_m.value['name']}了,预期花费{b_m.value['time']}次计算时间可以建筑完成", at_sender=True)
 
 
-@sv_manor.on_fullmatch("领地结算")
+@sv.on_fullmatch("领地结算")
 async def manor_sign(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -452,7 +449,7 @@ async def manor_sign(bot, ev: CQEvent):
         if t_cd != 0:
             t_cd -= 1
             if t_cd == 0:
-                buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+                buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
                 technology = TechnologyModel.get_by_id(buffer_technology_id)
                 i_c = ItemCounter()
                 i_c._save_user_state(gid, uid, technology.value['id'], 1)
@@ -524,8 +521,8 @@ async def manor_sign(bot, ev: CQEvent):
                     item = get_item_by_name("好事成双")
                 else:
                     item = get_item_by_name("有效分裂")
-                add_item(gid, uid, item)
-                msg += f'\n裂变中心正常运转，你获得了{item["rank"]}级道具{item["name"]}'
+                add_item(gid, uid, item,num=2)
+                msg += f'\n裂变中心正常运转，你获得了2个{item["rank"]}级道具{item["name"]}'
 
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
@@ -549,7 +546,7 @@ async def manor_sign(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv_manor.on_prefix("政策选择")
+@sv.on_prefix("政策选择")
 async def manor_policy(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -565,7 +562,7 @@ async def manor_policy(bot, ev: CQEvent):
     await bot.finish(ev, f'你颁布了行政法令，要求{pm.value[1]}')
 
 
-@sv_manor.on_prefix("税率调整")
+@sv.on_prefix("税率调整")
 async def manor_tax(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -583,7 +580,7 @@ async def manor_tax(bot, ev: CQEvent):
 from hoshino.typing import CommandSession
 
 
-@sv_manor.on_command("购买道具")
+@sv.on_command("购买道具")
 async def buy_item(session: CommandSession):
     bot = session.bot
     ev = session.event
@@ -601,7 +598,8 @@ async def buy_item(session: CommandSession):
         if not session.state['item']:
             item = choose_item()
             session.state['item'] = item["name"]
-        jieshou = session.get('jieshou', prompt=f'商店老板拿出的道具为{item["rank"]}级道具{item["name"]},是否要购买(是|否)回答其他内容默认为是')
+            jieshou = session.get('jieshou', prompt=f'商店老板拿出的道具为{item["rank"]}级道具{item["name"]},是否要购买(是|否)回答其他内容默认为是')
+        jieshou = session.get('jieshou')
         if jieshou != '否':
             item = get_item_by_name(session.state['item'])
             score_counter._reduce_score(gid, uid, 10000)
@@ -612,7 +610,7 @@ async def buy_item(session: CommandSession):
         else:
             num -= 1
             save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
-            await bot.finish(ev, f'你花嫌弃的看着老板拿出的道具，拒绝了购买')
+            await bot.finish(ev, f'你一脸嫌弃的看着老板拿出的道具，拒绝了购买')
 
     num -= 1
     score_counter._reduce_score(gid, uid, 10000)
@@ -635,7 +633,7 @@ async def _(session: CommandSession):
         session.state[session.current_key] = text
 
 
-@sv_manor.on_prefix("刷新结算")
+@sv.on_prefix("刷新结算")
 async def refresh(bot, ev: CQEvent):
     gid = ev.group_id
     if not priv.check_priv(ev, priv.SUPERUSER):
@@ -647,7 +645,7 @@ async def refresh(bot, ev: CQEvent):
     await bot.finish(ev, f"刷新结算成功")
 
 
-@sv_manor.on_prefix("装备熔炼")
+@sv.on_prefix("装备熔炼")
 async def equip_fuse(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
@@ -684,7 +682,7 @@ async def equip_fuse(bot, ev: CQEvent):
             if equipinfo['level'] == equiplevel:
                 have_num += i[1]
                 filter_equip.append(i)
-        if have_num <= need:
+        if have_num < need:
             await bot.finish(ev, f'你没有足够数量等级为{modelname}的装备,需求数量为{need}', at_sender=True)
         # 消耗掉对应装备
         for i in filter_equip:
@@ -702,11 +700,11 @@ async def equip_fuse(bot, ev: CQEvent):
         eid = equiplevel
         if equiplevel <= 5:
             eid = equiplevel + 1
-        rate = [100, 100, 80, 60, 40, 20, 40]
+        rate = [100, 100, 80, 60, 30, 40]
         rn = random.randint(1, 100)
         if rn <= rate[equiplevel - 1]:
             e_li = equiplist[str(eid)]["eid"]
-            awardequip_info = add_equip_info(gid, uid, 6, e_li)
+            awardequip_info = add_equip_info(gid, uid, eid, e_li)
             await bot.finish(ev,
                              f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}",
                              at_sender=True)
@@ -716,7 +714,7 @@ async def equip_fuse(bot, ev: CQEvent):
         await bot.finish(ev, f'你背包中没有装备', at_sender=True)
 
 
-@sv_manor.on_fullmatch("科技列表")
+@sv.on_fullmatch("科技列表")
 async def technology_li(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -735,10 +733,10 @@ async def technology_li(bot, ev: CQEvent):
     tas_list.append(data)
     for i in TechnologyModel:
         msg = f'''
-    {i.value['name']}
-    花费:{i.value['gold']}金币,{i.value['sw']}声望
-    研发时间:{i.value['time']}次领地结算
-    描述:{i.value['desc']}
+{i.value['name']}
+花费:{i.value['gold']}金币,{i.value['sw']}声望
+研发时间:{i.value['time']}次领地结算
+描述:{i.value['desc']}
     '''.strip()
         data = {
             "type": "node",
@@ -752,7 +750,7 @@ async def technology_li(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
-@sv_manor.on_fullmatch("我的科技")
+@sv.on_fullmatch("我的科技")
 async def technology_my(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -768,7 +766,7 @@ async def technology_my(bot, ev: CQEvent):
 
 # [科技研发] 科技研究所指令，研发新科技
 
-@sv_manor.on_prefix("科技研发")
+@sv.on_prefix("科技研发")
 async def technology_new(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
