@@ -46,7 +46,7 @@ async def my_item(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_prefix(['道具效果', '道具查询'])
+@sv.on_prefix(['道具效果', '道具查询', '查询道具'])
 async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
     info = ITEM_NAME_MAP.get(name)
@@ -62,7 +62,12 @@ async def item_info(bot, ev: CQEvent):
     if not priv.check_priv(ev, priv.SUPERUSER):
         await bot.finish(ev, f"你无权使用投放道具功能", at_sender=True)
     msg = str(ev.message).strip().split()
-    fa_uid = int(msg[0])
+    try:
+        fa_uid = int(msg[0])
+    except ValueError:
+        fa_uid = int(ev.message[1].data['qq'])
+    except:
+        await bot.finish(ev, '参数格式错误')
     item_info = ITEM_NAME_MAP[msg[1]]
     if not item_info:
         await bot.finish(ev, f"未找到名称为{msg[1]}的道具", at_sender=True)
@@ -658,6 +663,7 @@ async def change_item(msg, bot, ev: CQEvent):
         msg += f'\n{new_item["name"]}'
     return (True, msg)
 
+
 @msg_route("加速世界")
 async def rush_world(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -666,7 +672,8 @@ async def rush_world(msg, bot, ev: CQEvent):
     daily_manor_limiter.reset(guid)
     return (True, f'你的领地内时间忽然流逝了86400秒（领地结算已重置）')
 
-@sv.on_fullmatch("我的决斗币")
+
+@sv.on_fullmatch("我的决斗币", "决斗币查询", "查询决斗币")
 async def search_duel_coin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id

@@ -12,7 +12,7 @@ import zipfile
 import imageio
 from pygifsicle import optimize
 import math
-
+from .PixivCounter import PixivCounter
 from hoshino.typing import CQEvent
 
 """
@@ -45,54 +45,54 @@ CACHE_FILE = 'ghs/cache/'
 # 缓存大图文件
 CACHE_FULL_FILE = 'ghs/full/'
 
-DB_PATH = os.path.expanduser(BASE_DB_PATH + "ghs.db")
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-db = SqliteDatabase(DB_PATH)
+# DB_PATH = os.path.expanduser(BASE_DB_PATH + "ghs.db")
+# os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+# db = SqliteDatabase(DB_PATH)
 
 
-class BaseModel(Model):
-    class Meta:
-        database = db
-        only_save_dirty = True
-
-
-# 订阅信息
-class Subscribe(BaseModel):
-    id = AutoField()
-    user_type = CharField()  # user group
-    user_id = IntegerField(index=True)  # qq号 群号
-    clazz = CharField()  # pixiv twitter
-    type = CharField()  # day day_r18 user
-    type_user = IntegerField()  # 作者id 推主id
-
-
-# 订阅图库log
-class SubscribeSendLog(BaseModel):
-    id = AutoField()
-    user_type = CharField()  # user group
-    user_id = IntegerField(index=True)  # qq号 群号
-    clazz = CharField()  # pixiv twitter
-    message_id = IntegerField(index=True)  # 图片id 推文id
-    message_info = CharField()
-    send_flag = BooleanField(null=False, default=False)
-
-
-# 用户配置
-class User(BaseModel):
-    qq_number = BigIntegerField(index=True, unique=True)
-    pixiv_detail = BooleanField(null=False, default=False)
-
-
-# 群组配置
-class Group(BaseModel):
-    group_number = BigIntegerField(index=True, unique=True)
-    auto_delete = BooleanField(null=False, default=True)
-
-
-Subscribe.create_table()
-SubscribeSendLog.create_table()
-User.create_table()
-Group.create_table()
+# class BaseModel(Model):
+#     class Meta:
+#         database = db
+#         only_save_dirty = True
+#
+#
+# # 订阅信息
+# class Subscribe(BaseModel):
+#     id = AutoField()
+#     user_type = CharField()  # user group
+#     user_id = IntegerField(index=True)  # qq号 群号
+#     clazz = CharField()  # pixiv twitter
+#     type = CharField()  # day day_r18 user
+#     type_user = IntegerField()  # 作者id 推主id
+#
+#
+# # 订阅图库log
+# class SubscribeSendLog(BaseModel):
+#     id = AutoField()
+#     user_type = CharField()  # user group
+#     user_id = IntegerField(index=True)  # qq号 群号
+#     clazz = CharField()  # pixiv twitter
+#     message_id = IntegerField(index=True)  # 图片id 推文id
+#     message_info = CharField()
+#     send_flag = BooleanField(null=False, default=False)
+#
+#
+# # 用户配置
+# class User(BaseModel):
+#     qq_number = BigIntegerField(index=True, unique=True)
+#     pixiv_detail = BooleanField(null=False, default=False)
+#
+#
+# # 群组配置
+# class Group(BaseModel):
+#     group_number = BigIntegerField(index=True, unique=True)
+#     auto_delete = BooleanField(null=False, default=True)
+#
+#
+# Subscribe.create_table()
+# SubscribeSendLog.create_table()
+# User.create_table()
+# Group.create_table()
 
 api = AppPixivAPI()
 
@@ -236,9 +236,11 @@ async def checksub(bot, ev: CQEvent):
         user_id = ev.discuss_id
     else:
         bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
-    old = Subscribe.get_or_none(
-        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                Subscribe.type == 'user') & (Subscribe.type_user == comm))
+    pc = PixivCounter()
+    old = pc._get_subscribe_id(user_id, msg, 'pixiv', 'user', comm)
+    # old = Subscribe.get_or_none(
+    #     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+    #             Subscribe.type == 'user') & (Subscribe.type_user == comm))
     if not old:
         result = '未订阅'
     else:
@@ -268,14 +270,19 @@ async def sublist(bot, ev: CQEvent):
         user_id = ev.discuss_id
     else:
         await bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
-    pack_info = [trancetype(str(sub.type)) for sub in
-                 Subscribe.select().where(
-                     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                             Subscribe.type != 'user'))]
-    user_infos = [str(sub.type_user) for sub in
-                  Subscribe.select().where(
-                      (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                              Subscribe.type == 'user'))]
+    pc = PixivCounter()
+
+    pack_info = [trancetype(str(sub[0])) for sub in pc._select_no_user_type(user_id, msg, 'pixiv')]
+    user_infos = [trancetype(str(sub[0])) for sub in pc._select_user_type(user_id, msg, 'pixiv')]
+    # pack_info = [trancetype(str(sub.type)) for sub in
+    #              Subscribe.select().where(
+    #                  (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+    #                          Subscribe.type != 'user'))]
+
+    # user_infos = [str(sub.type_user) for sub in
+    #               Subscribe.select().where(
+    #                   (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+    #                           Subscribe.type == 'user'))]
     return_msg = ''
     if pack_info:
         return_msg += '套餐\n' + '\n'.join(pack_info) + '\n\n'
@@ -299,17 +306,20 @@ async def unsubscribe(bot, ev: CQEvent):
         user_id = ev.discuss_id
     else:
         await bot.finish(ev, '不支持群/私聊/讨论组以外的订阅方式')
-    old = Subscribe.get_or_none(
-        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                Subscribe.type == 'user') & (Subscribe.type_user == comm))
+    pc = PixivCounter()
+    old = pc._get_subscribe_id(user_id, msg, 'pixiv', 'user', comm)
+    # old = Subscribe.get_or_none(
+    #     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+    #             Subscribe.type == 'user') & (Subscribe.type_user == comm))
     if not old:
         await bot.send(ev, '未订阅过该作者作品')
     else:
-        old.delete_instance()
+        pc._del_by_subscribe_id(old)
+        # old.delete_instance()
         await bot.send(ev, '取消订阅成功')
 
 
-@sv_img.scheduled_job('cron', hour='*/4', minute='10',second='30')
+@sv_img.scheduled_job('cron', hour='*/4', minute='10', second='30')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
     try:
@@ -324,7 +334,9 @@ async def scan_job():
         sv_img.logger.info("抓取公开收藏夹信息成功")
         result_private = api.illust_follow(restrict='private')
         sv_img.logger.info("抓取私人收藏夹信息成功")
-        query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
+        # query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
+        pc = PixivCounter()
+        query = pc._select_all_subinfo_by_class('pixiv')
         for each in query:
             if each.type == 'day':
                 await build_result(each, results.illusts)
@@ -365,16 +377,18 @@ async def fetch_sub(bot, ev: CQEvent):
                 limit = int(msg)
         else:
             bot.finish(ev, "请输入1-5的数字")
-
-    query = SubscribeSendLog.select().where(
-        (SubscribeSendLog.user_id == ev.group_id) & (SubscribeSendLog.send_flag == False) & (
-                SubscribeSendLog.user_type == type)).limit(limit)
-    if not query.count():
+    pc = PixivCounter()
+    query = pc.select_sendlog_limit(ev.group_id, type, 0, limit)
+    # query = SubscribeSendLog.select().where(
+    #     (SubscribeSendLog.user_id == ev.group_id) & (SubscribeSendLog.send_flag == False) & (
+    #             SubscribeSendLog.user_type == type)).limit(limit)
+    if not query:
         await bot.finish(ev, "已经一滴也没有了")
     for e in query:
         await bot.send(ev, e.message_info)
-        e.send_flag = True
-        e.save()
+        # e.send_flag = True
+        # e.save()
+        pc.set_sendlog_flag(e.id)
         await asyncio.sleep(3)
 
 
@@ -404,39 +418,50 @@ async def send_job():
 
 
 def get_auto_delete(group_id):
-    group = Group.get_or_none(Group.group_number == group_id)
-    if not group:
-        group = Group(group_number=group_id, auto_delete=True)
-        group.save()
-    return group.auto_delete
+    pc = PixivCounter()
+    return pc._get_group_auto_delete()
+    # group = Group.get_or_none(Group.group_number == group_id)
+    # if not group:
+    #     group = Group(group_number=group_id, auto_delete=True)
+    #     group.save()
+    # return group.auto_delete
 
 
 def set_auto_delete(group_id, switch):
-    group = Group.get_or_none(Group.group_number == group_id)
-    if not group:
-        group = Group(group_number=group_id, auto_delete=switch)
-        group.save()
-    else:
-        group.auto_delete = switch
-        group.save()
+    pc = PixivCounter()
+    auto = 1 if switch else 0
+    pc._save_group_auto_delete(group_id, auto)
+    # group = Group.get_or_none(Group.group_number == group_id)
+    # if not group:
+    #     group = Group(group_number=group_id, auto_delete=switch)
+    #     group.save()
+    # else:
+    #     group.auto_delete = switch
+    #     group.save()
 
 
 def get_need_detail(qq_number):
-    user = User.get_or_none(User.qq_number == qq_number)
-    if not user:
-        user = User(qq_number=qq_number, pixiv_detail=False)
-        user.save()
-    return user.pixiv_detail
+    pc = PixivCounter()
+    return pc._get_user_need_detail(qq_number)
+    #
+    # user = User.get_or_none(User.qq_number == qq_number)
+    # if not user:
+    #     user = User(qq_number=qq_number, pixiv_detail=False)
+    #     user.save()
+    # return user.pixiv_detail
 
 
 def set_need_detail(qq_number, switch):
-    user = User.get_or_none(User.qq_number == qq_number)
-    if not user:
-        user = User(qq_number=qq_number, pixiv_detail=switch)
-        user.save()
-    else:
-        user.pixiv_detail = switch
-        user.save()
+    pc = PixivCounter()
+    need = 1 if switch else 0
+    pc._save_user_need_detail(qq_number, need)
+    # user = User.get_or_none(User.qq_number == qq_number)
+    # if not user:
+    #     user = User(qq_number=qq_number, pixiv_detail=switch)
+    #     user.save()
+    # else:
+    #     user.pixiv_detail = switch
+    #     user.save()
 
 
 async def img_search(ev: CQEvent, group=False, r18=False):
@@ -511,7 +536,7 @@ def package_pixiv_img(illust, group=False):
     if message:
         return message
     if illust.get('type') == "ugoira":
-        result=gen_gif_response(illust.get('id'))
+        result = gen_gif_response(illust.get('id'))
         # result=gen_gif_response(illust.get('id'))
         try:
             cache._set_cache(illust.get('id'), group, str(result))
@@ -578,14 +603,15 @@ def gen_gif_response(ill_id):
     if not os.path.exists(target_name):
         api.download(url, path=R.img(f'ghs/gif').path, replace=True)
         unzip_single(R.img(f'ghs/gif/{zip_name}').path, path)
-        filenames = sorted((os.path.join(path,fn)  for fn in os.listdir(path)))
+        filenames = sorted((os.path.join(path, fn) for fn in os.listdir(path)))
         package_2_gif(filenames, target_name, fps=fps)
     return str(R.img(f'ghs/gif/{gif_name}').cqcode)
+
 
 def gen_webp_response(ill_id):
     result = api.ugoira_metadata(ill_id)
     url = result.get('ugoira_metadata').get('zip_urls').get('medium')
-    duration=[i.get('delay') for i in result.get('ugoira_metadata').get('frames')]
+    duration = [i.get('delay') for i in result.get('ugoira_metadata').get('frames')]
     zip_name = url[url.rfind("/") + 1:]
     name = zip_name.replace('.zip', '')
     path = R.img(f'ghs/gif/{name}').path
@@ -594,9 +620,10 @@ def gen_webp_response(ill_id):
     if not os.path.exists(target_name):
         api.download(url, path=R.img(f'ghs/gif').path, replace=True)
         unzip_single(R.img(f'ghs/gif/{zip_name}').path, path)
-        filenames = sorted((os.path.join(path,fn)  for fn in os.listdir(path)))
+        filenames = sorted((os.path.join(path, fn) for fn in os.listdir(path)))
         package_2_webp(filenames, target_name, duration=duration)
     return str(R.img(f'ghs/gif/{gif_name}').cqcode)
+
 
 def unzip_single(src_file, dest_dir):
     zf = zipfile.ZipFile(src_file)
@@ -606,12 +633,14 @@ def unzip_single(src_file, dest_dir):
         print(e)
     zf.close()
 
+
 def package_2_webp(filenames, target_file, duration):
     filestreams = []
     for i in filenames:
         filestreams += [Image.open(i)]
     filestreams[0].save(target_file, "webp", save_all=True,
                         append_images=filestreams[1:], duration=duration)
+
 
 def package_2_gif(filenames, target_file, fps=12):
     images = []
@@ -621,11 +650,12 @@ def package_2_gif(filenames, target_file, fps=12):
     optimize(target_file, options=["--lossy"], colors=64)
     optimize_gif(target_file)
 
+
 def optimize_gif(target_file):
     size = os.path.getsize(target_file) / (1024 * 1024)
     if size < 3:
         return
-    ratio = math.sqrt((3/size))
+    ratio = math.sqrt((3 / size))
     optimize(target_file, options=["--lossy", f"--scale={ratio}"])
 
 
@@ -703,9 +733,11 @@ async def build_result(subscribe, illusts):
     for illust in illusts:
         mapping[illust.get("id")] = illust
         ill_ids.append(illust.get("id"))
-    logs = SubscribeSendLog.select().where(
-        (SubscribeSendLog.user_id == subscribe.user_id) & (SubscribeSendLog.user_type == subscribe.user_type) & (
-                SubscribeSendLog.message_id in ill_ids))
+    pc = PixivCounter()
+    logs = pc.select_sendlog(subscribe.user_id, subscribe.user_type, ill_ids)
+    # logs = SubscribeSendLog.select().where(
+    #     (SubscribeSendLog.user_id == subscribe.user_id) & (SubscribeSendLog.user_type == subscribe.user_type) & (
+    #             SubscribeSendLog.message_id in ill_ids))
     for log in logs:
         if log.message_id in ill_ids:
             ill_ids.remove(log.message_id)
@@ -713,19 +745,22 @@ async def build_result(subscribe, illusts):
         illust = mapping.get(i)
         message = await asyncio.get_event_loop().run_in_executor(
             None, partial(package_pixiv_img, illust, True))
-        sublog = SubscribeSendLog()
-        sublog.user_id = subscribe.user_id
-        sublog.user_type = subscribe.user_type
-        sublog.clazz = 'pixiv'
-        sublog.message_id = i
-        sublog.message_info = message
-        sublog.send_flag = False
-        sublog.save()
+        pc._save_sendlog(subscribe.user_id, subscribe.user_type, 'pixiv', i, message)
+        # sublog = SubscribeSendLog()
+        # sublog.user_id = subscribe.user_id
+        # sublog.user_type = subscribe.user_type
+        # sublog.clazz = 'pixiv'
+        # sublog.message_id = i
+        # sublog.message_info = message
+        # sublog.send_flag = False
+        # sublog.save()
 
 
 def send_list():
     result = []
-    query = SubscribeSendLog.select().where(SubscribeSendLog.send_flag == False).group_by(SubscribeSendLog.user_id)
+    pc = PixivCounter()
+    query = pc.select_no_send_group()
+    # query = SubscribeSendLog.select().where(SubscribeSendLog.send_flag == False).group_by(SubscribeSendLog.user_id)
 
     for e in query:
         content = bulid_context(e.user_id, e.user_type)
@@ -765,22 +800,25 @@ def add_subscribe(ev, ttype, Auth_User=0):
         if len(results_users.illusts) == 0:
             return '此id不存在作品'
         ttype = 'user'
-
-    old = Subscribe.get_or_none(
-        (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
-                Subscribe.type == ttype) & (Subscribe.type_user == Auth_User))
+    pc = PixivCounter()
+    old = pc._get_subscribe_id(user_id, msg, 'pixiv', 'user', Auth_User)
+    # old = Subscribe.get_or_none(
+    #     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
+    #             Subscribe.type == ttype) & (Subscribe.type_user == Auth_User))
     if not old:
-        newSub = Subscribe()
-        newSub.user_type = msg
-        newSub.user_id = user_id
-        newSub.clazz = 'pixiv'
-        newSub.type = ttype
-        newSub.type_user = Auth_User
-        newSub.save()
+        pc._save_subscribe(user_id, msg, 'pixiv', ttype, Auth_User)
+        # newSub = Subscribe()
+        # newSub.user_type = msg
+        # newSub.user_id = user_id
+        # newSub.clazz = 'pixiv'
+        # newSub.type = ttype
+        # newSub.type_user = Auth_User
+        # newSub.save()
         return '订阅成功'
     else:
         if ttype != 'user':
-            old.delete_instance()
+            pc._del_by_subscribe_id(old)
+            # old.delete_instance()
             return '取消自动订阅'
         else:
             return '已经订阅 无需重复操作'

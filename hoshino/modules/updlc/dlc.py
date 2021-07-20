@@ -42,76 +42,78 @@ def write_json(name, content):
 # 开始下标
 BEGIN_INDEX = 20000
 
-@sv.on_command('增加时装',aliases=('添加时装'))
+
+@sv.on_command('增加时装', aliases=('添加时装'))
 async def fashion_add(session: CommandSession):
     bot = session.bot
     ev = session.event
-    search_name=session.get('search_name', prompt='请输入要添加时装的角色名')
+    search_name = session.get('search_name', prompt='请输入要添加时装的角色名')
     chara_id = duel_chara.name2id(search_name)
     if chara_id == UNKNOWN:
         await bot.finish(ev, f'未查询到名称为{search_name}的女友信息')
-    chara_info=duel_chara.fromid(chara_id)
+    chara_info = duel_chara.fromid(chara_id)
 
     fashioninfo = duelconfig.get_fashion(chara_id)
     number = len(fashioninfo)
-    if number>=3:
+    if number >= 3:
         await bot.finish(ev, f'女友{chara_info.name}已经存在3件以上时装，无法继续添加')
     name = session.get('name', prompt='输入时装名称')
     for each in fashioninfo:
-        if each['name']==name:
+        if each['name'] == name:
             await bot.finish(ev, f'时装名{name}已经存在,请换一个')
     img = session.get('imgs', prompt='输入时装图片（不要太大，否则会限制发送无法展示）')
     if type(img) == list:
         img = img[0]
-    fid=len(cfg.fashionlist)+1
+    fid = len(cfg.fashionlist) + 1
 
-    info={
+    info = {
         "fid": fid,
         "name": name,
         "cid": chara_id,
-        "pay_score": 50000+number*50000,
-        "pay_sw": 500+number*500,
-        "favor": 50+number*50,
-        "add_ce": 100+number*100,
+        "pay_score": 50000 + number * 50000,
+        "pay_sw": 500 + number * 500,
+        "favor": 50 + number * 50,
+        "add_ce": 100 + number * 100,
         "xd_flag": 0,
         "content": "时装商城购买"
     }
-    cfg.fashionlist[str(fid)]=info
+    cfg.fashionlist[str(fid)] = info
     cfg.save_fashion()
     hash_name = requests_download_url(img, R.get('img/dlc/cache/').path)
     shutil.move(R.img(f'dlc/cache/{hash_name}').path,
                 os.path.join(R.img(f'dlc/fashion').path, f'{fid}.jpg'))
     await bot.send(session.event, f"添加时装成功")
 
-@sv.on_command('修改时装',aliases=('更新时装'))
+
+@sv.on_command('修改时装', aliases=('更新时装'))
 async def fashion_update(session: CommandSession):
     bot = session.bot
     ev = session.event
-    search_name=session.get('search_name', prompt='请输入要更新时装的角色名')
+    search_name = session.get('search_name', prompt='请输入要更新时装的角色名')
     chara_id = duel_chara.name2id(search_name)
     if chara_id == UNKNOWN:
         await bot.finish(ev, f'未查询到名称为{search_name}的女友信息')
     name = session.get('name', prompt='输入时装名称')
 
     fashioninfo = duelconfig.get_fashion(chara_id)
-    fid=-1
+    fid = -1
     for each in fashioninfo:
-        if each['name']==name:
-            fid=each['fid']
+        if each['name'] == name:
+            fid = each['fid']
             break
-    if fid<0:
+    if fid < 0:
         await bot.finish(ev, f'未找到时装名为"{name}"的时装')
 
     new_name = session.get('new_name', prompt=f'输入新的时装名称（原名称为{name}）')
     for each in fashioninfo:
-        if each['name']==new_name and each['fid']!=fid:
+        if each['name'] == new_name and each['fid'] != fid:
             await bot.finish(ev, f'时装名{new_name}已经存在,请换一个')
     img = session.get('imgs', prompt='输入时装图片（不要太大，否则会限制发送无法展示）')
     if type(img) == list:
         img = img[0]
-    old=cfg.fashionlist[str(fid)]
+    old = cfg.fashionlist[str(fid)]
 
-    info={
+    info = {
         "fid": fid,
         "name": new_name,
         "cid": chara_id,
@@ -122,7 +124,7 @@ async def fashion_update(session: CommandSession):
         "xd_flag": 0,
         "content": "时装商城购买"
     }
-    cfg.fashionlist[str(fid)]=info
+    cfg.fashionlist[str(fid)] = info
     cfg.save_fashion()
     hash_name = requests_download_url(img, R.get('img/dlc/cache/').path)
     shutil.move(R.img(f'dlc/cache/{hash_name}').path,
@@ -143,6 +145,7 @@ async def _(session: CommandSession):
     else:
         session.state[session.current_key] = text
 
+
 @fashion_update.args_parser
 async def _(session: CommandSession):
     text = session.current_arg_text
@@ -155,6 +158,7 @@ async def _(session: CommandSession):
         session.state[session.current_key] = img
     else:
         session.state[session.current_key] = text
+
 
 @sv.on_command('增加dlc', aliases=('添加dlc'))
 async def dlc_add(session: CommandSession):
@@ -188,20 +192,22 @@ async def ad_p(session: CommandSession):
     else:
         session.state[session.current_key] = text
 
+
 @sv.on_prefix(['dlc角色列表'])
 async def dlc_list(bot, ev: CQEvent):
-    msg=str(ev.message).strip()
+    msg = str(ev.message).strip()
     contents = get_json('dlc_config')
     dlc = contents.get(msg)
     if not dlc:
         await bot.finish(ev, f'未找到自定义DLC "{msg}"')
     chara_json = get_json('chara')
-    ca_li=[]
+    ca_li = []
     for key, values in chara_json.items():
         if int(dlc['index']) <= int(key) <= int(dlc['to']):
             ca_li.append(values[0])
-    msg = "====角色列表====\n"+' '.join(ca_li)
+    msg = "====角色列表====\n" + ' '.join(ca_li)
     await bot.send(ev, message=msg)
+
 
 @sv.on_prefix(['自定义dlc列表'])
 async def dlc_list(bot, ev: CQEvent):
@@ -226,7 +232,7 @@ async def search_chara(bot, ev: CQEvent):
     if chara_id == UNKNOWN:
         await bot.finish(ev, f'未查询到名称为{msg}的女友信息')
     chara = duel_chara.fromid(chara_id)
-    old_name=chara.name
+    old_name = chara.name
     if chara_id < 20000:
         await bot.finish(ev, f'女友{chara.name}不是自定义女友')
     chara_json = get_json('chara')

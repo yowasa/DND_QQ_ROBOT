@@ -2952,6 +2952,9 @@ async def fashion_list(bot, ev: CQEvent):
             await bot.send(ev, msg, at_sender=True)
 
 
+UNKNOWN = 1000
+
+
 @sv.on_prefix(['购买时装', '买时装'])
 async def buy_fashion(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
@@ -2963,13 +2966,21 @@ async def buy_fashion(bot, ev: CQEvent):
     if duel_judger.get_on_off_status(ev.group_id):
         msg = '现在正在决斗中哦，请决斗后再来买时装吧。'
         await bot.finish(ev, msg, at_sender=True)
-        return
     if not args:
-        await bot.finish(ev, '请输入购买时装+时装名。', at_sender=True)
-        return
-
-    name = args[0]
-    fashioninfo = get_fashion_buy(name)
+        await bot.finish(ev, '请输入购买时装+角色名+时装名。', at_sender=True)
+    if len(args) < 2:
+        await bot.finish(ev, '请输入购买时装+角色名+时装名。', at_sender=True)
+    c_name = args[0]
+    f_name = args[1]
+    chara_id = duel_chara.name2id(c_name)
+    if chara_id == UNKNOWN:
+        await bot.finish(ev, f'未查询到名称为{c_name}的女友信息')
+    fashioninfo_li = get_fashion(chara_id)
+    fashioninfo = None
+    for i in fashioninfo_li:
+        if i['name'] == f_name:
+            fashioninfo = i
+            break
     if fashioninfo:
         cid = fashioninfo['cid']
         buy_info = duel._get_fashionbuy(gid, uid, cid, fashioninfo['fid'])

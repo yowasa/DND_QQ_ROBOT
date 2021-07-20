@@ -98,7 +98,7 @@ def get_all_build_counter(gid, uid):
     return build_num_map
 
 
-@sv.on_fullmatch("接受封地")
+@sv.on_fullmatch(['接受封地', '开启领地'])
 async def manor_begin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -145,7 +145,7 @@ async def manor_begin(bot, ev: CQEvent):
     await bot.finish(ev, msg, at_sender=True)
 
 
-@sv.on_fullmatch("领地查询")
+@sv.on_fullmatch(["领地查询", "查询领地", "我的领地"])
 async def manor_view(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -521,7 +521,7 @@ async def manor_sign(bot, ev: CQEvent):
                     item = get_item_by_name("好事成双")
                 else:
                     item = get_item_by_name("有效分裂")
-                add_item(gid, uid, item,num=2)
+                add_item(gid, uid, item, num=2)
                 msg += f'\n裂变中心正常运转，你获得了2个{item["rank"]}级道具{item["name"]}'
 
     # 计算上缴金额
@@ -645,7 +645,7 @@ async def refresh(bot, ev: CQEvent):
     await bot.finish(ev, f"刷新结算成功")
 
 
-@sv.on_prefix("装备熔炼")
+@sv.on_prefix(["装备熔炼", "熔炼装备"])
 async def equip_fuse(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
@@ -750,7 +750,7 @@ async def technology_li(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
-@sv.on_fullmatch("我的科技")
+@sv.on_fullmatch(["我的科技", "科技查询", "查询科技", "领地科技"])
 async def technology_my(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -766,7 +766,7 @@ async def technology_my(bot, ev: CQEvent):
 
 # [科技研发] 科技研究所指令，研发新科技
 
-@sv.on_prefix("科技研发")
+@sv.on_prefix(["科技研发", "研发科技"])
 async def technology_new(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
