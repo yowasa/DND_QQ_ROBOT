@@ -123,12 +123,9 @@ class PixivCounter():
             )
 
     def _del_by_subscribe_id(self, id):
-        try:
-            self._connect().execute(
-                "DELETE FROM subscribe WHERE id=? ", id)
-
-        except:
-            raise Exception('删除订阅失败')
+        with self._connect() as conn:
+            conn.execute(
+                f"DELETE FROM subscribe WHERE id={id} ")
 
     def _select_no_user_type(self, user_id, user_type, clazz):
         try:
@@ -142,7 +139,7 @@ class PixivCounter():
     def _select_user_type(self, user_id, user_type, clazz):
         try:
             r = self._connect().execute(
-                'SELECT "type" FROM subscribe WHERE user_id=? AND "user_type"=? AND "clazz"=? AND "type"="user"',
+                'SELECT "type_user" FROM subscribe WHERE user_id=? AND "user_type"=? AND "clazz"=? AND "type"="user"',
                 (user_id, user_type, clazz)).fetchall()
             return [] if r is None else r
         except:
@@ -151,11 +148,10 @@ class PixivCounter():
     def _select_all_subinfo_by_class(self, clazz):
         try:
             r = self._connect().execute(
-                'SELECT * FROM subscribe WHERE "clazz"=?',
-                (clazz)).fetchall()
+                f'SELECT * FROM subscribe WHERE clazz="{clazz}"', ).fetchall()
             return [] if r is None else [trance_subobj(e) for e in r]
         except:
-            raise Exception('查找p站缓存时生错误')
+            raise Exception('查找所有订阅时时生错误')
 
     def select_sendlog_limit(self, user_id, user_type, send_flag, limit):
         try:
@@ -169,8 +165,7 @@ class PixivCounter():
     def select_sendlog(self, user_id, user_type, message_id_li):
         try:
             r = self._connect().execute(
-                'SELECT * FROM subscribesendlog WHERE "user_id"=? AND user_type=? AND message_id in (?)',
-                (user_id, user_type, ','.join(message_id_li))).fetchall()
+                f'SELECT * FROM subscribesendlog WHERE "user_id"={user_id} AND user_type="{user_type}" AND message_id in ({",".join([str(r) for r in message_id_li])})').fetchall()
             return [] if r is None else [trance_sendlogobj(e) for e in r]
         except:
             raise Exception('查找p站缓存时生错误')
@@ -178,12 +173,12 @@ class PixivCounter():
     def set_sendlog_flag(self, id):
         with self._connect() as conn:
             conn.execute(
-                "UPDATE subscribe SET send_flag=1 WHERE id=? ", id)
+                f"UPDATE subscribesendlog SET send_flag=1 WHERE id={id}")
 
     def _save_sendlog(self, user_id, user_type, clazz, message_id, message_info, send_flag=0):
         with self._connect() as conn:
             conn.execute(
-                'INSERT INTO subscribe (user_id, user_type, clazz, message_id, message_info,send_flag) VALUES (?, ?, ?, ?, ?,?)',
+                'INSERT INTO subscribesendlog (user_id, user_type, clazz, message_id, message_info,send_flag) VALUES (?, ?, ?, ?, ?,?)',
                 (user_id, user_type, clazz, message_id, message_info, send_flag),
             )
 
@@ -198,7 +193,7 @@ class PixivCounter():
     def _get_group_auto_delete(self, group_id):
         try:
             r = self._connect().execute(
-                'SELECT auto_delete FROM "group" WHERE user_id=?', group_id).fetchone()
+                f'SELECT auto_delete FROM "group" WHERE group_number={group_id}').fetchone()
             return 1 if r is None else r[0]
         except:
             raise Exception('查找p站缓存时生错误')
@@ -213,10 +208,10 @@ class PixivCounter():
     def _get_user_need_detail(self, qq_number):
         try:
             r = self._connect().execute(
-                'SELECT pixiv_detail FROM "user" WHERE qq_number=?', qq_number).fetchone()
+                f'SELECT pixiv_detail FROM "user" WHERE qq_number = {qq_number}').fetchone()
             return 0 if r is None else r[0]
         except:
-            raise Exception('查找p站缓存时生错误')
+            raise Exception('检查用户是否开启详情时发生错误')
 
     def _save_user_need_detail(self, group_id, need):
         with self._connect() as conn:

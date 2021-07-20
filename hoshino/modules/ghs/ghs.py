@@ -273,7 +273,7 @@ async def sublist(bot, ev: CQEvent):
     pc = PixivCounter()
 
     pack_info = [trancetype(str(sub[0])) for sub in pc._select_no_user_type(user_id, msg, 'pixiv')]
-    user_infos = [trancetype(str(sub[0])) for sub in pc._select_user_type(user_id, msg, 'pixiv')]
+    user_infos = [str(sub[0]) for sub in pc._select_user_type(user_id, msg, 'pixiv')]
     # pack_info = [trancetype(str(sub.type)) for sub in
     #              Subscribe.select().where(
     #                  (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
@@ -319,6 +319,20 @@ async def unsubscribe(bot, ev: CQEvent):
         await bot.send(ev, '取消订阅成功')
 
 
+@sv_img.on_prefix(['测试扫描'])
+async def unsubscribe(bot, ev: CQEvent):
+    if not priv.check_priv(ev, priv.SUPERUSER):
+        await bot.finish(ev, '测试用 勿扰。', at_sender=True)
+    await scan_job()
+    print("测试成功")
+
+@sv_img.on_prefix(['测试投放'])
+async def unsubscribe(bot, ev: CQEvent):
+    if not priv.check_priv(ev, priv.SUPERUSER):
+        await bot.finish(ev, '测试用 勿扰。', at_sender=True)
+    await send_job()
+    print("测试成功")
+
 @sv_img.scheduled_job('cron', hour='*/4', minute='10', second='30')
 async def scan_job():
     sv_img.logger.info("开始扫描订阅信息")
@@ -337,6 +351,7 @@ async def scan_job():
         # query = Subscribe.select().where(Subscribe.clazz == 'pixiv')
         pc = PixivCounter()
         query = pc._select_all_subinfo_by_class('pixiv')
+        u_map = {}
         for each in query:
             if each.type == 'day':
                 await build_result(each, results.illusts)
@@ -351,9 +366,18 @@ async def scan_job():
                 await build_result(each, result_public.illusts)
                 sv_img.logger.info("存储公开收藏夹信息成功")
             if each.type == 'user':
-                sv_img.logger.info(f"开始扫描画师{each.type_user}作品信息")
-                results_users = await asyncio.get_event_loop().run_in_executor(
-                    None, partial(api.user_illusts, each.type_user))
+                if u_map.get(each.type_user):
+                    results_users = u_map.get(each.type_user)
+                else:
+                    sv_img.logger.info(f"开始扫描画师{each.type_user}作品信息")
+                    results_users = await asyncio.get_event_loop().run_in_executor(
+                        None, partial(api.user_illusts, each.type_user))
+                    if results == None or results_users.illusts == None:
+                        sv_img.logger.error(f"扫描画师{each.type_user}作品信息失败")
+                        await asyncio.sleep(300)
+                        results_users = await asyncio.get_event_loop().run_in_executor(
+                            None, partial(api.user_illusts, each.type_user))
+                    u_map[each.type_user] = results_users
                 sv_img.logger.info(f"扫描画师{each.type_user}作品信息成功 准备存储")
                 await build_result(each, results_users.illusts)
                 sv_img.logger.info(f"存储指定画师{each.type_user}作品信息成功")
@@ -419,7 +443,7 @@ async def send_job():
 
 def get_auto_delete(group_id):
     pc = PixivCounter()
-    return pc._get_group_auto_delete()
+    return pc._get_group_auto_delete(group_id)
     # group = Group.get_or_none(Group.group_number == group_id)
     # if not group:
     #     group = Group(group_number=group_id, auto_delete=True)
@@ -582,7 +606,7 @@ def package_pixiv_img(illust, group=False):
         name = url[url.rfind("/") + 1:]
         api.download(url, path=R.img(CACHE_FILE).path, replace=True)
         name = trance_png(name, R.img(CACHE_FILE).path)
-        result = R.img(CACHE_FILE + name).cqcode
+        result = str(R.img(CACHE_FILE + name).cqcode)
     try:
         cache._set_cache(illust.get('id'), group, str(result))
     except Exception as e:
@@ -594,7 +618,7 @@ def gen_gif_response(ill_id):
     result = api.ugoira_metadata(ill_id)
     url = result.get('ugoira_metadata').get('zip_urls').get('medium')
     delay = result.get('ugoira_metadata').get('frames')[0].get('delay')
-    fps = int(1000 / delay)
+    fps = 1000 / delay
     zip_name = url[url.rfind("/") + 1:]
     name = zip_name.replace('.zip', '')
     path = R.img(f'ghs/gif/{name}').path
@@ -730,9 +754,14 @@ def bulid_context(user_id, user_type):
 async def build_result(subscribe, illusts):
     mapping = {}
     ill_ids = []
+    if not illusts:
+        return
     for illust in illusts:
         mapping[illust.get("id")] = illust
-        ill_ids.append(illust.get("id"))
+        if illust.get("id"):
+            ill_ids.append(illust.get("id"))
+    if not ill_ids:
+        return
     pc = PixivCounter()
     logs = pc.select_sendlog(subscribe.user_id, subscribe.user_type, ill_ids)
     # logs = SubscribeSendLog.select().where(
@@ -743,9 +772,10 @@ async def build_result(subscribe, illusts):
             ill_ids.remove(log.message_id)
     for i in ill_ids:
         illust = mapping.get(i)
+        sv_img.logger.info(f"开始存储ill_id为{i}的作品")
         message = await asyncio.get_event_loop().run_in_executor(
             None, partial(package_pixiv_img, illust, True))
-        pc._save_sendlog(subscribe.user_id, subscribe.user_type, 'pixiv', i, message)
+        pc._save_sendlog(subscribe.user_id, subscribe.user_type, 'pixiv', i, str(message))
         # sublog = SubscribeSendLog()
         # sublog.user_id = subscribe.user_id
         # sublog.user_type = subscribe.user_type
@@ -768,8 +798,9 @@ def send_list():
         each['content'] = content
         each['message'] = e.message_info
         result.append(each)
-        e.send_flag = True
-        e.save()
+        pc.set_sendlog_flag(e.id)
+        # e.send_flag = True
+        # e.save()
     return result
 
 
@@ -801,7 +832,7 @@ def add_subscribe(ev, ttype, Auth_User=0):
             return '此id不存在作品'
         ttype = 'user'
     pc = PixivCounter()
-    old = pc._get_subscribe_id(user_id, msg, 'pixiv', 'user', Auth_User)
+    old = pc._get_subscribe_id(user_id, msg, 'pixiv', ttype, Auth_User)
     # old = Subscribe.get_or_none(
     #     (Subscribe.user_id == user_id) & (Subscribe.user_type == msg) & (Subscribe.clazz == 'pixiv') & (
     #             Subscribe.type == ttype) & (Subscribe.type_user == Auth_User))
