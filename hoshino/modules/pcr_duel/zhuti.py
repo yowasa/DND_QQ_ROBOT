@@ -2877,7 +2877,7 @@ async def fashion_help(bot, ev: CQEvent):
                时装系统帮助
 [时装商城]
 [购买时装] {角色名} {时装名}
-[穿戴时装]{时装名}
+[穿戴时装] {角色名} {时装名}
 [还原穿戴]{角色名}
 注:
 通过购买时装可以提升好感
@@ -3031,13 +3031,22 @@ async def up_fashion(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     duel = DuelCounter()
-    score_counter = ScoreCounter2()
 
     if not args:
-        await bot.finish(ev, '请输入穿戴时装+时装名。', at_sender=True)
-        return
-    name = args[0]
-    fashioninfo = get_fashion_buy(name)
+        await bot.finish(ev, '请输入穿戴时装+角色名+时装名。', at_sender=True)
+    if len(args) < 2:
+        await bot.finish(ev, '请输入穿戴时装+角色名+时装名。', at_sender=True)
+    c_name = args[0]
+    f_name = args[1]
+    chara_id = duel_chara.name2id(c_name)
+    if chara_id == UNKNOWN:
+        await bot.finish(ev, f'未查询到名称为{c_name}的女友信息')
+    fashioninfo_li = get_fashion(chara_id)
+    fashioninfo = None
+    for i in fashioninfo_li:
+        if i['name'] == f_name:
+            fashioninfo = i
+            break
     if fashioninfo:
         cid = fashioninfo['cid']
         c = duel_chara.fromid(cid)
