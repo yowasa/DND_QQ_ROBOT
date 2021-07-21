@@ -45,8 +45,6 @@ async def manor_help(bot, ev: CQEvent):
 [我的科技] 科技研究所指令，查看自己已经研发的科技成果
 [科技研发] 科技研究所指令，研发新科技
 
-== 维护指令 ==
-[刷新结算] {qq号} 刷新结算次数
 
 注：税收与耕地面积有关，但耕地太多可能会有负面影响
 领地面积为100*爵位
@@ -635,10 +633,16 @@ async def _(session: CommandSession):
 @sv.on_prefix("刷新结算")
 async def refresh(bot, ev: CQEvent):
     gid = ev.group_id
+    msg=str(ev.message).strip()
     if not priv.check_priv(ev, priv.SUPERUSER):
         await bot.finish(ev, f"你无权使用投放道具功能", at_sender=True)
-    msg = str(ev.message).strip()
-    to_id = int(msg)
+    try:
+        fa_uid = int(msg[0])
+    except ValueError:
+        fa_uid = int(ev.message[0].data['qq'])
+    except:
+        await bot.finish(ev, '参数格式错误')
+    to_id = fa_uid
     guid = gid, to_id
     daily_manor_limiter.reset(guid)
     await bot.finish(ev, f"刷新结算成功")

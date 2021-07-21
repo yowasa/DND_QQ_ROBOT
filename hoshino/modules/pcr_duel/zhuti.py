@@ -22,6 +22,7 @@ async def duel_help(bot, ev: CQEvent):
 [贵族签到]
 [升级贵族]
 [贵族决斗] @群友
+[设置决斗偏好] 设置决斗风格
 [贵族舞会] 招募新角色
 [声望招募] 等级到神才可以操作
 [免费招募] 庆典开启才能使用 每日限一次
@@ -83,6 +84,8 @@ async def manage_help(bot, ev: CQEvent):
 [设定群{群号}为{数量}号死]
 [为{qq号}充值{数量}声望]
 [扣除{qq号}的{数量}声望]
+[投放道具] @群友 {道具名}
+[刷新结算] @群友
     
 ╚                                        ╝
 '''
@@ -977,13 +980,13 @@ async def duel_set(bot, ev: CQEvent):
         "西部牛仔": [2, "弹夹为2 朝对方射击"]
     }
     if not msg:
-        await bot.finsih(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
+        await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
 
     if not duel_setting.get(msg):
-        await bot.finsih(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
+        await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
 
     save_user_counter(gid, uid, UserModel.DUEL_SETTING, duel_setting.get(msg)[0])
-    await bot.finsih(ev, f"已经成功设置决斗偏好为{msg}({duel_setting.get(msg)[1]})")
+    await bot.finish(ev, f"已经成功设置决斗偏好为{msg}({duel_setting.get(msg)[1]})")
 
 
 @sv.on_prefix('贵族决斗')
@@ -1132,7 +1135,7 @@ async def nobleduel(bot, ev: CQEvent):
                     msg = f'[CQ:at,qq={loser}]\n砰！你死了。'
                     await bot.send(ev, msg)
                     break
-                elif way == 1:
+                else:
                     # 被子弹打到的胜负判定
                     winner = duel_judger.get_duelid(gid)[duel_judger.get_turn(gid) - 1]
                     loser = duel_judger.get_duelid(gid)[2 - duel_judger.get_turn(gid)]
@@ -1142,7 +1145,10 @@ async def nobleduel(bot, ev: CQEvent):
             else:
                 id = duel_judger.get_duelid(gid)[duel_judger.get_turn(gid) - 1]
                 id2 = duel_judger.get_duelid(gid)[2 - duel_judger.get_turn(gid)]
-                msg = f'[CQ:at,qq={id}]\n砰！松了一口气，你并没有死。\n[CQ:at,qq={id2}]\n轮到你开枪了哦。'
+                if way == 0:
+                    msg = f'[CQ:at,qq={id}]\n砰！松了一口气，你并没有死。\n[CQ:at,qq={id2}]\n轮到你开枪了哦。'
+                else:
+                    msg = f'[CQ:at,qq={id}]\n砰！你没有打到对方。\n[CQ:at,qq={id2}]\n轮到你开枪了哦。'
                 await bot.send(ev, msg)
                 n += 1
                 duel_judger.change_turn(gid)
@@ -1692,7 +1698,11 @@ async def search_girl(bot, ev: CQEvent):
                 lh_msg = lh_msg + f"\n{fashion['icon']}\n{fashion['name']}\n获取途径{fashion['content']}"
     if duel._get_queen_owner(gid, cid) != 0:
         owner = duel._get_queen_owner(gid, cid)
-        await bot.finish(ev, f'\n{c.name}现在是\n[CQ:at,qq={owner}]的妻子哦。{nvmes}{lh_msg}', at_sender=True)
+        up_info = duel._get_fashionup(gid, owner, cid, 0)
+        if up_info:
+            fashion_info = get_fashion_info(up_info)
+            nvmes = fashion_info['icon']
+        await bot.finish(ev, f'\n{c.name}现在是\n[CQ:at,qq={owner}]的妻子哦。{nvmes}', at_sender=True)
 
     if owner == 0:
         try:

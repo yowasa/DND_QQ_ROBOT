@@ -2001,6 +2001,10 @@ async def xiulian_start(bot, ev: CQEvent):
     if guajiinfo[0] > 0:
         cgj = chara.fromid(guajiinfo[0])
         nvmesgj = get_nv_icon(guajiinfo[0])
+        up_info = duel._get_fashionup(gid, uid, guajiinfo[0], 0)
+        if up_info:
+            fashion_info = get_fashion_info(up_info)
+            nvmesgj = fashion_info['icon']
         await bot.finish(ev, f'{cgj.name}已经在修炼中了哦。{nvmesgj}', at_sender=True)
     if uid == owner:
         xltime = time.time()
@@ -2040,6 +2044,11 @@ async def xiulian_end(bot, ev: CQEvent):
     CE._delete_xiulian(gid, uid)
     c = chara.fromid(guajiinfo[0])
     nvmes = get_nv_icon(guajiinfo[0])
+    duel = DuelCounter()
+    up_info = duel._get_fashionup(gid, uid, guajiinfo[0], 0)
+    if up_info:
+        fashion_info = get_fashion_info(up_info)
+        nvmes = fashion_info['icon']
     bd_msg = f"修炼结束，{sj_msg}\n您的女友{c.name}获得了{addexp}点经验{ex_msg}，{card_level[2]}\n{nvmes}"
     await bot.send(ev, bd_msg, at_sender=True)
 

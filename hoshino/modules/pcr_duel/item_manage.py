@@ -19,7 +19,6 @@ async def gift_help(bot, ev: CQEvent):
 [使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
 [我的决斗币] 查看自己的决斗币数量
 [兑换道具] {道具等级} 用决斗币兑换指定等级的道具
-[投放道具] 维护组指令 用来测试道具
 
 注:
 道具现只有签到能获取一次
@@ -65,7 +64,7 @@ async def item_info(bot, ev: CQEvent):
     try:
         fa_uid = int(msg[0])
     except ValueError:
-        fa_uid = int(ev.message[1].data['qq'])
+        fa_uid = int(ev.message[0].data['qq'])
     except:
         await bot.finish(ev, '参数格式错误')
     item_info = ITEM_NAME_MAP[msg[1]]
