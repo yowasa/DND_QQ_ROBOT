@@ -16,7 +16,7 @@ requests>=2.22.0
 urllib3==1.25.8
 sogou_tr_free>=0.0.6
 zhconv>=1.4.0
-Pillow==8.0
+Pillow>=8.2.0
 TwitterAPI>=2.5.10
 matplotlib>=3.2.0
 numpy>=1.18.0
