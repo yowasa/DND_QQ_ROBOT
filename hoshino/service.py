@@ -23,7 +23,8 @@ _loaded_services: Dict[str, "Service"] = {}  # {name: service}
 _service_bundle: Dict[str, List["Service"]] = defaultdict(list)
 _re_illegal_char = re.compile(r'[\\/:*?"<>|\.]')
 from hoshino.config.__bot__ import BASE_DB_PATH
-_service_config_dir = os.path.expanduser(BASE_DB_PATH+'service_config/')
+
+_service_config_dir = os.path.expanduser(BASE_DB_PATH + 'service_config/')
 os.makedirs(_service_config_dir, exist_ok=True)
 
 
@@ -357,11 +358,11 @@ class Service:
                     self.logger.error(f'{type(e)} occured when doing scheduled job {func.__name__}.')
                     self.logger.exception(e)
                     # self.bot.set_restart()
-                    #TODO 物理重启 勿学勿看
-                    os.system('taskkill /f /t /im '+'go-cqhttp.exe')
-                    main = 'start cmd /k "cd /d d:/workspace/bot/go-cqhttp_windows_amd64&&go-cqhttp.exe"'
-                    r_v = os.system(main)
-                    print(r_v)
+                    # #TODO 物理重启 勿学勿看
+                    # os.system('taskkill /f /t /im '+'go-cqhttp.exe')
+                    # main = 'start cmd /k "cd /d d:/workspace/bot/go-cqhttp_windows_amd64&&go-cqhttp.exe"'
+                    # r_v = os.system(main)
+                    # print(r_v)
 
             return nonebot.scheduler.scheduled_job(*args, **kwargs)(wrapper)
 

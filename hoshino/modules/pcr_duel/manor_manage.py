@@ -1,9 +1,8 @@
-from hoshino import Service
 from hoshino import priv
 from hoshino.typing import CQEvent
+from . import sv
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
-from . import sv
 
 
 class PolicyModel(Enum):
@@ -546,7 +545,7 @@ async def manor_sign(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_prefix("政策选择")
+@sv.on_prefix(["政策选择", "选择政策", "发布政策"])
 async def manor_policy(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -562,7 +561,7 @@ async def manor_policy(bot, ev: CQEvent):
     await bot.finish(ev, f'你颁布了行政法令，要求{pm.value[1]}')
 
 
-@sv.on_prefix("税率调整")
+@sv.on_prefix(["税率调整", "调整税率"])
 async def manor_tax(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id

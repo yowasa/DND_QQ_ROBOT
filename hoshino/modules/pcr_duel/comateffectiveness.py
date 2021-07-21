@@ -8,7 +8,6 @@ import pytz
 
 from hoshino.typing import CQEvent
 from . import sv
-from .ItemCounter import ItemCounter
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
 
@@ -65,7 +64,6 @@ async def card_bangdin(bot, ev: CQEvent):
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
-    score_counter = ScoreCounter2()
     CE = CECounter()
     c = chara.fromid(cid)
     nvmes = get_nv_icon(cid)
@@ -124,16 +122,12 @@ async def rank_list(bot, ev: CQEvent):
 
         if rank <= 4:
             needmodel = 'N'
-            needlevel = 1
         elif rank > 4 and rank <= 8:
             needmodel = 'R'
-            needlevel = 2
         elif rank > 8 and rank <= 11:
             needmodel = 'SR'
-            needlevel = 3
         else:
             needmodel = 'SSR'
-            needlevel = 4
         msg += f'"R{rank}": 需求贵族等级≥{noblename}，消耗{rankInfo}金币，身上穿戴的4件{needmodel}品质及以上装备，女友战力提升为{ce_up}倍\n'
         rank = rank + 1
     await bot.send(ev, msg)
@@ -223,28 +217,24 @@ async def up_rank(bot, ev: CQEvent):
             removelist[0][1] = equipinfo['model']
             removelist[0][1] += equipinfo['name']
             lowest[0] = equipinfo['level']
-            # print(f'准备移除1号{removelist[0][0]}{removelist[0][1]}')
             continue
         if equipinfo['type_id'] == 2 and equipinfo['level'] >= needlevel and equipinfo['level'] < lowest[1]:
             removelist[1][0] = equipinfo['eid']
             removelist[1][1] = equipinfo['model']
             removelist[1][1] += equipinfo['name']
             lowest[1] = equipinfo['level']
-            # print(f'准备移除2号{removelist[1][0]}{removelist[1][1]}')
             continue
         if equipinfo['type_id'] == 3 and equipinfo['level'] >= needlevel and equipinfo['level'] < lowest[2]:
             removelist[2][0] = equipinfo['eid']
             removelist[2][1] = equipinfo['model']
             removelist[2][1] += equipinfo['name']
             lowest[2] = equipinfo['level']
-            # print(f'准备移除3号{removelist[2][0]}{removelist[2][1]}')
             continue
         if equipinfo['type_id'] == 4 and equipinfo['level'] >= needlevel and equipinfo['level'] < lowest[3]:
             removelist[3][0] = equipinfo['eid']
             removelist[3][1] = equipinfo['model']
             removelist[3][1] += equipinfo['name']
             lowest[3] = equipinfo['level']
-            # print(f'准备移除4号{removelist[3][0]}{removelist[3][1]}')
             continue
     part_msg = '\n自动为您消耗了女友身上或装备仓库中，满足升rank条件的较差装备：\n'
     for i in removelist:
@@ -309,7 +299,6 @@ async def dun_help(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['副本列表', '查看副本'])
 async def dungeon_list(bot, ev: CQEvent):
-    dungeonlist = {}
     with open(os.path.join(FILE_PATH, 'dungeon.json'), 'r', encoding='UTF-8') as fa:
         dungeonlist = json.load(fa, strict=False)
     tas_list = []
@@ -330,7 +319,6 @@ async def dungeon_list(bot, ev: CQEvent):
             }
         }
         tas_list.append(data)
-    # await bot.send(ev, msg)
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
@@ -380,7 +368,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
             defen.append(cid)
     else:
         defen, unknown = chara.roster.parse_team(defen)
-        cidlist = duel._get_cards(gid, uid)
         if unknown:
             _, name, score = chara.guess_id(unknown)
             if score < 70 and not defen:
@@ -456,8 +443,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
             }
         }
         tas_list.append(data)
-        # await bot.send(ev, msg1, at_sender=True)
-        # await asyncio.sleep(3)
         if_win = int(math.floor(random.uniform(1, 100)))
         # 战斗胜利
         if if_win <= is_win:
@@ -606,7 +591,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
                                 down_list = dungeoninfo['drop']['equipment']['equip'][equip_down]
                         # 随机获得一个品质的装备
                         equip_info = add_equip_info(gid, uid, get_equip_quality, down_list)
-                        # print(equip_info)
                         equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
             if equip_list:
                 msg = msg + f"获得了装备:\n{equip_list}"
@@ -620,7 +604,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
             }
             tas_list.append(data)
             await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-            # await bot.send(ev, msg, at_sender=True)
         else:
             msg = ''
             msg = msg + "您战斗失败了，副本次数-1"
@@ -638,8 +621,6 @@ async def add_duiwu_t(bot, ev: CQEvent):
             }
             tas_list.append(data)
             await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-            # await bot.send(ev, "您战斗失败了，副本次数-1", at_sender=True)
-            # return
     else:
         await bot.finish(ev, '请输入正确的副本名称', at_sender=True)
         return
@@ -815,9 +796,7 @@ async def dress_equip_list(bot, ev: CQEvent):
     equip_list = CE._get_equip_list(gid, uid)
     # 记录不同部位的品质最高装备的品质和eid
     emax = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    tsequipflag = 0
     if len(equip_list) > 0:
-        msg_list = '我的装备列表：'
         for i in equip_list:
             equipinfo = get_equip_info_id(i[0])
             if equipinfo['type_id'] == 1 and equipinfo['level'] > emax[0][0] and equipinfo['add_ce'] > emax[0][2]:
@@ -886,19 +865,15 @@ async def dress_equip_list_r(bot, ev: CQEvent):
     rank = CE._get_rank(gid, uid, cid)
     lastrank = rank + 1
     if lastrank <= 4:
-        needmodel = 'N'
         needlevel = 1
     elif lastrank > 4 and lastrank < 8:
-        needmodel = 'R'
         needlevel = 2
     else:
-        needmodel = 'SR'
         needlevel = 3
     equip_list = CE._get_equip_list(gid, uid)
     # 记录不同部位的品质最高装备的品质和eid
     emax = [[0, 0], [0, 0], [0, 0], [0, 0]]
     if len(equip_list) > 0:
-        msg_list = '我的装备列表：'
         for i in equip_list:
             equipinfo = get_equip_info_id(i[0])
             if equipinfo['type_id'] == 1 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[0][0]:
@@ -942,7 +917,6 @@ async def dress_equip_list_r(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['副本商城'])
 async def equip_shop(bot, ev: CQEvent):
-    equiplist = {}
     with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
         equiplist = json.load(fa, strict=False)
     tas_list = []
@@ -961,7 +935,6 @@ async def equip_shop(bot, ev: CQEvent):
         }
     }
     tas_list.append(data)
-    # await bot.send(ev, msg_t)
     for equip in equiplist:
         shul = 0
         msg = ''
@@ -980,7 +953,6 @@ async def equip_shop(bot, ev: CQEvent):
                 }
             }
             tas_list.append(data)
-            # await bot.send(ev, msg)
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
@@ -1074,7 +1046,6 @@ async def moni_huizhan(bot, ev: CQEvent):
             defen.append(cid)
     else:
         defen, unknown = chara.roster.parse_team(defen)
-        cidlist = duel._get_cards(gid, uid)
         if unknown:
             _, name, score = chara.guess_id(unknown)
             if score < 70 and not defen:
@@ -1164,10 +1135,7 @@ async def moni_huizhan(bot, ev: CQEvent):
             boss_msg = f"模拟击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})"
             msg = msg + f"您模拟战对boss造成了{shanghai}点伤害，{boss_msg}\n由于伤害超出boss剩余血量，实际模拟造成伤害为{bossinfo['hp']}点\n您的队伍可以剩余血量{card_jk}%\n{nextbossinfo['icon']}"
         else:
-            # 每日次数-1
-            # daily_boss_limiter.increase(guid)
             # 计算下一个boss
-            nextboss = bossinfo['bossid']
             nextzhoumu = bossinfo['zhoumu']
             if shanghai == bossinfo['hp']:
                 nextboss = bossinfo['bossid'] + 1
@@ -1218,7 +1186,6 @@ async def bushi_moni(bot, ev: CQEvent):
         await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
     duel = DuelCounter()
     CE = CECounter()
-    cidlist = duel._get_cards(gid, uid)
     nowyear = datetime.now().year
     nowmonth = datetime.now().month
     nowday = datetime.now().day
@@ -1226,7 +1193,6 @@ async def bushi_moni(bot, ev: CQEvent):
     bushilist = CE._get_cardbushi(gid, uid, fighttime, shijieflag)
     if bushilist == 0:
         await bot.finish(ev, '您没有处于补时刀状态，请正常模拟出刀哦', at_sender=True)
-    # print(fighttime)
     z_ce = 0
     bianzu = ''
     # 获取本群boss状态和血量
@@ -1283,13 +1249,10 @@ async def bushi_moni(bot, ev: CQEvent):
         else:
             fudong = 1 - fudong / 100
         # 计算最终输出伤害
-        shanghai_zc = math.ceil((shuchu * fudong) / zhanbi)
         shanghai = math.ceil((shuchu * fudong) / zhanbi * card_jk)
         msg = ''
         # 判断造成的伤害是否大于boss血量
         if shanghai > bossinfo['hp']:
-            # 计算健康状态
-            # card_jk = 100-math.ceil(bossinfo['hp']/shanghai*100)
             # 计算下一个boss
             nextboss = bossinfo['bossid'] + 1
             nextzhoumu = bossinfo['zhoumu']
@@ -1302,7 +1265,6 @@ async def bushi_moni(bot, ev: CQEvent):
         else:
 
             # 计算下一个boss
-            nextboss = bossinfo['bossid']
             nextzhoumu = bossinfo['zhoumu']
             if shanghai == bossinfo['hp']:
                 nextboss = bossinfo['bossid'] + 1
@@ -1360,7 +1322,6 @@ async def start_bushi(bot, ev: CQEvent):
         return
     duel = DuelCounter()
     CE = CECounter()
-    cidlist = duel._get_cards(gid, uid)
     nowyear = datetime.now().year
     nowmonth = datetime.now().month
     nowday = datetime.now().day
@@ -1368,7 +1329,6 @@ async def start_bushi(bot, ev: CQEvent):
     bushilist = CE._get_cardbushi(gid, uid, fighttime, shijieflag)
     if bushilist == 0:
         await bot.finish(ev, '您没有处于补时刀状态，请正常出刀哦', at_sender=True)
-    # print(fighttime)
     z_ce = 0
     bianzu = ''
     # 获取本群boss状态和血量
@@ -1428,16 +1388,10 @@ async def start_bushi(bot, ev: CQEvent):
         shanghai_zc = math.ceil((shuchu * fudong) / zhanbi)
         shanghai = math.ceil((shuchu * fudong) / zhanbi * card_jk)
         msg = ''
-        # for i in bushilist:
-        # cid = i[0]
-        # duel._add_favor(gid,uid,cid,dungeoninfo['add_favor'])
-        # card_level=add_exp(gid,uid,cid,bossinfo['add_exp'])
         # 每日次数-1
         daily_boss_limiter.increase(guid)
         # 判断造成的伤害是否大于boss血量
         if shanghai > bossinfo['hp']:
-            # 计算健康状态
-            # card_jk = 100-math.ceil(bossinfo['hp']/shanghai*100)
             # 计算下一个boss
             nextboss = bossinfo['bossid'] + 1
             nextzhoumu = bossinfo['zhoumu']
@@ -1583,7 +1537,6 @@ async def start_huizhan(bot, ev: CQEvent):
             defen.append(cid)
     else:
         defen, unknown = chara.roster.parse_team(defen)
-        cidlist = duel._get_cards(gid, uid)
         if unknown:
             _, name, score = chara.guess_id(unknown)
             if score < 70 and not defen:
@@ -1616,7 +1569,6 @@ async def start_huizhan(bot, ev: CQEvent):
     bianzu = ''
     # 获取本群boss状态和血量
     bossinfo = get_boss_info(sendgid)
-    # print(bossinfo)
     if len(bossinfo) > 0:
         # 获取编队战力与信息
         charalist = []
@@ -1629,7 +1581,6 @@ async def start_huizhan(bot, ev: CQEvent):
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
-        #
         res = chara.gen_team_pic(charalist, star_slot_verbose=False)
         bio = BytesIO()
         res.save(bio, format='PNG')
@@ -1737,7 +1688,6 @@ async def start_huizhan(bot, ev: CQEvent):
         tas_list.append(data)
         await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
         await asyncio.sleep(3)
-        # await bot.send(ev, '计算boss掉落')
         # 判断是否击杀boss，分配boss掉落
         if shanghai >= bossinfo['hp']:
             # 获取boss伤害输出表
@@ -1822,10 +1772,8 @@ async def shuchu_list(bot, ev: CQEvent):
     gotype = str(match.group(1))
     gotype = re.sub(r'[?？，,_ ]', '', gotype)
     if gotype == "世界boss":
-        sendgid = 999
         shijieflag = 1
     elif gotype == "boss战":
-        sendgid = gid
         shijieflag = 0
     else:
         await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
@@ -1870,10 +1818,8 @@ async def boss_info(bot, ev: CQEvent):
     gotype = re.sub(r'[?？，,_ ]', '', gotype)
     if gotype == "世界boss":
         sendgid = 999
-        shijieflag = 1
     elif gotype == "boss战":
         sendgid = gid
-        shijieflag = 0
     else:
         await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
     bossinfo = get_boss_info(sendgid)
@@ -1897,7 +1843,6 @@ async def add_team(bot, ev: CQEvent):
     defen = re.sub(r'[?？，,_]', '', defen)
     defen, unknown = chara.roster.parse_team(defen)
     duel = DuelCounter()
-    cidlist = duel._get_cards(gid, uid)
     if unknown:
         _, name, score = chara.guess_id(unknown)
         if score < 70 and not defen:
@@ -1977,7 +1922,6 @@ async def delete_team(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     CE = CECounter()
-    duel = DuelCounter()
     if len(args) != 1:
         await bot.finish(ev, '请输入 解散队伍+队伍名 中间用空格隔开。', at_sender=True)
     teamname = args[0]
@@ -2029,7 +1973,6 @@ async def xiulian_start(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
     uid = ev.user_id
-    CE = CECounter()
     if len(args) != 1:
         await bot.finish(ev, '请输入 挂机修炼+女友名 中间用空格隔开。', at_sender=True)
     name = args[0]
@@ -2038,10 +1981,13 @@ async def xiulian_start(bot, ev: CQEvent):
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
-    score_counter = ScoreCounter2()
     CE = CECounter()
     c = chara.fromid(cid)
     nvmes = get_nv_icon(cid)
+    up_info = duel._get_fashionup(gid, uid, cid, 0)
+    if up_info:
+        fashion_info = get_fashion_info(up_info)
+        nvmes = fashion_info['icon']
     owner = duel._get_card_owner(gid, cid)
 
     if uid != owner:
@@ -2112,7 +2058,6 @@ async def add_exp_chizi(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
     uid = ev.user_id
-    CE = CECounter()
     if len(args) != 2:
         await bot.finish(ev, '请输入 分配经验+女友名+经验值 中间用空格隔开。', at_sender=True)
     name = args[0]
@@ -2124,7 +2069,6 @@ async def add_exp_chizi(bot, ev: CQEvent):
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
-    score_counter = ScoreCounter2()
     CE = CECounter()
     c = chara.fromid(cid)
     nvmes = get_nv_icon(cid)
@@ -2149,7 +2093,6 @@ async def add_exp_chizi(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['查看武器池', '武器池'])
 async def get_equipgecha(bot, ev: CQEvent):
-    gechalist = {}
     with open(os.path.join(FILE_PATH, 'equipgecha.json'), 'r', encoding='UTF-8') as fa:
         gechalist = json.load(fa, strict=False)
     tas_list = []
@@ -2234,7 +2177,6 @@ async def add_equip_gecha(bot, ev: CQEvent):
         await bot.finish(ev, f'您的副本币不足{need_dunscore}，无法抽卡哦。', at_sender=True)
     gechainfo = get_gecha_info(args[1])
     if gechainfo['name']:
-        # print(gechainfo['name'])
         bdinfo = CE._get_gecha_num(gid, uid)
         xnum = bdinfo[0]  # 10连小保底进度
         dnum = bdinfo[1]  # 大保底进度
@@ -2246,7 +2188,6 @@ async def add_equip_gecha(bot, ev: CQEvent):
         add_exp = gechanum * 500
         CE._add_exp_chizi(gid, uid, add_exp)
         msg = f"消耗{need_dunscore}副本币，剩余副本币{last_score}\n获得经验{add_exp}，已加入经验池\n本次{args[0]}获得的装备为：{getequip}"
-        # TODO 测试
         counter = get_user_counter(gid, uid, UserModel.CHOU)
         counter += gechanum
         if counter >= 100:
@@ -2283,7 +2224,6 @@ async def equip_fenjie_one(bot, ev: CQEvent):
         get_dunscore = fj_one * equipnum
         CE._add_dunscore(gid, uid, get_dunscore)
         deletenum = 0 - equipnum
-        # TODO 测试
         ex_msg = ''
         counter = get_user_counter(gid, uid, UserModel.FENJIE)
         counter += equipnum
@@ -2313,7 +2253,6 @@ async def equip_fenjie_n(bot, ev: CQEvent):
     if len(args) != 1:
         await bot.finish(ev, '请输入 装备分解+装备等级(N/R/SR/SSR/UR/MR) 中间用空格隔开。', at_sender=True)
     modelname = args[0]
-    equiplist = {}
     with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
         equiplist = json.load(fa, strict=False)
     equiplevel = 0
@@ -2379,10 +2318,8 @@ async def xingchen_change(bot, ev: CQEvent):
     equipinfo = get_equip_info_name(args[0])
     if len(equipinfo) > 0:
         eid = equipinfo['eid']
-        gechalist = {}
         with open(os.path.join(FILE_PATH, 'equipgecha.json'), 'r', encoding='UTF-8') as fa:
             gechalist = json.load(fa, strict=False)
-        tas_list = []
         find_flag = 0
         for gecha in gechalist:
             if eid in gechalist[gecha]['up_equip']:
@@ -2423,7 +2360,6 @@ async def xingchen_jz(bot, ev: CQEvent):
 async def paiming_list(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
     gid = ev.group_id
-    uid = ev.user_id
     CE = CECounter()
     if len(args) != 1:
         leibie = '本月'
@@ -2449,7 +2385,6 @@ async def paiming_list(bot, ev: CQEvent):
     shuchu_list = CE._get_shuchu_pmq(period)
     if not shuchu_list[0][0]:
         await bot.finish(ev, f'无法获取到{leibie}的数据', at_sender=True)
-    bosslist = {}
     with open(os.path.join(FILE_PATH, 'bossinfo.json'), 'r', encoding='UTF-8') as fa:
         bosslist = json.load(fa, strict=False)
     bl_list = []
@@ -2460,12 +2395,10 @@ async def paiming_list(bot, ev: CQEvent):
             bv.append(bv_boss)
         for i in bosslist[boss]['zhoumu']:
             bl_list.append(bv)
-    # print(bl_list)
     group_list = []
     for shuchu in shuchu_list:
         if shuchu[0] not in group_list:
             group_list.append(shuchu[0])
-    msg = ''
     grouplist_s = []
     grouplist_b = []
     for groupid in group_list:
@@ -2477,8 +2410,6 @@ async def paiming_list(bot, ev: CQEvent):
                 bossid = shuchuinfo[3] - 1
                 beilv = bl_list[zhoumu][bossid]
                 defen = math.ceil(shuchuinfo[4] * beilv)
-                # sc_text = f"{groupid},周目{shuchuinfo[2]},boss{shuchuinfo[3]},倍率{beilv},类型{shuchuinfo[5]},伤害{shuchuinfo[4]}"
-                # print(sc_text)
                 if shuchuinfo[5] == 1:
                     defen_s = defen_s + defen
                 else:
@@ -2538,12 +2469,6 @@ async def paiming_list(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=gid, messages=tas_list)
 
 
-@sv.on_prefix(['测试cron'])
-async def clock(bot, ev: CQEvent):
-    result = await clock()
-    print(result)
-
-
 @sv.scheduled_job('cron', hour='*', minute='55', second='30')
 async def clock():
     bot = nonebot.get_bot()
@@ -2572,9 +2497,6 @@ async def clock():
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
     now = datetime.now(pytz.timezone('Asia/Shanghai'))
-    nowyear = now.year
-    nowmonth = now.month
-    nowday = now.day
     if not now.day == 1:  # 每月1号结算
         return
     if not now.hour == 1:  # 每天1点结算
@@ -2618,7 +2540,6 @@ async def clock():
     shuchu_list = CE._get_shuchu_pmq(period)
     if not shuchu_list[0][0]:
         print('无法获取到数据')
-    bosslist = {}
     with open(os.path.join(FILE_PATH, 'bossinfo.json'), 'r', encoding='UTF-8') as fa:
         bosslist = json.load(fa, strict=False)
     bl_list = []
@@ -2629,12 +2550,10 @@ async def clock():
             bv.append(bv_boss)
         for i in bosslist[boss]['zhoumu']:
             bl_list.append(bv)
-    # print(bl_list)
     group_list = []
     for shuchu in shuchu_list:
         if shuchu[0] not in group_list:
             group_list.append(shuchu[0])
-    msg = ''
     grouplist_s = []
     grouplist_b = []
     for groupid in group_list:
@@ -2646,8 +2565,6 @@ async def clock():
                 bossid = shuchuinfo[3] - 1
                 beilv = bl_list[zhoumu][bossid]
                 defen = math.ceil(shuchuinfo[4] * beilv)
-                # sc_text = f"{groupid},周目{shuchuinfo[2]},boss{shuchuinfo[3]},倍率{beilv},类型{shuchuinfo[5]},伤害{shuchuinfo[4]}"
-                # print(sc_text)
                 if shuchuinfo[5] == 1:
                     defen_s = defen_s + defen
                 else:
@@ -2822,7 +2739,6 @@ async def cardstar_up(bot, ev: CQEvent):
     mynum = int(card_fragment) + int(wn_fragment)
     nvmes = get_nv_icon(cid)
     up_info = duel._get_fashionup(gid, uid, cid, 0)
-    fashion_ce = 0
     up_icon = ''
     if up_info:
         # 获取穿戴时装所加的战斗力
@@ -2885,7 +2801,6 @@ async def fragment_exp_all(bot, ev: CQEvent):
 async def fragment_exp(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    duel = DuelCounter()
     CE = CECounter()
     # 处理输入数据
     match = ev['match']
@@ -2926,7 +2841,6 @@ async def fragment_exp(bot, ev: CQEvent):
 async def fragment_duihuan(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    duel = DuelCounter()
     CE = CECounter()
     # 处理输入数据
     match = ev['match']
@@ -3011,7 +2925,6 @@ async def card_zhuansheng(bot, ev: CQEvent):
 
     nvmes = get_nv_icon(cid)
     up_info = duel._get_fashionup(gid, uid, cid, 0)
-    fashion_ce = 0
     up_icon = ''
     if up_info:
         # 获取穿戴时装所加的战斗力

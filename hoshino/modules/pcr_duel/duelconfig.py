@@ -1,15 +1,17 @@
-from .CECounter import *
-from .DuelCounter import *
-import json
-from datetime import datetime, timedelta
-from hoshino.util import DailyNumberLimiter
-import math
-from PIL import Image
-from io import BytesIO
 import base64
-from . import duel_chara as chara
+import json
+import math
+from datetime import timedelta
+from io import BytesIO
+
+from PIL import Image
+
 from hoshino import R
 from hoshino.config import pcr_duel as cfg
+from hoshino.util import DailyNumberLimiter
+from . import duel_chara as chara
+from .CECounter import *
+from .DuelCounter import *
 from .common_util import *
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
@@ -20,70 +22,72 @@ DUEL_SUPPORT_TIME = 30  # 赌钱等待时间
 from hoshino.config.__bot__ import BASE_DB_PATH
 
 DB_PATH = os.path.expanduser(BASE_DB_PATH + "pcr_duel.db")
+
 CARD_LEVEL_MAX = 100  # 女友等级上限
+
 GECHA_DUNDCORE = 100  # 抽武器所需副本币
-# 这里是参数设置区
+
+# 次数限制设置
 SIGN_DAILY_LIMIT = 1  # 机器人每天签到的次数
 DUEL_DAILY_LIMIT = 5  # 每个人每日发起决斗上限
 DUN_DAILY_LIMIT = 10  # 每个人每日副本上限
 BOSS_DAILY_LIMIT = 3  # 会战与世界boss次数
 EQUIP_DAILY_LIMIT = 5  # 副本商城兑换次数
+ZERO_GET_LIMIT = 3  # 没钱补给次数
+GIFT_DAILY_LIMIT = 5  # 每日购买礼物次数上限
+DATE_DAILY_LIMIT = 1  # 每天女友约会次数上限
 MANAGE_DAILY_LIMIT = 1  # 每日领地结算次数
+
+# 重置次数时间
 RESET_HOUR = 5  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
+
+# 抽卡
 GACHA_COST = 500  # 抽老婆需求
 GACHA_COST_Fail = 200  # 抽老婆失败补偿量
-ZERO_GET_LIMIT = 3  # 没钱补给次数
-ZERO_GET_AMOUNT = 1000  # 没钱补给量
-WIN_NUM = 1  # 下注获胜赢得的倍率
-WIN_EXP = 5000  # 决斗胜利获得经验
 SHANGXIAN_NUM = 100000  # 增加女友上限所需金币
-WAREHOUSE_NUM = 40  # 仓库增加上限
 SHANGXIAN_SW = 2000  # 扩充女友上限，需要的声望值
-SHANGXIAN_MAX = 10  # 扩充女友上限极限次数
+WAREHOUSE_NUM = 10  # 仓库增加上限
+SW_COST = 100  # 声望招募的声望需求量
 
-BREAK_UP_SWITCH = True  # 分手系统开关
-Zhuan_Need = 0.05  # 转账所需的手续费比例
-Jiao_Need = 0.05  # 交易女友所需手续费比例
+# 补给
+ZERO_GET_AMOUNT = 1000  # 没钱补给量
+ZERO_GET_REQUIREMENT = 300  # 要求多少钱以下才能领补给
+
+# 决斗
 WinSWBasics = 400  # 赢了获得的基础声望
 LoseSWBasics = 150  # 输了掉的基础声望
+favor_reduce = 30  # 当输掉女友时，损失的好感度
+WIN_NUM = 1  # 下注获胜赢得的倍率
+Suo = 1  # 梭哈额外获取的金币倍率
+WIN_EXP = 5000  # 决斗胜利获得经验
+NTR_QUEEN_REWARD = 1000  # 命中妻子额外金币奖励
+NTR_BIND_REWARD = 2000  # 命中绑定额外金币奖励
+LOSS_QUEEN_PUNISH_SW = 300  # 输掉妻子惩罚声望
+LOSS_BIND_PUNISH_SW = 500  # 输掉绑定惩罚声望
+FULL_GIRL_COMPENSATE = 1000  # 满人获胜额外补偿金币
+FAVOR_GIRL_COMPENSATE = 500  # 好感保护额外补偿金币
 
+# 好感
+PRINCESS_HEART_FAVOR = 1000  # 触发赠送公主之心的好感阈值
+ETERNAL_LOVE_FAVOR = 10000  # 获取永恒爱恋好感度阈值
+NEED_favor = 300  # 成为妻子所需要的好感，为0表示关闭
+
+# 功能开关
+BREAK_UP_SWITCH = True  # 分手系统开关
 Remake_allow = False  # 是否允许重开
+Suo_allow = True  # 是否允许梭哈
 
-SW_COST = 100  # 声望招募的声望需求量
+# 交易
+Zhuan_Need = 0.05  # 转账所需的手续费比例
+Jiao_Need = 0.05  # 交易女友所需手续费比例
+Suo_Ex_NEED = 0.5  # 开启梭哈时转账交易手续费比例
+WAIT_TIME_CHANGE = 30  # 礼物交换等待时间
+
+# 爵位
 DJ_NEED_SW = 5000  # 加冕称帝消耗的声望
 DJ_NEED_GOLD = 400000  # 加冕称帝消耗的金币
 FS_NEED_SW = 10000  # 飞升所需的声望
 FS_NEED_GOLD = 500000  # 飞升所需的金币
-DATE_DAILY_LIMIT = 1  # 每天女友约会次数上限
-GIFT_DAILY_LIMIT = 5  # 每日购买礼物次数上限
-WAIT_TIME_CHANGE = 30  # 礼物交换等待时间
-NEED_favor = 300  # 成为妻子所需要的好感，为0表示关闭
-favor_reduce = 30  # 当输掉女友时，损失的好感度
-
-Suo_allow = True  # 是否允许梭哈
-Suo = 1  # 梭哈额外获取的金币倍率
-
-# 这里是庆典设置区 ~~开关类，1为开，0为关~~
-Show_Cele_Not = False  # 查询庆典时，显示未开放的庆典
-# 金币庆典
-Gold_Cele = 0  # 群庆典初始化时，是否开启金币庆典
-Gold_Cele_Num = 2  # 金币庆典倍率，实际获得金币倍率为金币庆典倍率*基础倍率
-# 贵族签到庆典
-QD_Cele = 0  # 群庆典初始化时，是否开启贵族签到庆典
-QD_Gold_Cele_Num = 2  # 签到庆典金币倍率
-QD_SW_Cele_Num = 2  # 签到庆典声望倍率
-# 梭哈庆典
-Suo_Cele = 0  # 群庆典初始化时，是否开启梭哈倍率庆典
-Suo_Cele_Num = 2  # 梭哈额外倍率，实际获得梭哈倍率为梭哈庆典倍率*基础倍率
-# 免费招募庆典
-FREE_DAILY = 0  # 群庆典初始化时，是否开启免费招募庆典
-FREE_DAILY_LIMIT = 1  # 每天免费招募的次数
-# 限时开放声望招募
-SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
-
-# 挂机修炼获取经验倍率（每分钟）
-GJ_EXP_RATE = 20
-
 FILE_PATH = os.path.dirname(__file__)  # 用于加载dlcjson
 LEVEL_GIRL_NEED = {
     "1": 1,
@@ -121,36 +125,26 @@ LEVEL_SW_NEED = {
     "9": 3000
 }  # 升级所需要的声望，格式为["等级“: 需求]
 
-RELATIONSHIP_DICT = {
-    0: ["初见", "浣花溪上见卿卿，脸波明，黛眉轻。"],
-    30: ["相识", "有美一人，清扬婉兮。邂逅相遇，适我愿兮。"],
-    60: ["熟悉", "夕阳谁唤下楼梯，一握香荑。回头忍笑阶前立，总无语，也依依。"],
-    100: ["朋友", "锦幄初温，兽烟不断，相对坐调笙。"],
-    150: ["朦胧", "和羞走，倚门回首，却把青梅嗅。"],
-    200: ["喜欢", "夜月一帘幽梦，春风十里柔情。"],
-    300: ["依恋", "愿我如星君如月，夜夜流光相皎洁。"],
-    500: ["挚爱", "江山看不尽，最美镜中人。"]
-}
+# 这里是庆典设置区 ~~开关类，1为开，0为关~~
+Show_Cele_Not = False  # 查询庆典时，显示未开放的庆典
+# 金币庆典
+Gold_Cele = 0  # 群庆典初始化时，是否开启金币庆典
+Gold_Cele_Num = 2  # 金币庆典倍率，实际获得金币倍率为金币庆典倍率*基础倍率
+# 贵族签到庆典
+QD_Cele = 0  # 群庆典初始化时，是否开启贵族签到庆典
+QD_Gold_Cele_Num = 2  # 签到庆典金币倍率
+QD_SW_Cele_Num = 2  # 签到庆典声望倍率
+# 梭哈庆典
+Suo_Cele = 0  # 群庆典初始化时，是否开启梭哈倍率庆典
+Suo_Cele_Num = 2  # 梭哈额外倍率，实际获得梭哈倍率为梭哈庆典倍率*基础倍率
+# 免费招募庆典
+FREE_DAILY = 0  # 群庆典初始化时，是否开启免费招募庆典
+FREE_DAILY_LIMIT = 1  # 每天免费招募的次数
+# 限时开放声望招募
+SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
 
-GIFT_DICT = {
-    "玩偶": 0,
-    "礼服": 1,
-    "歌剧门票": 2,
-    "水晶球": 3,
-    "耳环": 4,
-    "发饰": 5,
-    "小裙子": 6,
-    "热牛奶": 7,
-    "书": 8,
-    "鲜花": 9
-}
-
-GIFTCHOICE_DICT = {
-    0: [0, 2, 1],
-    1: [1, 0, 2],
-    2: [2, 1, 0],
-}
-
+# 战斗
+GJ_EXP_RATE = 20  # 挂机修炼获取经验倍率（每分钟）
 MAX_RANK = 12  # 最大rank等级
 RANK_LIST = {
     1: 5000,
@@ -166,7 +160,6 @@ RANK_LIST = {
     11: 55000,
     12: 60000,
 }  # rank升级要求，格式为["rank":金币]
-
 MAX_STAR = 5  # 最大星级
 STAR_LIST = {
     1: 30,
@@ -174,32 +167,58 @@ STAR_LIST = {
     3: 80,
     4: 100,
     5: 150,
-}
+}  # 升星消耗
 
+# 礼物
+GIFT_DICT = {
+    "玩偶": 0,
+    "礼服": 1,
+    "歌剧门票": 2,
+    "水晶球": 3,
+    "耳环": 4,
+    "发饰": 5,
+    "小裙子": 6,
+    "热牛奶": 7,
+    "书": 8,
+    "鲜花": 9
+}  # 礼物字典
+GIFTCHOICE_DICT = {
+    0: [0, 2, 1],
+    1: [1, 0, 2],
+    2: [2, 1, 0],
+}  # 选择礼物字典
+
+# 文案
+RELATIONSHIP_DICT = {
+    0: ["初见", "浣花溪上见卿卿，脸波明，黛眉轻。"],
+    30: ["相识", "有美一人，清扬婉兮。邂逅相遇，适我愿兮。"],
+    60: ["熟悉", "夕阳谁唤下楼梯，一握香荑。回头忍笑阶前立，总无语，也依依。"],
+    100: ["朋友", "锦幄初温，兽烟不断，相对坐调笙。"],
+    150: ["朦胧", "和羞走，倚门回首，却把青梅嗅。"],
+    200: ["喜欢", "夜月一帘幽梦，春风十里柔情。"],
+    300: ["依恋", "愿我如星君如月，夜夜流光相皎洁。"],
+    500: ["挚爱", "江山看不尽，最美镜中人。"]
+}  # 好感文案
 Gift10 = [
     "这个真的可以送给我吗，谢谢(害羞的低下了头)。",
     "你是专门为我准备的吗，你怎么知道我喜欢这个呀，谢谢你！",
     "啊，我最喜欢这个，真的谢谢你。"
-]
-
+]  # 最喜欢文案
 Gift5 = [
     "谢谢送我这个，我很开心。",
     "这个我很喜欢，谢谢。",
     "你的礼物我都很喜欢哦，谢谢。"
-]
-
+]  # 喜欢文案
 Gift2 = [
     "送我的吗，谢谢你。",
     "谢谢你的礼物。",
     "为我准备了礼物吗，谢谢。"
-]
-
+]  # 一般文案
 Gift1 = [
     "不用为我特意准备礼物啦，不过还是谢谢你哦。",
     "嗯，谢谢。",
     "嗯，我收下了，谢谢你。"
-]
-
+]  # 不喜欢文案
 Addgirlfail = [
     '你参加了一场贵族舞会，热闹的舞会场今天竟然没人同你跳舞。',
     '你邀请到了心仪的女友跳舞，可是跳舞时却踩掉了她的鞋，她生气的离开了。',
@@ -212,7 +231,7 @@ Addgirlfail = [
     '舞会上你很快约到了一名女伴跳舞，但是她不是你喜欢的类型。',
     '你约到了一位心仪的女伴，但是她拒绝了与你回家，说想再给你一个考验。',
     '你和另一位贵族同时看中了一个女孩，但是在三人交谈时，你渐渐的失去了话题。'
-]
+]  # 舞会失败文案
 Addgirlsuccess = [
     '你参加了一场贵族舞会，你优雅的舞姿让每位年轻女孩都望向了你。',
     '你参加了一场贵族舞会，你的帅气使你成为了舞会的宠儿。',
@@ -224,18 +243,14 @@ Addgirlsuccess = [
     '你强壮的体魄让女孩们赞叹不已，她们纷纷来问你是不是一位军官。',
     '你擅长在舞会上温柔地对待每一个人，女孩们也向你投来了爱意。',
     '一个可爱的女孩一直在舞会上望着你，你犹豫了一会，向她发出了邀请。'
-
-]
-
+]  # 舞会成功文案
 Login100 = [
     '今天是练习击剑的一天，不过你感觉你的剑法毫无提升。',
     '优雅的贵族从不晚起，可是你今天一直睡到了中午。',
     '今天你点了一份豪华的午餐却忘记了带钱，窘迫的你毫无贵族的姿态。',
     '今天你在路上看上了别人的女友，却没有鼓起勇气向他决斗。',
     '今天你十分抑郁，因为发现自己最近上升的只有体重。'
-
-]
-
+]  # 签到失败文案
 Login200 = [
     '今天是练习击剑的一天，你感觉到了你的剑法有所提升。',
     '早起的你站在镜子前许久，天底下竟然有人可以这么帅气。',
@@ -243,54 +258,45 @@ Login200 = [
     '今天巡视领地时，一个小孩子崇拜地望着你，你感觉十分开心。',
     '今天一个朋友送你一张音乐会的门票，你打算邀请你的女友同去。',
     '今天一位国王的女友在路上向你抛媚眼，也许这就是个人魅力吧。'
-
-]
-
+]  # 正常签到文案
 Login300 = [
     '今天是练习击剑的一天，你感觉到了你的剑法大有长进。',
     '今天你救下了一个落水的小孩，他的家人说什么也要你收下一份心意。',
     '今天你巡视领地时，听到几个小女孩说想长大嫁给帅气的领主，你心里高兴极了。',
     '今天你打猎时猎到了一只鹿，你骄傲的把鹿角加入了收藏。',
     '今天你得到了一匹不错的马，说不定可以送去比赛。'
-
-]
-
+]  # 成功签到文案
 Login600 = [
     '今天是练习击剑的一天，你觉得自己已经可谓是当世剑圣。',
     '今天你因为领地治理有方，获得了皇帝的嘉奖。',
     '今天你的一位叔叔去世了，无儿无女的他，留给了你一大笔遗产。',
     '今天你在比武大会上获得了优胜，获得了全场的喝彩。',
     '今天你名下的马夺得了赛马的冠军，你感到无比的自豪。'
-
-]
-
+]  # 大成功签到文案
 Date5 = [
     '你比约会的时间晚到了十分钟，嘟着嘴的她看起来不太满意。',
     '一向善于言辞的你，今天的约会却不时冷场，她看起来不是很开心。',
     '今天的约会上你频频打哈欠，被她瞪了好几次，早知道昨晚不该晚睡的。',
     '“为您旁边的这个姐姐买朵花吧。”你们被卖花的男孩拦下，你本想买花却发现自己忘记了带钱，她看起来不是很开心。'
-]
-
+]  # 约会失败文案
 Date10 = [
     '你带她去熟悉的餐厅吃饭，她觉得今天过得很开心。',
     '你带她去看了一场马术表演，并约她找机会一起骑马出去，她愉快的答应了。',
     '“为您旁边的这个姐姐买朵花吧。”你们被卖花的男孩拦下，你买了一束花还给了小孩一笔小费，你的女友看起来很开心。',
     '你邀请她去看一场歌剧，歌剧中她不时微笑，看起来十分开心。'
-]
-
+]  # 约会一般文案
 Date15 = [
     '你和她一同骑马出行，两个人一同去了很多地方，度过了愉快的一天。',
     '你新定做了一件最新款的礼服，约会中她称赞你比往常更加帅气。',
     '你邀请她共赴一场宴会，宴会上你们无所不谈，彼此间的了解增加了。',
     '你邀请她去看一场歌剧，歌剧中她一直轻轻地握着你的手。'
-]
-
+]  # 约会成功文案
 Date20 = [
     '你邀请她共赴一场宴会，宴会中她亲吻了你的脸颊后，害羞的低下了头，这必然是你和她难忘的一天。',
     '约会中你们被一群暴民劫路，你为了保护她手臂受了伤。之后她心疼的抱住了你，并为你包扎了伤口。',
     '你邀请她去看你的赛马比赛，你骑着爱马轻松了夺取了第一名，冲过终点后，你大声地向着看台喊出了她的名字，她红着脸低下了头。',
     '你和她共同参加了一场盛大的舞会，两人的舞步轻盈而优雅，被评为了舞会第一名，上台时你注视着微笑的她，觉得她今天真是美极了。'
-]
+]  # 约会大成功文案
 
 # 这个字典保存保存每个DLC开启的群列表，pcr默认一直开启。
 dlc_switch = {}
@@ -299,7 +305,6 @@ with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'r', encoding='UTF-8') as 
     dlc_switch = json.load(f, strict=False)
 
 # 加载时装列表
-
 cfg.refresh_fashion()
 
 
@@ -311,7 +316,6 @@ def save_dlc_switch():
 cfg.refresh_config()
 
 
-# noinspection SqlResolve
 class RecordDAO:
     def __init__(self, db_path):
         self.db_path = db_path
@@ -526,7 +530,6 @@ check_dlc()
 def add_equip_info(gid, uid, level, down_list):
     CE = CECounter()
     # 加载装备列表
-    equiplist = {}
     with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
         equiplist = json.load(fa, strict=False)
     equiplistinfo = []
@@ -537,8 +540,6 @@ def add_equip_info(gid, uid, level, down_list):
     equipid = random.sample(down_list, 1)
     equipinfo = []
     for eid in equiplistinfo['e_list']:
-        # print(equipid[0])
-        # print(equiplistinfo['e_list'][eid]['eid'])
         if str(equipid[0]) == str(equiplistinfo['e_list'][eid]['eid']):
             equipinfo = equiplistinfo['e_list'][eid]
             equipinfo['model'] = equiplistinfo['model']
@@ -750,7 +751,7 @@ def get_card_ce(gid, uid, cid):
     if up_info:
         # 获取穿戴时装所加的战斗力
         fashion_info = get_fashion_info(up_info)
-        fashion_ce = fashion_info['add_ce']
+        fashion_ce = fashion_info['add_ce'] * 10
     # 获取角色等级
     zslevel = CE._get_zhuansheng(gid, uid, cid)
     zljcadd = zslevel * 50
@@ -839,7 +840,7 @@ def get_noblename(level: int):
         "8": "公爵",
         "9": "国王",
         "10": "皇帝",
-        "20": "已成神"
+        "20": "神"
     }
     return namedict[str(level)]
 

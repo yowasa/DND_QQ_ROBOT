@@ -1,6 +1,5 @@
 import os
 import sqlite3
-from datetime import datetime
 from enum import Enum
 
 from hoshino.config.__bot__ import BASE_DB_PATH
@@ -29,7 +28,8 @@ class UserModel(Enum):
     ITEM_BUY_TIME = [16, "购买道具次数"]
     TECHNOLOGY_BUFFER = [17, "正在研发的科技"]
     TECHNOLOGY_CD = [18, "研发CD"]
-    DUEL_COIN=[19,"决斗币数量"]
+    DUEL_COIN = [19, "决斗币数量"]
+    DUEL_SETTING = [20, "决斗偏好"]
 
 
 # 群组状态储存枚举类
