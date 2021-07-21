@@ -1150,6 +1150,12 @@ async def nobleduel(bot, ev: CQEvent):
                 else:
                     msg = f'[CQ:at,qq={id}]\n砰！你没有打到对方。\n[CQ:at,qq={id2}]\n轮到你开枪了哦。'
                 await bot.send(ev, msg)
+                if (n == 1 and way == 2) or (way == 1 and n == 5):
+                    winner = id2
+                    loser = id
+                    msg = f'[CQ:at,qq={id2}]\n你看到对方没有打到你，你迅速朝对面开了一枪\n[CQ:at,qq={id}]\n砰！你死了。'
+                    await bot.send(ev, msg)
+                    break
                 n += 1
                 duel_judger.change_turn(gid)
                 duel_judger.turn_off_hasfired(gid)
@@ -1266,7 +1272,7 @@ async def nobleduel(bot, ev: CQEvent):
         wingold = int(wingold * 1.2)
         bd_msg = '（击鼓传花）' + bd_msg
     if is_overtime == 1:
-        if (n != 6 and way != 2) or (way == 2 and n != 2):
+        if not (n == 6 and way == 0):
             wingold = 100
 
     score_counter._add_score(gid, winner, wingold)
@@ -1280,7 +1286,7 @@ async def nobleduel(bot, ev: CQEvent):
         level_zcha = max(level_cha, 0)
         winSW = WinSWBasics + (level_zcha * 20)
         if is_overtime == 1:
-            if (n != 6 and way != 2) or (way == 2 and n != 2):
+            if not (n == 6 and way == 0):
                 if level_loser < 6:
                     winSW = 0
                 else:
@@ -1318,7 +1324,7 @@ async def nobleduel(bot, ev: CQEvent):
 
     # 结算下注金币，判定是否为超时局。
     if is_overtime == 1:
-        if (n != 6 and way != 2) or (way == 2 and n != 2):
+        if not (n == 6 and way == 0):
             if level_loser < 6:
                 msg = '认输警告！本局为超时局/认输局，不进行金币结算，支持的金币全部返还。胜者获得的声望为0，金币大幅减少。'
             else:
