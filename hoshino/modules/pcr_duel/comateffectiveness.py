@@ -103,6 +103,10 @@ async def get_bangdin(bot, ev: CQEvent):
         msg = f'您绑定了：{c.name}，但她已不在您身边，请重新绑定您的女友。'
         await bot.finish(ev, msg)
     nvmes = get_nv_icon(cid)
+    up_info = duel._get_fashionup(gid, uid, cid, 0)
+    if up_info:
+        fashion_info = get_fashion_info(up_info)
+        nvmes = fashion_info['icon']
     msg = f"您当前绑定的女友是：{c.name}，每位贵族只能绑定一位女友参与战斗哦~\n{nvmes}"
     await bot.send(ev, msg, at_sender=True)
 
