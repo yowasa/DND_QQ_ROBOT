@@ -743,6 +743,8 @@ async def inquire_noble(bot, ev: CQEvent):
   您的爵位为{noblename}
   您的金币为{score}
   {partmsg}
+  您的副本币为{myscore}
+  您的决斗币为{duel_coin}
   您共可拥有{girlnum}名女友
   您已拥有{cidnum}名女友
   她们是：
@@ -760,6 +762,8 @@ async def inquire_noble(bot, ev: CQEvent):
   您的爵位为{noblename}
   您的金币为{score}
   {partmsg}
+  您的副本币为{myscore}
+  您的决斗币为{duel_coin}
   您的妻子是{c.name}
   您共可拥有{girlnum}名女友
   您已拥有{cidnum}名女友
@@ -2150,7 +2154,7 @@ async def give_gift(bot, ev: CQEvent):
     relationship = get_relationship(current_favor)[0]
 
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
     msg = f'\n{c.name}:“{text}”\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     if current_favor >= PRINCESS_HEART_FAVOR:
         rn = random.randint(1, 100)
@@ -2199,7 +2203,7 @@ async def give_gift_all(bot, ev: CQEvent):
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
     msg = f'\n{c.name}:“{text}”\n您送给了{c.name}{gift}x{gift_num}\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     if current_favor >= PRINCESS_HEART_FAVOR:
         rn = random.randint(1, 100)

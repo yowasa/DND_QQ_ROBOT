@@ -110,7 +110,7 @@ async def consume_item(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     msg = str(ev.message).strip().split()
-    item_info = ITEM_NAME_MAP[msg[0]]
+    item_info = ITEM_NAME_MAP.get(msg[0])
     if not item_info:
         await bot.finish(ev, f"未找到名称为{msg[0]}的道具", at_sender=True)
     counter = ItemCounter()

@@ -334,7 +334,7 @@ async def dungeon_list(bot, ev: CQEvent):
         msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp']}\n[困难]{dungeonlist[dungeon]['add_exp'] * 3} \n[地狱]{dungeonlist[dungeon]['add_exp'] * 5}"
         msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w']}万能碎片，{dungeonlist[dungeon]['fragment_c']}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w'] * 3}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 3}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w'] * 5}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 5}随机碎片"
         msg = msg + f"\n战胜获得好感：{dungeonlist[dungeon]['add_favor']}"
-        msg = msg + f"\n战胜获得资源：[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。[困难]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。[地狱]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
+        msg = msg + f"\n战胜获得资源：\n[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。\n[困难]{dungeonlist[dungeon]['dun_score']*3}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。\n[地狱]{dungeonlist[dungeon]['dun_score']*5}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
         msg = msg + f"\n副本描述：{dungeonlist[dungeon]['content']}，不同难度掉率不同"
         data = {
             "type": "node",
