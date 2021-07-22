@@ -50,6 +50,27 @@ async def gift_help(bot, ev: CQEvent):
     await bot.send(ev, msg)
 
 
+@sv.on_fullmatch(['解除绑定'])
+async def card_unbangdin(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    CE = CECounter()
+    duel = DuelCounter()
+    cid = CE._get_guaji(gid, uid)
+    if cid == 0:
+        msg = '您尚未绑定任何角色参与战斗。'
+        await bot.finish(ev, msg)
+    CE._add_guaji(gid, uid, 0)
+    c = chara.fromid(cid)
+    nvmes = get_nv_icon(cid)
+    up_info = duel._get_fashionup(gid, uid, cid, 0)
+    if up_info:
+        fashion_info = get_fashion_info(up_info)
+        nvmes = fashion_info['icon']
+    msg = f"你解除了绑定的女友：{c.name}，该女友不会再参与战斗。\n{nvmes}"
+    await bot.send(ev, msg, at_sender=True)
+
+
 @sv.on_prefix(['绑定女友'])
 async def card_bangdin(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
@@ -313,6 +334,7 @@ async def dungeon_list(bot, ev: CQEvent):
         msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp']}\n[困难]{dungeonlist[dungeon]['add_exp'] * 3} \n[地狱]{dungeonlist[dungeon]['add_exp'] * 5}"
         msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w']}万能碎片，{dungeonlist[dungeon]['fragment_c']}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w'] * 3}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 3}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w'] * 5}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 5}随机碎片"
         msg = msg + f"\n战胜获得好感：{dungeonlist[dungeon]['add_favor']}"
+        msg = msg + f"\n战胜获得资源：[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。[困难]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。[地狱]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
         msg = msg + f"\n副本描述：{dungeonlist[dungeon]['content']}，不同难度掉率不同"
         data = {
             "type": "node",
@@ -661,6 +683,10 @@ async def dress_equip(bot, ev: CQEvent):
 
                 msg_x = f"取消了{equipinfo['type']}部位的装备{equipinfo['name']}"
                 nvmes = get_nv_icon(cid)
+                up_info = duel._get_fashionup(gid, uid, cid, 0)
+                if up_info:
+                    fashion_info = get_fashion_info(up_info)
+                    nvmes = fashion_info['icon']
                 msg = f"您为您的女友{c.name}，{msg_x}\n{nvmes}"
                 await bot.send(ev, msg, at_sender=True)
             else:
@@ -712,6 +738,10 @@ async def dress_equip(bot, ev: CQEvent):
         else:
             msg_x = f"穿上了{equipinfo['type']}部位的装备{equipinfo['name']}"
         nvmes = get_nv_icon(cid)
+        up_info = duel._get_fashionup(gid, uid, cid, 0)
+        if up_info:
+            fashion_info = get_fashion_info(up_info)
+            nvmes = fashion_info['icon']
         msg = f"您为您的女友{c.name}，{msg_x}\n{nvmes}"
         await bot.send(ev, msg, at_sender=True)
     else:
@@ -818,7 +848,7 @@ async def dress_equip_list(bot, ev: CQEvent):
     else:
         await bot.finish(ev, '您还没有获得装备哦。', at_sender=True)
     c = chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     msg = ''
     for y in emax:
         if y[1] > 0:
@@ -891,7 +921,7 @@ async def dress_equip_list_r(bot, ev: CQEvent):
     else:
         await bot.finish(ev, '您还没有获得装备哦。', at_sender=True)
     c = chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     msg = ''
     for y in emax:
         if y[1] > 0:
@@ -1716,7 +1746,7 @@ async def start_huizhan(bot, ev: CQEvent):
                     }
                 }
                 tas_list.append(data)
-                user_card_dict = await get_user_card_dict(bot, ev.group_id)
+                user_card_dict = await get_user_card_dict(bot, groupid)
                 for shuchu in shuchulist:
                     if groupid == shuchu[0]:
                         get_equip = ''

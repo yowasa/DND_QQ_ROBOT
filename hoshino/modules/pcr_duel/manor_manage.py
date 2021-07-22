@@ -192,7 +192,9 @@ async def manor_view(bot, ev: CQEvent):
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     pm = PolicyModel.get_by_id(p_id)
     noblename = get_noblename(level)
+    now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
     msg = f'''尊敬的{noblename}您好，您的领地状态如下:
+繁荣度为{now_fanrong}
 领地面积{all_manor}
 城市面积{city_manor}
 建筑面积{total}
@@ -328,10 +330,14 @@ async def manor_sign(bot, ev: CQEvent):
     if not daily_manor_limiter.check(guid):
         await bot.finish(ev, "你今日已经进行过结算，请明日再来", at_sender=True)
     daily_manor_limiter.increase(guid)
-    msg = '\n====领地结算===='
+    msg = '\n==== 领地结算 ===='
     duel = DuelCounter()
     level = duel._get_level(gid, uid)
 
+    # 繁荣度增减
+    fanrong = 0
+    now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+    fan_buff = 1 + (now_fanrong / 1000)
     # 治安结算
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
     # 判定城市拥堵
@@ -349,21 +355,30 @@ async def manor_sign(bot, ev: CQEvent):
         msg += f"\n由于城市过于拥挤,居民怨声载道，治安减少了{reduce}"
     # 判定苛税乘法
     tax_rate = get_user_counter(gid, uid, UserModel.TAX_RATIO)
-    if tax_rate < 10:
-        add = random.randint(8, 15)
+    if tax_rate <= 10:
+        add = random.randint(3, 8) + (10 - tax_rate)
+        # 轻税额外增加繁荣度
+        fanrong += random.randint(2, 4) + int(0.5 * (10 - tax_rate))
         zhian += add
         if zhian >= 100:
             zhian = 100
         msg += f"\n人民安居乐业,生活轻松，治安增加了{add}"
-    elif 30 < tax_rate < 50:
-        reduce = random.randint(8, 15)
+    elif 30 < tax_rate <= 50:
+        # 苛税依据苛税水平扣减繁荣度
+        fanrong -= random.randint(3, 5) + int(0.5 * (tax_rate - 30))
+        reduce = random.randint(8, 15) + int(0.5 * (tax_rate - 30))
         zhian -= reduce
         if zhian < 0:
             zhian = 0
         msg += f"\n人民朝九晚九，一周六天，工作十分辛苦，心中怨声载道，治安减少了{reduce}"
-    elif tax_rate >= 50:
+    elif tax_rate > 50:
         msg += f"\n人民已经厌倦了领主的暴政,治安减少了{zhian}"
         zhian = 0
+        # 巨量收税大幅扣减繁荣度
+        fanrong -= random.randint(15, 20)
+    else:
+        # 正常税率以20为分界线增加或减少繁荣
+        fanrong += int(0.2 * (20 - tax_rate))
 
     save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
     # 判定暴乱
@@ -379,13 +394,16 @@ async def manor_sign(bot, ev: CQEvent):
             bao_flag = 1
     elif zhian >= 95:
         msg += f"\n治安良好，社会稳定运行,GDP实现了高速增长"
+        # 治安良好随机增加繁荣度
+        fanrong += random.randint(3, 5)
         buffer_flag = 1
-    else:
-        msg += f"\n领地一片祥和，没有什么特别需要注意的事情"
 
     gold_sum = 0
     sw_sum = 0
-    if not bao_flag:
+    if bao_flag:
+        # 暴乱繁荣无条件-10
+        fanrong -= 10
+    else:
         # 计算耕地
         geng = get_user_counter(gid, uid, UserModel.GENGDI)
         p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
@@ -420,9 +438,11 @@ async def manor_sign(bot, ev: CQEvent):
                 sha_flag = 1
                 msg += f"由于你大肆扩张耕地，领地内出现了黄沙天气，农民颗粒无收"
         if not sha_flag:
+            # 正常收获 随机增加繁荣度 且耕地面积越大越高
+            fanrong += random.randint(1, 3) + int(geng / 10)
             area_geng = get_geng_manor(gid, uid, level, geng)
             tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
-            geng_gold = int(area_geng * tax * 10 * random.uniform(0.9, 1.1))
+            geng_gold = int(area_geng * tax * 10 * random.uniform(0.9, 1.1) * fan_buff)
             msg += f"\n收取了耕地税收{geng_gold}金币"
 
         gold_sum += geng_gold
@@ -456,13 +476,15 @@ async def manor_sign(bot, ev: CQEvent):
         # 计算建筑收益
         b_c = get_all_build_counter(gid, uid)
         for i in b_c.keys():
+            # 每有一个类建筑 增加1点繁荣度
+            fanrong += b_c[i]
             if i == BuildModel.CENTER:
                 continue
             elif i == BuildModel.MARKET:
                 rate = 1.0
                 if check_technolog_counter(gid, uid, TechnologyModel.MONETARY_POLICY):
                     rate = 1.5
-                market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1))
+                market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
                 if buffer_flag:
                     market_gold = int(market_gold * 1.1)
                 msg += f'\n贸易市场为你带来了额外{market_gold}金币收益'
@@ -471,7 +493,7 @@ async def manor_sign(bot, ev: CQEvent):
                 rate = 1.0
                 if check_technolog_counter(gid, uid, TechnologyModel.MANIPULATION):
                     rate = 1.5
-                tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1))
+                tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
                 if buffer_flag:
                     tv_sw = int(tv_sw * 1.1)
                 sw_sum += tv_sw
@@ -494,7 +516,7 @@ async def manor_sign(bot, ev: CQEvent):
                 area_city = get_city_manor(gid, uid, level)
                 area_all = get_all_manor(level)
                 lin = area_all - area_geng - area_city
-                get_sw = int(lin * 5 * random.uniform(0.9, 1.1))
+                get_sw = int(lin * 5 * random.uniform(0.9, 1.1) * fan_buff)
                 sw_sum += get_sw
                 msg += f"\n环保局致力于维护林地，让领地环境变得更好，声望上升了{get_sw}"
             elif i == BuildModel.DIZHI:
@@ -521,6 +543,13 @@ async def manor_sign(bot, ev: CQEvent):
                 add_item(gid, uid, item, num=2)
                 msg += f'\n裂变中心正常运转，你获得了2个{item["rank"]}级道具{item["name"]}'
 
+    # 更新繁荣度
+    now_fanrong += fanrong
+    if now_fanrong < 0:
+        now_fanrong = 0
+    elif now_fanrong > 1000:
+        now_fanrong = 1000
+    save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, now_fanrong)
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
     msg += f'\n你接受了封地，要承担相应责任，需要上缴金币{taxes}'
@@ -633,7 +662,7 @@ async def _(session: CommandSession):
 @sv.on_prefix("刷新结算")
 async def refresh(bot, ev: CQEvent):
     gid = ev.group_id
-    msg=str(ev.message).strip()
+    msg = str(ev.message).strip()
     if not priv.check_priv(ev, priv.SUPERUSER):
         await bot.finish(ev, f"你无权使用投放道具功能", at_sender=True)
     try:

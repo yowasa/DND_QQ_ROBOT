@@ -30,6 +30,7 @@ class UserModel(Enum):
     TECHNOLOGY_CD = [18, "研发CD"]
     DUEL_COIN = [19, "决斗币数量"]
     DUEL_SETTING = [20, "决斗偏好"]
+    PROSPERITY_INDEX = [21, "领地繁荣指数"]
 
 
 # 群组状态储存枚举类

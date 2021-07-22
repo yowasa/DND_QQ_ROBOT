@@ -958,6 +958,16 @@ def concat_pic(pics, border=0):
     return des
 
 
+def get_nv_icon_with_fashion(gid, uid, cid):
+    duel = DuelCounter()
+    up_info = duel._get_fashionup(gid, uid, cid, 0)
+    if up_info:
+        fashion_info = get_fashion_info(up_info)
+        return fashion_info['icon']
+    else:
+        return get_nv_icon(cid)
+
+
 def get_nv_icon(cid):
     c = chara.fromid(cid)
     mes = c.icon.cqcode

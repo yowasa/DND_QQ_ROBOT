@@ -39,6 +39,7 @@ async def duel_help(bot, ev: CQEvent):
 [用{数量}金币与@群友交易女友]{角色名}
 [绑定女友]{角色名}
 [查看绑定]{角色名}
+[解除绑定]
 [增加女友上限]
 [贵族等级表]
 [本群贵族]
@@ -354,6 +355,10 @@ async def nobleduel(bot, ev: CQEvent):
     duel._add_card(gid, id1, cid)
     duel_jiaoyier.turn_jiaoyioff(gid)
     nvmes = get_nv_icon(cid)
+    CE = CECounter()
+    guaji = CE._get_guaji(gid, id2)
+    if cid == guaji:
+        CE._add_guaji(gid, id2, 0)
     msg = f'[CQ:at,qq={id1}]以{num}金币的价格购买了[CQ:at,qq={id2}]的女友{c.name}，交易成功\n[CQ:at,qq={id1}]您失去了{num}金币，剩余{scoreyou}金币\n[CQ:at,qq={id2}]扣除{cost * 100}%手续费，您能得到了{get_num}金币，剩余{score}金币。{nvmes}'
     await bot.send(ev, msg)
 
@@ -674,6 +679,8 @@ async def inquire_noble(bot, ev: CQEvent):
         partmsg = f'您的声望为{prestige}点'
     else:
         partmsg = f'您的声望为{prestige}点'
+    myscore = CE._get_dunscore(gid, uid)
+    duel_coin = get_user_counter(gid, uid, UserModel.DUEL_COIN)
     nv_names = ''
     if cidnum == 0:
         msg = f'''
@@ -681,6 +688,8 @@ async def inquire_noble(bot, ev: CQEvent):
   您的爵位为{noblename}
   您的金币为{score}
   {partmsg}
+  您的副本币为{myscore}
+  您的决斗币为{duel_coin}
   您共可拥有{girlnum}名女友
   您目前没有女友。
   发送[贵族舞会]
@@ -1180,7 +1189,7 @@ async def nobleduel(bot, ev: CQEvent):
     item = get_item_by_name("光学迷彩")
     have_item = check_have_item(gid, loser, item)
     if have_item:
-        rn = random.randint(1, 10)
+        rn = random.randint(1, 50)
         if rn == 1:
             use_item(gid, loser, item)
             msg = f'[CQ:at,qq={loser}] 你在失败逃窜时不小心划破了光学迷彩，你的光学迷彩不能继续使用了。'
@@ -1845,6 +1854,10 @@ async def breakup(bot, ev: CQEvent):
         count = get_user_counter(gid, uid, UserModel.FENSHOU)
         count += 1
         c = duel_chara.fromid(cid)
+        CE = CECounter()
+        guaji = CE._get_guaji(gid, uid)
+        if cid == guaji:
+            CE._add_guaji(gid, uid, 0)
         msg = f'\n“真正离开的那次，关门声最小。”\n你和{c.name}分手了。失去了{needscore}金币分手费,声望减少了{needSW}。\n{c.icon.cqcode}'
         if count >= 100:
             count = 0

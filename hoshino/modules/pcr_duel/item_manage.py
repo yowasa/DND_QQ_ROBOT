@@ -15,6 +15,7 @@ async def gift_help(bot, ev: CQEvent):
 ╔                                        ╗  
              道具系统帮助
 [我的道具]
+[道具一览] 查看所有道具及其效果
 [道具效果] {道具名称}
 [使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
 [我的决斗币] 查看自己的决斗币数量
@@ -43,6 +44,36 @@ async def my_item(bot, ev: CQEvent):
     for i in items:
         msg += f"\n{ITEM_INFO[str(i[0])]['rank']}级：{ITEM_INFO[str(i[0])]['name']} *{i[1]}"
     await bot.send(ev, msg, at_sender=True)
+
+
+@sv.on_fullmatch('道具一览')
+async def item_all(bot, ev: CQEvent):
+    tas_list = []
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": "====== 道具一览 ======"
+        }
+    }
+    tas_list.append(data)
+    for i in ['S', 'A', 'B', 'C', 'D']:
+        for j in ITEM_RANK_MAP[i]:
+            msg = f"""{ITEM_INFO[j]['name']}
+稀有度：{ITEM_INFO[j]['rank']}
+效果：{ITEM_INFO[j]['desc']}
+            """.strip()
+            data = {
+                "type": "node",
+                "data": {
+                    "name": "ご主人様",
+                    "uin": "1587640710",
+                    "content": msg
+                }
+            }
+            tas_list.append(data)
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
 @sv.on_prefix(['道具效果', '道具查询', '查询道具'])
@@ -222,11 +253,15 @@ async def add_item_2(msg, bot, ev: CQEvent):
 async def add_item_4(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    item_info = ITEM_NAME_MAP[msg[0]]
+    if not msg:
+        return (False, "请指定一个道具 指令为：使用道具 四重存在 {道具名称} ")
+    item_info = ITEM_NAME_MAP.get(msg[0])
     if not item_info:
         return (False, f"未找到名称为{msg[0]}的道具")
     if item_info['rank'] in ['S', 'A']:
         return (False, f"四重存在只能对A级一下（不包括A）的道具使用")
+    if item_info['name'] == '投影魔术':
+        return (False, f"四重存在无法对[投影魔术]使用")
     counter = ItemCounter()
     num = counter._get_item_num(gid, uid, int(item_info['id']))
     if num < 1:
@@ -455,6 +490,13 @@ async def patty_happy(msg, bot, ev: CQEvent):
     duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 1)
     counter = ItemCounter()
     counter._save_group_state(gid, 1, 1)
+    # 刷新当前群组所有贵族的免费招募状态
+    user_card_dict = await get_user_card_dict(bot, gid)
+    for uid in user_card_dict.keys():
+        if uid != ev.self_id:
+            guid = gid, uid
+            daily_free_limiter.reset(guid)
+
     return (True, f'在本小时结束前已开启本群免费招募庆典，所有人可以使用免费招募指令招募一次')
 
 
@@ -670,6 +712,74 @@ async def rush_world(msg, bot, ev: CQEvent):
     guid = gid, uid
     daily_manor_limiter.reset(guid)
     return (True, f'你的领地内时间忽然流逝了86400秒（领地结算已重置）')
+
+
+@msg_route("收获之日")
+async def happy_day(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    CE = CECounter()
+    CE._add_dunscore(gid, uid, 2000)
+    return (True, f'你在副本中发现了隐藏的宝箱，带着副本币满载而归。(副本币增加2000)')
+
+
+@msg_route("武装镇压")
+async def suppress(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
+    zhian += 20
+    if zhian > 100:
+        zhian = 100
+    save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
+    return (True, f'以暴制暴不是最好的做法，但效果确有保障，你派出的大量武装部队去维护了领地内的治安(领地的治安恢复了20)')
+
+
+@msg_route("太平盛世")
+async def peace_and_order(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    fan = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+    fan += 20
+    if fan > 1000:
+        fan = 1000
+    save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, fan)
+    return (True, f'随着你的合理良政，领地逐渐繁荣起来，一个新的盛世即将诞生。已使用道具太平盛世，领地的繁荣度增加了20点')
+
+
+@msg_route("基建狂魔")
+async def capital_construction(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    msg = ''
+    # 计算建筑进度
+    cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
+    if cd != 0:
+        cd -= 1
+        if cd == 0:
+            buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
+            build = BuildModel.get_by_id(buffer_build_id)
+            build_num = check_build_counter(gid, uid, build)
+            build_num += 1
+            i_c = ItemCounter()
+            i_c._save_user_state(gid, uid, build.value['id'], build_num)
+            msg += f"\n施工队报告{build.value['name']}竣工了，已经可以投入使用"
+            save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
+        save_user_counter(gid, uid, UserModel.BUILD_CD, cd)
+
+    # 计算科研进度
+    t_cd = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+    if t_cd != 0:
+        t_cd -= 1
+        if t_cd == 0:
+            buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
+            technology = TechnologyModel.get_by_id(buffer_technology_id)
+            i_c = ItemCounter()
+            i_c._save_user_state(gid, uid, technology.value['id'], 1)
+            msg += f"\n科研队报告{technology.value['name']}已经研发成功了！"
+            save_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER, 0)
+        save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_cd)
+    return (True, f'没有什么是一发基建不能解决的，如果有，那就建到解决！使用道具基建狂魔，建造和科研的速度加快了。' + msg)
 
 
 @sv.on_fullmatch("我的决斗币", "决斗币查询", "查询决斗币")
