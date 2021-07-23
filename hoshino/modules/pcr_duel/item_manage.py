@@ -267,7 +267,7 @@ async def add_item_4(msg, bot, ev: CQEvent):
     if num < 1:
         return (False, f"背包中不存在道具{msg[0]}")
     counter._add_item(gid, uid, int(item_info['id']), num=3)
-    return (True, f"你消耗了好事成双，背包中的一个{msg[0]}分裂成了四个")
+    return (True, f"你消耗了四重存在，背包中的一个{msg[0]}分裂成了四个")
 
 
 @msg_route("狂赌之渊")
