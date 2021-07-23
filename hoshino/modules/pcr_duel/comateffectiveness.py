@@ -334,7 +334,7 @@ async def dungeon_list(bot, ev: CQEvent):
         msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp']}\n[困难]{dungeonlist[dungeon]['add_exp'] * 3} \n[地狱]{dungeonlist[dungeon]['add_exp'] * 5}"
         msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w']}万能碎片，{dungeonlist[dungeon]['fragment_c']}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w'] * 3}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 3}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w'] * 5}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 5}随机碎片"
         msg = msg + f"\n战胜获得好感：{dungeonlist[dungeon]['add_favor']}"
-        msg = msg + f"\n战胜获得资源：\n[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。\n[困难]{dungeonlist[dungeon]['dun_score']*3}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。\n[地狱]{dungeonlist[dungeon]['dun_score']*5}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
+        msg = msg + f"\n战胜获得资源：\n[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。\n[困难]{dungeonlist[dungeon]['dun_score'] * 3}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。\n[地狱]{dungeonlist[dungeon]['dun_score'] * 5}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
         msg = msg + f"\n副本描述：{dungeonlist[dungeon]['content']}，不同难度掉率不同"
         data = {
             "type": "node",
@@ -2114,7 +2114,7 @@ async def add_exp_chizi(bot, ev: CQEvent):
     duel = DuelCounter()
     CE = CECounter()
     c = chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     owner = duel._get_card_owner(gid, cid)
     if uid != owner:
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法绑定哦。'
@@ -2780,15 +2780,7 @@ async def cardstar_up(bot, ev: CQEvent):
     card_fragment = CE._get_fragment_num(gid, uid, cid)
     wn_fragment = CE._get_fragment_num(gid, uid, 0)
     mynum = int(card_fragment) + int(wn_fragment)
-    nvmes = get_nv_icon(cid)
-    up_info = duel._get_fashionup(gid, uid, cid, 0)
-    up_icon = ''
-    if up_info:
-        # 获取穿戴时装所加的战斗力
-        fashion_info = get_fashion_info(up_info)
-        up_icon = fashion_info['icon']
-    if up_icon:
-        nvmes = up_icon
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     if mynum < needfragment:
         await bot.finish(ev, f'升级到{new_star}星需要{needfragment}碎片，您的碎片不够哦。', at_sender=True)
     if card_fragment >= needfragment:
@@ -2966,15 +2958,7 @@ async def card_zhuansheng(bot, ev: CQEvent):
         await bot.finish(ev, '该女友已经到最高转生等级，无法继续转生啦。', at_sender=True)
     new_zl = zllevel + 1
 
-    nvmes = get_nv_icon(cid)
-    up_info = duel._get_fashionup(gid, uid, cid, 0)
-    up_icon = ''
-    if up_info:
-        # 获取穿戴时装所加的战斗力
-        fashion_info = get_fashion_info(up_info)
-        up_icon = fashion_info['icon']
-    if up_icon:
-        nvmes = up_icon
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     level_info = CE._get_card_level(gid, uid, cid)
     rank = CE._get_rank(gid, uid, cid)
     if level_info >= 100 and rank >= 10:

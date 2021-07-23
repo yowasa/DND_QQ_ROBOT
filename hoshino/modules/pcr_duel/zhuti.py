@@ -2068,7 +2068,7 @@ async def girl_story(bot, ev: CQEvent):
     favor = duel._get_favor(gid, uid, cid)
     relationship, text = get_relationship(favor)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     msg = f'\n{c.name}对你的好感是{favor}\n你们的关系是{relationship}\n“{text}”\n{nvmes}'
     await bot.send(ev, msg, at_sender=True)
 
@@ -2154,7 +2154,7 @@ async def give_gift(bot, ev: CQEvent):
     relationship = get_relationship(current_favor)[0]
 
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     msg = f'\n{c.name}:“{text}”\n\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     if current_favor >= PRINCESS_HEART_FAVOR:
         rn = random.randint(1, 100)
@@ -2203,7 +2203,7 @@ async def give_gift_all(bot, ev: CQEvent):
     current_favor = duel._get_favor(gid, uid, cid)
     relationship = get_relationship(current_favor)[0]
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     msg = f'\n{c.name}:“{text}”\n您送给了{c.name}{gift}x{gift_num}\n你和{c.name}的好感上升了{favor}点\n她现在对你的好感是{current_favor}点\n你们现在的关系是{relationship}\n{nvmes}'
     if current_favor >= PRINCESS_HEART_FAVOR:
         rn = random.randint(1, 100)
@@ -2492,7 +2492,7 @@ async def lihun_queen(bot, ev: CQEvent):
     queen = duel._search_queen(gid, uid)
     duel._delete_card(gid, uid, queen)
     c = duel_chara.fromid(queen)
-    nvmes = get_nv_icon(queen)
+    nvmes = get_nv_icon_with_fashion(gid,uid,queen)
     msg = f'花费了20000金币，[CQ:at,qq={uid}]总算将他的妻子{c.name}赶出家门\n，引起了众人的不满，损失3000声望。{nvmes}'
     duel._delete_queen_owner(gid, queen)
     await bot.send(ev, msg)
