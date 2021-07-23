@@ -1882,7 +1882,7 @@ async def breakup_yj(bot, ev: CQEvent):
         level = duel._get_level(gid, uid)
         # 处理输入数据
         match = ev['match']
-        defen = str(match.group(1))
+        defen = str(match.group(1)).strip()
         defen = re.sub(r'[?？，,_]', '', defen)
         defen, unknown = duel_chara.roster.parse_team(defen)
         duel = DuelCounter()
