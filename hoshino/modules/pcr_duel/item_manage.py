@@ -1,5 +1,5 @@
 import asyncio
-
+import copy
 from hoshino import priv
 from hoshino.typing import CQEvent
 from hoshino.typing import CommandSession
@@ -650,7 +650,7 @@ async def change_item(msg, bot, ev: CQEvent):
         return (False, f"你身上未持有[{item_name}]")
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num=-1)
-    li = ITEM_RANK_MAP[item['rank']]
+    li=copy.copy(ITEM_RANK_MAP.get(item['rank']))
     li.remove(item['id'])
     new_id = random.choice(li)
     new_item = ITEM_INFO[new_id]
