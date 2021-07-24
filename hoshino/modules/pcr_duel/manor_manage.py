@@ -210,6 +210,11 @@ async def manor_view(bot, ev: CQEvent):
         b_b = BuildModel.get_by_id(b_b_id)
         b_t = get_user_counter(gid, uid, UserModel.BUILD_CD)
         msg += f"\n当前正在建设{b_b.value['name']},还差{b_t}次结算建造完成"
+    t_b_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
+    if t_b_id:
+        t_b = TechnologyModel.get_by_id(t_b_id)
+        t_t = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+        msg += f"\n当前正在研发{t_b.value['name']},还差{t_t}次结算研发完成"
 
     await bot.finish(ev, msg, at_sender=True)
 
