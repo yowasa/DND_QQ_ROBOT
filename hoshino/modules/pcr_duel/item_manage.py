@@ -180,7 +180,7 @@ async def add_level(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -210,7 +210,7 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon(cid)
+    nvmes = get_nv_icon_with_fashion(cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -511,6 +511,30 @@ async def princess_heart(msg, bot, ev: CQEvent):
     return (True, f'你使用了公主之心，所有的女友好感度提升了30点')
 
 
+@msg_route("心意蛋糕")
+async def favor_cook(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if len(msg) == 0:
+        return (False, "请在道具后+空格+女友名称")
+    name = msg[0]
+    cid = duel_chara.name2id(name)
+    if cid == 1000:
+        return (False, "请输入正确的角色名")
+    duel = DuelCounter()
+    owner = duel._get_card_owner(gid, cid)
+    c = duel_chara.fromid(cid)
+    nvmes = get_nv_icon_with_fashion(cid)
+    if owner == 0:
+        return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
+    if uid != owner:
+        msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
+        return (False, msg)
+
+    duel._add_favor(gid, uid, cid, 100)
+    return (True, f'你亲手为{c.name}制作了一份饱含心意蛋糕给,她吃的很开心，好感度提升了100点。{nvmes}')
+
+
 @msg_route("生财有道")
 async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -650,7 +674,7 @@ async def change_item(msg, bot, ev: CQEvent):
         return (False, f"你身上未持有[{item_name}]")
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num=-1)
-    li=copy.copy(ITEM_RANK_MAP.get(item['rank']))
+    li = copy.copy(ITEM_RANK_MAP.get(item['rank']))
     li.remove(item['id'])
     new_id = random.choice(li)
     new_item = ITEM_INFO[new_id]
