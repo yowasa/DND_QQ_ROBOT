@@ -6,9 +6,14 @@ from .duelconfig import *
 
 
 class PolicyModel(Enum):
-    BALANCE = [0, "保持原样"]
-    GENG_INCREASE = [1, "开垦荒地"]
-    GENG_DECREASE = [2, "退耕还林"]
+    BALANCE = [0, "保持原样", "保持领地现有的发展情况"]
+    GENG_INCREASE = [1, "开垦荒地", "增加领地的耕地面积"]
+    GENG_DECREASE = [2, "退耕还林", "增加领地的林地面积"]
+    STRONG_BUILD = [3, "加强建设", "消耗50点繁荣度，结算时建造进度额外增加一次结算,繁荣度不足则不会生效"]
+    STRONG_TEC = [4, "加强科研", "消耗50点繁荣度，结算时科研进度额外增加一次结算,繁荣度不足则不会生效"]
+    CATCH_ALL_FISH = [5, "竭泽而渔", "消耗30点繁荣度，结算时耕地收益增加50%,繁荣度不足则不会生效"]
+    AGRICULTURAL_SUBSIDIES = [6, "农业补贴", "增加10点繁荣度，结算时耕地收益减少50%"]
+    POVERTY_ALLEVIATION_POLICIES = [7, "扶贫政策", "放弃耕地收益，额外支付领地面积*100的金币，增加20点繁荣度"]
 
     @staticmethod
     def get_by_id(id):
@@ -36,7 +41,8 @@ async def manor_help(bot, ev: CQEvent):
 [建造建筑] {建筑名称} 建造建筑
 [拆除建筑] {建筑名称} 拆除建筑
 [领地结算] 领地指令结算，一天只能执行一次
-[政策选择] {政策}可选政策：开垦荒地，退耕还林，保持原样 结算时会按照政策调整领地耕地面积
+[政策选择] {政策} 设置领地政策，不再次设置则会一直采用当前政策
+[政策列表] 查看可选择的政策及效果
 [税率调整] {数值}设置领地征税比例 默认10%
 ==建筑指令==
 [购买道具] 道具商店指令，花费1w金币随机买一个道具
@@ -219,7 +225,7 @@ async def manor_view(bot, ev: CQEvent):
     await bot.finish(ev, msg, at_sender=True)
 
 
-@sv.on_fullmatch("建筑列表")
+@sv.on_fullmatch(["建筑列表", "建筑一览"])
 async def build_view(bot, ev: CQEvent):
     tas_list = []
     data = {
@@ -405,14 +411,14 @@ async def manor_sign(bot, ev: CQEvent):
 
     gold_sum = 0
     sw_sum = 0
+    p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
+    p_m = PolicyModel.get_by_id(p_id)
     if bao_flag:
         # 暴乱繁荣无条件-10
         fanrong -= 10
     else:
         # 计算耕地
         geng = get_user_counter(gid, uid, UserModel.GENGDI)
-        p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
-        p_m = PolicyModel.get_by_id(p_id)
         if p_m == PolicyModel.GENG_INCREASE:
             rn = random.randint(3, 5)
             if geng + rn <= 100:
@@ -448,14 +454,28 @@ async def manor_sign(bot, ev: CQEvent):
             area_geng = get_geng_manor(gid, uid, level, geng)
             tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
             geng_gold = int(area_geng * tax * 10 * random.uniform(0.9, 1.1) * fan_buff)
-            msg += f"\n收取了耕地税收{geng_gold}金币"
+            if p_m == PolicyModel.CATCH_ALL_FISH:
+                if now_fanrong >= 30:
+                    now_fanrong -= 30
+                    geng_gold = int(1.5 * geng_gold)
+            if p_m == PolicyModel.AGRICULTURAL_SUBSIDIES:
+                fanrong += 10
+                geng_gold = int(0.5 * geng_gold)
+            if p_m == PolicyModel.POVERTY_ALLEVIATION_POLICIES:
+                fanrong += 10
+                geng_gold = -get_all_manor(level) * 100
+            msg += f"\n耕地收入为{geng_gold}金币"
 
         gold_sum += geng_gold
         # 计算建筑进度
         cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
         if cd != 0:
             cd -= 1
-            if cd == 0:
+            if p_m == PolicyModel.STRONG_BUILD:
+                if now_fanrong >= 50:
+                    now_fanrong -= 50
+                    cd = 0 if cd - 1 < 0 else cd - 1
+            if cd <= 0:
                 buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
                 build = BuildModel.get_by_id(buffer_build_id)
                 build_num = check_build_counter(gid, uid, build)
@@ -470,6 +490,10 @@ async def manor_sign(bot, ev: CQEvent):
         t_cd = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
         if t_cd != 0:
             t_cd -= 1
+            if p_m == PolicyModel.STRONG_TEC:
+                if now_fanrong >= 50:
+                    now_fanrong -= 50
+                    t_cd = 0 if t_cd - 1 < 0 else t_cd - 1
             if t_cd == 0:
                 buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
                 technology = TechnologyModel.get_by_id(buffer_technology_id)
@@ -585,12 +609,41 @@ async def manor_policy(bot, ev: CQEvent):
         await bot.finish(ev, f"没有行政中心前无法进行政策选择")
     name = str(ev.message).strip()
     if not name:
-        await bot.finish(ev, f'请选择开垦荒地，退耕还林，保持原样其中一种')
+        await bot.finish(ev, f'请选择[政策一览]中的其中一项政策')
     pm = PolicyModel.get_by_name(name)
     if not pm:
-        await bot.finish(ev, f'没有找到名为{name}的政策，请选择开垦荒地，退耕还林，保持原样其中一种')
+        await bot.finish(ev, f'没有找到名为{name}的政策，请选择[政策一览]中的其中一项政策')
     save_user_counter(gid, uid, UserModel.MANOR_POLICY, pm.value[0])
     await bot.finish(ev, f'你颁布了行政法令，要求{pm.value[1]}')
+
+
+@sv.on_prefix(["政策列表", "政策一览"])
+async def manor_policy_view(bot, ev: CQEvent):
+    tas_list = []
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": "==== 政策一览 ===="
+        }
+    }
+    tas_list.append(data)
+    for pm in PolicyModel:
+        msg = f'''
+{pm.value[1]}
+详情:{pm.value[2]}
+    '''.strip()
+        data = {
+            "type": "node",
+            "data": {
+                "name": "ご主人様",
+                "uin": "1587640710",
+                "content": msg
+            }
+        }
+        tas_list.append(data)
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
 @sv.on_prefix(["税率调整", "调整税率"])
@@ -751,13 +804,8 @@ async def equip_fuse(bot, ev: CQEvent):
         await bot.finish(ev, f'你背包中没有装备', at_sender=True)
 
 
-@sv.on_fullmatch("科技列表")
+@sv.on_fullmatch(["科技列表", "科技一览"])
 async def technology_li(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    num = check_build_counter(gid, uid, BuildModel.TECHNOLOGY_CENTER)
-    if num <= 0:
-        await bot.finish(ev, f'你的城市没有科技研究所，无法查看科技树', at_sender=True)
     tas_list = []
     data = {
         "type": "node",

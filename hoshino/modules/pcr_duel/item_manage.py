@@ -180,7 +180,7 @@ async def add_level(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(cid)
+    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -210,7 +210,7 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(cid)
+    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -524,7 +524,7 @@ async def favor_cook(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(cid)
+    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:

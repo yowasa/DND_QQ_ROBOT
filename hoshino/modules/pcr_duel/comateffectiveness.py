@@ -491,8 +491,9 @@ async def add_duiwu_t(bot, ev: CQEvent):
             if max_card == 5:
                 chizi_exp = CE._get_exp_chizi(gid, uid)
                 if chizi_exp >= 1000000:
+                    limit=int(chizi_exp/1000000)
                     rn = random.randint(1, 100)
-                    if rn == 1:
+                    if rn <= limit:
                         last_exp = 0 - chizi_exp
                         CE._add_exp_chizi(gid, uid, last_exp)
                         item = get_item_by_name("天命之子")
