@@ -491,7 +491,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
             if max_card == 5:
                 chizi_exp = CE._get_exp_chizi(gid, uid)
                 if chizi_exp >= 1000000:
-                    limit=int(chizi_exp/1000000)
+                    limit = int(chizi_exp / 1000000)
                     rn = random.randint(1, 100)
                     if rn <= limit:
                         last_exp = 0 - chizi_exp
@@ -1666,6 +1666,8 @@ async def start_huizhan(bot, ev: CQEvent):
             if nextboss == 6:
                 nextboss = 1
                 nextzhoumu = bossinfo['zhoumu'] + 1
+            if nextzhoumu > 20:
+                nextzhoumu = 1
             nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
             boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})"
             msg = msg + f"您对boss造成了{shanghai}点伤害，{boss_msg}\n由于伤害超出boss剩余血量，实际造成伤害为{bossinfo['hp']}点\n您的队伍剩余血量{card_jk}%，请输入指令‘{gotype}补时刀’进入下一轮boss战斗\n{nextbossinfo['icon']}"
