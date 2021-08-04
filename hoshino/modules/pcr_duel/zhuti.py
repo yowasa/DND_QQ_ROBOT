@@ -84,7 +84,7 @@ async def manage_help(bot, ev: CQEvent):
     msg = '''
 ╔                                       ╗    
         交易帮助相关指令
-[兑换{数量}声望]
+[用{数量}金币兑换声望]
 [用{数量}声望兑换金币]
 [为@群友转账{数量}金币]
 [用{数量}金币与@群友交易女友]{角色名}
@@ -636,10 +636,10 @@ async def add_noble(bot, ev: CQEvent):
             await bot.send(ev, msg, at_sender=True)
             return
 
-        item = get_item_by_name("命运牵引")
-        add_item(gid, uid, item, num=10)
-        girlmsg = f'你现在为测试组成员，已经为你添加10个命运牵引'
-        # girlmsg = f'为您发放了道具[梦境巡游],使用[开始巡游]指令去寻找你的初始女友吧'
+        item = get_item_by_name("梦境巡游")
+        add_item(gid, uid, item, num=1)
+        # girlmsg = f'你现在为测试组成员，已经为你添加10个命运牵引'
+        girlmsg = f'为您发放了道具[梦境巡游],使用[开始巡游]指令去寻找你的初始女友吧'
         duel._set_level(gid, uid, 1)
         msg = f'\n创建角色成功！\n您的初始爵位是平民\n可以拥有1名女友。\n金币:5000，声望:0\n{girlmsg}'
         score_counter = ScoreCounter2()
@@ -950,13 +950,13 @@ async def add_girl(bot, ev: CQEvent):
         # 发送信息
         noblename = get_noblename(level)
         msg = f'''尊敬的{noblename}您好，你奉命开始开拓新的城市，获得了{MANOR_INIT_GOLD}金币的启动资金
-            城市面积{all_manor}
-            市区面积{city_manor}
-            耕地面积{geng_manor}
-            当前治安状况{zhian}
-            耕地税比例为{shui}%
-            请认真维护好自己的城市，无法维护城市时会产生极其恶劣的影响
-            使用[城市帮助]查看更多城市指令
+城市面积{all_manor}
+市区面积{city_manor}
+耕地面积{geng_manor}
+当前治安状况{zhian}
+耕地税比例为{shui}%
+请认真维护好自己的城市，无法维护城市时会产生极其恶劣的影响
+使用[城市帮助]查看更多城市指令
             '''.strip()
         await bot.send(ev, msg, at_sender=True)
 
