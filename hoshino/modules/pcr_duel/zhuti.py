@@ -606,7 +606,7 @@ async def group_noble_status(bot, ev: CQEvent):
             dlctext += f'  {cfg.dlcintro[dlc]}\n'
     msg = f'''
 ╔                          ╗
-         本群贵族
+         世界状态
   皇帝：{lA_num}名  
   国王：{l9_num}名  
   公爵：{l8_num}名  
