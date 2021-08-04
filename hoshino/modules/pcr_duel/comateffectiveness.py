@@ -16,13 +16,13 @@ from .duelconfig import *
 async def gift_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
-             培养系统帮助
-[挂机修炼]
-[结束修炼]
-[我的经验池]
-[分配经验] {女友名} {经验值}
+             培养帮助
+[经验池] 
 [碎片列表]
-[rank表] 查询女友rank信息
+[rank表]
+[挂机修炼]{女友名}
+[结束修炼]
+[分配经验] {女友名} {经验值}
 [提升rank]{角色名}
 [角色升星] {角色名}
 [角色转生] {角色名}
@@ -30,21 +30,11 @@ async def gift_help(bot, ev: CQEvent):
 [用{种类1}碎片兑换{种类2}碎片]{数量}
 [碎片一键兑换经验]
 注:
-角色碎片可以通过每日副本掉落
-碎片掉落详解：
-    1.必定掉落固定数量的万能碎片
-    2.碎片掉落本次进入战斗的角色的碎片，角色碎片数量上限固定
+角色碎片由副本掉落
+每转生一次提升rank花费增加1w金币
 战力计算器：
-    基础战力 = 100 + 等级*(50+转生等级*50)*(1+星级!/10) + 好感度*0.4 + 时装加成战力
-    女友战力 = 基础战力*(1+rank/8)
-    最大rank等级为12级，达到r12可以增幅2.5倍战力
-升星提升战力：
-    星级只加成角色等级增加的基础战力，目前最高5星
-    1星增加战力的1.1倍
-    2星增加战力的1.3倍
-    3星增加战力的1.7倍
-    4星增加战力的2倍
-    5星增加战力的2.5倍
+    战力 = [100 + 等级*(50+转生等级*50)*星级buff+ 好感度*0.4 + 时装加成战力]*rankbuff
+5星战力buff为2.5倍，rank12战力buff为2.5倍
 ╚                                        ╝
  '''
     await bot.send(ev, msg)
@@ -134,27 +124,36 @@ async def get_bangdin(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['女友rank等级表', 'rank表', 'rank等级表'])
 async def rank_list(bot, ev: CQEvent):
-    msg = '女友rank等级需求表：\n'
-    rank = 1
-    while (rank <= 12):
-        rankInfo = RANK_LIST[rank]
-        if rank > 10:
-            levelrank = 10
-        else:
-            levelrank = rank
-        noblename = get_noblename(levelrank)
-        ce_up = 1 + rank / 8
-
-        if rank <= 4:
-            needmodel = 'N'
-        elif rank > 4 and rank <= 8:
-            needmodel = 'R'
-        elif rank > 8 and rank <= 11:
-            needmodel = 'SR'
-        else:
-            needmodel = 'SSR'
-        msg += f'"R{rank}": 需求贵族等级≥{noblename}，消耗{rankInfo}金币，身上穿戴的4件{needmodel}品质及以上装备，女友战力提升为{ce_up}倍\n'
-        rank = rank + 1
+    # msg = '\nrank\t花费\t装备\t倍率 '
+    # rank = 1
+    # while (rank <= 12):
+    #     rankInfo = RANK_LIST[rank]
+    #     ce_up = 1 + rank / 8
+    #     if rank <= 4:
+    #         needmodel = 'N'
+    #     elif rank > 4 and rank <= 8:
+    #         needmodel = 'R'
+    #     elif rank > 8 and rank <= 11:
+    #         needmodel = 'SR'
+    #     else:
+    #         needmodel = 'SSR'
+    #     msg += f'\n{rank} \t{rankInfo}\t{needmodel}\t{ce_up}'
+    #     rank = rank + 1
+    msg = """
+rank花费    装备	倍率 
+1   5000    N   1.125
+2   10000   N   1.25
+3   15000   N   1.375
+4   20000   N   1.5
+5   25000   R   1.625
+6   30000   R   1.75
+7   35000   R   1.875
+8   40000   R   2.0
+9   45000   SR  2.125
+10  50000   SR  2.25
+11  55000   SR  2.375
+12  60000   SSR 2.5
+    """.strip()
     await bot.send(ev, msg)
 
 
@@ -182,14 +181,18 @@ async def up_rank(bot, ev: CQEvent):
     if rank == MAX_RANK:
         await bot.finish(ev, '该女友rank已升至满级，无法继续升级啦。', at_sender=True)
     new_rank = rank + 1
-    level = duel._get_level(gid, uid)
-    if new_rank > 10:
-        levelrank = 10
-    else:
-        levelrank = new_rank
-    if levelrank > level:
-        await bot.finish(ev, '您的贵族等级不足，请发送[升级贵族]提升您的等级吧。', at_sender=True)
+    # 取消rank贵族等级限制
+    # level = duel._get_level(gid, uid)
+    # if new_rank > 10:
+    #     levelrank = 10
+    # else:
+    #     levelrank = new_rank
+    # if levelrank > level:
+    #     await bot.finish(ev, '您的贵族等级不足，请发送[升级贵族]提升您的等级吧。', at_sender=True)
     rank_score = RANK_LIST[int(new_rank)]
+    zllevel = CE._get_zhuansheng(gid, uid, cid)
+    # rank需要金币随转生次数增加
+    rank_score += zllevel * 10000
     score_counter = ScoreCounter2()
     myscore = score_counter._get_score(gid, uid)
     if myscore < rank_score:
@@ -280,7 +283,7 @@ async def up_rank(bot, ev: CQEvent):
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_fullmatch(['战力榜', '女友战力榜', '战力排行榜'])
+@sv.on_fullmatch(['战力榜', '女友战力榜', '战力排行榜', '战力排行'])
 async def girl_power_rank(bot, ev: CQEvent):
     ranking_list = get_power_rank(ev.group_id)
     gid = ev.group_id
@@ -309,16 +312,13 @@ async def dun_help(bot, ev: CQEvent):
 ╔                                        ╗  
              副本系统帮助
 [副本列表]
-[编队{队伍名/用空格隔开的角色名}进入{难度}副本{副本名}]
+[编队{队伍名/角色名}进入{难度}副本{副本名}]
 [我的副本币]
 [副本商城]
-[兑换装备] {装备名称}
-[购买物品] {物品名}
-注:
-通过副本战斗可以活动角色经验，好感度，礼物与装备产出
-升级角色等级，装备装备可以提升角色战力
+[购买物品] {装备名}
+[兑换装备] {装备名}
 ╚                                        ╝
- '''
+ '''.strip()
     await bot.send(ev, msg)
 
 
@@ -330,11 +330,11 @@ async def dungeon_list(bot, ev: CQEvent):
     for dungeon in dungeonlist:
         msg = ''
         msg = msg + f"\n副本名  ：{dungeonlist[dungeon]['name']}"
-        msg = msg + f"\n推荐战力：\n[简单]{dungeonlist[dungeon]['recommend_ce']}\n[困难]{dungeonlist[dungeon]['recommend_ce'] * 10}\n[地狱]{dungeonlist[dungeon]['recommend_ce'] * 20}"
-        msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp']}\n[困难]{dungeonlist[dungeon]['add_exp'] * 3} \n[地狱]{dungeonlist[dungeon]['add_exp'] * 5}"
-        msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w']}万能碎片，{dungeonlist[dungeon]['fragment_c']}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w'] * 3}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 3}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w'] * 5}万能碎片，{dungeonlist[dungeon]['fragment_c'] * 5}随机碎片"
+        msg = msg + f"\n推荐战力：\n[简单]{dungeonlist[dungeon]['recommend_ce_adj'][0]}\n[困难]{dungeonlist[dungeon]['recommend_ce_adj'][1]}\n[地狱]{dungeonlist[dungeon]['recommend_ce_adj'][2]}"
+        msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp_adj'][0]}\n[困难]{dungeonlist[dungeon]['add_exp_adj'][1]} \n[地狱]{dungeonlist[dungeon]['add_exp_adj'][2]}"
+        msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w_adj'][0]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][0]}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w_adj'][1]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][1]}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w_adj'][2]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][2]}随机碎片"
         msg = msg + f"\n战胜获得好感：{dungeonlist[dungeon]['add_favor']}"
-        msg = msg + f"\n战胜获得资源：\n[简单]{dungeonlist[dungeon]['dun_score']}副本币,{dungeonlist[dungeon]['dun_score'] * 60}金币,{dungeonlist[dungeon]['dun_score'] * 3}声望。\n[困难]{dungeonlist[dungeon]['dun_score'] * 3}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 3}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 3}声望。\n[地狱]{dungeonlist[dungeon]['dun_score'] * 5}副本币,{dungeonlist[dungeon]['dun_score'] * 60 * 5}金币,{dungeonlist[dungeon]['dun_score'] * 3 * 5}声望。"
+        msg = msg + f"\n战胜获得资源：\n[简单]{dungeonlist[dungeon]['dun_score_adj'][0]}副本币,{dungeonlist[dungeon]['gold_adj'][0]}金币,{dungeonlist[dungeon]['sw_adj'][0]}声望。\n[困难]{dungeonlist[dungeon]['dun_score_adj'][1]}副本币,{dungeonlist[dungeon]['gold_adj'][1]}金币,{dungeonlist[dungeon]['sw_adj'][1]}声望。\n[地狱]{dungeonlist[dungeon]['dun_score_adj'][2]}副本币,{dungeonlist[dungeon]['gold_adj'][2]}金币,{dungeonlist[dungeon]['sw_adj'][2]}声望。"
         msg = msg + f"\n副本描述：{dungeonlist[dungeon]['content']}，不同难度掉率不同"
         data = {
             "type": "node",
@@ -363,26 +363,20 @@ async def add_duiwu_t(bot, ev: CQEvent):
 
     if dun_nd == '简单':
         dun_model = 1
-        sp_d = 1
         e_d = 1
-        nd_t = 1
     elif dun_nd == '困难':
         dun_model = 2
-        sp_d = 3
         e_d = 1.3
-        nd_t = 10
     elif dun_nd == '地狱':
         dun_model = 3
-        sp_d = 5
         e_d = 1.7
-        nd_t = 20
     else:
         await bot.finish(ev, '请输入正确的副本难度(简单/困难/地狱)', at_sender=True)
+    hard_index = dun_model - 1
     dunname = str(match.group(3)).strip()
     dunname = re.sub(r'[?？，,_ ]', '', dunname)
     defen = str(match.group(1)).strip()
     defen = re.sub(r'[?？，,_]', '', defen)
-    # await bot.finish(ev, f'进入{dun_nd}副本', at_sender=True)
     if not defen:
         await bot.finish(ev, '请发送"编队+女友名/队伍名+进入(简单/困难/地狱)副本+副本名"，无需+号', at_sender=True)
     # 查询是否是队伍
@@ -449,7 +443,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
             await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
             return
         daily_dun_limiter.increase(guid)
-        recommend_ce = dungeoninfo['recommend_ce'] * nd_t
+        recommend_ce = dungeoninfo['recommend_ce_adj'][hard_index]
         is_win = Decimal(z_ce / recommend_ce).quantize(Decimal('0.00')) * 100
         if is_win > 100:
             is_win = 100
@@ -475,51 +469,57 @@ async def add_duiwu_t(bot, ev: CQEvent):
             msg = "战斗胜利了！\n"
             max_card = 0
             for cid in defen:
-                get_exp = dungeoninfo['add_exp'] * sp_d
+                get_exp = dungeoninfo['add_exp_adj'][hard_index]
                 duel._add_favor(gid, uid, cid, dungeoninfo['add_favor'])
                 card_level = add_exp(gid, uid, cid, get_exp)
                 if card_level[1] >= 100:
                     max_card += 1
             msg = msg + f"您的女友{bianzu}获得了{get_exp}点经验，{dungeoninfo['add_favor']}点好感\n"
-            if is_win <= 10:
-                rn = random.randint(1, 10)
-                if rn == 1:
-                    item = get_item_by_name("经验之书")
-                    add_item(gid, uid, item)
-                    msg += f'你艰难的取得了胜利，获取到了大量的经验，得到了{item["rank"]}级道具{item["name"]}\n'
+            if is_win <= 30:
+                item = get_item_by_name("战斗记忆")
+                add_item(gid, uid, item)
+                msg += f'你艰难的取得了胜利，获取到了大量的经验，得到了{item["rank"]}级道具{item["name"]}\n'
 
             if max_card == 5:
                 chizi_exp = CE._get_exp_chizi(gid, uid)
-                if chizi_exp >= 1000000:
-                    limit = int(chizi_exp / 1000000)
-                    rn = random.randint(1, 100)
-                    if rn <= limit:
-                        last_exp = 0 - chizi_exp
-                        CE._add_exp_chizi(gid, uid, last_exp)
-                        item = get_item_by_name("天命之子")
-                        add_item(gid, uid, item)
-                        await bot.send(ev,
-                                       f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
+                limit = int(chizi_exp / 10000000) + 1
+                rn = random.randint(1, 100)
+                if rn <= limit:
+                    last_exp = 0 - chizi_exp
+                    CE._add_exp_chizi(gid, uid, last_exp)
+                    item = get_item_by_name("天命之子")
+                    add_item(gid, uid, item)
+                    await bot.send(ev,
+                                   f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
 
             # 增加副本币
-            get_dun_score = dungeoninfo['dun_score'] * sp_d
+            get_dun_score = dungeoninfo['dun_score_adj'][hard_index]
             CE._add_dunscore(gid, uid, get_dun_score)
             msg = msg + f"您获得了{get_dun_score}副本币\n"
 
-            get_money = dungeoninfo['dun_score'] * sp_d * 20 * 3
-            get_SW = dungeoninfo['dun_score'] * sp_d * 3
+            get_money = dungeoninfo['gold_adj'][hard_index]
+            get_SW = dungeoninfo['sw_adj'][hard_index]
+            item_msg = ''
+            if dungeoninfo.get("item_drop"):
+                item_info = dungeoninfo['item_drop'][hard_index]
+                rn = random.randint(1, 100)
+                if rn <= item_info['rate']:
+                    item_name = random.choice(item_info['items'])
+                    item = get_item_by_name(item_name)
+                    add_item(gid, uid, item)
+                    item_msg = f"你获得了{item['rank']}级道具{item['name']}!\n"
 
             score_counter = ScoreCounter2()
             score_counter._add_prestige(gid, uid, get_SW)
             score_counter._add_score(gid, uid, get_money)
 
-            msg = msg + f"您获得了{get_money}金币和{get_SW}声望\n"
+            msg = msg + f"您获得了{get_money}金币和{get_SW}声望\n{item_msg}"
             # 增加角色碎片
             # 万能碎片
-            get_fragment_w = dungeoninfo['fragment_w'] * sp_d
+            get_fragment_w = dungeoninfo['fragment_w_adj'][hard_index]
             CE._add_fragment_num(gid, uid, 0, get_fragment_w)
             msg = msg + f"您获得了{get_fragment_w}万能碎片\n"
-            fragment_s = dungeoninfo['fragment_c'] * sp_d
+            fragment_s = dungeoninfo['fragment_c_adj'][hard_index]
             cidlist = defen
             while fragment_s > 0:
                 if len(cidlist) > 1:
@@ -636,8 +636,9 @@ async def add_duiwu_t(bot, ev: CQEvent):
             msg = msg + "您战斗失败了，副本次数-1"
             for cid in defen:
                 # duel._add_favor(gid,uid,cid,dungeoninfo['add_favor'])
-                card_level = add_exp(gid, uid, cid, dungeoninfo['add_exp'])
-            msg = msg + f"您的女友{bianzu}获得了{dungeoninfo['add_exp']}点经验\n"
+                fail_exp = int(dungeoninfo['add_exp_adj'][hard_index] / 10)
+                add_exp(gid, uid, cid, fail_exp)
+            msg = msg + f"您的女友{bianzu}获得了{fail_exp}点经验\n"
             data = {
                 "type": "node",
                 "data": {
@@ -756,15 +757,21 @@ async def my_equip_list(bot, ev: CQEvent):
     duel = DuelCounter()
     CE = CECounter()
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.send(ev, msg, at_sender=True)
         return
     equip_list = CE._get_equip_list(gid, uid)
     if len(equip_list) > 0:
         msg_list = '我的装备列表：'
+        equipinfo_li = []
         for i in equip_list:
             equipinfo = get_equip_info_id(i[0])
-            msg_list = msg_list + f"\n{equipinfo['icon']}{equipinfo['type']}:({equipinfo['model']}){equipinfo['name']}:{i[1]}件"
+            equipinfo["num"] = i[1]
+            equipinfo_li.append(equipinfo)
+        equipinfo_li = sorted(equipinfo_li, key=lambda x: ['N', 'R', 'SR', 'SSR', 'UR', 'MR'].index(x['model']),
+                              reverse=True)
+        for equipinfo in equipinfo_li:
+            msg_list = msg_list + f"\n{equipinfo['icon']}{equipinfo['type']}:({equipinfo['model']}){equipinfo['name']}:{equipinfo['num']}件"
         await bot.send(ev, msg_list, at_sender=True)
     else:
         await bot.finish(ev, '您还没有获得装备哦。', at_sender=True)
@@ -787,7 +794,7 @@ async def quxiao_equip(bot, ev: CQEvent):
     if cid not in cidlist:
         await bot.finish(ev, '该女友不在你的身边哦。', at_sender=True)
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.finish(ev, msg, at_sender=True)
     c = chara.fromid(cid)
     nvmes = get_nv_icon(cid)
@@ -824,7 +831,7 @@ async def dress_equip_list(bot, ev: CQEvent):
     if cid not in cidlist:
         await bot.finish(ev, '该女友不在你的身边哦。', at_sender=True)
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.send(ev, msg, at_sender=True)
         return
     zllevel = CE._get_zhuansheng(gid, uid, cid)
@@ -894,7 +901,7 @@ async def dress_equip_list_r(bot, ev: CQEvent):
     if cid not in cidlist:
         await bot.finish(ev, '该女友不在你的身边哦。', at_sender=True)
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.send(ev, msg, at_sender=True)
         return
     rank = CE._get_rank(gid, uid, cid)
@@ -1042,289 +1049,6 @@ async def buy_gift(bot, ev: CQEvent):
     msg = f'\n您花费了30000金币，\n买到了[{gift}]哦，\n欢迎下次惠顾。'
     score_counter._reduce_score(gid, uid, 30000)
     await bot.send(ev, msg, at_sender=True)
-
-
-@sv.on_rex(f'^编队(.*)模拟(.*)$')
-async def moni_huizhan(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    duel = DuelCounter()
-    CE = CECounter()
-
-    now = datetime.now(pytz.timezone('Asia/Shanghai'))
-    if now.day == 1 and now.hour == 0:  # 每月1号结算
-        await bot.finish(ev, '会战奖励结算中，禁止出刀', at_sender=True)
-        return
-
-    # 处理输入数据
-    match = ev['match']
-    gotype = str(match.group(2)).strip()
-    gotype = re.sub(r'[?？，,_ ]', '', gotype)
-    if gotype == "世界boss":
-        sendgid = 999
-        shijieflag = 1
-    elif gotype == "boss战":
-        sendgid = gid
-        shijieflag = 0
-    else:
-        await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
-    defen = str(match.group(1)).strip()
-    defen = re.sub(r'[?？，,_]', '', defen)
-    if not defen:
-        await bot.finish(ev, '请发送"编队+女友名/队伍名+模拟+(boss战/世界boss)"，无需+号', at_sender=True)
-    # 查询是否是队伍
-    teamlist = CE._get_teamlist(gid, uid, defen)
-    if teamlist != 0:
-        defen = []
-        for i in teamlist:
-            cid = i[0]
-            defen.append(cid)
-    else:
-        defen, unknown = chara.roster.parse_team(defen)
-        if unknown:
-            _, name, score = chara.guess_id(unknown)
-            if score < 70 and not defen:
-                return  # 忽略无关对话
-            msg = f'无法识别"{unknown}"' if score < 70 else f'无法识别"{unknown}" 您说的有{score}%可能是{name}'
-            await bot.finish(ev, msg)
-        if len(defen) > 5:
-            await bot.finish(ev, '编队不能多于5名角色', at_sender=True)
-        if len(defen) != len(set(defen)):
-            await bot.finish(ev, '编队中含重复角色', at_sender=True)
-    for cid in defen:
-        c = chara.fromid(cid)
-        nvmes = get_nv_icon(cid)
-        owner = duel._get_card_owner(gid, cid)
-        if owner == 0:
-            await bot.finish(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
-            return
-        if uid != owner:
-            msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法编队哦。'
-            await bot.finish(ev, msg)
-            return
-    z_ce = 0
-    bianzu = ''
-    # 获取本群boss状态和血量
-    bossinfo = get_boss_info(sendgid)
-    if len(bossinfo) > 0:
-        # 获取编队战力与信息
-        charalist = []
-        for cid in defen:
-            c = chara.fromid(cid)
-            card_ce = get_card_ce(gid, uid, cid)
-            z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
-            star = CE._get_cardstar(gid, uid, cid)
-            charalist.append(chara.Chara(cid, star, 0))
-            bianzu = bianzu + f"{c.name} "
-        #
-        res = chara.gen_team_pic(charalist, star_slot_verbose=False)
-        bio = BytesIO()
-        res.save(bio, format='PNG')
-        base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
-        mes = f"[CQ:image,file={base64_str}]"
-        boss_ce = bossinfo['ce']
-        msg1 = f"[CQ:at,qq={uid}]编组成功{bianzu}\n{mes}\n开始模拟会战\n当前boss为：第{bossinfo['zhoumu']}周目{bossinfo['bossid']}号boss({bossinfo['name']})\nboss战力为{bossinfo['ce']}，当前血量为{bossinfo['hp']}\n您的编组战力为{z_ce}，开始模拟战斗\n{bossinfo['icon']}"
-        tas_list = []
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg1
-            }
-        }
-        tas_list.append(data)
-
-        # 计算造成的伤害
-        # 2者相加的总战力
-        zhanlz = boss_ce + z_ce
-        # 计算总战力扩值
-        kuo = zhanlz * zhanlz
-        # 计算总战力差值
-        cha = (zhanlz / z_ce)
-        # 计算无战力压制因素的输出伤害
-        shuchu = (kuo / boss_ce) / cha
-        # 计算战力压制因素印象可以造成的伤害比
-        zhanbi = z_ce / zhanlz + 1
-        # 计算输出浮动数+-10%
-        fudong = int(math.floor(random.uniform(1, 20)))
-        if fudong > 10:
-            fudong = fudong / 200 + 1
-        else:
-            fudong = 1 - fudong / 100
-        # 计算最终输出伤害
-        shanghai = math.ceil((shuchu * fudong) / zhanbi)
-        msg = ''
-        if shanghai > bossinfo['hp']:
-            # 计算健康状态
-            card_jk = 100 - math.ceil(bossinfo['hp'] / shanghai * 100)
-            # 计算下一个boss
-            nextboss = bossinfo['bossid'] + 1
-            nextzhoumu = bossinfo['zhoumu']
-            if nextboss == 6:
-                nextboss = 1
-                nextzhoumu = bossinfo['zhoumu'] + 1
-            nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
-            boss_msg = f"模拟击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})"
-            msg = msg + f"您模拟战对boss造成了{shanghai}点伤害，{boss_msg}\n由于伤害超出boss剩余血量，实际模拟造成伤害为{bossinfo['hp']}点\n您的队伍可以剩余血量{card_jk}%\n{nextbossinfo['icon']}"
-        else:
-            # 计算下一个boss
-            nextzhoumu = bossinfo['zhoumu']
-            if shanghai == bossinfo['hp']:
-                nextboss = bossinfo['bossid'] + 1
-                if nextboss == 6:
-                    nextboss = 1
-                    nextzhoumu = bossinfo['zhoumu'] + 1
-                nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
-                boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})\n{nextbossinfo['icon']}"
-            else:
-                now_hp = bossinfo['hp'] - shanghai
-                boss_msg = f"boss剩余血量{now_hp}点"
-            msg = msg + f"您模拟战对boss造成了{shanghai}点伤害，{boss_msg}"
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg
-            }
-        }
-        tas_list.append(data)
-        await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-    else:
-        await bot.finish(ev, '无法获取boss信息', at_sender=True)
-        return
-
-
-@sv.on_rex(f'^(.*)补时刀模拟$')
-async def bushi_moni(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-
-    now = datetime.now(pytz.timezone('Asia/Shanghai'))
-    if now.day == 1 and now.hour == 0:  # 每月1号结算
-        await bot.finish(ev, '会战奖励结算中，禁止出刀', at_sender=True)
-        return
-
-    match = ev['match']
-    gotype = str(match.group(1))
-    gotype = re.sub(r'[?？，,_ ]', '', gotype)
-    if gotype == "世界boss":
-        sendgid = 999
-        shijieflag = 1
-    elif gotype == "boss战":
-        sendgid = gid
-        shijieflag = 0
-    else:
-        await bot.finish(ev, '请选择正确的boss战类型（世界boss/boss战）', at_sender=True)
-    duel = DuelCounter()
-    CE = CECounter()
-    nowyear = datetime.now().year
-    nowmonth = datetime.now().month
-    nowday = datetime.now().day
-    fighttime = str(nowyear) + str(nowmonth) + str(nowday)
-    bushilist = CE._get_cardbushi(gid, uid, fighttime, shijieflag)
-    if bushilist == 0:
-        await bot.finish(ev, '您没有处于补时刀状态，请正常模拟出刀哦', at_sender=True)
-    z_ce = 0
-    bianzu = ''
-    # 获取本群boss状态和血量
-    bossinfo = get_boss_info(sendgid)
-    if len(bossinfo) > 0:
-        # 获取编队战力与信息
-        card_jk = 0
-        charalist = []
-        for i in bushilist:
-            cid = i[0]
-            card_jk = i[1] / 100
-            c = chara.fromid(cid)
-            card_ce = get_card_ce(gid, uid, cid)
-            z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
-            star = CE._get_cardstar(gid, uid, cid)
-            charalist.append(chara.Chara(cid, star, 0))
-            bianzu = bianzu + f"{c.name} "
-        #
-        res = chara.gen_team_pic(charalist, star_slot_verbose=False)
-        bio = BytesIO()
-        res.save(bio, format='PNG')
-        base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
-        mes = f"[CQ:image,file={base64_str}]"
-        boss_ce = bossinfo['ce']
-        msg1 = f"[CQ:at,qq={uid}]编组成功{bianzu}\n{mes}\n开始进入模拟补时刀\n当前boss为：第{bossinfo['zhoumu']}周目{bossinfo['bossid']}号boss({bossinfo['name']})\nboss战力为{bossinfo['ce']}，当前血量为{bossinfo['hp']}\n您的编组战力为{z_ce}，开始模拟补时刀\n{bossinfo['icon']}"
-        tas_list = []
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg1
-            }
-        }
-        tas_list.append(data)
-
-        # 计算造成的伤害
-        # 2者相加的总战力
-        zhanlz = boss_ce + z_ce
-        # 计算总战力扩值
-        kuo = zhanlz * zhanlz
-        # 计算总战力差值
-        cha = (zhanlz / z_ce)
-        # 计算无战力压制因素的输出伤害
-        shuchu = (kuo / boss_ce) / cha
-        # 计算战力压制因素印象可以造成的伤害比
-        zhanbi = z_ce / zhanlz + 1
-        # 计算输出浮动数+-10%
-        fudong = int(math.floor(random.uniform(1, 20)))
-        if fudong > 10:
-            fudong = fudong / 200 + 1
-        else:
-            fudong = 1 - fudong / 100
-        # 计算最终输出伤害
-        shanghai = math.ceil((shuchu * fudong) / zhanbi * card_jk)
-        msg = ''
-        # 判断造成的伤害是否大于boss血量
-        if shanghai > bossinfo['hp']:
-            # 计算下一个boss
-            nextboss = bossinfo['bossid'] + 1
-            nextzhoumu = bossinfo['zhoumu']
-            if nextboss == 6:
-                nextboss = 1
-                nextzhoumu = bossinfo['zhoumu'] + 1
-            nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
-            boss_msg = f"模拟击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})"
-            msg = msg + f"您模拟战对boss造成了{shanghai}点伤害，{boss_msg}\n由于伤害超出boss剩余血量，实际模拟造成伤害为{bossinfo['hp']}点\n{nextbossinfo['icon']}"
-        else:
-
-            # 计算下一个boss
-            nextzhoumu = bossinfo['zhoumu']
-            if shanghai == bossinfo['hp']:
-                nextboss = bossinfo['bossid'] + 1
-                if nextboss == 6:
-                    nextboss = 1
-                    nextzhoumu = bossinfo['zhoumu'] + 1
-                nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
-                boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})\n{nextbossinfo['icon']}"
-            else:
-                now_hp = bossinfo['hp'] - shanghai
-                boss_msg = f"boss剩余血量{now_hp}点"
-            msg = msg + f"您对boss造成了{shanghai}点伤害，{boss_msg}"
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg
-            }
-        }
-        tas_list.append(data)
-        await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-    else:
-        await bot.finish(ev, '无法获取boss信息', at_sender=True)
-        return
 
 
 @sv.on_rex(f'^(.*)补时刀$')
@@ -1783,25 +1507,36 @@ async def start_huizhan(bot, ev: CQEvent):
 async def boss_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
-             会战系统帮助
-[战力榜]
-[我的队伍]
-[创建队伍{用空格隔开的角色名}队名{队伍名}]
-[解散队伍] {队伍名}
-[编队{队伍名/用空格隔开的角色名}模拟(世界boss|boss战)]
-[(世界boss|boss战)补时刀模拟]
-[(世界boss|boss战)补时刀]
-[编队{队伍名/用空格隔开的角色名}开始(世界boss|boss战)]
-[(世界boss|boss战)伤害排行]
-[(世界boss|boss战)状态]
+             会战帮助
+[编队{队伍名/角色名}开始boss战]
+[编队{队伍名/角色名}开始世界boss]
+[boss战补时刀]
+[世界boss补时刀]
+[boss战状态]
+[世界boss状态]
 注:
-世界boss为所有加的群一起打，打死一个boss有装备掉落，不同类型的boss每日各有3次次数
+不同类型boss每天每位女友每天只可挑战1次
+世界boss讨伐范围为所有群
+boss战和世界boss每日各有3次进入次数
 ╚                                        ╝
  '''
     await bot.send(ev, msg)
 
 
-@sv.on_rex(f'^(.*)伤害排行$')
+@sv.on_fullmatch(['队伍帮助', '编队帮助', '组队帮助'])
+async def group_help(bot, ev: CQEvent):
+    msg = '''
+╔                                        ╗  
+             队伍帮助
+[我的队伍]
+[创建队伍{用空格隔开的角色名}队名{队伍名}]
+[解散队伍] {队伍名}
+╚                                        ╝
+ '''
+    await bot.send(ev, msg)
+
+
+@sv.on_rex(f'^((世界boss)|(boss战))伤害排行$')
 async def shuchu_list(bot, ev: CQEvent):
     gid = ev.group_id
     CE = CECounter()
@@ -2065,18 +1800,37 @@ async def xiulian_end(bot, ev: CQEvent):
         CE._delete_xiulian(gid, uid)
         await bot.finish(ev, f'修炼结束，修炼时间小于1分钟，无法获得经验。', at_sender=True)
     sj_msg = ''
-    if jgtime > 86400:
-        xlmin1 = math.ceil(jgtime / 60)
-        sj_msg = sj_msg + f"总共修炼时间{xlmin1}分钟，由于超过24小时，实际"
-        jgtime = 86400
+    count = check_build_counter(gid, uid, BuildModel.KONGFU)
+    if count < 2:
+        if jgtime > 86400:
+            xlmin1 = math.ceil(jgtime / 60)
+            sj_msg = sj_msg + f"总共修炼时间{xlmin1}分钟，由于超过24小时，实际"
+            jgtime = 86400
     xlmin = math.ceil(jgtime / 60)
     sj_msg = sj_msg + f"修炼时间为{xlmin}分钟，"
-    count = check_build_counter(gid, uid, BuildModel.KONGFU)
     addexp = xlmin * GJ_EXP_RATE
     ex_msg = ''
     if count != 0:
         addexp *= 5 * count
-        ex_msg = "(练功房效果适用中)"
+        ex_msg = "(道馆效果适用中)"
+    level_msg = ''
+    # 双道馆彩蛋
+    if count >= 2:
+        if xlmin >= 1000:
+            loop = int(xlmin / 1000)
+            level_up = 0
+            for i in range(loop):
+                level_up += random.randint(1, 3)
+            now_level = CE._get_card_level(gid, uid, guajiinfo[0])
+            now_exp = CE._get_card_exp(gid, uid, guajiinfo[0])
+            new_level = now_level + level_up
+            if new_level > 200:
+                new_level = 200
+            if new_level > 100:
+                now_exp = 0
+            CE._add_card_exp(gid, uid, guajiinfo[0], new_level, now_exp)
+            level_msg = f'，道馆之间的对抗更容易让人突破，你的女友等级增加了{level_up},当前等级为{new_level}'
+
     card_level = add_exp(gid, uid, guajiinfo[0], addexp)
     CE._delete_xiulian(gid, uid)
     c = chara.fromid(guajiinfo[0])
@@ -2086,7 +1840,7 @@ async def xiulian_end(bot, ev: CQEvent):
     if up_info:
         fashion_info = get_fashion_info(up_info)
         nvmes = fashion_info['icon']
-    bd_msg = f"修炼结束，{sj_msg}\n您的女友{c.name}获得了{addexp}点经验{ex_msg}，{card_level[2]}\n{nvmes}"
+    bd_msg = f"修炼结束，{sj_msg}\n您的女友{c.name}获得了{addexp}点经验{ex_msg}，{card_level[2]}{level_msg}\n{nvmes}"
     await bot.send(ev, bd_msg, at_sender=True)
 
 
@@ -2188,11 +1942,14 @@ async def get_my_baodi(bot, ev: CQEvent):
     last_dnum = 100 - dnum
     unum = bdinfo[2]  # 大保底进度
     last_unum = 200 - unum
-    msg = f"您已经{xnum}次没有抽到SR/SR以上装备了，再抽{last_xnum}次必定获得SR/SR以上装备\n您已经{dnum}次没有抽到SSR/SSR以上装备了，再抽{last_dnum}次必定获得SSR/SSR以上装备\n您已经{unum}次没有抽到ur装备了，再抽{last_unum}次必定获得ur装备"
+    msg = f"""
+品级:SR 抽奖次数:{xnum} 保底次数:{last_xnum}
+品级:SSR 抽奖次数:{dnum} 保底次数:{last_dnum}
+品级:SSR 抽奖次数:{unum} 保底次数:{last_unum}"""
     await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_fullmatch(['我的副本币', '查看副本币'])
+@sv.on_fullmatch(['我的副本币', '查看副本币', '查副本币', '查询副本币', '副本币查询'])
 async def get_my_dunscore(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -2515,23 +2272,48 @@ async def paiming_list(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=gid, messages=tas_list)
 
 
+from hoshino import priv
+
+
+@sv.on_fullmatch(['测试cron'])
+async def paiming_list(bot, ev: CQEvent):
+    if not priv.check_priv(ev, priv.SUPERUSER):
+        await bot.finish(ev, '测试用 勿扰。', at_sender=True)
+    await clock()
+    print("测试成功")
+
+
 @sv.scheduled_job('cron', hour='*', minute='55', second='30')
 async def clock():
     bot = nonebot.get_bot()
     i_c = ItemCounter()
-    sou_li = i_c._get_sou_state()
+    recover_info = i_c._get_all_user_recover()
+    for i in recover_info:
+        gid = i[0]
+        uid = i[1]
+        num = i[2]
+        guid = gid, uid
+        if daily_dun_limiter.get_num(guid):
+            daily_dun_limiter.increase(guid, num=-1)
+        if daily_duel_limiter.get_num(guid):
+            daily_duel_limiter.increase(guid, num=-1)
+        num -= 1
+        save_user_counter(gid, uid, UserModel.RECOVER, num)
+        await bot.send_group_msg(group_id=gid, message=f"[CQ:at,qq={uid}]由于超再生力的效果你恢复了一次决斗次数和副本次数")
+    now = datetime.now(pytz.timezone('Asia/Shanghai'))
+    if now.hour % 2 == 1:
+        penglai_info = i_c._get_all_user_penglai()
+        for i in penglai_info:
+            gid = i[0]
+            uid = i[1]
+            guid = gid, uid
+            if daily_dun_limiter.get_num(guid):
+                daily_dun_limiter.increase(guid, num=-1)
+            if daily_duel_limiter.get_num(guid):
+                daily_duel_limiter.increase(guid, num=-1)
+
     free_li = i_c._get_free_state()
     duel = DuelCounter()
-    for i in sou_li:
-        gid = i[0]
-        GC_Data = duel._get_GOLD_CELE(gid)
-        QC_Data = duel._get_QC_CELE(gid)
-        SW_Data = duel._get_SW_CELE(gid)
-        FREE_Data = duel._get_FREE_CELE(gid)
-        duel._initialization_CELE(gid, GC_Data, QC_Data, 0, SW_Data, FREE_Data)
-        i_c._save_group_state(gid, 0, 0)
-        await bot.send_group_msg(group_id=gid, message="本群梭哈庆典已关闭")
-
     for i in free_li:
         gid = i[0]
         GC_Data = duel._get_GOLD_CELE(gid)
@@ -2542,7 +2324,6 @@ async def clock():
         i_c._save_group_state(gid, 1, 0)
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
-    now = datetime.now(pytz.timezone('Asia/Shanghai'))
     if not now.day == 1:  # 每月1号结算
         return
     if not now.hour == 1:  # 每天1点结算
@@ -2741,7 +2522,7 @@ async def my_fragment_list(bot, ev: CQEvent):
     duel = DuelCounter()
     CE = CECounter()
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.send(ev, msg, at_sender=True)
         return
     equip_list = CE._get_fragment_list(gid, uid)
@@ -2808,7 +2589,7 @@ async def fragment_exp_all(bot, ev: CQEvent):
     duel = DuelCounter()
     CE = CECounter()
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         await bot.send(ev, msg, at_sender=True)
         return
     equip_list = CE._get_fragment_list(gid, uid)
@@ -2918,15 +2699,14 @@ async def fragment_duihuan(bot, ev: CQEvent):
 async def star_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
-             升星系统帮助
-[装备列表]
+             装备帮助
+[我的装备]
 [穿装备] {女友名} {装备名}
 [取消装备] {女友名} {装备名}
 [一键卸装] {女友名}
 [一键穿戴] {女友名} 最大化战力的穿戴装备
 [一键装备] {女友名} 将卸除的装备重新装上
-[武器池]
-[查看保底]
+[武器池][查看保底]
 [抽装备(单抽/十连)] {装备池名称}
 [装备分解] {装备名}
 [一键分解] {装备品级N/R/SR/SSR/UR/MR}
@@ -2935,7 +2715,7 @@ async def star_help(bot, ev: CQEvent):
 注:
 副本币获取其他路径：通关每日副本
 ╚                                        ╝
- '''
+ '''.strip()
     await bot.send(ev, msg)
 
 

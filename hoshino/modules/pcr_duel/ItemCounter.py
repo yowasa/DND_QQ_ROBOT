@@ -7,7 +7,7 @@ from hoshino.config.__bot__ import BASE_DB_PATH
 DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'item.db')
 
 
-# 用户状态储存枚举类 100-200被领地建筑占据，不要插入
+# 用户状态储存枚举类 100-200被城市建筑占据，不要插入
 class UserModel(Enum):
     BATTLE = [0, "战斗力BUFF，数字是{num}%增加计算"]
     FENSHOU = [1, "分手次数计数器"]
@@ -18,24 +18,29 @@ class UserModel(Enum):
     YUE_FAILE = [6, "约会失败计数器"]
     EQUIP_UP = [7, "贤者之石计数器"]
     YONGHENG = [8, "是否已经获取过永恒爱恋"]
-    MANOR_BEGIN = [9, "是否已经开启了领地"]
-    ZHI_AN = [10, "领地治安"]
+    MANOR_BEGIN = [9, "是否已经开启了城市"]
+    ZHI_AN = [10, "城市治安"]
     GENGDI = [11, "耕地占比"]
     BUILD_CD = [12, "建筑CD"]
     BUILD_BUFFER = [13, "正在建造的建筑"]
-    MANOR_POLICY = [14, "领地政策"]
-    TAX_RATIO = [15, "领地税率"]
+    MANOR_POLICY = [14, "城市政策"]
+    TAX_RATIO = [15, "城市税率"]
     ITEM_BUY_TIME = [16, "购买道具次数"]
     TECHNOLOGY_BUFFER = [17, "正在研发的科技"]
     TECHNOLOGY_CD = [18, "研发CD"]
     DUEL_COIN = [19, "决斗币数量"]
     DUEL_SETTING = [20, "决斗偏好"]
-    PROSPERITY_INDEX = [21, "领地繁荣指数"]
+    PROSPERITY_INDEX = [21, "城市繁荣指数"]
+    DIWANG = [22, "是否已经获取过帝王法令"]
+    RECOVER = [23, "超再生持续恢复buff"]
+    PENG_LAI_GET = [24, "是否获取过蓬莱之药"]
+    PENG_LAI_USED = [25, "是否使用过蓬莱之药"]
+    TEST_DAY = [999, "测试快进天数"]
 
 
 # 群组状态储存枚举类
 class GroupModel(Enum):
-    OFF_SUO = [0, "定时关闭梭哈庆典标识"]
+    # OFF_SUO = [0, "定时关闭梭哈庆典标识"]
     OFF_FREE = [1, "定时关闭免费招募庆典标识"]
 
 
@@ -165,11 +170,24 @@ class ItemCounter:
                 (gid, type, type_flag),
             )
 
-    # 获取有梭哈庆典自动关闭标识的群
-    def _get_sou_state(self):
+    # 获取超再生恢复
+    def _get_all_user_recover(self):
         try:
-            r = self._connect().execute("SELECT GID FROM GROUP_INFO WHERE INFO_TYPE=0 AND INFO_FLAG=1",
+            r = self._connect().execute("SELECT GID,UID,BUFF_INFO FROM USER_INFO WHERE BUFF_TYPE=23 AND BUFF_INFO>0",
                                         ).fetchall()
+            if r is None:
+                return []
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return []
+
+    # 获取蓬莱恢复
+    def _get_all_user_penglai(self):
+        try:
+            r = self._connect().execute(
+                "SELECT GID,UID FROM USER_INFO WHERE BUFF_TYPE=25 AND BUFF_INFO=1",
+            ).fetchall()
             if r is None:
                 return []
             return r

@@ -14,6 +14,7 @@ class DuelJudger:
         self.turn = {}
         self.duelid = {}
         self.isaccept = {}
+        self.is_opt = {}
         self.hasfired_on = {}
 
     def set_support(self, gid):
@@ -136,6 +137,18 @@ class DuelJudger:
     def get_isaccept(self, gid):
         return self.isaccept[gid] if self.isaccept[gid] is not None else False
 
+    def init_is_opt(self, gid):
+        self.is_opt[gid] = False
+
+    def get_is_opt(self, gid):
+        return self.is_opt[gid] if self.is_opt[gid] is not None else False
+
+    def on_opt(self, gid):
+        self.is_opt[gid] = True
+
+    def off_opt(self, gid):
+        self.is_opt[gid] = False
+
 
 # 记录礼物交换数据
 class GiftChange:
@@ -144,6 +157,7 @@ class GiftChange:
         self.waitchange = {}
         self.isaccept = {}
         self.changeid = {}
+        self.is_opt = {}
 
     # 礼物交换开关
     def get_on_off_giftchange_status(self, gid):
@@ -184,6 +198,18 @@ class GiftChange:
 
     def get_changeid(self, gid):
         return self.changeid[gid] if self.changeid.get(gid) is not None else 0
+
+    def init_is_opt(self, gid):
+        self.is_opt[gid] = False
+
+    def get_is_opt(self, gid):
+        return self.is_opt[gid] if self.is_opt[gid] is not None else False
+
+    def on_opt(self, gid):
+        self.is_opt[gid] = True
+
+    def off_opt(self, gid):
+        self.is_opt[gid] = False
 
 
 class duelrandom():
@@ -281,15 +307,15 @@ ITEM_INFO = {
     },
     "7": {
         "id": "7",
-        "name": "狂赌之渊",
-        "rank": "S",
-        "desc": "为本群开启梭哈庆典 持续到这个小时结束。注：庆典期间转账交易税率将提高到50%",
+        "name": "帝王法令",
+        "rank": "EX",
+        "desc": "无需使用，当持有帝王法令时城市面积计算增加50",
     },
     "8": {
         "id": "8",
         "name": "咲夜怀表",
         "rank": "A",
-        "desc": "使用后刷新自己的副本 签到 低保 约会 决斗 礼物次数",
+        "desc": "使用后刷新自己的副本 签到 低保 约会 决斗 礼物 boss次数",
     },
     "9": {
         "id": "9",
@@ -302,7 +328,7 @@ ITEM_INFO = {
         "id": "10",
         "name": "超再生力",
         "rank": "B",
-        "desc": "使用后刷新自己当日副本限制次数及决斗次数",
+        "desc": "使用后刷新持续恢复副本和决斗次数",
     },
     "11": {
         "id": "11",
@@ -403,14 +429,14 @@ ITEM_INFO = {
     "27": {
         "id": "27",
         "name": "永恒爱恋",
-        "rank": "S",
-        "desc": "无需使用，持有多个时不重复计算，当持有永恒爱恋时妻子计算战力增加100%",
+        "rank": "EX",
+        "desc": "无需使用，当持有永恒爱恋时妻子计算战力增加100%",
     },
     "28": {
         "id": "28",
         "name": "光学迷彩",
-        "rank": "A",
-        "desc": "无需使用，只要带在身上决斗时就不会承受损失，但是决斗失败有2%的概率被消耗掉",
+        "rank": "EX",
+        "desc": "无需使用，只要带在身上决斗时就不会承受损失",
     },
     "29": {
         "id": "29",
@@ -446,13 +472,13 @@ ITEM_INFO = {
         "id": "34",
         "name": "公平交易",
         "rank": "C",
-        "desc": "选择自己持有的一个道具 将其变成对应低一级稀有度的随机两件其他道具",
+        "desc": "选择自己持有的一个道具 将其变成对应低一级稀有度的随机一或两件道具",
     },
     "35": {
         "id": "35",
         "name": "加速世界",
         "rank": "A",
-        "desc": "刷新领地结算",
+        "desc": "刷新城市结算",
     },
     "36": {
         "id": "36",
@@ -482,7 +508,13 @@ ITEM_INFO = {
         "id": "40",
         "name": "心意蛋糕",
         "rank": "D",
-        "desc": "指定女友使用，增加100点好感",
+        "desc": "指定女友使用，增加300点好感",
+    },
+    "41": {
+        "id": "41",
+        "name": "蓬莱之药",
+        "rank": "EX",
+        "desc": "使用后所有影响自身的道具无效(零时,精英,超再生,怀表),每两小时恢复一次决斗次数与副本次数",
     },
 
 }
@@ -531,14 +563,20 @@ def add_item(gid, uid, item, num=1):
     if item['name'] == '击鼓传花':
         if check_have_item(gid, uid, item):
             return
+    if item['name'] == "蓬莱之药":
+        # 蓬莱之药只能获取一次
+        if get_user_counter(gid, uid, UserModel.PENG_LAI_GET):
+            return
+        else:
+            save_user_counter(gid, uid, UserModel.PENG_LAI_GET, 1)
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num)
 
 
 # 消耗道具
-def use_item(gid, uid, item):
+def use_item(gid, uid, item, num=1):
     i_c = ItemCounter()
-    i_c._add_item(gid, uid, int(item['id']), num=-1)
+    i_c._add_item(gid, uid, int(item['id']), num=-num)
 
 
 # 获取指定用户状态
@@ -554,32 +592,36 @@ def save_user_counter(gid, uid, state: UserModel, num):
 
 
 class BuildModel(Enum):
-    CENTER = {"id": 101, "name": "市政中心", "sw": 1000, "gold": 10000, "area": 10, "time": 1, "limit": 1,
-              "desc": "城市管理枢纽只有拥有才能执行行政命令"}
-    MARKET = {"id": 102, "name": "贸易市场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
-              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加金币）"}
-    ITEM_SHOP = {"id": 103, "name": "道具商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
+    CENTER = {"id": 101, "name": "市政府", "sw": 0, "gold": 10000, "area": 10, "time": 1, "limit": 1,
+              "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令"}
+    MARKET = {"id": 102, "name": "商场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
+              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）"}
+    ITEM_SHOP = {"id": 103, "name": "神秘商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
                  "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）"}
-    TV_STATION = {"id": 104, "name": "报社", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
-                  "desc": "城市的媒体部门，能宣传你的伟业（增加声望）"}
+    TV_STATION = {"id": 104, "name": "事务所", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
+                  "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）"}
     POLICE_OFFICE = {"id": 105, "name": "警察局", "sw": 2000, "gold": 30000, "area": 10, "time": 3, "limit": 2,
-                     "desc": "谁还想暴乱？城市的治安部门，让你城市治安稳定"}
-    KONGFU = {"id": 106, "name": "练功房", "sw": 2500, "gold": 20000, "area": 6, "time": 2, "limit": 2,
-              "desc": "挂机是游戏的一部分，挂机修炼获得的经验增加5倍(复数个叠加而非叠乘)"}
-    HUANBAO = {"id": 107, "name": "环保局", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
-               "desc": "环境保护，人人有责，可以依据领地林地面积提供声望"}
-    ZHIHUI = {"id": 108, "name": "指挥部", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
+                     "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）"}
+    KONGFU = {"id": 106, "name": "道馆", "sw": 2500, "gold": 20000, "area": 6, "time": 2, "limit": 2,
+              "desc": "修炼是游戏的一部分，挂机修炼获得的经验增加5倍(拥有两个的话会无视24小时时间限制)"}
+    HUANBAO = {"id": 107, "name": "环保协会", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
+               "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)"}
+    ZHIHUI = {"id": 108, "name": "作战中心", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
               "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+20%)"}
-    DIZHI = {"id": 109, "name": "地质局", "sw": 3500, "gold": 200000, "area": 25, "time": 4, "limit": 2,
-             "desc": "地址勘察中心，发现领地内不为人知的秘密(每日获取一个藏宝图)"}
-    KELA = {"id": 110, "name": "科拉超深井", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
-            "desc": "通向地球中心的超级深井，里面传来了地狱的声音(每日获取一个零时迷子，低概率产出咲夜怀表)"}
+    DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 25, "time": 4, "limit": 2,
+             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)"}
+    KELA = {"id": 110, "name": "大本钟", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
+            "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)"}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
-                      "desc": "拥有无限可能性的裂变中心，他的存在让人裂开（每日获取两个有效分裂,低概率产出四重存在或好事成双）"}
-    EQUIP_CENTER = {"id": 112, "name": "装备工坊", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
-                    "desc": " 装备工坊 可以使用[装备熔炼]指令，用低级装备合成高级装备 合成品级越高失败率越高"}
-    TECHNOLOGY_CENTER = {"id": 113, "name": "科技研究所", "sw": 100000, "gold": 1000000, "area": 30, "time": 5, "limit": 1,
-                         "desc": "解锁领地科技 可以使用[科技列表],[我的科技]和[科技研发]指令，且仅在有科技研究所时科技效果才生效"}
+                      "desc": "拥有无限可能性的裂变中心（获取两个有效分裂,低概率产出四重存在或好事成双）"}
+    EQUIP_CENTER = {"id": 112, "name": "熔炼工厂", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
+                    "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦"}
+    TECHNOLOGY_CENTER = {"id": 113, "name": "科研中心", "sw": 10000, "gold": 100000, "area": 30, "time": 5, "limit": 1,
+                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令"}
+    APARTMENT = {"id": 114, "name": "公寓", "sw": 1000, "gold": 10000, "area": 6, "time": 2, "limit": 5,
+                 "desc": "人民住宿的设施，虽然挤了点但总比住城外强，增加5点繁荣度"}
+    MICHELIN_RESTAURANT = {"id": 115, "name": "米其林餐厅", "sw": 3000, "gold": 50000, "area": 20, "time": 3, "limit": 1,
+                           "desc": "甜点餐厅，产出2个心意蛋糕，是约会的好地方"}
 
     @staticmethod
     def get_by_id(id):
@@ -604,27 +646,36 @@ class TechnologyModel(Enum):
                     "desc": "商店可以购物两次"}
 
     BATTLE_RADAR = {"id": 203, "name": "作战雷达", "sw": 20000, "gold": 250000, "time": 2,
-                    "desc": "指挥部战力加成变为40%"}
+                    "desc": "作战中心战力加成变为40%"}
 
     ARCHAEOLOGIST = {"id": 204, "name": "考古专家", "sw": 6000, "gold": 350000, "time": 3,
                      "desc": "藏宝图有更大的机会挖出更多的物品"}
 
     REFINING_TECHNOLOGY = {"id": 205, "name": "精致冶炼", "sw": 3500, "gold": 70000, "time": 2,
-                           "desc": "装备工坊熔炼装备需求数量-1"}
+                           "desc": "熔炼工坊熔炼装备需求数量-1，熔炼道具需求数量-1"}
     MONETARY_POLICY = {"id": 206, "name": "货币政策", "sw": 30000, "gold": 50000, "time": 4,
-                       "desc": "贸易市场提供的金币增加50%"}
+                       "desc": "商场提供的金币增加50%"}
 
     MANIPULATION = {"id": 207, "name": "舆论操纵", "sw": 50000, "gold": 30000, "time": 4,
-                    "desc": "报社提供的声望增加50%"}
+                    "desc": "事务所提供的声望增加50%"}
 
     SATELLITE_CITY = {"id": 208, "name": "卫星城市", "sw": 80000, "gold": 750000, "time": 8,
-                      "desc": "城市面积扩张到领地占比的1/8"}
+                      "desc": "城市面积扩张到城市占比的1/8"}
 
     ROAD_PLANNING = {"id": 209, "name": "道路规划", "sw": 10000, "gold": 150000, "time": 2,
                      "desc": "拥堵状态阈值提高到90%"}
 
     SAND_FIX = {"id": 210, "name": "防风固沙", "sw": 5000, "gold": 30000, "time": 2,
                 "desc": "提高沙尘天气的触发阈值"}
+
+    TOUHOU_COOK = {"id": 211, "name": "新东方厨师", "sw": 5000, "gold": 30000, "time": 3,
+                   "desc": "米其林餐厅产出蛋糕+1 约会好感额外+100"}
+
+    ENERGY_STORAGE_CORE = {"id": 212, "name": "储能核心", "sw": 1000, "gold": 10000, "time": 1,
+                           "desc": "增加[决斗储能]和[副本储能]指令 消耗5次次数产生精英对局和零时迷子"}
+
+    SEIZE_WEALTH = {"id": 213, "name": "巧夺民财", "sw": 50000, "gold": 10000, "time": 4,
+                    "desc": "增加10%民众忍耐税收比例上限"}
 
     @staticmethod
     def get_by_id(id):

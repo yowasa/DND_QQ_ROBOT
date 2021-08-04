@@ -420,6 +420,16 @@ class CECounter:
                 f"SELECT CID,HP FROM FIGHTCARD WHERE GID={gid} AND UID={uid} AND CID={cid} AND TYPE={shijieflag} AND HITTIME={fighttime}").fetchall()
             return r[0] if r else [0, 0]
 
+        # 获取女友是否出过刀，或者是否处于补时刀
+
+    def _del_cardfightinfo(self, gid, uid, cid, fighttime, shijieflag):
+        result = self._get_cardfightinfo(gid, uid, cid, fighttime, shijieflag)
+        if result[0] > 0:
+            with self._connect() as conn:
+                conn.execute(
+                    f"DELETE FROM FIGHTCARD WHERE GID={gid} AND UID={uid} AND CID={cid} AND TYPE={shijieflag} AND HITTIME={fighttime}"
+                )
+
     # 获取补时刀女友
     def _get_cardbushi(self, gid, uid, fighttime, shijieflag):
         with self._connect() as conn:

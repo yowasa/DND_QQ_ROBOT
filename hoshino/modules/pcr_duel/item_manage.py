@@ -13,24 +13,21 @@ from .duelconfig import *
 async def gift_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
-             道具系统帮助
+             道具帮助
 [我的道具]
-[道具一览] 查看所有道具及其效果
+[道具一览]
 [道具效果] {道具名称}
-[使用道具] {道具名称} 注意如果需要指定女友或者群友 请在后面加空格加上女友名或@群友
-[我的决斗币] 查看自己的决斗币数量
-[兑换道具] {道具等级} 用决斗币兑换指定等级的道具
+[使用道具] {道具名称}
+[批量使用道具] {道具名称}
+[我的决斗币]
+[兑换道具] {道具等级}
 
-注:
-道具现只有签到能获取一次
 道具出现概率：
-S:1%概率
-A:5%概率
-B:10%概率
-C:20%概率
-D:64%概率
+A:5% B:10% C:20% D:64%
+S:1% 
+EX道具为成就型道具，无法正常获取。
 ╚                                        ╝
- '''
+ '''.strip()
     await bot.send(ev, msg)
 
 
@@ -41,8 +38,13 @@ async def my_item(bot, ev: CQEvent):
     uid = ev.user_id
     items = counter._get_item(gid, uid)
     msg = "\n==== 道具列表 ===="
+    item_li = []
     for i in items:
-        msg += f"\n{ITEM_INFO[str(i[0])]['rank']}级：{ITEM_INFO[str(i[0])]['name']} *{i[1]}"
+        ITEM_INFO[str(i[0])]['num'] = i[1]
+        item_li.append(ITEM_INFO[str(i[0])])
+    item_li = sorted(item_li, key=lambda x: ['D', 'C', 'B', 'A', 'S', 'EX'].index(x['rank']), reverse=True)
+    for i in item_li:
+        msg += f"\n{i['rank']}级：{i['name']} *{i['num']}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -58,7 +60,7 @@ async def item_all(bot, ev: CQEvent):
         }
     }
     tas_list.append(data)
-    for i in ['S', 'A', 'B', 'C', 'D']:
+    for i in ['EX', 'S', 'A', 'B', 'C', 'D']:
         for j in ITEM_RANK_MAP[i]:
             msg = f"""{ITEM_INFO[j]['name']}
 稀有度：{ITEM_INFO[j]['rank']}
@@ -81,7 +83,7 @@ async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
     info = ITEM_NAME_MAP.get(name)
     if info:
-        await bot.send(ev, f"{name}:{info['rank']}级道具 {info['desc']}")
+        await bot.send(ev, f"{name}\n稀有度：{info['rank']}\n效果：{info['desc']}")
     else:
         await bot.send(ev, f"未找到名称为{name}的道具")
 
@@ -98,11 +100,34 @@ async def item_info(bot, ev: CQEvent):
         fa_uid = int(ev.message[0].data['qq'])
     except:
         await bot.finish(ev, '参数格式错误')
-    item_info = ITEM_NAME_MAP[msg[1]]
+    item_info = ITEM_NAME_MAP.get(msg[1])
     if not item_info:
         await bot.finish(ev, f"未找到名称为{msg[1]}的道具", at_sender=True)
     add_item(gid, fa_uid, item_info)
     await bot.send(ev, f"投放成功", at_sender=True)
+
+
+@sv.on_prefix(['批量使用道具', '一键使用道具'])
+async def consume_item(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    msg = str(ev.message).strip().split()
+    item_info = ITEM_NAME_MAP.get(msg[0])
+    if not item_info:
+        await bot.finish(ev, f"未找到名称为{msg[0]}的道具", at_sender=True)
+    counter = ItemCounter()
+    num = counter._get_item_num(gid, uid, int(item_info['id']))
+    if num < 1:
+        await bot.finish(ev, f"背包中道具{msg[0]}数量不足", at_sender=True)
+    batch_result_msg = []
+    success_time = 0
+    for i in range(num):
+        result = await _use_item(msg[0], msg[1:], bot, ev)
+        if result[0]:
+            success_time += 1
+            counter._add_item(gid, uid, int(item_info['id']), num=-1)
+        batch_result_msg.append(result[1])
+    await bot.send(ev, '\n' + '\n'.join(batch_result_msg), at_sender=True)
 
 
 @sv.on_prefix(['使用道具'])
@@ -121,7 +146,7 @@ async def consume_item(bot, ev: CQEvent):
     result = await _use_item(msg[0], msg[1:], bot, ev)
     if result[0]:
         counter._add_item(gid, uid, int(item_info['id']), num=-1)
-    await bot.send(ev, result[1])
+    await bot.send(ev, result[1], at_sender=True)
 
 
 register = dict()
@@ -162,7 +187,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     if owner == 0:
         duel._add_card(gid, uid, cid)
         nvmes = get_nv_icon(cid)
-        return (True, f"{c.name}感受到了命运的牵引，前来与你相会。{nvmes}")
+        return (True, f"{c.name}感受到了命运的指引，前来与你相会。{nvmes}")
     else:
         return (False, f"{c.name}已经心有所属了")
 
@@ -180,7 +205,7 @@ async def add_level(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -189,12 +214,12 @@ async def add_level(msg, bot, ev: CQEvent):
     CE = CECounter()
     dengji = CE._get_card_level(gid, uid, cid)
     if dengji < 100:
-        return (False, f"角色等级必须到达100级才能使用,{c.name}现在等级为{dengji}")
+        return (False, f"{c.name}等级不足100，请先升级")
     if dengji == 200:
         return (False, f"角色{c.name}已经200级了，无法再突破上限")
     now_level = dengji + 10 if dengji < 190 else 200
     CE._add_card_exp(gid, uid, cid, now_level, 0)
-    return (True, f"角色{c.name}突破了自己的才能界限 达到了新的高度，当前等级为{now_level}级{nvmes}")
+    return (True, f"角色{c.name}突破了自己的能力界限 达到了新的高度，当前等级为{now_level}级{nvmes}")
 
 
 @msg_route("前世之忆")
@@ -210,7 +235,7 @@ async def add_zhuansheng(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
@@ -238,7 +263,9 @@ async def add_zhuangbei(msg, bot, ev: CQEvent):
 async def add_item_2(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    item_info = ITEM_NAME_MAP[msg[0]]
+    if not msg:
+        return (False, f"请在后面加上空格+道具名称")
+    item_info = ITEM_NAME_MAP.get(msg[0])
     if not item_info:
         return (False, f"未找到名称为{msg[0]}的道具")
     counter = ItemCounter()
@@ -246,7 +273,7 @@ async def add_item_2(msg, bot, ev: CQEvent):
     if num < 1:
         return (False, f"背包中不存在道具{msg[0]}")
     counter._add_item(gid, uid, int(item_info['id']))
-    return (True, f"你消耗了好事成双背包中的{msg[0]}增加了一个")
+    return (True, f"你消耗了好事成双，背包中的{msg[0]}增加了一个")
 
 
 @msg_route("四重存在")
@@ -254,11 +281,11 @@ async def add_item_4(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     if not msg:
-        return (False, "请指定一个道具 指令为：使用道具 四重存在 {道具名称} ")
+        return (False, f"请在后面加上空格+道具名称")
     item_info = ITEM_NAME_MAP.get(msg[0])
     if not item_info:
         return (False, f"未找到名称为{msg[0]}的道具")
-    if item_info['rank'] in ['S', 'A']:
+    if item_info['rank'] in ['EX', 'S', 'A']:
         return (False, f"四重存在只能对A级一下（不包括A）的道具使用")
     if item_info['name'] == '投影魔术':
         return (False, f"四重存在无法对[投影魔术]使用")
@@ -270,27 +297,17 @@ async def add_item_4(msg, bot, ev: CQEvent):
     return (True, f"你消耗了四重存在，背包中的一个{msg[0]}分裂成了四个")
 
 
-@msg_route("狂赌之渊")
+@msg_route("帝王法令")
 async def open_sou(msg, bot, ev: CQEvent):
-    gid = ev.group_id
-    duel = DuelCounter()
-    if duel._get_SW_CELE(gid) == None:
-        duel._initialization_CELE(gid, Gold_Cele, QD_Cele, Suo_Cele, SW_add, FREE_DAILY)
-    GC_Data = duel._get_GOLD_CELE(gid)
-    QC_Data = duel._get_QC_CELE(gid)
-    SW_Data = duel._get_SW_CELE(gid)
-    FREE_Data = duel._get_FREE_CELE(gid)
-    duel._initialization_CELE(gid, GC_Data, QC_Data, 1, SW_Data, FREE_Data)
-    counter = ItemCounter()
-    counter._save_group_state(gid, 0, 1)
-
-    return (True, f'在本小时结束前已开启本群梭哈倍率庆典，梭哈时的倍率将额外提升{Suo_Cele_Num}倍')
+    return (False, f"该道具无法使用，只要持有就能增加50点城市面积")
 
 
 @msg_route("咲夜怀表")
 async def open_sou(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
+        return (True, f'你使用了咲夜怀表，但是什么也没发生')
     guid = gid, uid
     # 副本 签到 低保 约会 决斗 礼物
     daily_dun_limiter.reset(guid)
@@ -299,7 +316,22 @@ async def open_sou(msg, bot, ev: CQEvent):
     daily_date_limiter.reset(guid)
     daily_duel_limiter.reset(guid)
     daily_gift_limiter.reset(guid)
-    return (True, f'时间穿梭，你仿佛来到了第二天，身上的疲劳一扫而空（副本 签到 低保 约会 决斗 礼物次数限制已重置）')
+    daily_boss_limiter.reset(guid)
+    key_gid = gid + 999
+    gkuid = key_gid, uid
+    daily_boss_limiter.reset(gkuid)
+    # 清除boss限制
+    nowyear = datetime.now().year
+    nowmonth = datetime.now().month
+    nowday = datetime.now().day
+    fighttime = str(nowyear) + str(nowmonth) + str(nowday)
+    duel = DuelCounter()
+    CE = CECounter()
+    cidlist = duel._get_cards(gid, uid)
+    for cid in cidlist:
+        CE._del_cardfightinfo(gid, uid, cid, fighttime, 0)
+        CE._del_cardfightinfo(gid, uid, cid, fighttime, 1)
+    return (True, f'你拨动了怀表上的一根指针，眼前的一切停滞了下来，指针回转，时间发生了改变。(除领地外所有功能限制已刷新）)')
 
 
 @msg_route("梦境巡游")
@@ -311,11 +343,15 @@ async def xunyou(msg, bot, ev: CQEvent):
 async def super_regenerate(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
+        return (True, f'你使用了超再生力，但是什么也没发生')
     guid = gid, uid
-    # 副本 签到 低保 约会 决斗 礼物
-    daily_dun_limiter.reset(guid)
-    daily_duel_limiter.reset(guid)
-    return (True, f'你使用了超再生力，今天所受到的伤害全部恢复了（副本 决斗次数限制已重置）')
+    if daily_dun_limiter.get_num(guid):
+        daily_dun_limiter.increase(guid, num=-1)
+        daily_duel_limiter.increase(guid, num=-1)
+    num = get_user_counter(gid, uid, UserModel.RECOVER)
+    save_user_counter(gid, uid, UserModel.RECOVER, num + 5)
+    return (True, f'你使用了超再生力恢复了一次决斗和副本次数，接下来直到持续五次为止，每小时恢复一点决斗次数和副本次数')
 
 
 @msg_route("有效分裂")
@@ -462,6 +498,8 @@ async def battle_exp(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
+        return (True, f'你使用了零时迷子，但是什么也没发生')
     guid = gid, uid
     daily_dun_limiter.reset(guid)
     return (True, f'你使用了零时迷子，今天关闭的副本重新开放了（副本限制已重置）')
@@ -511,6 +549,14 @@ async def princess_heart(msg, bot, ev: CQEvent):
     return (True, f'你使用了公主之心，所有的女友好感度提升了30点')
 
 
+@msg_route("蓬莱之药")
+async def favor_cook(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    save_user_counter(gid, uid, UserModel.PENG_LAI_USED, 1)
+    return (True, f'你服下此药，从此，你就不再是常人，时间和伤害无法在你的身上留下任何痕迹，你感觉自己失去了什么，却也变得无比充实。')
+
+
 @msg_route("心意蛋糕")
 async def favor_cook(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -524,15 +570,15 @@ async def favor_cook(msg, bot, ev: CQEvent):
     duel = DuelCounter()
     owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid,uid,cid)
+    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
     if owner == 0:
         return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
     if uid != owner:
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
         return (False, msg)
 
-    duel._add_favor(gid, uid, cid, 100)
-    return (True, f'你亲手为{c.name}制作了一份饱含心意蛋糕给,她吃的很开心，好感度提升了100点。{nvmes}')
+    duel._add_favor(gid, uid, cid, 300)
+    return (True, f'你送了{c.name}一份心意蛋糕,她吃的很开心，好感度提升了300点。{nvmes}')
 
 
 @msg_route("生财有道")
@@ -542,7 +588,7 @@ async def money_mall(msg, bot, ev: CQEvent):
     score = random.randint(1000, 30000)
     CE = ScoreCounter2()
     CE._add_score(gid, uid, score)
-    return (True, f'你开始与相邻领地进行贸易，获得了点小钱，赚取了{score}金币。')
+    return (True, f'你开始与相邻城市进行贸易，获得了点小钱，赚取了{score}金币。')
 
 
 @msg_route("小恩小惠")
@@ -568,6 +614,8 @@ async def money_mall(msg, bot, ev: CQEvent):
 async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
+        return (True, f'你使用了精英对局，但是什么也没发生')
     guid = gid, uid
     daily_duel_limiter.reset(guid)
     return (True, f'精英从不畏惧挑战（决斗次数已重置）')
@@ -592,6 +640,8 @@ async def hope(msg, bot, ev: CQEvent):
     item = get_item_by_name(name)
     if not item:
         return (False, f"未找到名为{name}的道具")
+    if item['rank'] == 'EX':
+        return (False, f"成就型道具无法正常获取")
     add_item(gid, uid, item)
     return (True, f"你通过向神灯许愿，获得了{item['rank']}级道具{item['name']}！！！")
 
@@ -630,12 +680,16 @@ async def copy_magic(msg, bot, ev: CQEvent):
         id2 = int(ev.message[1].data['qq'])
     else:
         return (False, '参数格式错误, 请真实的在使用道具后at对方')
+    if uid == id2:
+        return (False, "无法对自己使用")
     ic = ItemCounter()
     items = ic._get_item(gid, id2)
     if not items:
         return (False, "对方身上没有道具")
     map = {}
     for i in items:
+        if ITEM_INFO[str(i[0])]['rank'] == 'EX':
+            continue
         if not map.get(ITEM_INFO[str(i[0])]['rank']):
             map[ITEM_INFO[str(i[0])]['rank']] = []
         map[ITEM_INFO[str(i[0])]['rank']].append(i[0])
@@ -672,6 +726,8 @@ async def change_item(msg, bot, ev: CQEvent):
     num = check_have_item(gid, uid, item)
     if not num:
         return (False, f"你身上未持有[{item_name}]")
+    if item['rank'] == 'EX':
+        return (False, f"成就型道具无法被转换")
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num=-1)
     li = copy.copy(ITEM_RANK_MAP.get(item['rank']))
@@ -687,7 +743,7 @@ async def change_item(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     li = ITEM_RANK_MAP['D']
-    msg = '你发动了人海战术获得了以下道具：'
+    msg = '当数量达到一定程度，将会发生质变。道具人海战术已发动！获得了：'
     for i in range(10):
         c_ = random.choice(li)
         item = ITEM_INFO[c_]
@@ -711,6 +767,8 @@ async def change_item(msg, bot, ev: CQEvent):
     num = check_have_item(gid, uid, item)
     if not num:
         return (False, f"你身上未持有[{item_name}]")
+    if item['rank'] == 'EX':
+        return (False, f"成就道具无法被转化")
     i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num=-1)
 
@@ -721,7 +779,7 @@ async def change_item(msg, bot, ev: CQEvent):
     rank = ranks[index]
     li = ITEM_RANK_MAP[rank]
     msg = f'你与商人用{item["rank"]}级的{item["name"]}进行了一场公平的交易，获得了以下道具：'
-    for i in range(2):
+    for i in range(random.randint(1, 2)):
         i_id = random.choice(li)
         new_item = ITEM_INFO[i_id]
         add_item(gid, uid, new_item)
@@ -735,7 +793,7 @@ async def rush_world(msg, bot, ev: CQEvent):
     uid = ev.user_id
     guid = gid, uid
     daily_manor_limiter.reset(guid)
-    return (True, f'你的领地内时间忽然流逝了86400秒（领地结算已重置）')
+    return (True, f'您开启了加速世界，城市的时间进行了一次跳跃。（城市结算重置了）')
 
 
 @msg_route("收获之日")
@@ -756,7 +814,7 @@ async def suppress(msg, bot, ev: CQEvent):
     if zhian > 100:
         zhian = 100
     save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
-    return (True, f'以暴制暴不是最好的做法，但效果确有保障，你派出的大量武装部队去维护了领地内的治安(领地的治安恢复了20)')
+    return (True, f'以暴制暴不是最好的做法，但效果确有保障，你派出的大量武装部队去维护了城市内的治安(城市的治安恢复了20)')
 
 
 @msg_route("太平盛世")
@@ -768,7 +826,7 @@ async def peace_and_order(msg, bot, ev: CQEvent):
     if fan > 1000:
         fan = 1000
     save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, fan)
-    return (True, f'随着你的合理良政，领地逐渐繁荣起来，一个新的盛世即将诞生。已使用道具太平盛世，领地的繁荣度增加了20点')
+    return (True, f'随着你的合理良政，城市逐渐繁荣起来，一个新的盛世即将诞生。已使用道具太平盛世，城市的繁荣度增加了20点')
 
 
 @msg_route("基建狂魔")
@@ -806,7 +864,7 @@ async def capital_construction(msg, bot, ev: CQEvent):
     return (True, f'没有什么是一发基建不能解决的，如果有，那就建到解决！使用道具基建狂魔，建造和科研的速度加快了。' + msg)
 
 
-@sv.on_fullmatch("我的决斗币", "决斗币查询", "查询决斗币")
+@sv.on_fullmatch("我的决斗币", "决斗币查询", "查询决斗币", "查决斗币")
 async def search_duel_coin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
@@ -827,8 +885,8 @@ async def roll_item(bot, ev: CQEvent):
     }
     if not rank:
         await bot.finish(ev, f"请输入 兑换物品 + 物品等级 来兑换指定等级的物品", at_sender=True)
-    if rank == 'S':
-        await bot.finish(ev, f"S级物品无法兑换哦", at_sender=True)
+    if rank in ['S', 'EX']:
+        await bot.finish(ev, f"A级以上物品无法兑换哦", at_sender=True)
     if not price.get(rank):
         await bot.finish(ev, f"未找到级别是'{rank}'的物品", at_sender=True)
     cost = price.get(rank)
@@ -863,7 +921,7 @@ async def start_xunyou(session: CommandSession):
         await bot.send(ev, msg, at_sender=True)
         return
     if duel._get_level(gid, uid) == 0:
-        msg = '您还未在本群创建过贵族，请发送 创建贵族 开始您的贵族之旅。'
+        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         duel_judger.turn_off(ev.group_id)
         await bot.send(ev, msg, at_sender=True)
         return
