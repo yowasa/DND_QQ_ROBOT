@@ -33,20 +33,20 @@ BASE_DB_PATH = "D:/DB/"
 # 如欲启用新模块，请认真阅读部署说明，逐个启用逐个配置
 # 切忌一次性开启多个
 MODULES_ON = {
-    'botmanage',
-    'dice',
-    'dnd',
-    'ghs',
-    'groupmaster',
-    'hourcall',
-    # 'majsoul',
-    'mikan',
-    'pcr_duel',
-    'priconne',
-    'saucenao',
-    'setu',
-    'traceanime',
+    'botmanage', #骰娘管理
+    'dice', #骰子功能
+    'dnd', #DND跑团
+    'ghs', #Pixiv功能
+    'groupmaster', #基础群组功能
+    # 'hourcall', # 准点报时
+    # 'majsoul', # 雀魂查询
+    # 'mikan', #蜜柑番剧订阅
+    'pcr_duel', # 贵族决斗
+    # 'priconne', # pcr相关功能
+    'saucenao', # 搜图功能
+    'setu', # 色图功能
+    # 'traceanime', # 搜番功能
     'twitter',  # 轮询版转推（old）
-    # 'twitter_stream',     # 推流版转推（beta）
-    'updlc',
+    # 'twitter_stream', # 推流版转推（beta）
+    'updlc', #自定义贵族
 }
