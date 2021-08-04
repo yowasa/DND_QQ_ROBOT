@@ -324,7 +324,7 @@ async def manor_sign(bot, ev: CQEvent):
     yongdu = 0.8
     if check_technolog_counter(gid, uid, TechnologyModel.ROAD_PLANNING):
         yongdu = 0.9
-    if total / city_manor >= yongdu:
+    if total / city_manor > yongdu:
         reduce = random.randint(8, 15)
         zhian -= reduce
         msg += f"\n由于城市过于拥挤,居民怨声载道，治安减少了{reduce}"
