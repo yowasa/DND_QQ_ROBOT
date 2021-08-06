@@ -107,3 +107,5 @@ venv.bak/
 # project auto
 .idea
 venv/
+
+*/.DS_Store
