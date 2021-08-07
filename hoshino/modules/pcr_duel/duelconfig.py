@@ -348,22 +348,14 @@ Date20 = [
     '你和她共同参加了一场盛大的舞会，两人的舞步轻盈而优雅，被评为了舞会第一名，上台时你注视着微笑的她，觉得她今天真是美极了。'
 ]  # 约会大成功文案
 
-# 这个字典保存保存每个DLC开启的群列表，pcr默认一直开启。
-dlc_switch = {}
-
-with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'r', encoding='UTF-8') as f:
-    dlc_switch = json.load(f, strict=False)
-
+# 加载dlc开关
+cfg.load_dlc_switch()
 # 加载时装列表
 cfg.refresh_fashion()
-
-
-def save_dlc_switch():
-    with open(os.path.join(FILE_PATH, 'dlc_config.json'), 'w', encoding='UTF-8') as f:
-        json.dump(dlc_switch, f, ensure_ascii=False)
-
-
+# 刷新dlc-角色 dlc-介绍配置
 cfg.refresh_config()
+#检查dlcswitch是否有漏加的新dlc
+cfg.check_dlc()
 
 
 class RecordDAO:
@@ -560,20 +552,9 @@ def get_relationship(favor):
 def get_dlc_blacklist(gid):
     dlc_blacklist = []
     for dlc in cfg.dlcdict.keys():
-        if gid not in dlc_switch[dlc]:
+        if gid not in cfg.dlc_switch[dlc]:
             dlc_blacklist += cfg.dlcdict[dlc]
     return dlc_blacklist
-
-
-# 检查有没有没加到json里的dlc
-def check_dlc():
-    for dlc in cfg.dlcdict.keys():
-        if dlc not in dlc_switch.keys():
-            dlc_switch[dlc] = []
-    save_dlc_switch()
-
-
-check_dlc()
 
 
 # 随机获得一件装备并返回获得信息

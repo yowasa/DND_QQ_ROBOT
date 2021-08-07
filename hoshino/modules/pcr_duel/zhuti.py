@@ -126,11 +126,10 @@ async def add_dlc(bot, ev: CQEvent):
     dlcname = args[0]
     if dlcname not in cfg.dlcdict.keys():
         await bot.finish(ev, 'DLC名填写错误。', at_sender=True)
-    check_dlc()
-    if gid in dlc_switch[dlcname]:
+    if gid in cfg.dlc_switch[dlcname]:
         await bot.finish(ev, '本群已开启此dlc哦。', at_sender=True)
-    dlc_switch[dlcname].append(gid)
-    save_dlc_switch()
+    cfg.dlc_switch[dlcname].append(gid)
+    cfg.save_dlc_switch()
     await bot.finish(ev, f'加载dlc {cfg.dlcintro[dlcname]}  成功!', at_sender=True)
 
 
@@ -148,10 +147,10 @@ async def delete_dlc(bot, ev: CQEvent):
     if dlcname not in cfg.dlcdict.keys():
         await bot.finish(ev, 'DLC名填写错误', at_sender=True)
 
-    if gid not in dlc_switch[dlcname]:
+    if gid not in cfg.dlc_switch[dlcname]:
         await bot.finish(ev, '本群没有开启此dlc哦。', at_sender=True)
-    dlc_switch[dlcname].remove(gid)
-    save_dlc_switch()
+    cfg.dlc_switch[dlcname].remove(gid)
+    cfg.save_dlc_switch()
     await bot.finish(ev, f'卸载dlc {dlcname}  成功!', at_sender=True)
 
 
@@ -602,7 +601,7 @@ async def group_noble_status(bot, ev: CQEvent):
     lA_num = duel._get_level_num(gid, 10)
     dlctext = ''
     for dlc in cfg.dlcdict.keys():
-        if gid in dlc_switch[dlc]:
+        if gid in cfg.dlc_switch[dlc]:
             dlctext += f'  {cfg.dlcintro[dlc]}\n'
     msg = f'''
 ╔                          ╗

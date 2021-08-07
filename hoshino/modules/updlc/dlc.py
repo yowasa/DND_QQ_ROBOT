@@ -179,7 +179,10 @@ async def dlc_add(session: CommandSession):
     content = get_json('dlc_config')
     content[name] = {'code': code, 'index': int(offset), 'to': int(to), 'desc': desc}
     write_json('dlc_config', content)
+    #刷新dlc配置
     cfg.refresh_config()
+    #检查漏加配置
+    cfg.check_dlc()
     await bot.send(ev, message='添加成功')
 
 

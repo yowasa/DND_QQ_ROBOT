@@ -703,7 +703,7 @@ async def buy_item(session: CommandSession):
     gid = ev.group_id
     uid = ev.user_id
     if duel_judger.get_on_off_status(ev.group_id):
-        msg = '现在正在决斗中哦，请决斗后再来研发科技吧。'
+        msg = '现在正在决斗中哦，请决斗后再来购买道具吧。'
         await bot.finish(ev, msg, at_sender=True)
     num = get_user_counter(gid, uid, UserModel.ITEM_BUY_TIME)
     if num <= 0:
