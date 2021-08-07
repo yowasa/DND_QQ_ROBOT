@@ -1189,7 +1189,6 @@ async def nobleduel(bot, ev: CQEvent):
     # 判定被输掉的是否是复制人可可萝，是则换成金币。
     if have_item:
         fail_msg += '\n你使用光学迷彩逃脱了，本次决斗不会对你造成损失'
-        await bot.send(ev, msg)
     elif selected_girl == 9999:
         score_counter._add_score(gid, winner, 300)
         c = duel_chara.fromid(1059)
