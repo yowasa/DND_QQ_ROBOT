@@ -118,7 +118,7 @@ async def get_bangdin(bot, ev: CQEvent):
     if up_info:
         fashion_info = get_fashion_info(up_info)
         nvmes = fashion_info['icon']
-    msg = f"您当前绑定的女友是：{c.name}，每位贵族只能绑定一位女友参与战斗哦~\n{nvmes}"
+    msg = f"您当前绑定的女友是：{c.name}，每位角色只能绑定一位女友参与战斗哦~\n{nvmes}"
     await bot.send(ev, msg, at_sender=True)
 
 
