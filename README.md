@@ -27,4 +27,17 @@
     account.password 骰娘密码 不输入就是扫码登录
     servers.ws-reverse.universal 程序运行地址 如果你没改过上面的host和port 设置为 ws://127.0.0.1:8080/ws
 10. 命令行中运行运行go-cqhttp 
-11. 测试你的骰娘
+11. 测试你的骰娘  
+### 三、docker部署
+1. 下载release中的content.rar 文件，将其解压到目录content（假设为/yourpath/content）  
+2. 编辑content文件夹中的config.yml  
+    account.uin 设置你要用来当骰娘的qq号  
+    account.password 设置你要用来当骰娘的qq号密码  
+3. 编辑编辑content文件夹中的__bot__.py  
+    SUPERUSERS = [] 中放入超管的qq号 多个用逗号（英文）隔开
+    NICKNAME = '' 放入骰娘的昵称
+    MODULES_ON 把想使用的模块前面的'#'去除
+4. 执行docker pull docker.io/yowasa/dnd_robot 拉取镜像
+5. docker run -v /yourpath/content:/home/content --privileged=true -d test/my_bot:v5 sh /home/start.sh
+    /yourpath/content 为你的content的路径
+6. 为了简化 角色全图与时装并未上传，有需要联系qq：2508488843索要最新Resources包，放入content覆盖即可
