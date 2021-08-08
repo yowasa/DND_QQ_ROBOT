@@ -1945,7 +1945,7 @@ async def get_my_baodi(bot, ev: CQEvent):
     msg = f"""
 品级:SR 抽奖次数:{xnum} 保底次数:{last_xnum}
 品级:SSR 抽奖次数:{dnum} 保底次数:{last_dnum}
-品级:SSR 抽奖次数:{unum} 保底次数:{last_unum}"""
+品级:UR 抽奖次数:{unum} 保底次数:{last_unum}"""
     await bot.send(ev, msg, at_sender=True)
 
 
