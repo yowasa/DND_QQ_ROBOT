@@ -25,3 +25,6 @@ aiohttp>=3.6
 peony-twitter[all]~=1.1.7
 uvicorn==0.14.0
 fuzzywuzzy==0.18.0
+# tensorflow==2.5.0
+paddlepaddle==2.1.2
+paddlehub==2.1.0

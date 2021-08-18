@@ -21,19 +21,19 @@ COMMAND_SEP = set()  # 命令分隔符（hoshino不需要该特性，保持为se
 # 当QQ客户端与bot端不在同一台计算机时，可用http协议
 RES_PROTOCOL = 'file'
 # 资源库文件夹，需可读可写，windows下注意反斜杠转义
-RES_DIR = r'/home/content/Resources'
+RES_DIR = r'~/Documents/content/Resources'
 # 使用http协议时需填写，原则上该url应指向RES_DIR目录
 RES_URL = 'http://127.0.0.1:5000/static/'
 
 # DB文件存放目录
-BASE_DB_PATH = "/home/content/DB/"
-
+BASE_DB_PATH = "~/Documents/content/DB/"
 # 启用的模块
 # 初次尝试部署时请先保持默认
 # 如欲启用新模块，请认真阅读部署说明，逐个启用逐个配置
 # 切忌一次性开启多个
 MODULES_ON = {
     'botmanage', #骰娘管理
+    'chat',
     # 'dice', #骰子功能
     # 'dnd', #DND跑团
     # 'ghs', #Pixiv功能
@@ -41,10 +41,11 @@ MODULES_ON = {
     # 'hourcall', # 准点报时
     # 'majsoul', # 雀魂查询
     # 'mikan', #蜜柑番剧订阅
-    'pcr_duel', # 贵族决斗
+    # 'pcr_duel', # 贵族决斗
     # 'priconne', # pcr相关功能
     # 'saucenao', # 搜图功能
     # 'setu', # 色图功能
+    # 'touhou_img', #东方人工智能识图
     # 'traceanime', # 搜番功能
     # 'twitter',  # 轮询版转推（old）
     # 'twitter_stream', # 推流版转推（beta）
