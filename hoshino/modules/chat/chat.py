@@ -10,6 +10,7 @@ from jieba import posseg
 from hoshino.util import request
 import os
 from pathlib import Path
+import requests
 
 model = hub.Module(name="plato-mini")
 
@@ -146,34 +147,17 @@ class Chat(object):
         return repo
 
 
-# @sv.on_natural_language(only_to_me=False)
-# async def group_random(session: NLPSession):
-#     ev = session.event
-#     bot = session.bot
-#     gid = ev.group_id
-#     msg = ev['message'].extract_plain_text()
-#     if not msg:
-#         return
-#     if len(msg) > 500:
-#         return
-#     if not group_talk_cache.get(gid):
-#         group_talk_cache[gid] = SpeedList()
-#     group_talk_cache[gid].push(msg)
-#     rn=random.random()
-#     if rn > 0.05:
-#         return
-#     resp = model.predict([group_talk_cache[gid].get()])[0]
-#     await bot.send(ev, resp)
-
 chat = Chat()
 
 
-@sv.on_command("叫我", aliases=("我是"))
+@sv.on_prefix(("叫我","我是"))
 async def my_name_is(session: CommandSession):
     event = session.event
     bot = session.bot
     uid = event.user_id
-    new_name = session.get("name", prompt="欧尼酱想让咱如何称呼呢！0w0")
+    new_name = str(event.message)
+    if not new_name:
+        return
     chat.name_is(uid, new_name)
     repo = random.choice(
         [
@@ -183,24 +167,7 @@ async def my_name_is(session: CommandSession):
             "很不错的称呼呢w",
         ]
     )
-    await bot.send(repo, at_sender=True)
-
-
-@my_name_is.args_parser
-async def _(session: CommandSession):
-    text = session.current_arg_text
-    img = session.current_arg_images
-    if session.is_first_run:
-        if text:
-            session.state['name'] = text.strip()
-        return
-    if img:
-        session.state[session.current_key] = img
-    else:
-        session.state[session.current_key] = text
-
-
-import requests
+    await bot.send(event, repo, at_sender=True)
 
 
 @sv.on_natural_language(only_to_me=True)
@@ -223,12 +190,10 @@ async def only2me(session: NLPSession):
     #     del user_talk_cache[guid]
     #     user_talk_cache[guid] = {"cache": SpeedList(), "time": endtime}
     # user_talk_cache[guid]["time"] = endtime
-    # 随机聊天处理
-    user_talk_cache[guid]["cache"].push(msg)
     # 青云客先匹配处理
     resp = str()
     fit = False
-    for i in ['天气', '翻译', '怎么', '什么', '歌词', '计算', '等于', '是多少', '归属', '五笔', '拼音', '笑话', '翻译', '成语']:
+    for i in ['天气', '翻译', '歌词', '计算', '等于', '是多少', '归属', '五笔', '拼音', '笑话', '翻译', '成语']:
         if i in msg:
             fit = True
             break
@@ -243,6 +208,7 @@ async def only2me(session: NLPSession):
         if random.randint(1, 5) != 1:
             resp = await chat.deal(msg, uid)
     if not resp:
+        user_talk_cache[guid]["cache"].push(msg)
         resp = model.predict([user_talk_cache[guid]["cache"].get()])[0]
-    user_talk_cache[guid]["cache"].push(resp)
+        user_talk_cache[guid]["cache"].push(resp)
     await bot.send(ev, resp)
