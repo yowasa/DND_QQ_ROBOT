@@ -45,6 +45,7 @@ CACHE_FILE = 'ghs/cache/'
 CACHE_FULL_FILE = 'ghs/full/'
 
 api = AppPixivAPI()
+api.set_accept_language('zh-cn')  # zh-cn
 
 
 @sv_ghs.on_fullmatch(['启用自动撤回', '开启自动撤回'])

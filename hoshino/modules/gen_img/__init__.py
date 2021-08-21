@@ -1,15 +1,17 @@
-from hoshino import Service
-from hoshino.typing import CQEvent, MessageSegment
-from hoshino.util import pic2b64
-
-from .fkcy import genImage
+import hashlib
+import os
 from io import BytesIO
 from os import path
 
+import requests
 from PIL import Image
-
+from hoshino.typing import CommandSession
+from .miragetank import mt_make
 from hoshino import Service, aiorequests, R
 from hoshino.typing import HoshinoBot, CQEvent
+from hoshino.typing import MessageSegment
+from hoshino.util import pic2b64
+from .fkcy import genImage
 from .rua import generate_gif
 
 sv = Service('图片生成器', help_='''
@@ -17,6 +19,21 @@ sv = Service('图片生成器', help_='''
 [ph] (上半句)|(下半句)
 [搓头]@群友
 '''.strip(), bundle="图片生成器")
+
+
+def requests_download_url(url, path):
+    hash_name = md5(url) + '.jpg'
+    r = requests.get(url, stream=True)
+    if r.status_code == 200:
+        open(os.path.join(path, hash_name), 'wb').write(r.content)
+    return hash_name
+
+
+def md5(str):
+    m = hashlib.md5()
+    m.update(str.encode("utf8"))
+    print(m.hexdigest())
+    return m.hexdigest()
 
 
 @sv.on_prefix(('5000兆元', '5000兆円', '5kcy'))
@@ -76,3 +93,36 @@ async def gen_ph_pic(bot, ev: CQEvent):
     downer = keyword.split("|")[1]
     combine_img(left_text=upper, right_text=downer, font_size=50, out_put_path=R.img('ph.png').path)
     await bot.send(ev, R.img('ph.png').cqcode)
+
+
+os.makedirs(R.img('gen').path, exist_ok=True)
+os.makedirs(R.img('gen/result').path, exist_ok=True)
+
+import uuid
+
+
+@sv.on_command("mt")
+async def mt(session: CommandSession):
+    bot = session.bot
+    ev = session.event
+    img_1 = session.get('img_1', prompt='输入上层图片')
+    if type(img_1) == list:
+        img_1 = img_1[0]
+    img_2 = session.get('img_2', prompt='输入下层图片')
+    if type(img_2) == list:
+        img_2 = img_2[0]
+    img_1_name = requests_download_url(img_1, R.img('gen').path)
+    img_2_name = requests_download_url(img_2, R.img('gen').path)
+    reslt_name = str(uuid.uuid1()) + '.png'
+    mt_make(R.img(f'gen/{img_1_name}').path, R.img(f'gen/{img_2_name}').path, R.img(f'gen/result/{reslt_name}').path)
+    await bot.send(ev, R.img(f'gen/result/{reslt_name}').cqcode)
+
+
+@mt.args_parser
+async def _(session: CommandSession):
+    text = session.current_arg_text
+    img = session.current_arg_images
+    if img:
+        session.state[session.current_key] = img
+    else:
+        session.state[session.current_key] = text

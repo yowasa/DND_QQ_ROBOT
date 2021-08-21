@@ -1,8 +1,9 @@
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 from decimal import Decimal, ROUND_HALF_UP
-from math import radians, tan, cos, sin
+from math import radians, tan
 from os import path
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 _round = lambda f, r=ROUND_HALF_UP: int(Decimal(str(f)).quantize(Decimal("0"), rounding=r))
 rgb = lambda r, g, b: (r, g, b)
@@ -136,8 +137,6 @@ def genBaseImage(width=1500, height=500):
 
 def genImage(word_a="5000兆円", word_b="欲しい!", default_width=1500, height=500,
              bg="white", subset=250, default_base=None):
-    # width = max_width
-
     k = 0.8  # 字体缩放系数
 
     alpha = (0, 0, 0, 0)
@@ -162,9 +161,6 @@ def genImage(word_a="5000兆円", word_b="欲しい!", default_width=1500, heigh
 
     # Prepare base - Downer (if required)
     downer_base = genBaseImage(width=downer_width + leftmargin, height=_round(height / 2) + upmargin)
-    # if default_width == downer_width:
-    #     downer_base = default_base
-    # else:
 
     # Prepare mask - Upper
     upper_mask_base = Image.new("L", (upper_width + leftmargin, _round(height / 2) + upmargin), 0)
@@ -234,8 +230,6 @@ def genImage(word_a="5000兆円", word_b="欲しい!", default_width=1500, heigh
         img_downer_part.paste(downer_base[color], (0, 0), mask=mask_img_downer[i])
         img_downer.alpha_composite(img_downer_part)
 
-    # img_upper.save("./uptemp.png")
-    # img_downer.save("./downtemp.png")
     # tilt image
     tiltres = list()
     angle = 20
@@ -249,25 +243,14 @@ def genImage(word_a="5000兆円", word_b="欲しい!", default_width=1500, heigh
     # finish
     previmg = Image.new("RGBA", (max([upper_width, downer_width]) + leftmargin + subset + 100, height + upmargin + 100),
                         (255, 255, 255, 0))
-    # previmg.paste(tiltres[0], (0, 0))
-    # previmg.paste(tiltres[1], (subset, _round(height/2)))
     previmg.alpha_composite(tiltres[0], (0, 50), (0, 0))
     if upper_width > downer_width + subset:
         previmg.alpha_composite(tiltres[1], (upper_width + subset - downer_width, _round(height / 2) + 50), (0, 0))
     else:
         previmg.alpha_composite(tiltres[1], (subset, _round(height / 2) + 50), (0, 0))
-    # previmg.save("./test1.png")
     croprange = previmg.getbbox()
     img = previmg.crop(croprange)
     final_image = Image.new("RGB", (img.size[0] + 100, img.size[1] + 100), bg)
     final_image.paste(img, (50, 50))
 
     return final_image
-
-# genImage(word_a="怎么还没到五一", word_b="我不想上班了").save("./temp.png")
-
-from PIL import Image
-
-from hoshino import Service, priv, logger, aiorequests
-from hoshino.typing import CQEvent, MessageSegment
-from hoshino.util import FreqLimiter, DailyNumberLimiter, pic2b64
