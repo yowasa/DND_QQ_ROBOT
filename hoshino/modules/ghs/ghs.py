@@ -1,4 +1,4 @@
-from hoshino import R, Service, priv
+from hoshino import R, Service, priv, util
 import hoshino
 from functools import partial
 import random
@@ -13,6 +13,7 @@ from pygifsicle import optimize
 import math
 from .PixivCounter import PixivCounter
 from hoshino.typing import CQEvent
+import pygtrie
 
 """
 Pixiv相关功能
@@ -43,9 +44,25 @@ sv_ghs = Service('搞黄色', enable_on_default=False, bundle='图片功能', he
 CACHE_FILE = 'ghs/cache/'
 # 缓存大图文件
 CACHE_FULL_FILE = 'ghs/full/'
-
 api = AppPixivAPI()
 api.set_accept_language('zh-cn')  # zh-cn
+translate_data = {}
+translate_data_roster = pygtrie.CharTrie()
+
+if os.path.exists(R.img('ghs/translate_data.json').path):
+    with open(R.img('ghs/translate_data.json').path, 'r', encoding='UTF-8') as fa:
+        translate_data = json.load(fa)
+    for trams_name, name in translate_data.items():
+        translate_data_roster[trams_name] = name
+
+import atexit
+
+
+@atexit.register
+def f():
+    # 保存官漫目录信息
+    with open(R.img('ghs/translate_data.json').path, 'w', encoding='utf8') as f:
+        json.dump(translate_data, f, ensure_ascii=False)
 
 
 @sv_ghs.on_fullmatch(['启用自动撤回', '开启自动撤回'])
@@ -397,6 +414,19 @@ def set_need_detail(qq_number, switch):
 
 async def img_search(ev: CQEvent, group=False, r18=False):
     msg = str(ev.message)
+    # 翻译
+    if msg:
+        trans_li = []
+        old_msg = util.normalize_str(msg)
+        while old_msg:
+            item = translate_data_roster.longest_prefix(old_msg)
+            if not item:
+                old_msg = old_msg[1:].lstrip()
+            else:
+                trans_li.append(item.value)
+                old_msg = old_msg[len(item.key):].lstrip()
+        msg = ' '.join(trans_li)
+
     need_detail = get_need_detail(ev.user_id)
     for i in range(3):
         try:
@@ -409,15 +439,20 @@ async def img_search(ev: CQEvent, group=False, r18=False):
                     pixiv_login()
                 illust = results.illusts[random.randint(0, len(results.illusts) - 1)]
                 sv_img.logger.info(f"解析的图片id为{illust.get('id')}")
-                return await combine_app_result(illust, group=group, need_detail=need_detail)
+                result= await combine_app_result(illust, group=group, need_detail=need_detail)
+                sv_img.logger.info(f"解析的图片完成{illust.get('id')}")
+                return result
             else:
                 # 多页搜索
                 illust = page_search(msg, r18=r18)
                 if not illust:
                     return "未搜索到结果"
                 sv_img.logger.info(f"解析的图片id为{illust.get('id')}")
-                return await combine_app_result(illust, group=group, need_detail=need_detail)
+                result= await combine_app_result(illust, group=group, need_detail=need_detail)
+                sv_img.logger.info(f"解析的图片完成{illust.get('id')}")
+                return result
         except Exception as pe:
+            sv_img.logger.info(f"搜图异常，尝试重新登录{pe}")
             pixiv_login()
     return "Pixiv登陆异常 请稍后再试"
 
@@ -453,8 +488,9 @@ def page_search(cmd_msg, r18=False):
 async def combine_app_result(illust, group=False, need_detail=False):
     cq_img = await asyncio.get_event_loop().run_in_executor(
         None, partial(package_pixiv_img, illust, group))
+    sv_img.logger.info(f"获取图片结果成功{illust.get('id')}")
     if need_detail:
-        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("name") for x in illust.get("tags")])}\n{cq_img}'
+        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("translated_name") if x.get("translated_name") else x.get("name") for x in illust.get("tags")])}\n{cq_img}'
     else:
         return cq_img
 
@@ -464,9 +500,22 @@ def package_pixiv_img(illust, group=False):
     url = illust.meta_single_page.get('original_image_url')
     cache = CacheCounter()
     message = cache._get_cache(illust.get('id'), group)
+    sv_img.logger.info(f"开始存储tag翻译{illust.get('id')}")
+    for x in illust.get("tags"):
+        if x.get('translated_name'):
+            translated_name = util.normalize_str(x.get('translated_name'))
+            translate_data[translated_name] = x.get("name")
+            translate_data_roster[translated_name] = x.get("name")
+        else:
+            normal_name = util.normalize_str(x.get('name'))
+            translate_data[normal_name] = x.get("name")
+            translate_data_roster[normal_name] = x.get("name")
+    sv_img.logger.info(f"存储tag翻译完成{illust.get('id')}")
     if message:
+        sv_img.logger.info(f"命中缓存{illust.get('id')}")
         return message
     if illust.get('type') == "ugoira":
+        sv_img.logger.info(f"图片为动图{illust.get('id')}")
         result = gen_gif_response(illust.get('id'))
         try:
             cache._set_cache(illust.get('id'), group, str(result))
@@ -474,6 +523,7 @@ def package_pixiv_img(illust, group=False):
             sv_img.logger.error("存储p站缓存失败")
         return result
     if not url:
+        sv_img.logger.info(f"查找不到源图链接{illust.get('id')}")
         urls = []
         for i in illust.meta_pages:
             uu = i.get('image_urls').get('large')
@@ -498,15 +548,20 @@ def package_pixiv_img(illust, group=False):
                     img_list.append(str(R.img(CACHE_FILE + name).cqcode))
                 result = ''.join(img_list)
         else:
-            #一组图随机取一个
+            # 一组图随机取一个
             length = len(urls)
             randomNumber = random.randint(0, length - 1)
             uurl = urls[randomNumber]
             name = uurl[uurl.rfind("/") + 1:]
+            sv_img.logger.info(f"开始下载图片{illust.get('id')}")
             api.download(uurl, path=R.img(CACHE_FILE).path, replace=True)
+            sv_img.logger.info(f"下载图片成功{illust.get('id')}")
+            sv_img.logger.info(f"开始修正图片{illust.get('id')}")
             name = trance_png(name, R.img(CACHE_FILE).path)
+            sv_img.logger.info(f"修正图片成功{illust.get('id')}")
             result = str(R.img(CACHE_FILE + name).cqcode)
     else:
+        sv_img.logger.info(f"可以找到源图链接{illust.get('id')}")
         if 'gif' not in url:
             url = illust.image_urls.get('large')
         name = url[url.rfind("/") + 1:]
@@ -514,10 +569,13 @@ def package_pixiv_img(illust, group=False):
         name = trance_png(name, R.img(CACHE_FILE).path)
         result = str(R.img(CACHE_FILE + name).cqcode)
     try:
+        sv_img.logger.info(f"开始缓存图片{illust.get('id')}")
         cache._set_cache(illust.get('id'), group, str(result))
+        sv_img.logger.info(f"缓存图片成功{illust.get('id')}")
     except Exception as e:
         sv_img.logger.error("存储p站缓存失败")
-    return result
+    sv_img.logger.info(f"返回图片结果{illust.get('id')}")
+    return str(result)
 
 
 def gen_gif_response(ill_id):
