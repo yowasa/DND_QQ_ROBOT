@@ -57,6 +57,8 @@ if os.path.exists(R.img('ghs/translate_data.json').path):
 
 import atexit
 
+def judge_pure_english(keyword):
+    return all(ord(c) < 128 for c in keyword)
 
 @atexit.register
 def f():
@@ -98,12 +100,17 @@ async def pixiv_tag(bot, ev: CQEvent):
     for i in range(3):
         try:
             result = api.trending_tags_illust()
-            if result.get('error'):
-                pixiv_login()
-            else:
-                tags = [t.get('tag') for t in result.get('trend_tags')]
-                await bot.send(ev, "最近热门标签列表:\n" + " ".join(tags))
-                return
+            tags=[]
+            for x in result.get('trend_tags'):
+                    if x.get('translated_name') and not judge_pure_english(x.get('translated_name')):
+                        translated_name = util.normalize_str(x.get('translated_name'))
+                        translate_data[translated_name] = x.get("tag")
+                        translate_data_roster[translated_name] = x.get("tag")
+                        tags.append(translated_name)
+                    else:
+                        tags.append(x.get("tag"))
+            await bot.send(ev, "最近热门标签列表:\n" + " ".join(tags))
+            return
         except Exception as ex:
             pixiv_login()
     await bot.send(ev, "Pixiv登陆异常 请稍后再试")
@@ -413,7 +420,7 @@ def set_need_detail(qq_number, switch):
 
 
 async def img_search(ev: CQEvent, group=False, r18=False):
-    msg = str(ev.message)
+    msg = str(ev.message).strip()
     # 翻译
     if msg:
         trans_li = []
@@ -421,7 +428,12 @@ async def img_search(ev: CQEvent, group=False, r18=False):
         while old_msg:
             item = translate_data_roster.longest_prefix(old_msg)
             if not item:
-                old_msg = old_msg[1:].lstrip()
+                if " " in old_msg:
+                    trans_li.append(old_msg[:old_msg.index(" ")])
+                    old_msg=old_msg[old_msg.index(" "):].lstrip()
+                else:
+                    trans_li.append(old_msg)
+                    old_msg=""
             else:
                 trans_li.append(item.value)
                 old_msg = old_msg[len(item.key):].lstrip()
@@ -490,7 +502,13 @@ async def combine_app_result(illust, group=False, need_detail=False):
         None, partial(package_pixiv_img, illust, group))
     sv_img.logger.info(f"获取图片结果成功{illust.get('id')}")
     if need_detail:
-        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join([x.get("translated_name") if x.get("translated_name") else x.get("name") for x in illust.get("tags")])}\n{cq_img}'
+        tags=[]
+        for x in illust.get("tags"):
+            if x.get("translated_name") and not judge_pure_english(x.get("translated_name")):
+                tags.append(x.get("translated_name"))
+            else:
+                tags.append(x.get("name"))
+        return f'pixivID:{illust.get("id")}\n标题:{illust.get("title")}\n作者:{illust.get("user").get("name")}({illust.get("user").get("id")})\nTags:{" ".join(tags)}\n{cq_img}'
     else:
         return cq_img
 
@@ -502,14 +520,10 @@ def package_pixiv_img(illust, group=False):
     message = cache._get_cache(illust.get('id'), group)
     sv_img.logger.info(f"开始存储tag翻译{illust.get('id')}")
     for x in illust.get("tags"):
-        if x.get('translated_name'):
+        if x.get('translated_name') and not judge_pure_english(x.get('translated_name')):
             translated_name = util.normalize_str(x.get('translated_name'))
             translate_data[translated_name] = x.get("name")
             translate_data_roster[translated_name] = x.get("name")
-        else:
-            normal_name = util.normalize_str(x.get('name'))
-            translate_data[normal_name] = x.get("name")
-            translate_data_roster[normal_name] = x.get("name")
     sv_img.logger.info(f"存储tag翻译完成{illust.get('id')}")
     if message:
         sv_img.logger.info(f"命中缓存{illust.get('id')}")
