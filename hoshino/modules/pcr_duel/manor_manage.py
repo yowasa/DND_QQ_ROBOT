@@ -673,6 +673,7 @@ async def duel_contain(bot, ev: CQEvent):
     if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
         await bot.finish(ev, f"你还没有研发出储能中心,无法进行决斗储能", at_sender=True)
     guid = gid, uid
+    daily_duel_limiter.check(guid)
     if daily_duel_limiter.get_num(guid) != 0:
         await bot.finish(ev, f"你已经进行过了决斗，无法进行决斗储能", at_sender=True)
     daily_duel_limiter.increase(guid, num=daily_duel_limiter.max)
@@ -688,6 +689,7 @@ async def duel_contain(bot, ev: CQEvent):
     if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
         await bot.finish(ev, f"你还没有研发出储能中心,无法进行副本储能", at_sender=True)
     guid = gid, uid
+    daily_dun_limiter.check(guid)
     if daily_dun_limiter.get_num(guid) != 0:
         await bot.finish(ev, f"你已经进行过了副本，无法进行副本储能", at_sender=True)
     daily_dun_limiter.increase(guid, num=daily_dun_limiter.max)
