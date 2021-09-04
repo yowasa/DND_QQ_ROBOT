@@ -862,17 +862,18 @@ async def batch_equip_fuse(bot, ev: CQEvent):
         fail_time = 0
         fuse_result_msg = []
         for n_time in range(batch_loop):
+            one_time_need = need
             # 消耗掉对应装备
             for i in filter_equip:
                 equipinfo = get_equip_info_id(i[0])
                 equipnum = i[1]
-                if equipnum >= need:
-                    deletenum = 0 - need
+                if equipnum >= one_time_need:
+                    deletenum = 0 - one_time_need
                     CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
                     break
                 else:
                     deletenum = 0 - equipnum
-                    need -= equipnum
+                    one_time_need -= equipnum
                     CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
             # 获取更高一级的装备
             eid = equiplevel
