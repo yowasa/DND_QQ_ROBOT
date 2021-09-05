@@ -867,14 +867,18 @@ async def batch_equip_fuse(bot, ev: CQEvent):
             for i in filter_equip:
                 equipinfo = get_equip_info_id(i[0])
                 equipnum = i[1]
+                if equipnum == 0:
+                    continue
                 if equipnum >= one_time_need:
                     deletenum = 0 - one_time_need
                     CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
+                    i[1] += deletenum
                     break
                 else:
                     deletenum = 0 - equipnum
                     one_time_need -= equipnum
                     CE._add_equip(gid, uid, equipinfo['eid'], deletenum)
+                    i[1] += deletenum
             # 获取更高一级的装备
             eid = equiplevel
             if equiplevel <= 5:
