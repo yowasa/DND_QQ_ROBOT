@@ -652,7 +652,7 @@ class TechnologyModel(Enum):
                      "desc": "藏宝图有更大的机会挖出更多的物品"}
 
     REFINING_TECHNOLOGY = {"id": 205, "name": "精致冶炼", "sw": 3500, "gold": 70000, "time": 2,
-                           "desc": "熔炼工坊熔炼装备需求数量-1，熔炼道具需求数量-1"}
+                           "desc": "熔炼工坊熔炼装备需求数量-1"}
     MONETARY_POLICY = {"id": 206, "name": "货币政策", "sw": 30000, "gold": 50000, "time": 4,
                        "desc": "商场提供的金币增加50%"}
 

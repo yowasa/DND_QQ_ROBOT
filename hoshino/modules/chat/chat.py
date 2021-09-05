@@ -1,4 +1,4 @@
-import paddlehub as hub
+# import paddlehub as hub
 import json
 import random
 from hoshino import Service, priv, R
@@ -12,7 +12,8 @@ import os
 from pathlib import Path
 import requests
 
-model = hub.Module(name="plato-mini")
+
+# model = hub.Module(name="plato-mini")
 
 
 class SpeedList:
@@ -150,7 +151,7 @@ class Chat(object):
 chat = Chat()
 
 
-@sv.on_prefix(("叫我","我是"))
+@sv.on_prefix(("叫我", "我是"))
 async def my_name_is(session: CommandSession):
     event = session.event
     bot = session.bot
@@ -190,25 +191,28 @@ async def only2me(session: NLPSession):
     #     del user_talk_cache[guid]
     #     user_talk_cache[guid] = {"cache": SpeedList(), "time": endtime}
     # user_talk_cache[guid]["time"] = endtime
-    # 青云客先匹配处理
     resp = str()
-    fit = False
-    for i in ['天气', '翻译', '歌词', '计算', '等于', '是多少', '归属', '五笔', '拼音', '笑话', '翻译', '成语']:
-        if i in msg:
-            fit = True
-            break
-    if fit:
+    resp = await chat.deal(msg, uid)
+    # 青云客先匹配处理
+    # fit = False
+    # for i in ['天气', '翻译', '歌词', '计算', '等于', '是多少', '归属', '五笔', '拼音', '笑话', '翻译', '成语']:
+    #     if i in msg:
+    #         fit = True
+    #         break
+    # if fit:
+    if not resp:
         res = requests.get(f'https://api.qingyunke.com/api.php?key=free&appid=0&msg={msg}')
         data = res.json()
         repo_msg = data.get("content", str())
         repo_msg = repo_msg.replace("{br}", "\n")
         resp = repo_msg.replace("菲菲", "朝日")
-    if not resp:
-        # 文爱机器人再处理
-        if random.randint(1, 5) != 1:
-            resp = await chat.deal(msg, uid)
-    if not resp:
-        user_talk_cache[guid]["cache"].push(msg)
-        resp = model.predict([user_talk_cache[guid]["cache"].get()])[0]
-        user_talk_cache[guid]["cache"].push(resp)
+
+    # if not resp:
+    #     # 文爱机器人再处理
+    #     if random.randint(1, 5) != 1:
+    #         resp = await chat.deal(msg, uid)
+    # if not resp:
+    #     user_talk_cache[guid]["cache"].push(msg)
+    #     resp = model.predict([user_talk_cache[guid]["cache"].get()])[0]
+    #     user_talk_cache[guid]["cache"].push(resp)
     await bot.send(ev, resp)

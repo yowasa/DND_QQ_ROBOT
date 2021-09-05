@@ -1,15 +1,6 @@
 import random
 
-from nonebot import on_command
-
 from hoshino import R, Service, priv, util
-
-
-# basic function for debug, not included in Service('chat')
-@on_command('zai?', aliases=('在?', '在？', '在吗', '在吗？', '在么', '在么？', '在嘛', '在嘛？'), only_to_me=True)
-async def say_hello(session):
-    await session.send('はい！私はいつも貴方の側にいますよ！')
-
 
 sv = Service('简单聊天', visible=False)
 
@@ -49,35 +40,13 @@ async def nihaole(bot, ev):
     await util.silence(ev, 30)
 
 
-# ============================================ #
-
-
 @sv.on_keyword('确实', '有一说一', 'u1s1', 'yysy')
 async def chat_queshi(bot, ctx):
     if random.random() < 0.05:
         await bot.send(ctx, R.img('确实.jpg').cqcode)
 
 
-@sv.on_keyword('会战')
-async def chat_clanba(bot, ctx):
-    if random.random() < 0.02:
-        await bot.send(ctx, R.img('我的天啊你看看都几度了.jpg').cqcode)
-
-
 @sv.on_keyword('内鬼')
 async def chat_neigui(bot, ctx):
     if random.random() < 0.10:
         await bot.send(ctx, R.img('内鬼.png').cqcode)
-
-
-nyb_player = f'''{R.img('newyearburst.gif').cqcode}
-正在播放：New Year Burst
-──●━━━━ 1:05/1:30
-⇆ ㅤ◁ ㅤㅤ❚❚ ㅤㅤ▷ ㅤ↻
-'''.strip()
-
-
-@sv.on_keyword('春黑', '新黑')
-async def new_year_burst(bot, ev):
-    if random.random() < 0.02:
-        await bot.send(ev, nyb_player)

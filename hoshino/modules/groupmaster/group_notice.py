@@ -26,11 +26,11 @@ sv2 = Service('入群欢迎', help_='欢迎新入群的群友\n')
 @sv2.on_notice('group_increase')
 async def increace_welcome(session: NoticeSession):
     if session.event.user_id == session.event.self_id:
-        return  # ignore myself
+        return
 
     welcomes = hoshino.config.groupmaster.increase_welcome
     gid = session.event.group_id
     if gid in welcomes:
         await session.send(welcomes[gid], at_sender=True)
-    # elif 'default' in welcomes:
-    #     await session.send(welcomes['default'], at_sender=True)
+    else:
+        await session.send(welcomes["default"], at_sender=True)
