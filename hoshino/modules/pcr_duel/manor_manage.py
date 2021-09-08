@@ -841,6 +841,7 @@ async def batch_equip_fuse(bot, ev: CQEvent):
         await bot.finish(ev, '请输入正确的装备等级(N/R/SR/SSR/UR/MR)。', at_sender=True)
     CE = CECounter()
     equip_list = CE._get_equip_list(gid, uid)
+    equip_list=[[i[0], i[1]] for i in equip_list]
     if len(equip_list) > 0:
         need = 4  # 需要的装备数量
         if equiplevel == 6:
