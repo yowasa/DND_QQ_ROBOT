@@ -42,6 +42,19 @@ def random_split(sum, num):
     return z
 
 
+@sv.on_command("重置人生")
+async def relife_start(session: CommandSession):
+    bot = session.bot
+    ev = session.event
+    uid = ev.user_id
+    gid = ev.group_id
+    counter = RelifeCounter()
+    user = counter._get_relife(gid, uid)
+    user.state = 0
+    counter._save_relife(user)
+    await bot.send(ev, f"人生信息已经重置，请发送'人生重开'开启新的人生", at_sender=True)
+
+
 @sv.on_command("人生重开")
 async def relife_start(session: CommandSession):
     bot = session.bot
