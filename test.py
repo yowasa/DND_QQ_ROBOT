@@ -1,0 +1,2 @@
+
+print(['!','?'] in 'asd?asd')
