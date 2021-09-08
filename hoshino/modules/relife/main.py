@@ -182,6 +182,108 @@ async def attr_set(session: CommandSession):
         await bot.send(ev, "已取消分配", at_sender=True)
 
 
+def summary(user):
+    data = {
+        "CHR": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 1, "judge": "折磨", "grade": 0},
+            {"min": 2, "judge": "不佳", "grade": 0},
+            {"min": 4, "judge": "普通", "grade": 0},
+            {"min": 7, "judge": "优秀", "grade": 1},
+            {"min": 9, "judge": "罕见", "grade": 2},
+            {"min": 11, "judge": "逆天", "grade": 3},
+        ],
+        "MNY": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 1, "judge": "折磨", "grade": 0},
+            {"min": 2, "judge": "不佳", "grade": 0},
+            {"min": 4, "judge": "普通", "grade": 0},
+            {"min": 7, "judge": "优秀", "grade": 1},
+            {"min": 9, "judge": "罕见", "grade": 2},
+            {"min": 11, "judge": "逆天", "grade": 3},
+        ],
+        "SPR": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 1, "judge": "折磨", "grade": 0},
+            {"min": 2, "judge": "不幸", "grade": 0},
+            {"min": 4, "judge": "普通", "grade": 0},
+            {"min": 7, "judge": "幸福", "grade": 1},
+            {"min": 9, "judge": "极乐", "grade": 2},
+            {"min": 11, "judge": "天命", "grade": 3},
+        ],
+        "INT": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 1, "judge": "折磨", "grade": 0},
+            {"min": 2, "judge": "不佳", "grade": 0},
+            {"min": 4, "judge": "普通", "grade": 0},
+            {"min": 7, "judge": "优秀", "grade": 1},
+            {"min": 9, "judge": "罕见", "grade": 2},
+            {"min": 11, "judge": "逆天", "grade": 3},
+            {"min": 21, "judge": "识海", "grade": 3},
+            {"min": 131, "judge": "元神", "grade": 3},
+            {"min": 501, "judge": "仙魂", "grade": 3},
+        ],
+        "STR": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 1, "judge": "折磨", "grade": 0},
+            {"min": 2, "judge": "不佳", "grade": 0},
+            {"min": 4, "judge": "普通", "grade": 0},
+            {"min": 7, "judge": "优秀", "grade": 1},
+            {"min": 9, "judge": "罕见", "grade": 2},
+            {"min": 11, "judge": "逆天", "grade": 3},
+            {"min": 21, "judge": "凝气", "grade": 3},
+            {"min": 101, "judge": "筑基", "grade": 3},
+            {"min": 401, "judge": "金丹", "grade": 3},
+            {"min": 1001, "judge": "元婴", "grade": 3},
+            {"min": 2001, "judge": "仙体", "grade": 3},
+        ],
+        "AGE": [
+            {"judge": "胎死腹中", "grade": 0},
+            {"min": 1, "judge": "早夭", "grade": 0},
+            {"min": 10, "judge": "少年", "grade": 0},
+            {"min": 18, "judge": "盛年", "grade": 0},
+            {"min": 40, "judge": "中年", "grade": 0},
+            {"min": 60, "judge": "花甲", "grade": 1},
+            {"min": 70, "judge": "古稀", "grade": 1},
+            {"min": 80, "judge": "杖朝", "grade": 2},
+            {"min": 90, "judge": "南山", "grade": 2},
+            {"min": 95, "judge": "不老", "grade": 3},
+            {"min": 100, "judge": "修仙", "grade": 3},
+            {"min": 500, "judge": "仙寿", "grade": 3},
+        ],
+        "SUM": [
+            {"judge": "地狱", "grade": 0},
+            {"min": 41, "judge": "折磨", "grade": 0},
+            {"min": 50, "judge": "不佳", "grade": 0},
+            {"min": 60, "judge": "普通", "grade": 0},
+            {"min": 80, "judge": "优秀", "grade": 1},
+            {"min": 100, "judge": "罕见", "grade": 2},
+            {"min": 110, "judge": "逆天", "grade": 3},
+            {"min": 120, "judge": "传说", "grade": 3},
+        ]
+    }
+
+    eff_li = ["SPR", "MNY", "CHR", "STR", "INT", "AGE", "SUM"]
+    key_li = ["快乐", "家境", "颜值", "体质", "智力", "年龄", "总评"]
+    user.data['总评'] = user.data["快乐"] * 2 + user.data["家境"] + user.data["颜值"] + user.data["体质"] + user.data["智力"] + \
+                      user.data["年龄"] * 0.5
+
+    msg_li = []
+    for type in eff_li:
+        length = len(data[type])
+        index = eff_li.index(type)
+        value = user.data[key_li[index]]
+        while length:
+            length -= 1
+            case = data[type][length]
+            if not case.get('min'):
+                break
+            if value >= case.get('min'):
+                break
+        msg_li.append(f'{key_li[index]}:{user.data[key_li[index]]}({case.get("judge")})')
+    return '\n'.join(msg_li)
+
+
 @sv.on_fullmatch("下一年")
 async def next_year(bot, ev: CQEvent):
     uid = ev.user_id
@@ -197,10 +299,11 @@ async def next_year(bot, ev: CQEvent):
     for i in msg_li:
         start_age += 1
         result_li.append(f'{start_age}岁:{i}')
-    await bot.send(ev, '\n\n'.join(result_li), at_sender=True)
+    await bot.send(ev, '\n' + '\n\n'.join(result_li), at_sender=True)
     if user.data['存活'] == 0:
         user.state = 0
-        await bot.send(ev, '这是一串很长的人生总结（没写呢）', at_sender=True)
+        msg = summary(user)
+        await bot.send(ev, f'\n{msg}', at_sender=True)
     counter._save_relife(user)
 
 
@@ -219,11 +322,12 @@ async def next_ten_year(bot, ev: CQEvent):
     for i in msg_li:
         start_age += 1
         result_li.append(f'{start_age}岁:{i}')
-    await bot.send(ev, '\n\n'.join(result_li), at_sender=True)
+    await bot.send(ev, '\n' + '\n\n'.join(result_li), at_sender=True)
     if user.data['存活'] == 0:
         user.state = 0
         user.re_time += 1
-        await bot.send(ev, '这是一串很长的人生总结（没写呢）', at_sender=True)
+        msg = summary(user)
+        await bot.send(ev, f'\n{msg}', at_sender=True)
     counter._save_relife(user)
 
 
