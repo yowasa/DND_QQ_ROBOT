@@ -22,12 +22,15 @@ def parseCondition(condition: str):
         if condition[i] == ' ':
             continue
         elif condition[i] == '(':
-            catch_string(i)
+            catch_string(i + 1)
             cursor = i + 1
         elif condition[i] == ')':
             catch_string(i)
+            cursor = i
+            catch_string(i + 1)
             cursor = i + 1
         elif condition[i] in ['&', '|']:
+            catch_string(i)
             cursor = i
             catch_string(i + 1)
             cursor = i + 1
@@ -44,7 +47,7 @@ def checkParsedConditions(user, conditions):
         return checkProp(user, conditions[0])
     result = []
     for i in conditions:
-        if i not in ['|', "&"]:
+        if i not in ['|', "&", "(", ")"]:
             result.append(checkProp(user, i))
         else:
             result.append(i)
@@ -81,8 +84,8 @@ def checkProp(user, condition: str):
                 if eval(judg):
                     return True
             return False
-    eff_li = ["SPR", "MNY", "CHR", "STR", "INT","AGE"]
-    key_li = ["快乐", "家境", "颜值", "体质", "智力","年龄"]
+    eff_li = ["SPR", "MNY", "CHR", "STR", "INT", "AGE"]
+    key_li = ["快乐", "家境", "颜值", "体质", "智力", "年龄"]
     judg = condition
     for i in eff_li:
         if i in condition:

@@ -274,7 +274,7 @@ async def up_rank(bot, ev: CQEvent):
 
     fail_flag = 0
     if new_rank > 10:
-        rd = random.randint(11, 20)
+        rd = random.randint(10, 20)
         if rd < new_rank:
             fail_flag = 1
     score_counter._reduce_score(gid, uid, rank_score)
