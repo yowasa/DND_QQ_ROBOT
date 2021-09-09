@@ -1,16 +1,17 @@
 # 人生重开模拟器
-from hoshino import R, Service, priv, util
-from hoshino.typing import CQEvent, CommandSession
-from .RelifeCounter import RelifeCounter
-from .condition import checkCondition
-import os
-import json
 import random
+
+from hoshino import Service
+from hoshino.typing import CQEvent, CommandSession
 from . import comm
 from . import event
+from .RelifeCounter import RelifeCounter
+from .condition import checkCondition
+from hoshino.util import FreqLimiter
 
+_flmt = FreqLimiter(3)
 """
-Pixiv相关功能
+人生重开模拟器相关功能
 """
 
 sv = Service('人生重开模拟器', enable_on_default=True, bundle='人生重开模拟器', help_=
@@ -301,9 +302,14 @@ def summary(user):
 async def next_year(bot, ev: CQEvent):
     uid = ev.user_id
     gid = ev.group_id
+    guid = gid, uid
+    if not _flmt.check(guid):
+        await bot.send(ev, '不要请求这么快！', at_sender=True)
+        return
+
     counter = RelifeCounter()
     user = counter._get_relife(gid, uid)
-    if user.state == 0:
+    if user.state == 0 or not user.data.get('存活'):
         await bot.finish(ev, "请先使用'人生重开'指令", at_sender=True)
     start_age = user.data['年龄']
     msg_li = pass_year(user, 1)
@@ -324,9 +330,13 @@ async def next_year(bot, ev: CQEvent):
 async def next_ten_year(bot, ev: CQEvent):
     uid = ev.user_id
     gid = ev.group_id
+    guid = gid, uid
+    if not _flmt.check(guid):
+        await bot.send(ev, '不要请求这么快！', at_sender=True)
+        return
     counter = RelifeCounter()
     user = counter._get_relife(gid, uid)
-    if user.state == 0:
+    if user.state == 0 or not user.data.get('存活'):
         await bot.send(ev, "请先使用'人生重开'指令", at_sender=True)
     start_age = user.data['年龄']
     msg_li = pass_year(user, 10)
