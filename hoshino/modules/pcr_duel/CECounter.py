@@ -251,6 +251,15 @@ class CECounter:
                 (gid, uid, cid, rank),
             )
 
+    def _up_rank_num(self, gid, uid, cid, num):
+        rank = self._get_rank(gid, uid, cid)
+        rank += num
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO RANKTABLE (GID, UID, CID, RANK) VALUES (?, ?, ?, ?)",
+                (gid, uid, cid, rank),
+            )
+
     def _get_rank(self, gid, uid, cid):
         try:
             r = self._connect().execute("SELECT RANK FROM RANKTABLE WHERE GID=? AND UID=? AND CID=?",

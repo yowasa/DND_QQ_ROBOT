@@ -151,8 +151,6 @@ rank花费    装备	倍率
 8   40000   R   2.0
 9   45000   SR  2.125
 10  50000   SR  2.25
-11  55000   SR  2.375
-12  60000   SSR 2.5
     """.strip()
     await bot.send(ev, msg)
 
@@ -181,14 +179,6 @@ async def up_rank(bot, ev: CQEvent):
     if rank == MAX_RANK:
         await bot.finish(ev, '该女友rank已升至满级，无法继续升级啦。', at_sender=True)
     new_rank = rank + 1
-    # 取消rank贵族等级限制
-    # level = duel._get_level(gid, uid)
-    # if new_rank > 10:
-    #     levelrank = 10
-    # else:
-    #     levelrank = new_rank
-    # if levelrank > level:
-    #     await bot.finish(ev, '您的贵族等级不足，请发送[升级贵族]提升您的等级吧。', at_sender=True)
     rank_score = RANK_LIST[int(new_rank)]
     zllevel = CE._get_zhuansheng(gid, uid, cid)
     # rank需要金币随转生次数增加
@@ -218,9 +208,15 @@ async def up_rank(bot, ev: CQEvent):
     elif lastrank > 8 and lastrank <= 11:
         needmodel = 'SR'
         needlevel = 3
-    else:
+    elif lastrank > 11 and lastrank <= 15:
         needmodel = 'SSR'
         needlevel = 4
+    elif lastrank > 15 and lastrank <= 18:
+        needmodel = 'UR'
+        needlevel = 5
+    else:
+        needmodel = 'MR'
+        needlevel = 6
     for eid in dreeslist:
         equipinfo = get_equip_info_id(eid)
         if equipinfo:
@@ -276,11 +272,25 @@ async def up_rank(bot, ev: CQEvent):
                 CE._dress_equip(gid, uid, cid, equipinfo['type_id'], eid)
                 CE._add_equip(gid, uid, equipinfo['eid'], -1)
 
+    fail_flag = 0
+    if new_rank > 10:
+        rd = random.randint(11, 20)
+        if rd < new_rank:
+            fail_flag = 1
     score_counter._reduce_score(gid, uid, rank_score)
-    CE._up_rank(gid, uid, cid)
     c = chara.fromid(cid)
-    msg = f'{part_msg}\n您花费了{rank_score}金币为{c.name}提升了rank，当前rank等级为：{new_rank}级，女友战斗力大大提升！'
-    await bot.send(ev, msg, at_sender=True)
+    if not fail_flag:
+        CE._up_rank(gid, uid, cid)
+        msg = f'{part_msg}\n您花费了{rank_score}金币为{c.name}提升了rank，当前rank等级为：{new_rank}级，女友战斗力大大提升！'
+        await bot.send(ev, msg, at_sender=True)
+    else:
+        r_down = random.randint(0, 2)
+        if r_down == 0:
+            msg = f'{part_msg}\n您花费了{rank_score}金币为{c.name}提升了rank,但是失败了。。。。'
+        else:
+            CE._up_rank_num(gid, uid, cid, -r_down)
+            msg = f'{part_msg}\n您花费了{rank_score}金币为{c.name}提升了rank,但是失败了,rank级别下降{r_down}级。。当前rank等级为：{new_rank - 1 - r_down}级'
+        await bot.send(ev, msg, at_sender=True)
 
 
 @sv.on_fullmatch(['战力榜', '女友战力榜', '战力排行榜', '战力排行'])

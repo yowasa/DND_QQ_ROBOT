@@ -181,8 +181,16 @@ RANK_LIST = {
     8: 40000,
     9: 45000,
     10: 50000,
-    11: 55000,
-    12: 60000,
+    11: 100000,
+    12: 200000,
+    13: 300000,
+    14: 400000,
+    15: 500000,
+    16: 600000,
+    17: 700000,
+    18: 800000,
+    19: 900000,
+    20: 1000000,
 }  # rank升级要求，格式为["rank":金币]
 MAX_STAR = 5  # 最大星级
 STAR_LIST = {
@@ -354,7 +362,7 @@ cfg.load_dlc_switch()
 cfg.refresh_fashion()
 # 刷新dlc-角色 dlc-介绍配置
 cfg.refresh_config()
-#检查dlcswitch是否有漏加的新dlc
+# 检查dlcswitch是否有漏加的新dlc
 cfg.check_dlc()
 
 
@@ -785,7 +793,7 @@ def get_card_ce(gid, uid, cid):
         fashion_ce = fashion_info['add_ce'] * 10
     # 获取角色等级
     zslevel = CE._get_zhuansheng(gid, uid, cid)
-    zljcadd = zslevel * 50
+    zljcadd = zslevel * 30
     if zslevel > 0:
         zlzf = 1 + ((zslevel + zslevel - 1) / 10)
     else:
@@ -795,17 +803,19 @@ def get_card_ce(gid, uid, cid):
     favor = duel._get_favor(gid, uid, cid)
     # 获取角色穿戴装备列表
     equip_ce = 0
+    equip_start_buff = 0
     dreeslist = CE._get_dress_list(gid, uid, cid)
     for eid in dreeslist:
         equipinfo = get_equip_info_id(eid)
         if equipinfo:
+            equip_start_buff += int(equipinfo['level'])
             if equipinfo['type_id'] == 99:
                 if equipinfo['eid'] == 9999:
                     favor_jc = math.ceil(favor / 2500)
                     if favor_jc == 0:
                         favor_jc = 1
-                    if favor_jc > 5:
-                        favor_jc = 5
+                    if favor_jc > 10:
+                        favor_jc = 10
                     equip_ce = equip_ce + equipinfo['add_ce'] * favor_jc
                 elif equipinfo['eid'] == 10000:
                     zhuans_jc = zslevel
@@ -828,15 +838,16 @@ def get_card_ce(gid, uid, cid):
         starz += n
         n += 1
     addsrat = 1 + starz / 10
+    equip_start_buff = 1 + equip_start_buff / 100
     # 计算角色rank战力加成
     rank = CE._get_rank(gid, uid, cid)
-    card_ce = math.ceil((100 + fashion_ce + level_ce * addsrat + favor_ce + equip_ce) * (1 + rank / 8) * zlzf)
+    card_ce = math.ceil(
+        (100 + fashion_ce + level_ce * addsrat + favor_ce + equip_ce) * equip_start_buff * (1 + rank / 8) * zlzf)
     if duel._get_queen_owner(gid, cid) != 0:
-
         item = get_item_by_name("永恒爱恋")
         num = check_have_item(gid, uid, item)
         if num:
-            card_ce *= 2
+            card_ce = int(card_ce * 1.3)
     return card_ce
 
 
