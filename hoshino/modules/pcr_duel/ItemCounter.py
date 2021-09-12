@@ -164,11 +164,11 @@ class ItemCounter:
             return 0
 
     # 覆盖存储群组状态
-    def _save_group_state(self, gid, type, type_flag):
+    def _save_group_state(self, gid, type:GroupModel, type_flag):
         with self._connect() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO GROUP_INFO (GID, INFO_TYPE, INFO_FLAG) VALUES (?, ?, ?)",
-                (gid, type, type_flag),
+                (gid, type.value[0], type_flag),
             )
 
         # 获取用户信息

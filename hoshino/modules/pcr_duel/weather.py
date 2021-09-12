@@ -53,7 +53,7 @@ async def item_all(bot, ev: CQEvent):
         "data": {
             "name": "ご主人様",
             "uin": "1587640710",
-            "content": "====== 道具一览 ======"
+            "content": "====== 天气一览 ======"
         }
     }
     tas_list.append(data)

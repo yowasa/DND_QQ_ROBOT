@@ -2351,7 +2351,7 @@ async def clock():
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
     # 每天早上4:55变更天气
-    if not now.hour == 4:
+    if now.hour == 4:
         group_list = []
         self_ids = bot._wsr_api_clients.keys()
         for sid in self_ids:
