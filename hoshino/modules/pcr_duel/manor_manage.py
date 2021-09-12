@@ -158,8 +158,8 @@ async def manor_view(bot, ev: CQEvent):
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
         # 每有一个类建筑 增加1点繁荣度
-        if i.get("cost"):
-            taxes += i.get("cost")
+        if i.value.get("cost"):
+            taxes += i.value.get("cost")*b_c[i]
 
     msg = f'''
 ===== 城市状态 =====
@@ -602,8 +602,8 @@ async def manor_sign(bot, ev: CQEvent):
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
         # 每有一个类建筑 增加1点繁荣度
-        if i.get("cost"):
-            taxes += i.get("cost")
+        if i.value.get("cost"):
+            taxes += i.value.get("cost")*b_c[i]
     msg += f'\n为了维持城市开销，需要花费{taxes}金币'
     gold_sum -= taxes
     score_counter = ScoreCounter2()

@@ -2347,7 +2347,7 @@ async def clock():
         SUO_Data = duel._get_SUO_CELE(gid)
         SW_Data = duel._get_SW_CELE(gid)
         duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 0)
-        i_c._save_group_state(gid, 1, 0)
+        i_c._save_group_state(gid, GroupModel.OFF_FREE, 0)
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
 
     # 每天早上4:55变更天气

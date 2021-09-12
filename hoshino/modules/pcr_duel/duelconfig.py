@@ -795,14 +795,14 @@ def get_card_ce(gid, uid, cid):
         fashion_ce = fashion_info['add_ce'] * 10
     # 获取角色等级
     zslevel = CE._get_zhuansheng(gid, uid, cid)
-    if get_weather(gid) == WeatherModel.SHUYU:
-        zslevel = 200
     zljcadd = zslevel * 30
     if zslevel > 0:
         zlzf = 1 + ((zslevel + zslevel - 1) / 10)
     else:
         zlzf = 1
     level_info = CE._get_card_level(gid, uid, cid)
+    if get_weather(gid) == WeatherModel.SHUYU:
+        level_info = 200
     level_ce = level_info * 50 + level_info * zljcadd
     favor = duel._get_favor(gid, uid, cid)
     # 获取角色穿戴装备列表

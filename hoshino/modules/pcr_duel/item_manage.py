@@ -577,7 +577,7 @@ async def patty_happy(msg, bot, ev: CQEvent):
     SW_Data = duel._get_SW_CELE(gid)
     duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 1)
     counter = ItemCounter()
-    counter._save_group_state(gid, 1, 1)
+    counter._save_group_state(gid, GroupModel.OFF_FREE, 1)
     # 刷新当前群组所有贵族的免费招募状态
     user_card_dict = await get_user_card_dict(bot, gid)
     for uid in user_card_dict.keys():
