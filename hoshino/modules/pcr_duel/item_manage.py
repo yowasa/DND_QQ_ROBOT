@@ -121,13 +121,26 @@ async def consume_item(bot, ev: CQEvent):
         await bot.finish(ev, f"背包中道具{msg[0]}数量不足", at_sender=True)
     batch_result_msg = []
     success_time = 0
+    suc_num = 0
     for i in range(num):
         result = await _use_item(msg[0], msg[1:], bot, ev)
         if result[0]:
+            suc_num += 1
             success_time += 1
             counter._add_item(gid, uid, int(item_info['id']), num=-1)
         batch_result_msg.append(result[1])
     await bot.send(ev, '\n' + '\n'.join(batch_result_msg), at_sender=True)
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        rd = random.randint(1, 100)
+        if rd <= suc_num:
+            item = choose_item()
+            add_item(gid, uid, item)
+            await bot.send(ev, f'由于天气的效果你额外获取到了{item["rank"]}级道具{item["name"]}！')
+    if get_weather(gid) == WeatherModel.LIERI:
+        reduce_score = 10000 * suc_num
+        sc = ScoreCounter2()
+        sc._reduce_score(gid, uid, reduce_score)
+        await bot.send(ev, f'由于天气的效果你额外损失了{reduce_score}金币！')
 
 
 @sv.on_prefix(['使用道具'])
@@ -142,11 +155,23 @@ async def consume_item(bot, ev: CQEvent):
     num = counter._get_item_num(gid, uid, int(item_info['id']))
     if num < 1:
         await bot.finish(ev, f"背包中道具{msg[0]}数量不足", at_sender=True)
-
     result = await _use_item(msg[0], msg[1:], bot, ev)
+    suc_num = 0
     if result[0]:
+        suc_num += 1
         counter._add_item(gid, uid, int(item_info['id']), num=-1)
     await bot.send(ev, result[1], at_sender=True)
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        rd = random.randint(1, 100)
+        if rd <= suc_num:
+            item = choose_item()
+            add_item(gid, uid, item)
+            await bot.send(ev, f'由于天气的效果你额外获取到了{item["rank"]}级道具{item["name"]}！')
+    if get_weather(gid) == WeatherModel.LIERI:
+        reduce_score = 10000 * suc_num
+        sc = ScoreCounter2()
+        sc._reduce_score(gid, uid, reduce_score)
+        await bot.send(ev, f'由于天气的效果你额外损失了{reduce_score}金币！')
 
 
 register = dict()
@@ -190,6 +215,19 @@ async def choose_girl(msg, bot, ev: CQEvent):
         return (True, f"{c.name}感受到了命运的指引，前来与你相会。{nvmes}")
     else:
         return (False, f"{c.name}已经心有所属了")
+
+
+@msg_route("绯想之剑")
+async def change_weather(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    weather = get_weather(gid)
+    if weather == WeatherModel.NONE:
+        rd = random.choice([i for i in WeatherModel])
+        save_weather(gid, rd)
+        return (True, f"你发动了绯想之剑，当前天气变成了{rd.value['name']}")
+    else:
+        save_weather(gid, WeatherModel.NONE)
+        return (True, f"你发动了绯想之剑，取消了当前的天气")
 
 
 @msg_route("天命之子")
@@ -371,6 +409,9 @@ async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     score = random.randint(10000, 100000)
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        score = int(1.25 * score)
     CE = ScoreCounter2()
     CE._add_score(gid, uid, score)
     return (True, f'你吃着火锅唱着歌，一低头发现地上有{score}金币。')
@@ -382,6 +423,11 @@ async def fa_money(msg, bot, ev: CQEvent):
     uid = ev.user_id
     gold = 50000
     num = 5
+    each_get_sw = 500
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        gold = int(1.25 * gold)
+        each_get_sw = int(1.25 * each_get_sw)
     if not r_gold.get_on_off_random_gold(ev.group_id):
         await bot.send(ev, f'已发放红包，金币总额为：{gold}\n数量：{num}\n请输入 领取红包')
         r_gold.turn_on_random_gold(gid)
@@ -392,7 +438,7 @@ async def fa_money(msg, bot, ev: CQEvent):
         r_gold.turn_off_random_gold(gid)
         await bot.send(ev, '随机金币奖励活动已结束，请期待下次活动开启')
         number = len(r_gold.user[gid])
-        add_p = number * 500
+        add_p = number * each_get_sw
         r_gold.user = {}
         CE = ScoreCounter2()
         CE._add_prestige(gid, uid, add_p)
@@ -489,9 +535,13 @@ async def battle_match(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    get_exp = 300000
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        get_exp = int(1.25 * get_exp)
     CE = CECounter()
-    CE._add_exp_chizi(gid, uid, 300000)
-    return (True, f"你观看了一场异常精彩的战斗，获得了300000经验!！(加入经验池)")
+    CE._add_exp_chizi(gid, uid, get_exp)
+    return (True, f"你观看了一场异常精彩的战斗，获得了{get_exp}经验!！(加入经验池)")
 
 
 @msg_route("零时迷子")
@@ -586,6 +636,9 @@ async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     score = random.randint(1000, 30000)
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        score = int(1.25 * score)
     CE = ScoreCounter2()
     CE._add_score(gid, uid, score)
     return (True, f'你开始与相邻城市进行贸易，获得了点小钱，赚取了{score}金币。')
@@ -596,6 +649,9 @@ async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
     sw = random.randint(100, 3000)
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        sw = int(1.25 * sw)
     CE = ScoreCounter2()
     CE._add_prestige(gid, uid, sw)
     return (True, f'你走在路边，随手丢给路边乞丐一些金币，被别人看到了，声望增加{sw}。')
@@ -625,9 +681,13 @@ async def money_mall(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    get_exp = 100000
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        get_exp = int(1.25 * get_exp)
     CE = CECounter()
-    CE._add_exp_chizi(gid, uid, 100000)
-    return (True, f"你通读了一本经验之书，获得了100000经验(加入经验池)")
+    CE._add_exp_chizi(gid, uid, get_exp)
+    return (True, f"你通读了一本经验之书，获得了{get_exp}经验(加入经验池)")
 
 
 @msg_route("许愿神灯")
@@ -800,9 +860,13 @@ async def rush_world(msg, bot, ev: CQEvent):
 async def happy_day(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    get_fb = 2000
+    weather = get_weather(gid)
+    if weather == WeatherModel.WUYU:
+        get_fb = int(1.25 * get_fb)
     CE = CECounter()
-    CE._add_dunscore(gid, uid, 2000)
-    return (True, f'你在副本中发现了隐藏的宝箱，带着副本币满载而归。(副本币增加2000)')
+    CE._add_dunscore(gid, uid, get_fb)
+    return (True, f'你在副本中发现了隐藏的宝箱，带着副本币满载而归。(副本币增加{get_fb})')
 
 
 @msg_route("武装镇压")
@@ -916,10 +980,6 @@ async def start_xunyou(session: CommandSession):
 
     duel = DuelCounter()
     score_counter = ScoreCounter2()
-    if duel_judger.get_on_off_status(ev.group_id):
-        msg = '现在正在决斗中哦，请决斗后再开始吧。'
-        await bot.send(ev, msg, at_sender=True)
-        return
     if duel._get_level(gid, uid) == 0:
         msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
         duel_judger.turn_off(ev.group_id)

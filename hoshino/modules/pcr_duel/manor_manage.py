@@ -123,8 +123,6 @@ async def manor_view(bot, ev: CQEvent):
     city_manor = get_city_manor(gid, uid, level)
     geng_manor = get_geng_manor(gid, uid, level, geng)
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
-
-    taxes = get_taxes(gid, uid, level)
     gold_sum = 0
     sw_sum = 0
     tax_rate = get_geng_profit(gid, uid)
@@ -155,8 +153,14 @@ async def manor_view(bot, ev: CQEvent):
             sw_sum += get_sw
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     pm = PolicyModel.get_by_id(p_id)
-    noblename = get_noblename(level)
     now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+
+    taxes = get_taxes(gid, uid, level)
+    for i in b_c.keys():
+        # 每有一个类建筑 增加1点繁荣度
+        if i.get("cost"):
+            taxes += i.get("cost")
+
     msg = f'''
 ===== 城市状态 =====
 总面积:{all_manor}    \t市区面积:{city_manor}
@@ -202,6 +206,7 @@ async def build_view(bot, ev: CQEvent):
         msg = f'''
 {i.value['name']}:
 花费:{i.value['gold']}金币,{i.value['sw']}声望
+维持费用:{i.value['cost']}金币
 限制:最多拥有{i.value['limit']}个
 占地面积:{i.value['area']}
 建筑时间:{i.value['time']}次城市结算
@@ -282,12 +287,19 @@ async def _build(bot, ev: CQEvent):
     if num + 1 > b_m.value['limit']:
         await bot.finish(ev, f"{build_name}已经达到了可建筑上限", at_sender=True)
     s_c = ScoreCounter2()
-    if s_c._get_score(gid, uid) < b_m.value["gold"]:
+    need_gold = b_m.value["gold"]
+    need_sw = b_m.value["sw"]
+    # 天气影响
+    weather = get_weather(gid)
+    if weather == WeatherModel.KUAIQING:
+        need_gold = int(need_gold * 0.8)
+        need_sw = int(need_sw * 0.8)
+    if s_c._get_score(gid, uid) < need_gold:
         await bot.finish(ev, f"你没有足够的金币进行建造", at_sender=True)
-    if s_c._get_prestige(gid, uid) < b_m.value["sw"]:
+    if s_c._get_prestige(gid, uid) < need_sw:
         await bot.finish(ev, f"你没有足够的声望进行建造", at_sender=True)
-    s_c._reduce_score(gid, uid, b_m.value["gold"])
-    s_c._reduce_prestige(gid, uid, b_m.value["sw"])
+    s_c._reduce_score(gid, uid, need_gold)
+    s_c._reduce_prestige(gid, uid, need_sw)
     save_user_counter(gid, uid, UserModel.BUILD_BUFFER, b_m.value['id'])
     save_user_counter(gid, uid, UserModel.BUILD_CD, b_m.value['time'])
     # 增加建筑状态
@@ -436,140 +448,142 @@ async def manor_sign(bot, ev: CQEvent):
             fanrong -= 20
 
         gold_sum += geng_gold
-        # 计算建筑进度
-        cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
-        if cd != 0:
-            cd -= 1
-            if p_m == PolicyModel.STRONG_BUILD:
-                if now_fanrong >= 50:
-                    now_fanrong -= 50
-                    cd = 0 if cd - 1 < 0 else cd - 1
-            if cd <= 0:
-                buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
-                build = BuildModel.get_by_id(buffer_build_id)
-                build_num = check_build_counter(gid, uid, build)
-                build_num += 1
-                i_c = ItemCounter()
-                i_c._save_user_state(gid, uid, build.value['id'], build_num)
-                msg += f"\n施工队报告{build.value['name']}竣工了，已经可以投入使用"
-                save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
-            save_user_counter(gid, uid, UserModel.BUILD_CD, cd)
+        if get_weather(gid) != WeatherModel.ZUANSHICHEN:
+            # 计算建筑进度
+            cd = get_user_counter(gid, uid, UserModel.BUILD_CD)
+            if cd != 0:
+                cd -= 1
+                if p_m == PolicyModel.STRONG_BUILD:
+                    if now_fanrong >= 50:
+                        now_fanrong -= 50
+                        cd = 0 if cd - 1 < 0 else cd - 1
+                if cd <= 0:
+                    buffer_build_id = get_user_counter(gid, uid, UserModel.BUILD_BUFFER)
+                    build = BuildModel.get_by_id(buffer_build_id)
+                    build_num = check_build_counter(gid, uid, build)
+                    build_num += 1
+                    i_c = ItemCounter()
+                    i_c._save_user_state(gid, uid, build.value['id'], build_num)
+                    msg += f"\n施工队报告{build.value['name']}竣工了，已经可以投入使用"
+                    save_user_counter(gid, uid, UserModel.BUILD_BUFFER, 0)
+                save_user_counter(gid, uid, UserModel.BUILD_CD, cd)
 
-        # 计算科研进度
-        t_cd = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
-        if t_cd != 0:
-            t_cd -= 1
-            if p_m == PolicyModel.STRONG_TEC:
-                if now_fanrong >= 50:
-                    now_fanrong -= 50
-                    t_cd = 0 if t_cd - 1 < 0 else t_cd - 1
-            if t_cd == 0:
-                buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
-                technology = TechnologyModel.get_by_id(buffer_technology_id)
-                i_c = ItemCounter()
-                i_c._save_user_state(gid, uid, technology.value['id'], 1)
-                msg += f"\n科学家们成功研发出了新的科技{technology.value['name']}"
-                save_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER, 0)
-            save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_cd)
+            # 计算科研进度
+            t_cd = get_user_counter(gid, uid, UserModel.TECHNOLOGY_CD)
+            if t_cd != 0:
+                t_cd -= 1
+                if p_m == PolicyModel.STRONG_TEC:
+                    if now_fanrong >= 50:
+                        now_fanrong -= 50
+                        t_cd = 0 if t_cd - 1 < 0 else t_cd - 1
+                if t_cd == 0:
+                    buffer_technology_id = get_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER)
+                    technology = TechnologyModel.get_by_id(buffer_technology_id)
+                    i_c = ItemCounter()
+                    i_c._save_user_state(gid, uid, technology.value['id'], 1)
+                    msg += f"\n科学家们成功研发出了新的科技{technology.value['name']}"
+                    save_user_counter(gid, uid, UserModel.TECHNOLOGY_BUFFER, 0)
+                save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_cd)
         # 计算建筑收益
-        b_c = get_all_build_counter(gid, uid)
-        for i in b_c.keys():
-            # 每有一个类建筑 增加1点繁荣度
-            fanrong += b_c[i]
-            if i == BuildModel.CENTER:
-                continue
-            elif i == BuildModel.APARTMENT:
-                ct = b_c[i]
-                if ct == 5:
-                    ct = 6
-                add_fanrong = 5 * ct
-                fanrong += add_fanrong
-                msg += f'\n公寓的存在推动了人口的增长，城市变得更加繁荣了。繁荣度增加了{add_fanrong}'
-            elif i == BuildModel.POLICE_OFFICE:
-                ct = b_c[i]
-                zhian += ct * 10
-                if zhian >= 100:
-                    zhian = 100
-                save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
-                msg += f'\n由于警察局的合理维护，治安提高了{ct * 10}，当前治安为{zhian}'
-                if b_c[i] > 1:
-                    rn = random.randint(1, 5)
-                    if rn == 1:
-                        item = get_item_by_name("武装镇压")
+        if get_weather(gid) != WeatherModel.QINGLAN:
+            b_c = get_all_build_counter(gid, uid)
+            for i in b_c.keys():
+                # 每有一个类建筑 增加1点繁荣度
+                fanrong += b_c[i]
+                if i == BuildModel.CENTER:
+                    continue
+                elif i == BuildModel.APARTMENT:
+                    ct = b_c[i]
+                    if ct == 5:
+                        ct = 6
+                    add_fanrong = 5 * ct
+                    fanrong += add_fanrong
+                    msg += f'\n公寓的存在推动了人口的增长，城市变得更加繁荣了。繁荣度增加了{add_fanrong}'
+                elif i == BuildModel.POLICE_OFFICE:
+                    ct = b_c[i]
+                    zhian += ct * 10
+                    if zhian >= 100:
+                        zhian = 100
+                    save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
+                    msg += f'\n由于警察局的合理维护，治安提高了{ct * 10}，当前治安为{zhian}'
+                    if b_c[i] > 1:
+                        rn = random.randint(1, 5)
+                        if rn == 1:
+                            item = get_item_by_name("武装镇压")
+                            add_item(gid, uid, item)
+                            msg += f'\n警察局联合举办了防暴演习，你额外获得了{item["rank"]}级道具{item["name"]}'
+                elif i == BuildModel.MARKET:
+                    rate = 1.0
+                    if check_technolog_counter(gid, uid, TechnologyModel.MONETARY_POLICY):
+                        rate = 1.5
+                    market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
+                    if buffer_flag:
+                        market_gold = int(market_gold * 1.1)
+                    msg += f'\n商场今日的收入为{market_gold}金币'
+                    if b_c[i] >= 5:
+                        item = get_item_by_name("生财有道")
                         add_item(gid, uid, item)
-                        msg += f'\n警察局联合举办了防暴演习，你额外获得了{item["rank"]}级道具{item["name"]}'
-            elif i == BuildModel.MARKET:
-                rate = 1.0
-                if check_technolog_counter(gid, uid, TechnologyModel.MONETARY_POLICY):
-                    rate = 1.5
-                market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
-                if buffer_flag:
-                    market_gold = int(market_gold * 1.1)
-                msg += f'\n商场今日的收入为{market_gold}金币'
-                if b_c[i] >= 5:
-                    item = get_item_by_name("生财有道")
+                        msg += f'\n你的城市商业繁荣，你额外获得了{item["rank"]}级道具{item["name"]}'
+                    gold_sum += market_gold
+                elif i == BuildModel.TV_STATION:
+                    rate = 1.0
+                    if check_technolog_counter(gid, uid, TechnologyModel.MANIPULATION):
+                        rate = 1.5
+                    tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
+                    if buffer_flag:
+                        tv_sw = int(tv_sw * 1.1)
+                    sw_sum += tv_sw
+                    msg += f'\n由于事务所的合理运营，你的名气提高了，声望增加了{tv_sw}'
+                    if b_c[i] >= 5:
+                        item = get_item_by_name("小恩小惠")
+                        add_item(gid, uid, item)
+                        msg += f'\n事务所解决了大部分民生问题，你额外获得了{item["rank"]}级道具{item["name"]}'
+                elif i == BuildModel.HUANBAO:
+                    area_geng = get_geng_manor(gid, uid, level, geng)
+                    area_city = get_city_manor(gid, uid, level)
+                    area_all = get_all_manor(level)
+                    lin = area_all - area_geng - area_city
+                    get_sw = int(lin * 5 * random.uniform(0.9, 1.1) * fan_buff)
+                    sw_sum += get_sw
+                    msg += f"\n环保协会致力于维护林地，让城市环境变得更好，声望上升了{get_sw}"
+                elif i == BuildModel.ITEM_SHOP:
+                    if check_technolog_counter(gid, uid, TechnologyModel.BRANCH_STORE):
+                        save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 2)
+                    else:
+                        save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 1)
+                    msg += f'\n神秘商店的物品刷新了，可以进行购买'
+                elif i == BuildModel.DIZHI:
+                    ct = b_c[i]
+                    item = get_item_by_name("藏宝图")
+                    add_item(gid, uid, item, num=ct)
+                    msg += f'\n冒险工会通过委托冒险家得到了新的藏宝图，你获得了{ct}张{item["name"]}'
+                elif i == BuildModel.MICHELIN_RESTAURANT:
+                    num = 2
+                    if check_technolog_counter(gid, uid, TechnologyModel.TOUHOU_COOK):
+                        num += 1
+                    item = get_item_by_name("心意蛋糕")
+                    add_item(gid, uid, item, num=num)
+                    msg += f'\n米其林餐厅开始营业了，今天制作出了新的甜点。获得了{item["name"]}*{num}'
+                elif i == BuildModel.KELA:
+                    rn = random.randint(1, 20)
+                    if rn == 1:
+                        item = get_item_by_name("咲夜怀表")
+                    else:
+                        item = get_item_by_name("零时迷子")
                     add_item(gid, uid, item)
-                    msg += f'\n你的城市商业繁荣，你额外获得了{item["rank"]}级道具{item["name"]}'
-                gold_sum += market_gold
-            elif i == BuildModel.TV_STATION:
-                rate = 1.0
-                if check_technolog_counter(gid, uid, TechnologyModel.MANIPULATION):
-                    rate = 1.5
-                tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
-                if buffer_flag:
-                    tv_sw = int(tv_sw * 1.1)
-                sw_sum += tv_sw
-                msg += f'\n由于事务所的合理运营，你的名气提高了，声望增加了{tv_sw}'
-                if b_c[i] >= 5:
-                    item = get_item_by_name("小恩小惠")
-                    add_item(gid, uid, item)
-                    msg += f'\n事务所解决了大部分民生问题，你额外获得了{item["rank"]}级道具{item["name"]}'
-            elif i == BuildModel.HUANBAO:
-                area_geng = get_geng_manor(gid, uid, level, geng)
-                area_city = get_city_manor(gid, uid, level)
-                area_all = get_all_manor(level)
-                lin = area_all - area_geng - area_city
-                get_sw = int(lin * 5 * random.uniform(0.9, 1.1) * fan_buff)
-                sw_sum += get_sw
-                msg += f"\n环保协会致力于维护林地，让城市环境变得更好，声望上升了{get_sw}"
-            elif i == BuildModel.ITEM_SHOP:
-                if check_technolog_counter(gid, uid, TechnologyModel.BRANCH_STORE):
-                    save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 2)
-                else:
-                    save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, 1)
-                msg += f'\n神秘商店的物品刷新了，可以进行购买'
-            elif i == BuildModel.DIZHI:
-                ct = b_c[i]
-                item = get_item_by_name("藏宝图")
-                add_item(gid, uid, item, num=ct)
-                msg += f'\n冒险工会通过委托冒险家得到了新的藏宝图，你获得了{ct}张{item["name"]}'
-            elif i == BuildModel.MICHELIN_RESTAURANT:
-                num = 2
-                if check_technolog_counter(gid, uid, TechnologyModel.TOUHOU_COOK):
-                    num += 1
-                item = get_item_by_name("心意蛋糕")
-                add_item(gid, uid, item, num=num)
-                msg += f'\n米其林餐厅开始营业了，今天制作出了新的甜点。获得了{item["name"]}*{num}'
-            elif i == BuildModel.KELA:
-                rn = random.randint(1, 20)
-                if rn == 1:
-                    item = get_item_by_name("咲夜怀表")
-                else:
-                    item = get_item_by_name("零时迷子")
-                add_item(gid, uid, item)
-                msg += f'\n当钟声在0点响起，时间重置了。获得了{item["rank"]}级道具{item["name"]}'
-            elif i == BuildModel.FISSION_CENTER:
-                rn = random.randint(1, 20)
-                if rn == 1:
-                    item = get_item_by_name("四重存在")
-                    add_item(gid, uid, item)
-                elif rn == 2:
-                    item = get_item_by_name("好事成双")
-                    add_item(gid, uid, item)
-                else:
-                    item = get_item_by_name("有效分裂")
-                    add_item(gid, uid, item)
-                msg += f'\n裂变中心的能量充沛，产生了新的分裂，得到了{item["name"]}'
+                    msg += f'\n当钟声在0点响起，时间重置了。获得了{item["rank"]}级道具{item["name"]}'
+                elif i == BuildModel.FISSION_CENTER:
+                    rn = random.randint(1, 20)
+                    if rn == 1:
+                        item = get_item_by_name("四重存在")
+                        add_item(gid, uid, item)
+                    elif rn == 2:
+                        item = get_item_by_name("好事成双")
+                        add_item(gid, uid, item)
+                    else:
+                        item = get_item_by_name("有效分裂")
+                        add_item(gid, uid, item)
+                    msg += f'\n裂变中心的能量充沛，产生了新的分裂，得到了{item["name"]}'
 
     # 更新繁荣度
     now_fanrong += fanrong
@@ -586,10 +600,16 @@ async def manor_sign(bot, ev: CQEvent):
     save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, now_fanrong)
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
+    for i in b_c.keys():
+        # 每有一个类建筑 增加1点繁荣度
+        if i.get("cost"):
+            taxes += i.get("cost")
     msg += f'\n为了维持城市开销，需要花费{taxes}金币'
     gold_sum -= taxes
     score_counter = ScoreCounter2()
     score_counter._add_prestige(gid, uid, sw_sum)
+    if get_weather(gid) == WeatherModel.XUE:
+        gold_sum = int(gold_sum * 0.5)
     if gold_sum >= 0:
         score_counter._add_score(gid, uid, gold_sum)
     else:
@@ -713,34 +733,44 @@ async def buy_item(session: CommandSession):
         return
     score_counter = ScoreCounter2()
     score = score_counter._get_score(gid, uid)
-    if score < 10000:
-        await bot.send(ev, f'你的金币不足1万，无法购买道具')
+
+    need_score = 10000
+    if get_weather(gid) == WeatherModel.XUE:
+        need_score = 2 * need_score
+    if score < need_score:
+        await bot.send(ev, f'你的金币不足{need_score}，无法购买道具')
         return
-    if check_technolog_counter(gid, uid, TechnologyModel.TRANSPARENT_TRADE):
-        if not session.state['item']:
-            item = choose_item()
-            session.state['item'] = item["name"]
-            jieshou = session.get('jieshou', prompt=f'商店老板拿出的道具为{item["rank"]}级道具{item["name"]},是否要购买(是|否)回答其他内容默认为是')
-        jieshou = session.get('jieshou')
-        if jieshou != '否':
-            item = get_item_by_name(session.state['item'])
-            score_counter._reduce_score(gid, uid, 10000)
-            add_item(gid, uid, item)
-            num -= 1
-            save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
-            await bot.send(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')
-            return
-        else:
-            num -= 1
-            save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
-            await bot.send(ev, f'你一脸嫌弃的看着老板拿出的道具，拒绝了购买')
-            return
+    # if check_technolog_counter(gid, uid, TechnologyModel.TRANSPARENT_TRADE):
+    #     if not session.state['item']:
+    #         item = choose_item()
+    #         session.state['item'] = item["name"]
+    #         jieshou = session.get('jieshou', prompt=f'商店老板拿出的道具为{item["rank"]}级道具{item["name"]},是否要购买(是|否)回答其他内容默认为是')
+    #     jieshou = session.get('jieshou')
+    #     if jieshou != '否':
+    #         item = get_item_by_name(session.state['item'])
+    #         score_counter._reduce_score(gid, uid, 10000)
+    #         add_item(gid, uid, item)
+    #         num -= 1
+    #         save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
+    #         await bot.send(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')
+    #         return
+    #     else:
+    #         num -= 1
+    #         save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
+    #         await bot.send(ev, f'你一脸嫌弃的看着老板拿出的道具，拒绝了购买')
+    #         return
     num -= 1
-    score_counter._reduce_score(gid, uid, 10000)
+    score_counter._reduce_score(gid, uid, need_score)
     save_user_counter(gid, uid, UserModel.ITEM_BUY_TIME, num)
     item = choose_item()
     add_item(gid, uid, item)
-    await bot.send(ev, f'你花费了1万金币购买到了{item["rank"]}级道具{item["name"]}')
+    await bot.send(ev, f'你花费了{need_score}金币购买到了{item["rank"]}级道具{item["name"]}')
+    if get_weather(gid) == WeatherModel.JIGUANG:
+        rd = random.randint(1, 5)
+        if rd == 1:
+            item = get_item_by_name("绯想之剑")
+            add_item(gid, uid, item)
+            await bot.send(ev, f'你额外获取到了道具绯想之剑')
 
 
 @buy_item.args_parser
@@ -841,7 +871,7 @@ async def batch_equip_fuse(bot, ev: CQEvent):
         await bot.finish(ev, '请输入正确的装备等级(N/R/SR/SSR/UR/MR)。', at_sender=True)
     CE = CECounter()
     equip_list = CE._get_equip_list(gid, uid)
-    equip_list=[[i[0], i[1]] for i in equip_list]
+    equip_list = [[i[0], i[1]] for i in equip_list]
     if len(equip_list) > 0:
         need = 4  # 需要的装备数量
         if equiplevel == 6:

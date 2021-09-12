@@ -37,6 +37,7 @@ ZERO_GET_LIMIT = 3  # 没钱补给次数
 GIFT_DAILY_LIMIT = 5  # 每日购买礼物次数上限
 DATE_DAILY_LIMIT = 1  # 每天女友约会次数上限
 MANAGE_DAILY_LIMIT = 1  # 每日城市结算次数
+RECRUIT_DAILY_LIMIT = 5  # 每日招募女友次数
 
 # 重置次数时间
 RESET_HOUR = 5  # 每日使用次数的重置时间，0代表凌晨0点，1代表凌晨1点，以此类推
@@ -169,7 +170,7 @@ SW_add = 0  # 群庆典初始化时，是否开启无限制等级声望招募
 
 # 战斗
 GJ_EXP_RATE = 20  # 挂机修炼获取经验倍率（每分钟）
-MAX_RANK = 12  # 最大rank等级
+MAX_RANK = 20  # 最大rank等级
 RANK_LIST = {
     1: 5000,
     2: 10000,
@@ -495,6 +496,7 @@ daily_dun_limiter = DailyAmountLimiter("dun", DUN_DAILY_LIMIT, RESET_HOUR)
 daily_boss_limiter = DailyAmountLimiter("boss", BOSS_DAILY_LIMIT, RESET_HOUR)
 daily_equip_limiter = DailyAmountLimiter("equip", EQUIP_DAILY_LIMIT, RESET_HOUR)
 daily_manor_limiter = DailyAmountLimiter("manor", MANAGE_DAILY_LIMIT, RESET_HOUR)
+daily_recruit_limiter = DailyAmountLimiter("recruit", RECRUIT_DAILY_LIMIT, RESET_HOUR)
 
 
 # 生成没被约过的角色列表
@@ -793,6 +795,8 @@ def get_card_ce(gid, uid, cid):
         fashion_ce = fashion_info['add_ce'] * 10
     # 获取角色等级
     zslevel = CE._get_zhuansheng(gid, uid, cid)
+    if get_weather(gid) == WeatherModel.SHUYU:
+        zslevel = 200
     zljcadd = zslevel * 30
     if zslevel > 0:
         zlzf = 1 + ((zslevel + zslevel - 1) / 10)
