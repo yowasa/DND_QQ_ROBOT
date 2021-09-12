@@ -302,8 +302,7 @@ def summary(user):
 async def next_year(bot, ev: CQEvent):
     uid = ev.user_id
     gid = ev.group_id
-    guid = gid, uid
-    if not _flmt.check(guid):
+    if not _flmt.check(uid):
         await bot.send(ev, '不要请求这么快！', at_sender=True)
         return
 
@@ -311,6 +310,7 @@ async def next_year(bot, ev: CQEvent):
     user = counter._get_relife(gid, uid)
     if user.state == 0 or not user.data.get('存活'):
         await bot.finish(ev, "请先使用'人生重开'指令", at_sender=True)
+        return
     start_age = user.data['年龄']
     msg_li = pass_year(user, 1)
     counter._save_relife(user)
@@ -330,14 +330,14 @@ async def next_year(bot, ev: CQEvent):
 async def next_ten_year(bot, ev: CQEvent):
     uid = ev.user_id
     gid = ev.group_id
-    guid = gid, uid
-    if not _flmt.check(guid):
+    if not _flmt.check(uid):
         await bot.send(ev, '不要请求这么快！', at_sender=True)
         return
     counter = RelifeCounter()
     user = counter._get_relife(gid, uid)
     if user.state == 0 or not user.data.get('存活'):
         await bot.send(ev, "请先使用'人生重开'指令", at_sender=True)
+        return
     start_age = user.data['年龄']
     msg_li = pass_year(user, 10)
     counter._save_relife(user)

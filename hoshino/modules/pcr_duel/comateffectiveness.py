@@ -124,21 +124,6 @@ async def get_bangdin(bot, ev: CQEvent):
 
 @sv.on_fullmatch(['女友rank等级表', 'rank表', 'rank等级表'])
 async def rank_list(bot, ev: CQEvent):
-    # msg = '\nrank\t花费\t装备\t倍率 '
-    # rank = 1
-    # while (rank <= 12):
-    #     rankInfo = RANK_LIST[rank]
-    #     ce_up = 1 + rank / 8
-    #     if rank <= 4:
-    #         needmodel = 'N'
-    #     elif rank > 4 and rank <= 8:
-    #         needmodel = 'R'
-    #     elif rank > 8 and rank <= 11:
-    #         needmodel = 'SR'
-    #     else:
-    #         needmodel = 'SSR'
-    #     msg += f'\n{rank} \t{rankInfo}\t{needmodel}\t{ce_up}'
-    #     rank = rank + 1
     msg = """
 rank花费    装备	倍率 
 1   5000    N   1.125
@@ -183,6 +168,8 @@ async def up_rank(bot, ev: CQEvent):
     zllevel = CE._get_zhuansheng(gid, uid, cid)
     # rank需要金币随转生次数增加
     rank_score += zllevel * 10000
+    if get_weather(gid) == WeatherModel.YUNTIAN:
+        rank_score = int(0.8 * rank_score)
     score_counter = ScoreCounter2()
     myscore = score_counter._get_score(gid, uid)
     if myscore < rank_score:
@@ -362,6 +349,9 @@ async def dungeon_list(bot, ev: CQEvent):
 async def add_duiwu_t(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    weather = get_weather(gid)
+    if weather == WeatherModel.ZHI:
+        return
     duel = DuelCounter()
     CE = CECounter()
     # 处理输入数据
@@ -452,7 +442,27 @@ async def add_duiwu_t(bot, ev: CQEvent):
         if not daily_dun_limiter.check(guid):
             await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
             return
-        daily_dun_limiter.increase(guid)
+        if not daily_dun_limiter.check(guid):
+            await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
+            return
+
+        if weather == WeatherModel.HUANGSHA:
+            if daily_dun_limiter.get_num(guid) != 0:
+                await bot.send(ev, '今天必须消耗5次次数才能进入副本', at_sender=True)
+                return
+
+        if weather == WeatherModel.CHUANWU:
+            rd = random.randint(1, 10)
+            if rd == 1:
+                daily_dun_limiter.increase(guid, num=2)
+            elif rd < 10:
+                daily_dun_limiter.increase(guid)
+        else:
+            if weather == WeatherModel.HUANGSHA:
+                daily_dun_limiter.increase(guid, num=5)
+            else:
+                daily_dun_limiter.increase(guid)
+
         recommend_ce = dungeoninfo['recommend_ce_adj'][hard_index]
         is_win = Decimal(z_ce / recommend_ce).quantize(Decimal('0.00')) * 100
         if is_win > 100:
@@ -513,6 +523,8 @@ async def add_duiwu_t(bot, ev: CQEvent):
             if dungeoninfo.get("item_drop"):
                 item_info = dungeoninfo['item_drop'][hard_index]
                 rn = random.randint(1, 100)
+                if weather == WeatherModel.HUANGSHA:
+                    rn = 1
                 if rn <= item_info['rate']:
                     item_name = random.choice(item_info['items'])
                     item = get_item_by_name(item_name)
@@ -645,10 +657,14 @@ async def add_duiwu_t(bot, ev: CQEvent):
             msg = ''
             msg = msg + "您战斗失败了，副本次数-1"
             for cid in defen:
-                # duel._add_favor(gid,uid,cid,dungeoninfo['add_favor'])
                 fail_exp = int(dungeoninfo['add_exp_adj'][hard_index] / 10)
                 add_exp(gid, uid, cid, fail_exp)
             msg = msg + f"您的女友{bianzu}获得了{fail_exp}点经验\n"
+            if weather == WeatherModel.MEIYU:
+                rd = random.randint(1, 5)
+                if rd == 1:
+                    daily_dun_limiter.increase(guid, -1)
+                    msg = msg + "由于天气效果，恢复了一次副本次数"
             data = {
                 "type": "node",
                 "data": {
@@ -2333,6 +2349,22 @@ async def clock():
         duel._initialization_CELE(gid, GC_Data, QC_Data, SUO_Data, SW_Data, 0)
         i_c._save_group_state(gid, 1, 0)
         await bot.send_group_msg(group_id=gid, message="本群免费招募庆典已关闭")
+
+    # 每天早上4:55变更天气
+    if not now.hour == 4:
+        group_list = []
+        self_ids = bot._wsr_api_clients.keys()
+        for sid in self_ids:
+            gl = await bot.get_group_list(self_id=sid)
+            each = [g["group_id"] for g in gl]
+            group_list.extend(each)
+        for gid in group_list:
+            weather = get_weather(gid)
+            if weather == WeatherModel.NONE:
+                rd = random.choice([i for i in WeatherModel])
+                save_weather(gid, rd)
+            else:
+                save_weather(gid, WeatherModel.NONE)
 
     if not now.day == 1:  # 每月1号结算
         return

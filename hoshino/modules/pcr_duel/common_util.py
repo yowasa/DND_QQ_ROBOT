@@ -517,6 +517,13 @@ ITEM_INFO = {
         "desc": "使用后所有影响自身的道具无效(零时,精英,超再生,怀表),每两小时恢复一次决斗次数与副本次数",
     },
 
+    "42": {
+        "id": "42",
+        "name": "绯想之剑",
+        "rank": "EX",
+        "desc": "使用后如果当前天气为无，则随机开启一个天气，若当前有天气，则变为无",
+    },
+
 }
 
 ITEM_NAME_MAP = {ITEM_INFO[i]["name"]: ITEM_INFO[i] for i in ITEM_INFO.keys()}
@@ -593,35 +600,35 @@ def save_user_counter(gid, uid, state: UserModel, num):
 
 class BuildModel(Enum):
     CENTER = {"id": 101, "name": "市政府", "sw": 0, "gold": 10000, "area": 10, "time": 1, "limit": 1,
-              "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令"}
+              "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令", "cost": 1000}
     MARKET = {"id": 102, "name": "商场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
-              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）"}
+              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）", "cost": 0}
     ITEM_SHOP = {"id": 103, "name": "神秘商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
-                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）"}
+                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）", "cost": 2000}
     TV_STATION = {"id": 104, "name": "事务所", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
-                  "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）"}
+                  "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）", "cost": 5000}
     POLICE_OFFICE = {"id": 105, "name": "警察局", "sw": 2000, "gold": 30000, "area": 10, "time": 3, "limit": 2,
-                     "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）"}
+                     "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）", "cost": 10000}
     KONGFU = {"id": 106, "name": "道馆", "sw": 2500, "gold": 20000, "area": 6, "time": 2, "limit": 2,
-              "desc": "修炼是游戏的一部分，挂机修炼获得的经验增加5倍(拥有两个的话会无视24小时时间限制)"}
+              "desc": "修炼是游戏的一部分，挂机修炼获得的经验增加5倍(拥有两个的话会无视24小时时间限制)", "cost": 10000}
     HUANBAO = {"id": 107, "name": "环保协会", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
-               "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)"}
+               "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)", "cost": 20000}
     ZHIHUI = {"id": 108, "name": "作战中心", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
-              "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+20%)"}
+              "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+20%)", "cost": 30000}
     DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 25, "time": 4, "limit": 2,
-             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)"}
+             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 10000}
     KELA = {"id": 110, "name": "大本钟", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
-            "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)"}
+            "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)", "cost": 50000}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
-                      "desc": "拥有无限可能性的裂变中心（获取一个有效分裂,低概率产出四重存在或好事成双）"}
+                      "desc": "拥有无限可能性的裂变中心（获取一个有效分裂,低概率产出四重存在或好事成双）", "cost": 80000}
     EQUIP_CENTER = {"id": 112, "name": "熔炼工厂", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
-                    "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦"}
+                    "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦", "cost": 10000}
     TECHNOLOGY_CENTER = {"id": 113, "name": "科研中心", "sw": 10000, "gold": 100000, "area": 30, "time": 5, "limit": 1,
-                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令"}
+                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令", "cost": 10000}
     APARTMENT = {"id": 114, "name": "公寓", "sw": 1000, "gold": 10000, "area": 6, "time": 2, "limit": 5,
-                 "desc": "人民住宿的设施，虽然挤了点但总比住城外强，增加5点繁荣度"}
+                 "desc": "人民住宿的设施，虽然挤了点但总比住城外强，增加5点繁荣度", "cost": 1000}
     MICHELIN_RESTAURANT = {"id": 115, "name": "米其林餐厅", "sw": 3000, "gold": 50000, "area": 20, "time": 3, "limit": 1,
-                           "desc": "甜点餐厅，产出2个心意蛋糕，是约会的好地方"}
+                           "desc": "甜点餐厅，产出2个心意蛋糕，是约会的好地方", "cost": 10000}
 
     @staticmethod
     def get_by_id(id):
@@ -639,8 +646,8 @@ class BuildModel(Enum):
 
 
 class TechnologyModel(Enum):
-    TRANSPARENT_TRADE = {"id": 201, "name": "透明交易", "sw": 3000, "gold": 30000, "time": 2,
-                         "desc": "购买物品时可以先看物品再决定要不要买"}
+    # TRANSPARENT_TRADE = {"id": 201, "name": "透明交易", "sw": 3000, "gold": 30000, "time": 2,
+    #                      "desc": "购买物品时可以先看物品再决定要不要买"}
 
     BRANCH_STORE = {"id": 202, "name": "道具分店", "sw": 1000, "gold": 30000, "time": 2,
                     "desc": "商店可以购物两次"}
@@ -702,3 +709,52 @@ def check_build_counter(gid, uid, b_m: BuildModel):
 def check_technolog_counter(gid, uid, t_m: TechnologyModel):
     i_c = ItemCounter()
     return i_c._get_user_state(gid, uid, t_m.value['id'])
+
+
+class WeatherModel(Enum):
+    NONE = {"id": 0, "name": "无", "desc": "没有效果的天气"}
+    KUAIQING = {"id": 1, "name": "快晴", "desc": "建造建筑消耗金币和声望减少20%"}
+    WUYU = {"id": 2, "name": "雾雨", "desc": "使用资源收益型道具的收益提高25%"}
+    YUNTIAN = {"id": 3, "name": "云天", "desc": "提升rank消耗金币减少20%"}
+    CANGTIAN = {"id": 4, "name": "苍天", "desc": "使用道具时1%概率获取一件随机道具"}
+    BAO = {"id": 5, "name": "雹", "desc": "领取金币时会获得1w金币"}
+    HUAYUN = {"id": 6, "name": "花云", "desc": "决斗失败损失声望降为0"}
+    NONGWU = {"id": 7, "name": "浓雾", "desc": "狙击到对方妻子时抢夺对方1w金币 不足则扣除对方1000声望作为替代"}
+    XUE = {"id": 8, "name": "雪", "desc": "购买道具消耗加倍，领地结算收入减半"}
+    TAIYANGYU = {"id": 9, "name": "太阳雨", "desc": "决斗失败时无论好感多少都会丢失女友"}
+    SHUYU = {"id": 10, "name": "疏雨", "desc": "女友计算战力时视为满级（200级）"}
+    FENGYU = {"id": 11, "name": "风雨", "desc": "可以使用快速决斗指令"}
+    QINGLAN = {"id": 12, "name": "晴岚", "desc": "结算时的建筑收益失效"}
+    CHUANWU = {"id": 13, "name": "川雾", "desc": "决斗和副本10%概率额外消耗一次次数，也有10%概率不消耗次数"}
+    TAIFENG = {"id": 14, "name": "台风", "desc": "拒绝决斗会随时1w金币,不足则损失1k声望"}
+    ZHI = {"id": 15, "name": "凪", "desc": "决斗和副本指令无效"}
+    ZUANSHICHEN = {"id": 16, "name": "钻石尘", "desc": "城市结算时建筑与科研进度无法推进"}
+    HUANGSHA = {"id": 17, "name": "黄砂", "desc": "进入副本时必须消耗5次副本次数，可以掉落道具的副本一定会掉落道具"}
+    LIERI = {"id": 18, "name": "烈日", "desc": "使用道具时需要支付1w金币"}
+    MEIYU = {"id": 19, "name": "梅雨", "desc": "副本挑战失败时20%概率恢复一次副本次数"}
+    JIGUANG = {"id": 20, "name": "极光", "desc": "购买道具时20%获取绯想之剑"}
+
+    @staticmethod
+    def get_by_id(id):
+        for i in WeatherModel:
+            if i.value['id'] == id:
+                return i
+        return None
+
+    @staticmethod
+    def get_by_name(name):
+        for i in WeatherModel:
+            if i.value['name'] == name:
+                return i
+        return None
+
+
+def get_weather(gid):
+    ic = ItemCounter()
+    id = ic._get_group_state(gid, GroupModel.WEATHER)
+    return WeatherModel.get_by_id(id)
+
+
+def save_weather(gid, weather: WeatherModel):
+    ic = ItemCounter()
+    ic._save_group_state(gid, GroupModel.WEATHER, weather.value['id'])

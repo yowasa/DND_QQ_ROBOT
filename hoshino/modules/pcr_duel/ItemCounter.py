@@ -42,6 +42,7 @@ class UserModel(Enum):
 class GroupModel(Enum):
     # OFF_SUO = [0, "定时关闭梭哈庆典标识"]
     OFF_FREE = [1, "定时关闭免费招募庆典标识"]
+    WEATHER = [2, "天气"]
 
 
 class ItemCounter:
@@ -169,6 +170,22 @@ class ItemCounter:
                 "INSERT OR REPLACE INTO GROUP_INFO (GID, INFO_TYPE, INFO_FLAG) VALUES (?, ?, ?)",
                 (gid, type, type_flag),
             )
+
+        # 获取用户信息
+
+    def _get_group_state(self, gid, group_state: GroupModel):
+        try:
+            r = self._connect().execute(
+                "SELECT INFO_FLAG FROM GROUP_INFO WHERE GID=? AND INFO_TYPE=? AND INFO_FLAG>0",
+                (gid, group_state.value[0]),
+            ).fetchone()
+            if r is None:
+                return 0
+            return r[0]
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return 0
+        pass
 
     # 获取超再生恢复
     def _get_all_user_recover(self):

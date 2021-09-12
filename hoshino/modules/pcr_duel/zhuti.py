@@ -30,7 +30,8 @@ async def duel_help(bot, ev: CQEvent):
 [交易][道具][城市]
 [好感][时装][培养]
 [会战][装备][副本]
-[队伍][排行][其他]
+[队伍][排行][天气]
+[任务][其他]
 *一个女友只属于一位群友
 ╚                                        ╝
 '''
@@ -771,6 +772,10 @@ async def inquire_noble(bot, ev: CQEvent):
 async def add_girl(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    guid = gid, uid
+    if not daily_recruit_limiter.check(guid):
+        await bot.send(ev, f'今天已经招募{RECRUIT_DAILY_LIMIT}次了哦，明天再来吧。', at_sender=True)
+        return
     duel = DuelCounter()
     score_counter = ScoreCounter2()
     if duel_judger.get_on_off_status(ev.group_id):
@@ -992,6 +997,10 @@ async def nobleduel(bot, ev: CQEvent):
     gid = ev.group_id
     duel_judger.turn_on(gid)
     id1 = ev.user_id
+    # 天气
+    weather = get_weather(gid)
+    if weather == WeatherModel.ZHI:
+        return
     duel = DuelCounter()
     is_overtime = 0
     if id2 == id1:
@@ -1057,9 +1066,27 @@ async def nobleduel(bot, ev: CQEvent):
     if duel_judger.get_isaccept(gid) is False:
         msg = '决斗被拒绝。'
         duel_judger.turn_off(gid)
+        if weather == WeatherModel.TAIFENG:
+            score_counter = ScoreCounter2()
+            score = score_counter._get_score(gid, id2)
+            if score >= 10000:
+                score_counter._add_score(gid, id2, -10000)
+                msg += f'\n[CQ:at,qq={id2}]由于天气原因，你损失了10000金币。'
+            else:
+                msg += f'\n[CQ:at,qq={id2}]由于天气原因，你额外损失了1000声望。'
+                score_counter._reduce_prestige(gid, id2, 1000)
         await bot.finish(ev, msg, at_sender=True)
+
     # 接受决斗后再增加每日判定次数
-    daily_duel_limiter.increase(guid)
+    if weather == WeatherModel.CHUANWU:
+        rd = random.randint(1, 10)
+        if rd == 1:
+            daily_duel_limiter.increase(guid, num=2)
+        elif rd < 10:
+            daily_duel_limiter.increase(guid)
+    else:
+        daily_duel_limiter.increase(guid)
+
     duel = DuelCounter()
     level1 = duel._get_level(gid, id1)
     noblename1 = get_noblename(level1)
@@ -1202,6 +1229,17 @@ async def nobleduel(bot, ev: CQEvent):
         win_msg += f'\n您赢得的角色为对方的妻子，\n您改为获得{NTR_QUEEN_REWARD}金币。'
         score_counter._reduce_prestige(gid, loser, LOSS_QUEEN_PUNISH_SW)
         fail_msg += f'\n您差点输掉了妻子，额外失去了{LOSS_QUEEN_PUNISH_SW}声望。'
+        if weather == WeatherModel.NONGWU:
+            score = score_counter._get_score(gid, loser)
+            score_counter._add_score(gid, winner, 10000)
+            win_msg += "\n由于天气原因，你抢夺了对方10000金币。"
+            if score >= 10000:
+                score_counter._add_score(gid, loser, -10000)
+                fail_msg += f'\n由于天气原因，你被抢走了10000金币。'
+            else:
+                fail_msg += f'\n由于天气原因，你额外损失了1000声望。'
+                score_counter._reduce_prestige(gid, loser, 1000)
+
 
     # 判断被输掉的是否为绑定经验获取角色。
     elif selected_girl == bangdinlose:
@@ -1217,7 +1255,7 @@ async def nobleduel(bot, ev: CQEvent):
         c = duel_chara.fromid(selected_girl)
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
-        if favor >= favor_reduce:
+        if favor >= favor_reduce and weather != WeatherModel.TAIYANGYU:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             fail_msg += f'\n您输掉了决斗，您与{c.name}的好感下降了{favor_reduce}点。\n{c.icon.cqcode}'
         else:
@@ -1227,7 +1265,7 @@ async def nobleduel(bot, ev: CQEvent):
         # 判断好感是否足够，足够则扣掉好感
         favor = duel._get_favor(gid, loser, selected_girl)
         c = duel_chara.fromid(selected_girl)
-        if favor >= favor_reduce:
+        if favor >= favor_reduce and weather != WeatherModel.TAIYANGYU:
             duel._reduce_favor(gid, loser, selected_girl, favor_reduce)
             fail_msg += f'\n您输掉了决斗，您与{c.name}的好感下降了{favor_reduce}点。\n{c.icon.cqcode}'
             score_counter._add_score(gid, winner, FAVOR_GIRL_COMPENSATE)
@@ -1284,6 +1322,8 @@ async def nobleduel(bot, ev: CQEvent):
             level_cha = level_loser - level_winner
             level_zcha = max(level_cha, 0)
             LOSESW = LoseSWBasics + (level_zcha * 10)
+            if weather == WeatherModel.HUAYUN:
+                LOSESW = 0
             score_counter._reduce_prestige(gid, loser, LOSESW)
             fail_msg += f'\n决斗失败使您的声望下降了{LOSESW}点。'
 
@@ -1500,7 +1540,6 @@ async def on_input_duel_score2(bot, ev: CQEvent):
         await bot.send(ev, '错误:\n' + str(e))
 
 
-# 以下部分与赛跑的重合，有一个即可，两个插件都装建议注释掉。
 @sv.on_prefix(['领金币', '领取金币'])
 async def add_score(bot, ev: CQEvent):
     try:
@@ -1514,8 +1553,11 @@ async def add_score(bot, ev: CQEvent):
 
         current_score = score_counter._get_score(gid, uid)
         if current_score <= ZERO_GET_REQUIREMENT:
-            score_counter._add_score(gid, uid, ZERO_GET_AMOUNT)
-            msg = f'您已领取{ZERO_GET_AMOUNT}金币'
+            zero_get = ZERO_GET_AMOUNT
+            if get_weather(gid) == WeatherModel.BAO:
+                zero_get = 10000
+            score_counter._add_score(gid, uid, zero_get)
+            msg = f'您已领取{zero_get}金币'
             daily_zero_get_limiter.increase(guid)
             r_n = random.randint(1, 100)
             if r_n == 1:
