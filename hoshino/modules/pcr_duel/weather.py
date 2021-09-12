@@ -9,7 +9,7 @@ from . import duel_chara
 async def manor_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
-             城市帮助
+             天气帮助
 [今日天气] [天气一览]
 [天气效果] {天气名}
 ╚                                        ╝
