@@ -1,13 +1,16 @@
 import asyncio
+import hashlib
+import os
 import re
 from datetime import datetime
 from functools import partial, wraps
 
 import pytz
+import requests
 from TwitterAPI import TwitterAPI, TwitterResponse, OAuthType
 from nonebot import MessageSegment as ms
 
-from hoshino import util, Service, priv
+from hoshino import R, util, Service, priv
 from hoshino.config import twitter as cfg
 from hoshino.typing import CQEvent
 
@@ -62,20 +65,21 @@ def time_formatter(time_str):
     return f"{util.month_name(dt.month)}{util.date_name(dt.day)}・{util.time_name(dt.hour, dt.minute)}"
 
 
-def tweet_formatter(item):
-    name = item['user']['name']
-    time = time_formatter(item['created_at'])
-    text = item['full_text']
-    imgs = []
-    for media in item.get('extended_entities', item['entities']).get('media', []):
-        try:
-            img = media['media_url']
-            if re.search(r'\.(jpg|jpeg|png|gif|jfif|webp)$', img, re.I):
-                imgs.append(str(ms.image(img)))
-        except Exception as e:
-            sv.logger.exception(e)
-    imgs = ' '.join(imgs)
-    return f"@{name}\n{time}\n\n{text}\n{imgs}"
+#
+# def tweet_formatter(item):
+#     name = item['user']['name']
+#     time = time_formatter(item['created_at'])
+#     text = item['full_text']
+#     imgs = []
+#     for media in item.get('extended_entities', item['entities']).get('media', []):
+#         try:
+#             img = media['media_url']
+#             if re.search(r'\.(jpg|jpeg|png|gif|jfif|webp)$', img, re.I):
+#                 imgs.append(str(ms.image(img)))
+#         except Exception as e:
+#             sv.logger.exception(e)
+#     imgs = ' '.join(imgs)
+#     return f"@{name}\n{time}\n\n{text}\n{imgs}"
 
 
 def has_media(item):
@@ -107,7 +111,8 @@ async def poll_new_tweets(account: str):
         items = rsp.get_iterator()
         if latest_info[account]['media_only']:
             items = filter(has_media, items)
-        tweets = list(map(tweet_formatter, items))
+
+        tweets = list(map(tweet_id_formatter, items))
         if new_profile_image != old_profile_image and old_profile_image:
             big_img = re.sub(r'_normal(\.(jpg|jpeg|png|gif|jfif|webp))$', r'\1', new_profile_image, re.I)
             tweets.append(f"@{account} 更换了头像\n{ms.image(big_img)}")
@@ -140,24 +145,25 @@ async def twitter_poller():
             twts.extend(buf.get(account, []))
         if twts:
             await ssv.broadcast(twts, ssv.name, 0.5)
-import hashlib
-import requests
-import os
+
+
 def md5(str):
     m = hashlib.md5()
     m.update(str.encode("utf8"))
     print(m.hexdigest())
     return m.hexdigest()
 
+
 def requests_download_url(url, path):
     name = url[url.rfind("/") + 1:]
-    if os.path.exists(os.path.join(path,name)):
+    if os.path.exists(os.path.join(path, name)):
         return name
     r = requests.get(url, stream=True)
     if r.status_code == 200:
         open(os.path.join(path, name), 'wb').write(r.content)
     return name
-from hoshino import R
+
+
 # 封装id查询结果
 def tweet_id_formatter(item):
     name = item['user']['name']
@@ -169,9 +175,8 @@ def tweet_id_formatter(item):
         try:
             img = media['media_url']
             if re.search(r'\.(jpg|jpeg|png|gif|jfif|webp)$', img, re.I):
-                name=requests_download_url(img,R.img('twitter').path)
+                name = requests_download_url(img, R.img('twitter').path)
                 imgs.append(str(R.img(f'twitter/{name}').cqcode))
-                # imgs.append(str(ms.image(img)))
         except Exception as e:
             sv.logger.exception(e)
     imgs = ' '.join(imgs)
@@ -205,9 +210,7 @@ async def one_tweet(bot, ev: CQEvent):
     }
     rsp = await twt_request(URL_TIMELINE, params)
     items = rsp.get_iterator()
-    # if account in latest_info and latest_info[account]['media_only']:
-    #     items = filter(has_media, items)
-    twts = list(map(tweet_formatter, items))
+    twts = list(map(tweet_id_formatter, items))
     for t in twts:
         try:
             await bot.send(ev, t)
