@@ -159,7 +159,7 @@ async def manor_view(bot, ev: CQEvent):
     for i in b_c.keys():
         # 每有一个类建筑 增加1点繁荣度
         if i.value.get("cost"):
-            taxes += i.value.get("cost")*b_c[i]
+            taxes += i.value.get("cost") * b_c[i]
 
     msg = f'''
 ===== 城市状态 =====
@@ -603,7 +603,7 @@ async def manor_sign(bot, ev: CQEvent):
     for i in b_c.keys():
         # 每有一个类建筑 增加1点繁荣度
         if i.value.get("cost"):
-            taxes += i.value.get("cost")*b_c[i]
+            taxes += i.value.get("cost") * b_c[i]
     msg += f'\n为了维持城市开销，需要花费{taxes}金币'
     gold_sum -= taxes
     score_counter = ScoreCounter2()
@@ -690,8 +690,14 @@ async def manor_tax(bot, ev: CQEvent):
 async def duel_contain(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        return
     if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
         await bot.finish(ev, f"你还没有研发出储能中心,无法进行决斗储能", at_sender=True)
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再进行储能吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
     guid = gid, uid
     daily_duel_limiter.check(guid)
     if daily_duel_limiter.get_num(guid) != 0:
@@ -706,6 +712,8 @@ async def duel_contain(bot, ev: CQEvent):
 async def duel_contain(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        return
     if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
         await bot.finish(ev, f"你还没有研发出储能中心,无法进行副本储能", at_sender=True)
     guid = gid, uid

@@ -716,7 +716,7 @@ class WeatherModel(Enum):
     KUAIQING = {"id": 1, "name": "快晴", "desc": "建造建筑消耗金币和声望减少20%"}
     WUYU = {"id": 2, "name": "雾雨", "desc": "使用资源收益型道具的收益提高25%"}
     YUNTIAN = {"id": 3, "name": "云天", "desc": "提升rank消耗金币减少20%"}
-    CANGTIAN = {"id": 4, "name": "苍天", "desc": "使用道具时1%概率获取一件随机道具"}
+    CANGTIAN = {"id": 4, "name": "苍天", "desc": "储能指令无法使用，使用道具时1%概率获取一件随机道具"}
     BAO = {"id": 5, "name": "雹", "desc": "领取金币时会获得1w金币"}
     HUAYUN = {"id": 6, "name": "花云", "desc": "决斗失败损失声望降为0"}
     NONGWU = {"id": 7, "name": "浓雾", "desc": "狙击到对方妻子时抢夺对方1w金币 不足则扣除对方1000声望作为替代"}
