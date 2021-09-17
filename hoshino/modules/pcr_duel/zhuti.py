@@ -852,6 +852,7 @@ async def add_girl(bot, ev: CQEvent):
         msg = f"""
 你支付了{GACHA_COST}金币，参加了一场{suc_msg}舞会。
 {randomtext}{new_msg}"""
+        daily_recruit_limiter.increase(guid)
         await bot.send(ev, msg, at_sender=True)
 
 
