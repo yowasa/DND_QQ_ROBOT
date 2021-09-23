@@ -324,7 +324,7 @@ async def manor_sign(bot, ev: CQEvent):
     # 繁荣度增减
     fanrong = 0
     now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
-    fan_buff = 1 + (now_fanrong / 1000)
+    fan_buff = 1 + (now_fanrong / 2000)
     # 治安结算
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
     # 判定城市拥堵
@@ -431,7 +431,7 @@ async def manor_sign(bot, ev: CQEvent):
             fanrong += random.randint(1, 3)
             area_geng = get_geng_manor(gid, uid, level, geng)
             tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
-            geng_gold = int(area_geng * tax * 5 * random.uniform(0.9, 1.1) * fan_buff)
+            geng_gold = int(area_geng * tax * 5 * random.uniform(0.9, 1.1))
             if p_m == PolicyModel.CATCH_ALL_FISH:
                 if now_fanrong >= 30:
                     now_fanrong -= 30

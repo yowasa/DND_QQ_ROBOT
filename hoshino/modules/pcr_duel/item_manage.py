@@ -627,8 +627,8 @@ async def favor_cook(msg, bot, ev: CQEvent):
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
         return (False, msg)
 
-    duel._add_favor(gid, uid, cid, 300)
-    return (True, f'你送了{c.name}一份心意蛋糕,她吃的很开心，好感度提升了300点。{nvmes}')
+    duel._add_favor(gid, uid, cid, 100)
+    return (True, f'你送了{c.name}一份心意蛋糕,她吃的很开心，好感度提升了100点。{nvmes}')
 
 
 @msg_route("生财有道")

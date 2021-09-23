@@ -236,8 +236,6 @@ async def search_chara(bot, ev: CQEvent):
         await bot.finish(ev, f'未查询到名称为{msg}的女友信息')
     chara = duel_chara.fromid(chara_id)
     old_name = chara.name
-    if chara_id < 20000:
-        await bot.finish(ev, f'女友{chara.name}不是自定义女友')
     chara_json = get_json('chara')
     del chara_json[str(chara_id)]
     delete_ids = get_json('delete_ids')

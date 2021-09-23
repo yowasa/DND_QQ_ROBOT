@@ -32,12 +32,10 @@ async def now_weather(bot, ev: CQEvent):
 # 天气效果
 @sv.on_prefix(['天气效果'])
 async def weather_help(bot, ev: CQEvent):
-    git = ev.group_id
     name = str(ev.message).strip()
     model = WeatherModel.get_by_name(name)
     if not model:
         await bot.finish(ev, f"未找到名为{name}的天气", at_sender=True)
-    model = get_weather(git)
     msg = f'''
 天气:{model.value['name']}
 效果:{model.value['desc']}
