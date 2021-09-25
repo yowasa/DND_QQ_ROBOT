@@ -15,7 +15,7 @@ from hoshino.typing import CommandSession
 
 UNKNOWN = 1000
 
-sv = Service('自定义DLC', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, bundle='人生游戏', help_=
+sv = Service('自定义DLC', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, bundle='贵族游戏', help_=
 '''[增加dlc] 仅维护人员可用
 [自定义dlc列表]
 [dlc角色列表]{dlc名称}

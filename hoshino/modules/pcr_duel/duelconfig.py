@@ -67,7 +67,7 @@ FULL_GIRL_COMPENSATE = 1000  # 满人获胜额外补偿金币
 FAVOR_GIRL_COMPENSATE = 500  # 好感保护额外补偿金币
 
 # 好感
-PRINCESS_HEART_FAVOR = 1000  # 触发赠送公主之心的好感阈值
+PRINCESS_HEART_FAVOR = 10000  # 触发赠送公主之心的好感阈值
 ETERNAL_LOVE_FAVOR = 30000  # 获取永恒爱恋好感度阈值
 NEED_favor = 3000  # 成为妻子所需要的好感
 NEED_score = 30000  # 成为妻子所需要的金币
@@ -780,6 +780,26 @@ def get_equip_info_id(eid):
                 fand_flag = 1
                 break
     return equipinfo
+
+
+# 查询单角色战斗能力
+def get_card_battle_info(gid, uid, cid):
+    ce = get_card_ce(gid, uid, cid)
+    # 基础分配
+    hp = ce
+    atk = ce / 10
+    # 计算攻守偏移
+    base = hashval(str(cid), 50)
+    atk_pian = 1 + (25 - base) / 100
+    hp_pian = 1 + (base - 25) / 100
+    hp = int(hp * hp_pian)
+    atk = int(atk * atk_pian)
+    # 计算性格加成
+    if check_have_character(cid, "勇敢"):
+        atk = int(atk * 1.1)
+    if check_have_character(cid, "慎重"):
+        hp = int(hp * 1.1)
+    return hp, atk
 
 
 # 查询单角色战力

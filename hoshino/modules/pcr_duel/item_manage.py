@@ -220,14 +220,9 @@ async def choose_girl(msg, bot, ev: CQEvent):
 @msg_route("绯想之剑")
 async def change_weather(msg, bot, ev: CQEvent):
     gid = ev.group_id
-    weather = get_weather(gid)
-    if weather == WeatherModel.NONE:
-        rd = random.choice([i for i in WeatherModel])
-        save_weather(gid, rd)
-        return (True, f"你发动了绯想之剑，当前天气变成了{rd.value['name']}")
-    else:
-        save_weather(gid, WeatherModel.NONE)
-        return (True, f"你发动了绯想之剑，取消了当前的天气")
+    rd = random.choice([i for i in WeatherModel])
+    save_weather(gid, rd)
+    return (True, f"你发动了绯想之剑，当前天气变成了{rd.value['name']}")
 
 
 @msg_route("天命之子")
@@ -548,6 +543,8 @@ async def battle_exp(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
+    if get_weather(gid) == WeatherModel.HUANGSHA:
+        return (False, f'黄砂天禁用零时')
     if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
         return (True, f'你使用了零时迷子，但是什么也没发生')
     guid = gid, uid
@@ -626,9 +623,14 @@ async def favor_cook(msg, bot, ev: CQEvent):
     if uid != owner:
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
         return (False, msg)
+    add_fav = 100
+    if check_have_character(cid, "坦率"):
+        add_fav = 300
+    if check_have_character(cid, "自大"):
+        add_fav = 50
 
-    duel._add_favor(gid, uid, cid, 100)
-    return (True, f'你送了{c.name}一份心意蛋糕,她吃的很开心，好感度提升了100点。{nvmes}')
+    duel._add_favor(gid, uid, cid, add_fav)
+    return (True, f'你送了{c.name}一份心意蛋糕,她吃的很开心，好感度提升了{add_fav}点。{nvmes}')
 
 
 @msg_route("生财有道")

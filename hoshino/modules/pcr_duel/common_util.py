@@ -358,7 +358,7 @@ ITEM_INFO = {
         "id": "15",
         "name": "战无不胜",
         "rank": "C",
-        "desc": "使用后下一次副本战斗战力计算增加2倍",
+        "desc": "使用后下一次副本战斗hp与atk计算增加2倍 最大不得超过20w/2w",
     },
     "16": {
         "id": "16",
@@ -376,7 +376,7 @@ ITEM_INFO = {
         "id": "18",
         "name": "鬼人药剂",
         "rank": "D",
-        "desc": "使用后下一次副本战斗战力计算增加1倍",
+        "desc": "使用后下一次副本战斗hp与atk计算增加1倍，提高的最大数值不能超过10w/1w 可以叠加",
     },
     "19": {
         "id": "19",
@@ -601,11 +601,11 @@ def save_user_counter(gid, uid, state: UserModel, num):
 class BuildModel(Enum):
     CENTER = {"id": 101, "name": "市政府", "sw": 0, "gold": 10000, "area": 10, "time": 1, "limit": 1,
               "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令", "cost": 1000}
-    MARKET = {"id": 102, "name": "商场", "sw": 1000, "gold": 50000, "area": 7, "time": 3, "limit": 10,
+    MARKET = {"id": 102, "name": "商场", "sw": 1000, "gold": 50000, "area": 12, "time": 3, "limit": 10,
               "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）", "cost": 0}
-    ITEM_SHOP = {"id": 103, "name": "神秘商店", "sw": 100, "gold": 10000, "area": 5, "time": 2, "limit": 1,
-                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）", "cost": 2000}
-    TV_STATION = {"id": 104, "name": "事务所", "sw": 5000, "gold": 10000, "area": 8, "time": 3, "limit": 10,
+    ITEM_SHOP = {"id": 103, "name": "神秘商店", "sw": 100, "gold": 10000, "area": 15, "time": 2, "limit": 1,
+                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）", "cost": 5000}
+    TV_STATION = {"id": 104, "name": "事务所", "sw": 5000, "gold": 10000, "area": 13, "time": 3, "limit": 10,
                   "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）", "cost": 5000}
     POLICE_OFFICE = {"id": 105, "name": "警察局", "sw": 2000, "gold": 30000, "area": 10, "time": 3, "limit": 2,
                      "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）", "cost": 10000}
@@ -614,9 +614,9 @@ class BuildModel(Enum):
     HUANBAO = {"id": 107, "name": "环保协会", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
                "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)", "cost": 20000}
     ZHIHUI = {"id": 108, "name": "作战中心", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
-              "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+20%)", "cost": 30000}
-    DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 25, "time": 4, "limit": 2,
-             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 10000}
+              "desc": "作战指挥中心，可以提高副本战斗人员的战斗能力(副本战力计算+10%)", "cost": 30000}
+    DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 30, "time": 4, "limit": 2,
+             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 20000}
     KELA = {"id": 110, "name": "大本钟", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
             "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)", "cost": 50000}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
@@ -624,11 +624,11 @@ class BuildModel(Enum):
     EQUIP_CENTER = {"id": 112, "name": "熔炼工厂", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
                     "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦", "cost": 10000}
     TECHNOLOGY_CENTER = {"id": 113, "name": "科研中心", "sw": 10000, "gold": 100000, "area": 30, "time": 5, "limit": 1,
-                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令", "cost": 10000}
+                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令", "cost": 20000}
     APARTMENT = {"id": 114, "name": "公寓", "sw": 1000, "gold": 10000, "area": 6, "time": 2, "limit": 5,
-                 "desc": "人民住宿的设施，虽然挤了点但总比住城外强，增加5点繁荣度", "cost": 1000}
+                 "desc": "人民住宿的设施，虽然挤了点但总比住城外强，增加5点繁荣度", "cost": 2000}
     MICHELIN_RESTAURANT = {"id": 115, "name": "米其林餐厅", "sw": 3000, "gold": 50000, "area": 20, "time": 3, "limit": 1,
-                           "desc": "甜点餐厅，产出2个心意蛋糕，是约会的好地方", "cost": 10000}
+                           "desc": "甜点餐厅，产出2个心意蛋糕，是约会的好地方", "cost": 20000}
 
     @staticmethod
     def get_by_id(id):
@@ -653,7 +653,7 @@ class TechnologyModel(Enum):
                     "desc": "商店可以购物两次"}
 
     BATTLE_RADAR = {"id": 203, "name": "作战雷达", "sw": 20000, "gold": 250000, "time": 2,
-                    "desc": "作战中心战力加成变为40%"}
+                    "desc": "作战中心战力加成变为20%"}
 
     ARCHAEOLOGIST = {"id": 204, "name": "考古专家", "sw": 6000, "gold": 350000, "time": 3,
                      "desc": "藏宝图有更大的机会挖出更多的物品"}
@@ -729,7 +729,7 @@ class WeatherModel(Enum):
     TAIFENG = {"id": 14, "name": "台风", "desc": "拒绝决斗会随时1w金币,不足则损失1k声望"}
     ZHI = {"id": 15, "name": "凪", "desc": "决斗和副本指令无效"}
     ZUANSHICHEN = {"id": 16, "name": "钻石尘", "desc": "城市结算时建筑与科研进度无法推进"}
-    HUANGSHA = {"id": 17, "name": "黄砂", "desc": "进入副本时必须消耗5次副本次数，可以掉落道具的副本一定会掉落道具"}
+    HUANGSHA = {"id": 17, "name": "黄砂", "desc": "禁止使用零时，进入副本时必须消耗5次副本次数，可以掉落道具的副本一定会掉落道具"}
     LIERI = {"id": 18, "name": "烈日", "desc": "使用道具时需要支付1w金币"}
     MEIYU = {"id": 19, "name": "梅雨", "desc": "副本挑战失败时20%概率恢复一次副本次数"}
     JIGUANG = {"id": 20, "name": "极光", "desc": "购买道具时20%获取绯想之剑"}
@@ -758,3 +758,218 @@ def get_weather(gid):
 def save_weather(gid, weather: WeatherModel):
     ic = ItemCounter()
     ic._save_group_state(gid, GroupModel.WEATHER, weather.value['id'])
+
+
+character = {
+    "傲娇": "副本资源获取量+10%",
+    "温柔": "队伍回复率增加5%",
+    "勤奋": "修炼经验获取增加 副本获胜时5%概率触发恢复一次副本次数",
+    "坦率": "更容易触发彩蛋，更容易提高好感度",
+    "勇敢": "个体atk增加10%",
+    "固执": "队伍hp增加5%",
+    "悠闲": "弱化敌人5%atk",
+    "淘气": "所在队伍连击率增加5%",
+    "元气": "团队掉落率增加1%",
+    "弱气": "敌方不能够触发暴击",
+    "天然": "队伍暴击率增加5%",
+    "毒舌": "敌方不能够触发回复",
+    "冷静": "队伍全属性提高1%",
+    "自大": "队伍atk力增加5% 更难增加好感",
+    "慎重": "个体hp增加10%",
+    "病娇": "队伍boost率增加5% 不会被抢走 不能够分手",
+    "无口": "敌方触发增益的概率降低20% ",
+    "腹黑": "副本/boos战开始时扣除对方当前血量5%"
+}
+import json
+
+FILE_PATH = os.path.dirname(__file__)
+with open(os.path.join(FILE_PATH, 'character.json'), 'r', encoding='UTF-8') as fa:
+    character_json = json.load(fa, strict=False)
+
+
+# 根据角色id获取性格
+def get_char_character(cid):
+    if character_json.get(str(cid)):
+        return character_json.get(str(cid))
+    else:
+        return []
+
+
+def check_have_character(cid: int, type: str):
+    return type in get_char_character(cid)
+
+
+# 根据角色id列表和指定性格统计拥有该性格角色的数量
+def sum_character(cid_li: list, type: str):
+    count = 0
+    for i in cid_li:
+        li = get_char_character(i)
+        if type in li:
+            count += 1
+    return count
+
+
+# 聚合角色列表的性格信息
+def count_char_character(cid_li):
+    result = {}
+    for i in character.keys():
+        result[i] = 0
+    for i in cid_li:
+        li = get_char_character(i)
+        for j in li:
+            result[j] += 1
+    return result
+
+
+# 战斗模板
+class Attr(object):
+    def __init__(self, hp, atk, boost, crit, double, recover):
+        self.hp = hp
+        self.atk = atk
+        self.boost = boost
+        self.crit = crit
+        self.double = double
+        self.recover = recover
+
+
+# 判断是否触发战斗特征
+def judge_rate(my: Attr):
+    result = []
+    judge_li = [my.boost, my.crit, my.double, my.recover]
+    for i in judge_li:
+        rd = random.randint(1, 100)
+        result.append(rd <= i)
+    return result
+
+
+# 数值随机波动10%
+def deviation(dmg):
+    rd = random.randint(0, 20)
+    dev = 1 + (rd - 10) / 100
+    return int(dmg * dev)
+
+
+# 决斗引擎
+def battle(my: Attr, enemy: Attr):
+    hp_my = my.hp
+    hp_enemy = enemy.hp
+    logs = []
+    i = 0
+    while True:
+        i = i + 1
+        logs.append(f"【第{i}回合】")
+        my_boost, my_crit, my_double, my_recover = judge_rate(my)
+        my_base_atk = my.atk
+        if my_boost:
+            logs.append(f"你触发了boost强化，本轮基础atk增加50%")
+            my_base_atk = int(1.5 * my_base_atk)
+        dmg = 0
+        if my_crit:
+            rd_dmg = deviation(2 * my_base_atk)
+            dmg += rd_dmg
+            logs.append(f"你对敌人造成了暴击，造成了{rd_dmg}点伤害")
+        else:
+            rd_dmg = deviation(my_base_atk)
+            dmg += rd_dmg
+            logs.append(f"你对敌人造成了造成了{rd_dmg}点伤害")
+        if my_double:
+            rd_dmg = deviation(my_base_atk)
+            dmg += rd_dmg
+            logs.append(f"你触发了连击，额外造成了{rd_dmg}点伤害")
+        hp_enemy -= dmg
+        if hp_enemy <= 0:
+            logs.append(f"敌人hp归零了，你获取了战斗胜利")
+            break
+
+        enemy_boost, enemy_crit, enemy_double, enemy_recover = judge_rate(enemy)
+        enemy_base_atk = enemy.atk
+        if enemy_boost:
+            logs.append(f"敌人触发了boost强化，本轮基础atk增加50%")
+            enemy_base_atk = int(1.5 * enemy_base_atk)
+        dmg = 0
+        if enemy_crit:
+            rd_dmg = deviation(2 * enemy_base_atk)
+            dmg += rd_dmg
+            logs.append(f"敌人对你造成了暴击，造成了{rd_dmg}点伤害")
+        else:
+            rd_dmg = deviation(enemy_base_atk)
+            dmg += rd_dmg
+            logs.append(f"敌人对你造成了造成了{rd_dmg}点伤害")
+        if enemy_double:
+            rd_dmg = deviation(enemy_base_atk)
+            dmg += rd_dmg
+            logs.append(f"敌人触发了连击，额外造成了{rd_dmg}点伤害")
+        hp_my -= dmg
+        if hp_my <= 0:
+            logs.append(f"你的hp归零了，战斗失败")
+            break
+        if my_recover:
+            rd_re = deviation(my_base_atk)
+            hp_my += rd_re
+            logs.append(f"你触发了治疗效果，hp增加了{rd_re}")
+        if enemy_recover:
+            rd_re = deviation(enemy_base_atk)
+            hp_enemy += rd_re
+            logs.append(f"敌方触发了治疗效果，hp增加了{rd_re}")
+        logs.append(f"第{i}回合结束，我方hp:{hp_my} 敌方hp:{hp_enemy}")
+    if hp_enemy <= 0:
+        return True, logs
+    else:
+        return False, logs
+
+
+# 哈希到一定数字范围内
+def hashval(str, siz):
+    hash = 0
+    for x in str: hash += (ord(x))
+    return (hash % siz)
+import hashlib
+
+def md5(str):
+    m = hashlib.md5()
+    m.update(str.encode("utf8"))
+    print(m.hexdigest())
+    return m.hexdigest()
+
+# 获取战斗风格描述
+def get_battle_style(cid):
+    base = hashval(md5(str(cid)), 50)
+    if base < 10:
+        return "重攻"
+    elif 10 <= base < 20:
+        return "偏攻"
+    elif 20 <= base <= 30:
+        return "平衡"
+    elif 30 < base <= 40:
+        return "偏守"
+    else:
+        return "重守"
+
+
+# 处理我方队伍增益 defen 为cid列表 z_atk与z_hp是经过buff后的原始攻击和hp
+def duel_my_buff(defen, z_atk, z_hp):
+    chara_map = count_char_character(defen)
+    hp_buff = 1 + (chara_map["固执"] * 5) / 100
+    atk_buff = 1 + (chara_map["自大"] * 5) / 100
+    z_hp = int(z_hp * hp_buff)
+    z_atk = int(z_atk * atk_buff)
+    my_recover = chara_map["温柔"] * 5 + chara_map["冷静"] * 1
+    my_double = chara_map["淘气"] * 5 + chara_map["冷静"] * 1
+    my_crit = chara_map["天然"] * 5 + chara_map["冷静"] * 1
+    my_boost = chara_map["病娇"] * 5 + chara_map["冷静"] * 1
+    return Attr(z_hp, z_atk, my_boost, my_crit, my_double, my_recover)
+
+# 处理敌方debuff
+def duel_enemy_buff(defen, e_hp, e_atk, e_buff_li):
+    chara_map = count_char_character(defen)
+    hp_debuff = 1 - (chara_map["腹黑"] * 5) / 100
+    atk_debuff = 1 - (chara_map["悠闲"] * 5) / 100
+    e_hp = int(e_hp * hp_debuff)
+    e_atk = int(e_atk * atk_debuff)
+    debuff = 1 - chara_map["无口"] * 0.2
+    e_buff_li = [int(i * debuff) for i in e_buff_li]
+    if chara_map["弱气"]:
+        e_buff_li[1] = 0
+    if chara_map["毒舌"]:
+        e_buff_li[3] = 0
+    return Attr(e_hp, e_atk, e_buff_li[0], e_buff_li[1], e_buff_li[2], e_buff_li[3])

@@ -309,6 +309,7 @@ async def dun_help(bot, ev: CQEvent):
 ╔                                        ╗  
              副本系统帮助
 [副本列表]
+[编队{队伍名/角色名}模拟{难度}副本{副本名}]
 [编队{队伍名/角色名}进入{难度}副本{副本名}]
 [我的副本币]
 [副本商城]
@@ -327,7 +328,7 @@ async def dungeon_list(bot, ev: CQEvent):
     for dungeon in dungeonlist:
         msg = ''
         msg = msg + f"\n副本名  ：{dungeonlist[dungeon]['name']}"
-        msg = msg + f"\n推荐战力：\n[简单]{dungeonlist[dungeon]['recommend_ce_adj'][0]}\n[困难]{dungeonlist[dungeon]['recommend_ce_adj'][1]}\n[地狱]{dungeonlist[dungeon]['recommend_ce_adj'][2]}"
+        msg = msg + f"\nboss血量：\n[简单]{dungeonlist[dungeon]['recommend_ce_adj'][0]}\n[困难]{dungeonlist[dungeon]['recommend_ce_adj'][1]}\n[地狱]{dungeonlist[dungeon]['recommend_ce_adj'][2]}"
         msg = msg + f"\n战胜获得经验：\n[简单]{dungeonlist[dungeon]['add_exp_adj'][0]}\n[困难]{dungeonlist[dungeon]['add_exp_adj'][1]} \n[地狱]{dungeonlist[dungeon]['add_exp_adj'][2]}"
         msg = msg + f"\n战胜获得碎片：\n[简单]{dungeonlist[dungeon]['fragment_w_adj'][0]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][0]}随机碎片\n[困难]{dungeonlist[dungeon]['fragment_w_adj'][1]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][1]}随机碎片\n[地狱]{dungeonlist[dungeon]['fragment_w_adj'][2]}万能碎片，{dungeonlist[dungeon]['fragment_c_adj'][2]}随机碎片"
         msg = msg + f"\n战胜获得好感：{dungeonlist[dungeon]['add_favor']}"
@@ -343,6 +344,114 @@ async def dungeon_list(bot, ev: CQEvent):
         }
         tas_list.append(data)
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+
+
+@sv.on_rex(f'^编队(.*)模拟(.*)副本(.*)$')
+async def add_duiwu_t(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    CE = CECounter()
+    duel = DuelCounter()
+    # 处理输入数据
+    match = ev['match']
+    if match.group(2):
+        dun_nd = str(match.group(2)).strip()
+    else:
+        dun_nd = '简单'
+
+    if dun_nd == '简单':
+        dun_model = 1
+    elif dun_nd == '困难':
+        dun_model = 2
+    elif dun_nd == '地狱':
+        dun_model = 3
+    else:
+        await bot.finish(ev, '请输入正确的副本难度(简单/困难/地狱)', at_sender=True)
+    hard_index = dun_model - 1  # 难度index
+    dunname = str(match.group(3)).strip()
+    dunname = re.sub(r'[?？，,_ ]', '', dunname)
+    defen = str(match.group(1)).strip()
+    defen = re.sub(r'[?？，,_]', '', defen)  # 队伍成员cid列表
+    if not defen:
+        await bot.finish(ev, '请发送"编队+女友名/队伍名+进入(简单/困难/地狱)副本+副本名"，无需+号', at_sender=True)
+    # 查询是否是队伍
+    teamlist = CE._get_teamlist(gid, uid, defen)
+    if teamlist != 0:
+        defen = []
+        for i in teamlist:
+            cid = i[0]
+            defen.append(cid)
+    else:
+        defen, unknown = chara.roster.parse_team(defen)
+        if unknown:
+            _, name, score = chara.guess_id(unknown)
+            if score < 70 and not defen:
+                return  # 忽略无关对话
+            msg = f'无法识别"{unknown}"' if score < 70 else f'无法识别"{unknown}" 您说的有{score}%可能是{name}'
+            await bot.finish(ev, msg)
+        if len(defen) > 5:
+            await bot.finish(ev, '编队不能多于5名角色', at_sender=True)
+        if len(defen) != len(set(defen)):
+            await bot.finish(ev, '编队中含重复角色', at_sender=True)
+    dungeoninfo = get_dun_info(dunname)
+    # 检查副本
+    if not dungeoninfo:
+        await bot.finish(ev, '请输入正确的副本名称', at_sender=True)
+    # 获取编队战力与信息
+    z_atk, z_hp = 0, 0
+    for cid in defen:
+        c = chara.fromid(cid)
+        nvmes = get_nv_icon(cid)
+        owner = duel._get_card_owner(gid, cid)
+        if owner == 0:
+            await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
+            return
+        if uid != owner:
+            msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法编队哦。'
+            await bot.send(ev, msg)
+            return
+        card_hp, card_atk = get_card_battle_info(gid, uid, cid)
+        z_atk += card_atk
+        z_hp += card_hp
+    # 获取道具buff信息
+    i_c = ItemCounter()
+    buff = i_c._get_buff_state(gid, uid)
+    rate = 1 + buff / 100
+    if z_atk >= 10000:
+        z_atk = z_atk + buff * 100
+    else:
+        z_atk *= rate
+    if z_hp >= 100000:
+        z_hp = z_hp + buff * 1000
+    else:
+        z_hp *= rate
+    # 建筑加成
+    zhihui = check_build_counter(gid, uid, BuildModel.ZHIHUI)
+    if zhihui:
+        if check_technolog_counter(gid, uid, TechnologyModel.BATTLE_RADAR):
+            z_atk *= 1.2
+            z_hp *= 1.2
+        else:
+            z_atk *= 1.1
+            z_hp *= 1.1
+    # 获取敌人信息
+    recommend_ce = dungeoninfo['recommend_ce_adj'][hard_index]
+    e_hp = recommend_ce
+    e_atk = recommend_ce / 10
+    if not dungeoninfo.get("recommend_ce_buff"):
+        e_buff_li = [5, 5, 5, 5]
+    else:
+        e_buff_li = dungeoninfo.get("recommend_ce_buff")
+    # 获取敌我最终数值
+    my = duel_my_buff(defen, z_atk, z_hp)
+    enemy = duel_enemy_buff(defen, e_hp, e_atk, e_buff_li)
+    # 模拟1000次战斗
+    count = 0
+    for i in range(1000):
+        flag, log = battle(my, enemy)
+        if flag:
+            count += 1
+    await bot.send(ev, f'模拟战胜率为{int(count / 10)}%', at_sender=True)
 
 
 @sv.on_rex(f'^编队(.*)进入(.*)副本(.*)$')
@@ -398,286 +507,316 @@ async def add_duiwu_t(bot, ev: CQEvent):
             await bot.finish(ev, '编队不能多于5名角色', at_sender=True)
         if len(defen) != len(set(defen)):
             await bot.finish(ev, '编队中含重复角色', at_sender=True)
-    z_ce = 0
     bianzu = ''
+    charalist = []
     dungeoninfo = get_dun_info(dunname)
-    print(dungeoninfo)
-    if dungeoninfo:
-        # 获取编队战力与信息
-        charalist = []
-        for cid in defen:
-            c = chara.fromid(cid)
-            nvmes = get_nv_icon(cid)
-            owner = duel._get_card_owner(gid, cid)
-            if owner == 0:
-                await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
-                return
-            if uid != owner:
-                msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法编队哦。'
-                await bot.send(ev, msg)
-                return
-            card_ce = get_card_ce(gid, uid, cid)
-            z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
-            star = CE._get_cardstar(gid, uid, cid)
-            charalist.append(chara.Chara(cid, star, 0))
-            bianzu = bianzu + f"{c.name} "
-        # 获取进入副本信息
-        # 获取道具buff信息
-        i_c = ItemCounter()
-        buff = i_c._get_buff_state(gid, uid)
-        rate = 1 + buff / 100
-        old = z_ce
-        z_ce = rate * z_ce
-        zhihui = check_build_counter(gid, uid, BuildModel.ZHIHUI)
-        if zhihui:
-            if check_technolog_counter(gid, uid, TechnologyModel.BATTLE_RADAR):
-                z_ce *= 1.4
-            else:
-                z_ce *= 1.2
-        i_c._save_user_state(gid, uid, 0, 0)
-        # 判定每日上限
-        guid = gid, uid
-        if not daily_dun_limiter.check(guid):
-            await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
+    # 检查副本
+    if not dungeoninfo:
+        await bot.finish(ev, '请输入正确的副本名称', at_sender=True)
+    # 获取编队战力与信息
+    z_atk, z_hp = 0, 0
+    for cid in defen:
+        c = chara.fromid(cid)
+        nvmes = get_nv_icon(cid)
+        owner = duel._get_card_owner(gid, cid)
+        if owner == 0:
+            await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
             return
-        if not daily_dun_limiter.check(guid):
-            await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
+        if uid != owner:
+            msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法编队哦。'
+            await bot.send(ev, msg)
             return
+        card_hp, card_atk = get_card_battle_info(gid, uid, cid)
+        z_atk += card_atk
+        z_hp += card_hp
+        star = CE._get_cardstar(gid, uid, cid)
+        charalist.append(chara.Chara(cid, star, 0))
+        bianzu = bianzu + f"{c.name} "
+    # 获取道具buff信息
+    i_c = ItemCounter()
+    buff = i_c._get_buff_state(gid, uid)
+    rate = 1 + buff / 100
+    if z_atk >= 10000:
+        z_atk = z_atk + buff * 100
+    else:
+        z_atk *= rate
+    if z_hp >= 100000:
+        z_hp = z_hp + buff * 1000
+    else:
+        z_hp *= rate
 
-        if weather == WeatherModel.HUANGSHA:
-            if daily_dun_limiter.get_num(guid) != 0:
-                await bot.send(ev, '今天必须消耗5次次数才能进入副本', at_sender=True)
-                return
-
-        if weather == WeatherModel.CHUANWU:
-            rd = random.randint(1, 10)
-            if rd == 1:
-                daily_dun_limiter.increase(guid, num=2)
-            elif rd < 10:
-                daily_dun_limiter.increase(guid)
+    # 建筑加成
+    zhihui = check_build_counter(gid, uid, BuildModel.ZHIHUI)
+    if zhihui:
+        if check_technolog_counter(gid, uid, TechnologyModel.BATTLE_RADAR):
+            z_atk *= 1.2
+            z_hp *= 1.2
         else:
-            if weather == WeatherModel.HUANGSHA:
-                daily_dun_limiter.increase(guid, num=5)
-            else:
-                daily_dun_limiter.increase(guid)
+            z_atk *= 1.1
+            z_hp *= 1.1
+    i_c._save_user_state(gid, uid, 0, 0)
+    # 获取敌人信息
+    recommend_ce = dungeoninfo['recommend_ce_adj'][hard_index]
+    e_hp = recommend_ce
+    e_atk = recommend_ce / 10
+    if not dungeoninfo.get("recommend_ce_buff"):
+        e_buff_li = [5, 5, 5, 5]
+    else:
+        e_buff_li = dungeoninfo.get("recommend_ce_buff")
+    # 获取敌我最终数值
+    my = duel_my_buff(defen, z_atk, z_hp)
+    enemy = duel_enemy_buff(defen, e_hp, e_atk, e_buff_li)
+    # 判定每日上限
+    guid = gid, uid
+    if not daily_dun_limiter.check(guid):
+        await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
+        return
+    if not daily_dun_limiter.check(guid):
+        await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
+        return
 
-        recommend_ce = dungeoninfo['recommend_ce_adj'][hard_index]
-        is_win = Decimal(z_ce / recommend_ce).quantize(Decimal('0.00')) * 100
-        if is_win > 100:
-            is_win = 100
-        res = chara.gen_team_pic(charalist, star_slot_verbose=False)
-        bio = BytesIO()
-        res.save(bio, format='PNG')
-        base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
-        mes = f"[CQ:image,file={base64_str}]"
-        msg1 = f"编组成功{bianzu}\n开始进入{dun_nd}副本{dunname}\n当前副本推荐战力{recommend_ce}，您的编组战力为{z_ce}({old})，您的胜率为{is_win}%，开始战斗{mes}"
-        tas_list = []
+    if weather == WeatherModel.HUANGSHA:
+        if daily_dun_limiter.get_num(guid) != 0:
+            await bot.send(ev, '今天必须消耗5次次数才能进入副本', at_sender=True)
+            return
+
+    if weather == WeatherModel.CHUANWU:
+        rd = random.randint(1, 10)
+        if rd == 1:
+            daily_dun_limiter.increase(guid, num=2)
+        elif rd < 10:
+            daily_dun_limiter.increase(guid)
+    else:
+        if weather == WeatherModel.HUANGSHA:
+            daily_dun_limiter.increase(guid, num=5)
+        else:
+            daily_dun_limiter.increase(guid)
+    # 拼接开始文案
+    res = chara.gen_team_pic(charalist, star_slot_verbose=False)
+    bio = BytesIO()
+    res.save(bio, format='PNG')
+    base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
+    mes = f"[CQ:image,file={base64_str}]"
+    msg1 = f"编组成功{bianzu}\n开始进入{dun_nd}副本{dunname}\n，开始战斗{mes}"
+    tas_list = []
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": msg1
+        }
+    }
+    tas_list.append(data)
+    is_win, battle_logs = battle(my, enemy)
+    # 拼接战斗文案
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": '\n'.join(battle_logs)
+        }
+    }
+    tas_list.append(data)
+    # 战斗失败
+    if not is_win:
+        msg = ''
+        msg = msg + "您战斗失败了，副本次数-1"
+        for cid in defen:
+            fail_exp = int(dungeoninfo['add_exp_adj'][hard_index] / 10)
+            add_exp(gid, uid, cid, fail_exp)
+        msg = msg + f"您的女友{bianzu}获得了{fail_exp}点经验\n"
+        if weather == WeatherModel.MEIYU:
+            rd = random.randint(1, 5)
+            if rd == 1:
+                daily_dun_limiter.increase(guid, -1)
+                msg = msg + "由于天气效果，恢复了一次副本次数"
         data = {
             "type": "node",
             "data": {
                 "name": "ご主人様",
                 "uin": "1587640710",
-                "content": msg1
+                "content": msg
             }
         }
         tas_list.append(data)
-        if_win = int(math.floor(random.uniform(1, 100)))
-        # 战斗胜利
-        if if_win <= is_win:
-            msg = "战斗胜利了！\n"
-            max_card = 0
-            for cid in defen:
-                get_exp = dungeoninfo['add_exp_adj'][hard_index]
-                duel._add_favor(gid, uid, cid, dungeoninfo['add_favor'])
-                card_level = add_exp(gid, uid, cid, get_exp)
-                if card_level[1] >= 100:
-                    max_card += 1
-            msg = msg + f"您的女友{bianzu}获得了{get_exp}点经验，{dungeoninfo['add_favor']}点好感\n"
-            if is_win <= 30:
-                item = get_item_by_name("战斗记忆")
-                add_item(gid, uid, item)
-                msg += f'你艰难的取得了胜利，获取到了大量的经验，得到了{item["rank"]}级道具{item["name"]}\n'
-
-            if max_card == 5:
-                chizi_exp = CE._get_exp_chizi(gid, uid)
-                limit = int(chizi_exp / 10000000) + 1
-                rn = random.randint(1, 100)
-                if rn <= limit:
-                    last_exp = 0 - chizi_exp
-                    CE._add_exp_chizi(gid, uid, last_exp)
-                    item = get_item_by_name("天命之子")
-                    add_item(gid, uid, item)
-                    await bot.send(ev,
-                                   f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
-
-            # 增加副本币
-            get_dun_score = dungeoninfo['dun_score_adj'][hard_index]
-            CE._add_dunscore(gid, uid, get_dun_score)
-            msg = msg + f"您获得了{get_dun_score}副本币\n"
-
-            get_money = dungeoninfo['gold_adj'][hard_index]
-            get_SW = dungeoninfo['sw_adj'][hard_index]
-            item_msg = ''
-            if dungeoninfo.get("item_drop"):
-                item_info = dungeoninfo['item_drop'][hard_index]
-                rn = random.randint(1, 100)
-                if weather == WeatherModel.HUANGSHA:
-                    rn = 1
-                if rn <= item_info['rate']:
-                    item_name = random.choice(item_info['items'])
-                    item = get_item_by_name(item_name)
-                    add_item(gid, uid, item)
-                    item_msg = f"你获得了{item['rank']}级道具{item['name']}!\n"
-
-            score_counter = ScoreCounter2()
-            score_counter._add_prestige(gid, uid, get_SW)
-            score_counter._add_score(gid, uid, get_money)
-
-            msg = msg + f"您获得了{get_money}金币和{get_SW}声望\n{item_msg}"
-            # 增加角色碎片
-            # 万能碎片
-            get_fragment_w = dungeoninfo['fragment_w_adj'][hard_index]
-            CE._add_fragment_num(gid, uid, 0, get_fragment_w)
-            msg = msg + f"您获得了{get_fragment_w}万能碎片\n"
-            fragment_s = dungeoninfo['fragment_c_adj'][hard_index]
-            cidlist = defen
-            while fragment_s > 0:
-                if len(cidlist) > 1:
-                    fragment_run = int(math.floor(random.uniform(1, fragment_s)))
-                else:
-                    fragment_run = fragment_s
-                addcid = random.sample(cidlist, 1)
-                c = chara.fromid(addcid[0])
-                msg = msg + f"您获得了{fragment_run}{c.name}碎片\n"
-                cidlist.remove(addcid[0])
-                CE._add_fragment_num(gid, uid, addcid[0], fragment_run)
-                fragment_s = fragment_s - fragment_run
-
-            msg = msg + "您获得的战利品为：\n"
-            favor_ran = int(math.floor(random.uniform(1, 100) * e_d))
-            if favor_ran > 100:
-                favor_ran = 100
-            z_favor = 0
-            dun_get_favor = 0
-            for favor_num in dungeoninfo['drop']['favor']:
-                z_favor = z_favor + dungeoninfo['drop']['favor'][favor_num]
-                if z_favor >= favor_ran:
-                    dun_get_favor = int(favor_num)
-                    break
-            gift_list = ''
-            for x in range(dun_get_favor):
-                select_gift = random.choice(list(GIFT_DICT.keys()))
-                gfid = GIFT_DICT[select_gift]
-                duel._add_gift(gid, uid, gfid)
-                gift_list = gift_list + f"[{select_gift}] "
-            msg = msg + f'获得了礼物:{gift_list}\n'
-
-            equip_ran = int(math.floor(random.uniform(1, 100) * e_d))
-            if equip_ran > 100:
-                equip_ran = 100
-            z_equip = 0
-            dun_get_equip = 0
-            for equip_num in dungeoninfo['drop']['equipment']['num']:
-                z_equip = z_equip + dungeoninfo['drop']['equipment']['num'][equip_num]
-                if z_equip >= equip_ran:
-                    dun_get_equip = int(equip_num)
-                    break
-            equip_list = ''
-            if dun_model > 1:
-                max_equip_quality = 0
-                for equip_num_quality in dungeoninfo['drop']['equipment']['quality']:
-                    if int(equip_num_quality) > max_equip_quality:
-                        max_equip_quality = int(equip_num_quality)
-            # 判断是否触发贤者之石
-            ic = ItemCounter()
-            count = ic._get_user_info(gid, uid, UserModel.EQUIP_UP)
-            flag = 0
-            if count > 0:
-                flag = 1
-                count -= 1
-                ic._save_user_info(gid, uid, UserModel.EQUIP_UP, count)
-            if dun_get_equip > 0:
-                for y in range(dun_get_equip):
-                    equip_type_run = int(math.floor(random.uniform(1, 100) * e_d))
-                    if equip_type_run > 100:
-                        equip_type_run = 100
-                    get_equip_quality = 1
-                    z_equip_quality = 0
-                    for equip_num_quality in dungeoninfo['drop']['equipment']['quality']:
-                        z_equip_quality = z_equip_quality + dungeoninfo['drop']['equipment']['quality'][
-                            equip_num_quality]
-                        if z_equip_quality >= equip_type_run:
-                            get_equip_quality = int(equip_num_quality)
-                            break
-                    if dun_model > 1:
-                        down_num_run = 40 * (dun_model - 1)
-                        down_up_run = int(math.floor(random.uniform(1, 100)))
-                        if down_num_run >= down_up_run:
-                            down_up_flag = 1
-                        else:
-                            down_up_flag = 0
-                        if down_up_flag == 1:
-                            get_equip_quality = get_equip_quality + 1
-                            if get_equip_quality > max_equip_quality:
-                                get_equip_quality = max_equip_quality
-                    if flag:
-                        # 触发贤者之石
-                        if get_equip_quality < 5:
-                            get_equip_quality += 1
-                        gecha = get_gecha_info("红魔的夜宴")
-                        for i in gecha['gecha']['equip'].keys():
-                            if i == str(get_equip_quality):
-                                get_ids = gecha['gecha']['equip'][i]
-                                break
-                        equip_info = add_equip_info(gid, uid, get_equip_quality, get_ids)
-                        equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
-                    else:
-                        down_list = []
-                        for equip_down in dungeoninfo['drop']['equipment']['equip']:
-                            if int(get_equip_quality) == int(equip_down):
-                                down_list = dungeoninfo['drop']['equipment']['equip'][equip_down]
-                        # 随机获得一个品质的装备
-                        equip_info = add_equip_info(gid, uid, get_equip_quality, down_list)
-                        equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
-            if equip_list:
-                msg = msg + f"获得了装备:\n{equip_list}"
-            data = {
-                "type": "node",
-                "data": {
-                    "name": "ご主人様",
-                    "uin": "1587640710",
-                    "content": msg
-                }
-            }
-            tas_list.append(data)
-            await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-        else:
-            msg = ''
-            msg = msg + "您战斗失败了，副本次数-1"
-            for cid in defen:
-                fail_exp = int(dungeoninfo['add_exp_adj'][hard_index] / 10)
-                add_exp(gid, uid, cid, fail_exp)
-            msg = msg + f"您的女友{bianzu}获得了{fail_exp}点经验\n"
-            if weather == WeatherModel.MEIYU:
-                rd = random.randint(1, 5)
-                if rd == 1:
-                    daily_dun_limiter.increase(guid, -1)
-                    msg = msg + "由于天气效果，恢复了一次副本次数"
-            data = {
-                "type": "node",
-                "data": {
-                    "name": "ご主人様",
-                    "uin": "1587640710",
-                    "content": msg
-                }
-            }
-            tas_list.append(data)
-            await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
-    else:
-        await bot.finish(ev, '请输入正确的副本名称', at_sender=True)
+        await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
         return
+    # 计算掉落buff增益
+    diaoluo_buff = sum_character(defen, "元气")
+    # 计算恢复次数buff
+    huifu_buff = sum_character(defen, "勤奋") * 5
+    # 计算资源获取buff
+    ziyuan_buff = 1 + (sum_character(defen, "傲娇") * 10) / 100
+    rd = random.randint(1, 100)
+    if rd <= huifu_buff:
+        daily_dun_limiter.increase(guid, num=-1)
+        await bot.send(ev, "触发了连破buff，副本次数回复一次", at_sender=True)
+    # 战斗胜利
+    msg = "战斗胜利了！\n"
+    max_card = 0
+    for cid in defen:
+        get_exp = dungeoninfo['add_exp_adj'][hard_index]
+        duel._add_favor(gid, uid, cid, dungeoninfo['add_favor'])
+        card_level = add_exp(gid, uid, cid, get_exp)
+        if card_level[1] >= 100:
+            max_card += 1
+    msg = msg + f"您的女友{bianzu}获得了{get_exp}点经验，{dungeoninfo['add_favor']}点好感\n"
+
+    if max_card == 5:
+        chizi_exp = CE._get_exp_chizi(gid, uid)
+        limit = int(chizi_exp / 10000000) + 1
+        rn = random.randint(1, 100)
+        if rn <= limit:
+            last_exp = 0 - chizi_exp
+            CE._add_exp_chizi(gid, uid, last_exp)
+            item = get_item_by_name("天命之子")
+            add_item(gid, uid, item)
+            await bot.send(ev,
+                           f"[CQ:at,qq={uid}]一直以来已经到达到达瓶颈的你突然感受到了天的声音，恭喜你，你是被选中之人，获得了{item['rank']}级道具{item['name']},经验池已被清空\n")
+
+    # 增加副本币
+    get_dun_score = int(dungeoninfo['dun_score_adj'][hard_index] * ziyuan_buff)
+    CE._add_dunscore(gid, uid, get_dun_score)
+    msg = msg + f"您获得了{get_dun_score}副本币\n"
+
+    get_money = int(dungeoninfo['gold_adj'][hard_index] * ziyuan_buff)
+    get_SW = int(dungeoninfo['sw_adj'][hard_index] * ziyuan_buff)
+    item_msg = ''
+    if dungeoninfo.get("item_drop"):
+        item_info = dungeoninfo['item_drop'][hard_index]
+        rn = random.randint(1, 100)
+        if weather == WeatherModel.HUANGSHA:
+            rn = 1
+        if rn <= item_info['rate'] + diaoluo_buff:
+            item_name = random.choice(item_info['items'])
+            item = get_item_by_name(item_name)
+            add_item(gid, uid, item)
+            item_msg = f"你获得了{item['rank']}级道具{item['name']}!\n"
+
+    score_counter = ScoreCounter2()
+    score_counter._add_prestige(gid, uid, get_SW)
+    score_counter._add_score(gid, uid, get_money)
+
+    msg = msg + f"您获得了{get_money}金币和{get_SW}声望\n{item_msg}"
+    # 增加角色碎片
+    # 万能碎片
+    get_fragment_w = int(dungeoninfo['fragment_w_adj'][hard_index] * ziyuan_buff)
+    CE._add_fragment_num(gid, uid, 0, get_fragment_w)
+    msg = msg + f"您获得了{get_fragment_w}万能碎片\n"
+    fragment_s = int(dungeoninfo['fragment_c_adj'][hard_index] * ziyuan_buff)
+    cidlist = defen
+    while fragment_s > 0:
+        if len(cidlist) > 1:
+            fragment_run = int(math.floor(random.uniform(1, fragment_s)))
+        else:
+            fragment_run = fragment_s
+        addcid = random.sample(cidlist, 1)
+        c = chara.fromid(addcid[0])
+        msg = msg + f"您获得了{fragment_run}{c.name}碎片\n"
+        cidlist.remove(addcid[0])
+        CE._add_fragment_num(gid, uid, addcid[0], fragment_run)
+        fragment_s = fragment_s - fragment_run
+
+    msg = msg + "您获得的战利品为：\n"
+    favor_ran = int(math.floor(random.uniform(1, 100) * e_d))
+    if favor_ran > 100:
+        favor_ran = 100
+    z_favor = 0
+    dun_get_favor = 0
+    for favor_num in dungeoninfo['drop']['favor']:
+        z_favor = z_favor + dungeoninfo['drop']['favor'][favor_num]
+        if z_favor >= favor_ran:
+            dun_get_favor = int(favor_num)
+            break
+    gift_list = ''
+    for x in range(dun_get_favor):
+        select_gift = random.choice(list(GIFT_DICT.keys()))
+        gfid = GIFT_DICT[select_gift]
+        duel._add_gift(gid, uid, gfid)
+        gift_list = gift_list + f"[{select_gift}] "
+    msg = msg + f'获得了礼物:{gift_list}\n'
+
+    equip_ran = int(math.floor(random.uniform(1, 100) * e_d))
+    if equip_ran > 100:
+        equip_ran = 100
+    z_equip = 0
+    dun_get_equip = 0
+    for equip_num in dungeoninfo['drop']['equipment']['num']:
+        z_equip = z_equip + dungeoninfo['drop']['equipment']['num'][equip_num]
+        if z_equip >= equip_ran:
+            dun_get_equip = int(equip_num)
+            break
+    equip_list = ''
+    if dun_model > 1:
+        max_equip_quality = 0
+        for equip_num_quality in dungeoninfo['drop']['equipment']['quality']:
+            if int(equip_num_quality) > max_equip_quality:
+                max_equip_quality = int(equip_num_quality)
+    # 判断是否触发贤者之石
+    ic = ItemCounter()
+    count = ic._get_user_info(gid, uid, UserModel.EQUIP_UP)
+    flag = 0
+    if count > 0:
+        flag = 1
+        count -= 1
+        ic._save_user_info(gid, uid, UserModel.EQUIP_UP, count)
+    if dun_get_equip > 0:
+        for y in range(dun_get_equip):
+            equip_type_run = int(math.floor(random.uniform(1, 100) * e_d))
+            if equip_type_run > 100:
+                equip_type_run = 100
+            get_equip_quality = 1
+            z_equip_quality = 0
+            for equip_num_quality in dungeoninfo['drop']['equipment']['quality']:
+                z_equip_quality = z_equip_quality + dungeoninfo['drop']['equipment']['quality'][
+                    equip_num_quality]
+                if z_equip_quality >= equip_type_run:
+                    get_equip_quality = int(equip_num_quality)
+                    break
+            if dun_model > 1:
+                down_num_run = 40 * (dun_model - 1)
+                down_up_run = int(math.floor(random.uniform(1, 100)))
+                if down_num_run >= down_up_run:
+                    down_up_flag = 1
+                else:
+                    down_up_flag = 0
+                if down_up_flag == 1:
+                    get_equip_quality = get_equip_quality + 1
+                    if get_equip_quality > max_equip_quality:
+                        get_equip_quality = max_equip_quality
+            if flag:
+                # 触发贤者之石
+                if get_equip_quality < 5:
+                    get_equip_quality += 1
+                gecha = get_gecha_info("红魔的夜宴")
+                for i in gecha['gecha']['equip'].keys():
+                    if i == str(get_equip_quality):
+                        get_ids = gecha['gecha']['equip'][i]
+                        break
+                equip_info = add_equip_info(gid, uid, get_equip_quality, get_ids)
+                equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
+            else:
+                down_list = []
+                for equip_down in dungeoninfo['drop']['equipment']['equip']:
+                    if int(get_equip_quality) == int(equip_down):
+                        down_list = dungeoninfo['drop']['equipment']['equip'][equip_down]
+                # 随机获得一个品质的装备
+                equip_info = add_equip_info(gid, uid, get_equip_quality, down_list)
+                equip_list = equip_list + f"{equip_info['model']}品质{equip_info['type']}:{equip_info['name']}\n"
+    if equip_list:
+        msg = msg + f"获得了装备:\n{equip_list}"
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": msg
+        }
+    }
+    tas_list.append(data)
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
 @sv.on_prefix(['取消装备'])
@@ -1128,8 +1267,6 @@ async def start_bushi(bot, ev: CQEvent):
             c = chara.fromid(cid)
             card_ce = get_card_ce(gid, uid, cid)
             z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
@@ -1361,8 +1498,6 @@ async def start_huizhan(bot, ev: CQEvent):
             c = chara.fromid(cid)
             card_ce = get_card_ce(gid, uid, cid)
             z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
@@ -1666,25 +1801,26 @@ async def add_team(bot, ev: CQEvent):
     teaminfo = CE._get_teamlist(gid, uid, teamname)
 
     if teaminfo != 0:
-        z_ce = 0
+        z_atk, z_hp = 0, 0
         bianzu = ''
         charalist = []
         for i in teaminfo:
             cid = i[0]
             c = chara.fromid(cid)
-            card_ce = get_card_ce(gid, uid, cid)
-            z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
+            card_hp, card_atk = get_card_battle_info(gid, uid, cid)
+            z_atk += card_atk
+            z_hp += card_hp
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
+        my = duel_my_buff([i[0] for i in teaminfo], z_atk, z_hp)
+
         res = chara.gen_team_pic(charalist, star_slot_verbose=False)
         bio = BytesIO()
         res.save(bio, format='PNG')
         base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
         mes = f"[CQ:image,file={base64_str}]"
-        msg1 = f"创建队伍失败！\n已有重复的队伍：{teamname}\n队伍成员为：{bianzu}\队伍战力为：{z_ce}\n{mes}"
+        msg1 = f"创建队伍失败！\n已有重复的队伍：{teamname}\n队伍成员为：{bianzu}\n hp:{my.hp} atk:{my.atk}\n{mes}"
         await bot.finish(ev, msg1, at_sender=True)
 
     teamnum = CE._get_teamnum(gid, uid)
@@ -1692,25 +1828,25 @@ async def add_team(bot, ev: CQEvent):
     if teamnum >= 5:
         await bot.finish(ev, '保存的队伍不能超过5支，请删除其他队伍再来创建吧', at_sender=True)
 
-    z_ce = 0
+    z_atk, z_hp = 0, 0
     bianzu = ''
     charalist = []
     for cid in defen:
         c = chara.fromid(cid)
-        card_ce = get_card_ce(gid, uid, cid)
-        z_ce = z_ce + card_ce
+        card_hp, card_atk = get_card_battle_info(gid, uid, cid)
+        z_atk += card_atk
+        z_hp += card_hp
         bianzu = bianzu + f"{c.name} "
-        if cid == 9999:
-            cid = 1059
         star = CE._get_cardstar(gid, uid, cid)
         charalist.append(chara.Chara(cid, star, 0))
         CE._add_team(gid, uid, cid, teamname)
+    my = duel_my_buff(defen, z_atk, z_hp)
     res = chara.gen_team_pic(charalist, star_slot_verbose=False)
     bio = BytesIO()
     res.save(bio, format='PNG')
     base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
     mes = f"[CQ:image,file={base64_str}]"
-    msg = f"创建队伍成功！\n队伍名称：{teamname}\n队伍成员为：{bianzu}\n队伍战力为：{z_ce}\n{mes}"
+    msg = f"创建队伍成功！\n队伍名称：{teamname}\n队伍成员为：{bianzu}\nhp:{my.hp} atk:{my.atk}\n{mes}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -1744,25 +1880,25 @@ async def my_teamlst(bot, ev: CQEvent):
     for name in teamlist:
         teamname = name[0]
         cidlist = CE._get_teamlist(gid, uid, teamname)
-        z_ce = 0
+        z_hp, z_atk = 0, 0
         bianzu = ''
         charalist = []
         for i in cidlist:
             cid = i[0]
             c = chara.fromid(cid)
-            card_ce = get_card_ce(gid, uid, cid)
-            z_ce = z_ce + card_ce
-            if cid == 9999:
-                cid = 1059
+            card_hp, card_atk = get_card_battle_info(gid, uid, cid)
+            z_atk += card_atk
+            z_hp += card_hp
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
+        my = duel_my_buff([i[0] for i in cidlist], z_atk, z_hp)
         res = chara.gen_team_pic(charalist, star_slot_verbose=False)
         bio = BytesIO()
         res.save(bio, format='PNG')
         base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
         mes = f"[CQ:image,file={base64_str}]\n"
-        msg = msg + f"队伍名称：{teamname}\n队伍成员：{bianzu}\n队伍战力：{z_ce}\n{mes}"
+        msg = msg + f"队伍名称：{teamname}\n队伍成员：{bianzu}\n hp:{my.hp} atk:{my.atk}\n{mes}"
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -1834,7 +1970,10 @@ async def xiulian_end(bot, ev: CQEvent):
             jgtime = 86400
     xlmin = math.ceil(jgtime / 60)
     sj_msg = sj_msg + f"修炼时间为{xlmin}分钟，"
+    qinfen_flag = check_have_character(guajiinfo[0], "勤奋")
     addexp = xlmin * GJ_EXP_RATE
+    if qinfen_flag:
+        addexp = int(addexp * 1.5)
     ex_msg = ''
     if count != 0:
         addexp *= 5 * count
@@ -1846,6 +1985,8 @@ async def xiulian_end(bot, ev: CQEvent):
             loop = int(xlmin / 1000)
             level_up = 0
             for i in range(loop):
+                if qinfen_flag:
+                    level_up += 1
                 level_up += random.randint(1, 3)
             now_level = CE._get_card_level(gid, uid, guajiinfo[0])
             now_exp = CE._get_card_exp(gid, uid, guajiinfo[0])
@@ -2359,12 +2500,8 @@ async def clock():
             each = [g["group_id"] for g in gl]
             group_list.extend(each)
         for gid in group_list:
-            weather = get_weather(gid)
-            if weather == WeatherModel.NONE:
-                rd = random.choice([i for i in WeatherModel])
-                save_weather(gid, rd)
-            else:
-                save_weather(gid, WeatherModel.NONE)
+            rd = random.choice([i for i in WeatherModel])
+            save_weather(gid, rd)
 
     if not now.day == 1:  # 每月1号结算
         return

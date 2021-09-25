@@ -14,7 +14,7 @@ class PolicyModel(Enum):
     STRONG_TEC = [4, "加强科研", "消耗50点繁荣度，结算时科研进度额外增加一次结算,繁荣度不足则不会生效"]
     CATCH_ALL_FISH = [5, "竭泽而渔", "消耗30点繁荣度，结算时耕地收益增加50%,繁荣度不足则不会生效"]
     AGRICULTURAL_SUBSIDIES = [6, "农业补贴", "增加10点繁荣度，结算时耕地收益减少50%"]
-    POVERTY_ALLEVIATION_POLICIES = [7, "扶贫政策", "放弃耕地收益，额外支付城市面积*100的金币，增加20点繁荣度"]
+    POVERTY_ALLEVIATION_POLICIES = [7, "扶贫政策", "放弃耕地收益，额外支付城市面积*50的金币，增加20点繁荣度"]
 
     @staticmethod
     def get_by_id(id):
@@ -441,7 +441,7 @@ async def manor_sign(bot, ev: CQEvent):
                 geng_gold = int(0.5 * geng_gold)
             if p_m == PolicyModel.POVERTY_ALLEVIATION_POLICIES:
                 fanrong += 10
-                geng_gold = -get_all_manor(level) * 100
+                geng_gold = -get_all_manor(level) * 50
             msg += f"\n耕地收入为{geng_gold}金币"
         else:
             # 沙暴减少20繁荣
