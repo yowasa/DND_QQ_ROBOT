@@ -1126,3 +1126,47 @@ def get_all_build_counter(gid, uid):
         b_m = BuildModel.get_by_id(i[0])
         build_num_map[b_m] = i[1]
     return build_num_map
+
+
+# 处理我方队伍增益 defen 为cid列表 z_atk与z_hp是经过buff后的原始攻击和hp
+def duel_my_buff(gid, uid, defen, z_atk, z_hp):
+    chara_map = count_char_character(defen)
+    duel = DuelCounter()
+    cidlist = duel._get_cards(gid, uid)
+    changwai_li = [cid for cid in cidlist if cid not in defen]
+    changwai_map = count_char_character(changwai_li)
+    hp_buff = 1 + (chara_map["固执"] * 5 + changwai_map["固执"] + chara_map["冷静"]) / 100
+    atk_buff = 1 + (chara_map["自大"] * 5 + changwai_map["自大"] + chara_map["冷静"]) / 100
+    hp_gu = 0
+    atk_gu = 0
+    for i in changwai_li:
+        if check_have_character(i, "弱气"):
+            hp, atk = get_card_battle_info(gid, uid, i)
+            hp_gu += int(hp * 0.1)
+        if check_have_character(i, "毒舌"):
+            hp, atk = get_card_battle_info(gid, uid, i)
+            atk_gu += int(atk * 0.1)
+
+    z_hp = int(z_hp * hp_buff)
+    z_atk = int(z_atk * atk_buff)
+    my_recover = chara_map["温柔"] * 5 + chara_map["冷静"] * 1 + changwai_map["温柔"]
+    my_double = chara_map["淘气"] * 5 + chara_map["冷静"] * 1 + changwai_map["淘气"]
+    my_crit = chara_map["天然"] * 5 + chara_map["冷静"] * 1 + changwai_map["天然"]
+    my_boost = chara_map["病娇"] * 5 + chara_map["冷静"] * 1 + changwai_map["病娇"]
+    return Attr(z_hp, z_atk, my_boost, my_crit, my_double, my_recover)
+
+
+# 处理敌方debuff
+def duel_enemy_buff(defen, e_hp, e_atk, e_buff_li):
+    chara_map = count_char_character(defen)
+    hp_debuff = 1 - (chara_map["腹黑"] * 5) / 100
+    atk_debuff = 1 - (chara_map["悠闲"] * 5) / 100
+    e_hp = int(e_hp * hp_debuff)
+    e_atk = int(e_atk * atk_debuff)
+    debuff = 1 - chara_map["无口"] * 0.2
+    e_buff_li = [int(i * debuff) for i in e_buff_li]
+    if chara_map["弱气"]:
+        e_buff_li[1] = 0
+    if chara_map["毒舌"]:
+        e_buff_li[3] = 0
+    return Attr(e_hp, e_atk, e_buff_li[0], e_buff_li[1], e_buff_li[2], e_buff_li[3])

@@ -443,7 +443,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
     else:
         e_buff_li = dungeoninfo.get("recommend_ce_buff")
     # 获取敌我最终数值
-    my = duel_my_buff(defen, z_atk, z_hp)
+    my = duel_my_buff(gid,uid,defen, z_atk, z_hp)
     enemy = duel_enemy_buff(defen, e_hp, e_atk, e_buff_li)
     # 模拟1000次战斗
     count = 0
@@ -564,7 +564,7 @@ async def add_duiwu_t(bot, ev: CQEvent):
     else:
         e_buff_li = dungeoninfo.get("recommend_ce_buff")
     # 获取敌我最终数值
-    my = duel_my_buff(defen, z_atk, z_hp)
+    my = duel_my_buff(gid,uid,defen, z_atk, z_hp)
     enemy = duel_enemy_buff(defen, e_hp, e_atk, e_buff_li)
     # 判定每日上限
     guid = gid, uid
@@ -1813,7 +1813,7 @@ async def add_team(bot, ev: CQEvent):
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
-        my = duel_my_buff([i[0] for i in teaminfo], z_atk, z_hp)
+        my = duel_my_buff(gid,uid,[i[0] for i in teaminfo], z_atk, z_hp)
 
         res = chara.gen_team_pic(charalist, star_slot_verbose=False)
         bio = BytesIO()
@@ -1840,7 +1840,7 @@ async def add_team(bot, ev: CQEvent):
         star = CE._get_cardstar(gid, uid, cid)
         charalist.append(chara.Chara(cid, star, 0))
         CE._add_team(gid, uid, cid, teamname)
-    my = duel_my_buff(defen, z_atk, z_hp)
+    my = duel_my_buff(gid,uid,defen, z_atk, z_hp)
     res = chara.gen_team_pic(charalist, star_slot_verbose=False)
     bio = BytesIO()
     res.save(bio, format='PNG')
@@ -1892,7 +1892,7 @@ async def my_teamlst(bot, ev: CQEvent):
             star = CE._get_cardstar(gid, uid, cid)
             charalist.append(chara.Chara(cid, star, 0))
             bianzu = bianzu + f"{c.name} "
-        my = duel_my_buff([i[0] for i in cidlist], z_atk, z_hp)
+        my = duel_my_buff(gid,uid,[i[0] for i in cidlist], z_atk, z_hp)
         res = chara.gen_team_pic(charalist, star_slot_verbose=False)
         bio = BytesIO()
         res.save(bio, format='PNG')

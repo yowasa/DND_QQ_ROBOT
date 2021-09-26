@@ -762,23 +762,23 @@ def save_weather(gid, weather: WeatherModel):
 
 character = {
     "傲娇": "副本资源获取量+10%",
-    "温柔": "队伍回复率增加5%",
+    "温柔": "队伍回复率增加5% 场外:增加1%",
     "勤奋": "修炼经验获取增加 副本获胜时5%概率触发恢复一次副本次数",
     "坦率": "更容易触发彩蛋，更容易提高好感度",
     "勇敢": "个体atk增加10%",
-    "固执": "队伍hp增加5%",
-    "悠闲": "弱化敌人5%atk",
-    "淘气": "所在队伍连击率增加5%",
-    "元气": "团队掉落率增加1%",
-    "弱气": "敌方不能够触发暴击",
-    "天然": "队伍暴击率增加5%",
-    "毒舌": "敌方不能够触发回复",
+    "固执": "队伍hp增加5% 场外:增加1%",
+    "悠闲": "弱化敌人5%atk ",
+    "淘气": "队伍连击率增加5% 场外:增加1%",
+    "元气": "队伍掉落率增加1% ",
+    "弱气": "敌方不能够触发暴击 场外:队伍增加该角色10%的hp",
+    "天然": "队伍暴击率增加5% 场外:增加1%",
+    "毒舌": "敌方不能够触发回复 场外:队伍增加该角色10%的atk",
     "冷静": "队伍全属性提高1%",
-    "自大": "队伍atk力增加5% 更难增加好感",
+    "自大": "队伍atk力增加5% 更难增加好感 场外:增加1%",
     "慎重": "个体hp增加10%",
-    "病娇": "队伍boost率增加5% 不会被抢走 不能够分手",
+    "病娇": "队伍boost率增加5% 不会被抢走 不能够分手 场外:增加1%",
     "无口": "敌方触发增益的概率降低20% ",
-    "腹黑": "副本/boos战开始时扣除对方当前血量5%"
+    "腹黑": "扣除对方5%血量"
 }
 import json
 
@@ -923,13 +923,17 @@ def hashval(str, siz):
     hash = 0
     for x in str: hash += (ord(x))
     return (hash % siz)
+
+
 import hashlib
+
 
 def md5(str):
     m = hashlib.md5()
     m.update(str.encode("utf8"))
     print(m.hexdigest())
     return m.hexdigest()
+
 
 # 获取战斗风格描述
 def get_battle_style(cid):
@@ -944,32 +948,3 @@ def get_battle_style(cid):
         return "偏守"
     else:
         return "重守"
-
-
-# 处理我方队伍增益 defen 为cid列表 z_atk与z_hp是经过buff后的原始攻击和hp
-def duel_my_buff(defen, z_atk, z_hp):
-    chara_map = count_char_character(defen)
-    hp_buff = 1 + (chara_map["固执"] * 5) / 100
-    atk_buff = 1 + (chara_map["自大"] * 5) / 100
-    z_hp = int(z_hp * hp_buff)
-    z_atk = int(z_atk * atk_buff)
-    my_recover = chara_map["温柔"] * 5 + chara_map["冷静"] * 1
-    my_double = chara_map["淘气"] * 5 + chara_map["冷静"] * 1
-    my_crit = chara_map["天然"] * 5 + chara_map["冷静"] * 1
-    my_boost = chara_map["病娇"] * 5 + chara_map["冷静"] * 1
-    return Attr(z_hp, z_atk, my_boost, my_crit, my_double, my_recover)
-
-# 处理敌方debuff
-def duel_enemy_buff(defen, e_hp, e_atk, e_buff_li):
-    chara_map = count_char_character(defen)
-    hp_debuff = 1 - (chara_map["腹黑"] * 5) / 100
-    atk_debuff = 1 - (chara_map["悠闲"] * 5) / 100
-    e_hp = int(e_hp * hp_debuff)
-    e_atk = int(e_atk * atk_debuff)
-    debuff = 1 - chara_map["无口"] * 0.2
-    e_buff_li = [int(i * debuff) for i in e_buff_li]
-    if chara_map["弱气"]:
-        e_buff_li[1] = 0
-    if chara_map["毒舌"]:
-        e_buff_li[3] = 0
-    return Attr(e_hp, e_atk, e_buff_li[0], e_buff_li[1], e_buff_li[2], e_buff_li[3])
