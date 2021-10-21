@@ -75,9 +75,9 @@ async def item_all(bot, ev: CQEvent):
 async def manor_begin(bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    # weather = get_weather(gid)
-    # if weather != WeatherModel.FENGYU:
-    #     return
+    weather = get_weather(gid)
+    if weather != WeatherModel.FENGYU:
+        return
     guid = gid, uid
     duel = DuelCounter()
     score_counter = ScoreCounter2()

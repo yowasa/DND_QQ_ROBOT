@@ -7,6 +7,21 @@ from hoshino.config.__bot__ import BASE_DB_PATH
 DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'pcr_duel.db')
 
 
+class DunInfo():
+    def __init__(self, r=None):
+        if r:
+            self.gid = r[0]
+            self.uid = r[1]
+            self.cids = eval(r[2])
+            self.dun_model = r[3]
+            self.left_hp = r[4]
+            self.left_sp = r[5]
+            self.use_skill = eval(r[6])
+            self.now_dun = r[7]
+            self.from_dun = r[8]
+            self.able_dun = eval(r[9])
+
+
 class CECounter:
     def __init__(self):
         os.makedirs(os.path.dirname(DUEL_DB_PATH), exist_ok=True)
@@ -15,7 +30,6 @@ class CECounter:
         self._create_equipment()
         self._create_dun_score()
         self._create_dressequip()
-        # rank表
         self._create_rank()
         self._create_bossstate()
         self._create_bossfight()
@@ -31,9 +45,47 @@ class CECounter:
         self._create_cardstar()
         self._create_gecha_add()
         self._create_zhuansheng()
+        self._create_dun_info()
 
     def _connect(self):
         return sqlite3.connect(DUEL_DB_PATH)
+
+    def _create_dun_info(self):
+        try:
+            self._connect().execute('''CREATE TABLE IF NOT EXISTS DUN_INFO
+                          (GID             INT    NOT NULL,
+                           UID           INT    NOT NULL,
+                           CIDS TEXT NOT NULL,
+                           DUN_MODEL INT,
+                           LEFT_HP INT NOT NULL,
+                           LEFT_SP INT NOT NULL,
+                           USE_SKILL TEXT NOT NULL,
+                           NOW_DUN TEXT,
+                           FROM_DUN TEXT,
+                           ABLE_DUN TEXT NOT NULL,
+                           PRIMARY KEY(GID, UID));''')
+        except:
+            raise Exception('创建副本信息表发生错误')
+
+    def _select_dun_info(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                f'SELECT * FROM DUN_INFO WHERE GID={gid} AND UID={uid}', ).fetchall()
+            if r:
+                dun=DunInfo(r=r[0])
+                return dun
+            else:
+                return None
+        except:
+            raise Exception('查找副本信息时生错误')
+
+    def _save_dun_info(self, dun_info: DunInfo):
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO DUN_INFO (GID, UID, CIDS, DUN_MODEL, LEFT_HP, LEFT_SP, USE_SKILL, NOW_DUN, FROM_DUN, ABLE_DUN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (dun_info.gid, dun_info.uid, str(dun_info.cids), dun_info.dun_model, dun_info.left_hp, dun_info.left_sp,
+                 str(dun_info.use_skill), dun_info.now_dun, dun_info.from_dun, str(dun_info.able_dun)),
+            )
 
     def _create_exptable(self):
         try:
@@ -182,7 +234,7 @@ class CECounter:
             r = conn.execute(
                 "SELECT EID, TYPEID FROM DRESSEQUIP WHERE GID=? AND UID=? AND CID=? AND EID>0", (gid, uid, cid)
             ).fetchall()
-        return [c[0] for c in r] if r else {}
+        return [c[0] for c in r] if r else []
 
     # 获取角色穿戴装备列表
     def _get_dress_info(self, gid, uid, cid, typeid):
@@ -712,7 +764,7 @@ class CECounter:
         except:
             raise Exception('创建角色转生表发生错误')
 
-    # 获取角色转生等级
+    # 获取角色转生等级（等级上限提升次数)
     def _get_zhuansheng(self, gid, uid, cid):
         try:
             r = self._connect().execute("SELECT NUM FROM ZHUANSHENG WHERE GID=? AND UID=? AND CID=?",

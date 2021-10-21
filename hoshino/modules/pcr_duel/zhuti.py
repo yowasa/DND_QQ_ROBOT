@@ -634,12 +634,12 @@ async def add_noble(bot, ev: CQEvent):
             msg = '您已经在本群创建过角色了，请发送[个人信息]查询。'
             await bot.send(ev, msg, at_sender=True)
             return
-        item = get_item_by_name("命运牵引")
-        add_item(gid, uid, item, num=10)
-        girlmsg = f'你现在为测试组成员，已经为你添加10个命运牵引'
-        # item = get_item_by_name("梦境巡游")
-        # add_item(gid, uid, item, num=1)
-        # girlmsg = f'为您发放了道具[梦境巡游],使用[开始巡游]指令去寻找你的初始女友吧'
+        # item = get_item_by_name("命运牵引")
+        # add_item(gid, uid, item, num=20)
+        # girlmsg = f'你现在为测试组成员，已经为你添加20个命运牵引'
+        item = get_item_by_name("梦境巡游")
+        add_item(gid, uid, item, num=1)
+        girlmsg = f'为您发放了道具[梦境巡游],使用[开始巡游]指令去寻找你的初始女友吧'
         duel._set_level(gid, uid, 1)
         msg = f'\n创建角色成功！\n您的初始爵位是平民\n可以拥有1名女友。\n金币:5000，声望:0\n{girlmsg}'
         score_counter = ScoreCounter2()
@@ -662,8 +662,9 @@ async def add_warehouse(bot, ev: CQEvent):
     rate = housenum + 1
     need_sw = rate * SHANGXIAN_SW
     need_gold = rate * SHANGXIAN_NUM
-    if duel._get_level(gid, uid) <= 9:
-        msg = '只有成为皇帝后，才能扩充女友上限喔'
+    item = get_item_by_name("后宫之证")
+    if check_have_item(gid, uid, item):
+        msg = '只有拥有后宫之证，才能扩充女友上限喔'
         await bot.send(ev, msg, at_sender=True)
         return
     if prestige < need_sw:
@@ -674,18 +675,18 @@ async def add_warehouse(bot, ev: CQEvent):
         msg = f'增加女友上限需要消耗{need_gold}金币，您的金币不足哦'
         await bot.send(ev, msg, at_sender=True)
         return
-    else:
-        if housenum >= WAREHOUSE_NUM:
-            msg = f'您已增加{WAREHOUSE_NUM}次上限，无法继续增加了哦'
-            await bot.send(ev, msg, at_sender=True)
-            return
 
-        duel._add_warehouse(gid, uid, 1)
-        score_counter._reduce_score(gid, uid, need_gold)
-        score_counter._reduce_prestige(gid, uid, need_sw)
-        myhouse = get_girlnum_buy(gid, uid)
-        msg = f'您消耗了{need_gold}金币，{need_sw}声望，增加了1个女友上限，目前的女友上限为{myhouse}名'
+    if housenum >= WAREHOUSE_NUM:
+        msg = f'您已增加{WAREHOUSE_NUM}次上限，无法继续增加了哦'
         await bot.send(ev, msg, at_sender=True)
+        return
+    use_item(gid, uid, item)
+    duel._add_warehouse(gid, uid, 1)
+    score_counter._reduce_score(gid, uid, need_gold)
+    score_counter._reduce_prestige(gid, uid, need_sw)
+    myhouse = get_girlnum_buy(gid, uid)
+    msg = f'您消耗了{need_gold}金币，{need_sw}声望，增加了1个女友上限，目前的女友上限为{myhouse}名'
+    await bot.send(ev, msg, at_sender=True)
 
 
 @sv.on_fullmatch(['个人信息', '查询贵族', '贵族查询', '贵族查看', '查看贵族', '我的贵族'])
@@ -936,14 +937,14 @@ async def add_girl(bot, ev: CQEvent):
             msg = '必须达到准男爵以上才能接受封地'
             await bot.finish(ev, msg, at_sender=True)
         # 初始化耕地比例
-        geng = 10
+        geng = 20
         save_user_counter(gid, uid, UserModel.GENGDI, geng)
         # 初始化治安
         zhian = 80
         save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
 
         # 初始化税率
-        shui = 10
+        shui = 20
         save_user_counter(gid, uid, UserModel.TAX_RATIO, shui)
 
         all_manor = get_all_manor(level)
@@ -1882,6 +1883,7 @@ async def breakup(bot, ev: CQEvent):
         save_user_counter(gid, uid, UserModel.FENSHOU, count)
         await bot.send(ev, msg, at_sender=True)
 
+
 @sv.on_prefix('强制分手')
 async def breakup(bot, ev: CQEvent):
     args = ev.message.extract_plain_text().split()
@@ -1922,9 +1924,6 @@ async def breakup(bot, ev: CQEvent):
     duel._delete_queen_owner(gid, queen)
     duel._set_level(gid, uid, 0)
     await bot.finish(ev, f"\n对方带走了你的心\n你已死亡\n爵位金币声望女友清空\n请发送创建贵族开始游戏\n{c.icon.cqcode}", at_sender=True)
-
-
-
 
 
 @sv.on_rex(f'^一键分手(.*)$')
@@ -1984,7 +1983,7 @@ async def breakup_yj(bot, ev: CQEvent):
                 msg = f'您的爵位分手一位女友需要{needscore}金币和{needSW}声望哦。\n分手不易，做好准备再来吧。'
                 await bot.finish(ev, msg, at_sender=True)
             if check_have_character(cid, "病娇"):
-                msg=f"{c.name}:我不会离开你，除非让我带走你的心。(请使用强制分手+女友名进行强制分手)\n{c.icon.cqcode}"
+                msg = f"{c.name}:我不会离开你，除非让我带走你的心。(请使用强制分手+女友名进行强制分手)\n{c.icon.cqcode}"
             else:
                 duel._delete_card(gid, uid, cid)
                 score_counter._reduce_score(gid, uid, needscore)
@@ -2438,11 +2437,20 @@ async def buy_information(bot, ev: CQEvent):
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
     style = get_battle_style(cid)
+    skill = list(set(get_char_skill(cid)))
+    jiban = ''
+    if char_fetter_json.get(str(cid)):
+        jiban = "\n羁绊:\n"
+        jiban_li = []
+        for i in char_fetter_json.get(str(cid)):
+            jiban_li.append(' '.join([duel_chara.fromid(j).name for j in i]))
+        jiban += '\n'.join(jiban_li)
     char_li = get_char_character(cid)
+
     char_msg = ""
     if char_li:
         char_msg = "\n性格加成为:\n" + "\n".join([f"{i}:{character[i]}" for i in char_li])
-    msg = f'\n花费了500金币，您买到了{c.name}的以下情报\n战斗风格为：{style}{char_msg}\n 最喜欢的礼物是:\n{favorite}\n喜欢的礼物是:\n{like}\n一般喜欢的礼物是:\n{normal}\n不喜欢的礼物是:\n{dislike}\n{nvmes}'
+    msg = f'\n花费了500金币，您买到了{c.name}的以下情报\n战斗风格为：{style}{char_msg}\n技能：{" ".join(skill)}{jiban}\n最喜欢的礼物是:\n{favorite}\n喜欢的礼物是:\n{like}\n一般喜欢的礼物是:\n{normal}\n不喜欢的礼物是:\n{dislike}\n{nvmes}'
     await bot.send(ev, msg, at_sender=True)
 
 
@@ -3121,40 +3129,44 @@ async def my_fashion(bot, ev: CQEvent):
     if owner == 0:
         await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
         return
-    if uid == owner:
-        queen_msg = ''
-        if duel._get_queen_owner(gid, cid) != 0:
-            queen_msg = f'现在是您的妻子\n'
-        if duel._get_favor(gid, uid, cid) == None:
-            duel._set_favor(gid, uid, cid, 0)
-        # 获取角色星级
-        cardstar = CE._get_cardstar(gid, uid, cid)
-        zllevel = CE._get_zhuansheng(gid, uid, cid)
-        equip_list = ''
-        equip_msg = ''
-        dreeslist = CE._get_dress_list(gid, uid, cid)
-        for eid in dreeslist:
-            equipinfo = get_equip_info_id(eid)
-            if equipinfo:
-                equip_list = equip_list + f"\n{equipinfo['icon']}{equipinfo['type']}:{equipinfo['name']}({equipinfo['model']})"
-        if equip_list:
-            equip_msg = f"\n目前穿戴的装备为:{equip_list}"
-        favor = duel._get_favor(gid, uid, cid)
-        relationship, text = get_relationship(favor)
-        card_hp,card_atk = get_card_battle_info(gid, uid, cid)
-        level_info = CE._get_card_level(gid, uid, cid)
-        rank = CE._get_rank(gid, uid, cid)
-        if up_icon:
-            nvmes = up_icon
-        up_msg = ''
-        if up_name:
-            up_msg = f"\n目前穿戴的时装是{up_name}\n"
-        if lh_msg:
-            lh_msg = f"\n您为{c.name}购买的时装有(只显示未穿的2件)：" + lh_msg
-        msg=f"""
-名称:{c.name}
+    queen_msg = ''
+    if duel._get_queen_owner(gid, cid) != 0:
+        queen_msg = f'现在是您的妻子\n'
+    if duel._get_favor(gid, uid, cid) == None:
+        duel._set_favor(gid, uid, cid, 0)
+    # 获取角色星级
+    cardstar = CE._get_cardstar(gid, uid, cid)
+    zllevel = CE._get_zhuansheng(gid, uid, cid)
+    equip_list = ''
+    equip_msg = ''
+    dreeslist = CE._get_dress_list(gid, uid, cid)
+    for eid in dreeslist:
+        equipinfo = get_equip_info_id(eid)
+        if equipinfo:
+            equip_list = equip_list + f"\n{equipinfo['icon']}{equipinfo['type']}:{equipinfo['name']}({equipinfo['model']})"
+    if equip_list:
+        equip_msg = f"\n目前穿戴的装备为:{equip_list}"
+    favor = duel._get_favor(gid, uid, cid)
+    relationship, text = get_relationship(favor)
+    card_hp, card_atk, sp, skills = get_card_battle_info(gid, uid, cid)
+    level_info = CE._get_card_level(gid, uid, cid)
+    rank = CE._get_rank(gid, uid, cid)
+    if up_icon:
+        nvmes = up_icon
+    up_msg = ''
+    if up_name:
+        up_msg = f"\n目前穿戴的时装是{up_name}\n"
+    if lh_msg:
+        lh_msg = f"\n您为{c.name}购买的时装有(只显示未穿的2件)：" + lh_msg
+    char_li = get_char_character(cid)
+    char_msg = ""
+    if char_li:
+        char_msg = "\n性格:\n" + "\n".join([f"{i}:{character[i]}" for i in char_li])
+    msg = f"""
+名称:{c.name}{char_msg}
 {cardstar}星 {zllevel}转 rank{rank} {level_info}级
-hp:{card_hp} atk:{card_atk}
+hp:{card_hp} atk:{card_atk} sp:{sp}
+技能:{' '.join(skills)}
 好感度:{favor}({queen_msg} {relationship})
 “{text}”
 {equip_msg}{up_msg}{nvmes}{lh_msg}

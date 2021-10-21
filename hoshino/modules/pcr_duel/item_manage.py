@@ -14,11 +14,11 @@ async def gift_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗  
              道具帮助
-[我的道具]
-[道具一览]
+[我的道具] [道具一览]
 [道具效果] {道具名称}
 [使用道具] {道具名称}
 [批量使用道具] {道具名称}
+[决斗储能] [副本储能]
 [我的决斗币]
 [兑换道具] {道具等级}
 
@@ -130,12 +130,6 @@ async def consume_item(bot, ev: CQEvent):
             counter._add_item(gid, uid, int(item_info['id']), num=-1)
         batch_result_msg.append(result[1])
     await bot.send(ev, '\n' + '\n'.join(batch_result_msg), at_sender=True)
-    if get_weather(gid) == WeatherModel.CANGTIAN:
-        rd = random.randint(1, 100)
-        if rd <= suc_num:
-            item = choose_item()
-            add_item(gid, uid, item)
-            await bot.send(ev, f'由于天气的效果你额外获取到了{item["rank"]}级道具{item["name"]}！')
     if get_weather(gid) == WeatherModel.LIERI:
         reduce_score = 10000 * suc_num
         sc = ScoreCounter2()
@@ -161,12 +155,6 @@ async def consume_item(bot, ev: CQEvent):
         suc_num += 1
         counter._add_item(gid, uid, int(item_info['id']), num=-1)
     await bot.send(ev, result[1], at_sender=True)
-    if get_weather(gid) == WeatherModel.CANGTIAN:
-        rd = random.randint(1, 100)
-        if rd <= suc_num:
-            item = choose_item()
-            add_item(gid, uid, item)
-            await bot.send(ev, f'由于天气的效果你额外获取到了{item["rank"]}级道具{item["name"]}！')
     if get_weather(gid) == WeatherModel.LIERI:
         reduce_score = 10000 * suc_num
         sc = ScoreCounter2()
@@ -245,42 +233,18 @@ async def add_level(msg, bot, ev: CQEvent):
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
         return (False, msg)
     CE = CECounter()
-    dengji = CE._get_card_level(gid, uid, cid)
-    if dengji < 100:
+    max_time = CE._get_zhuansheng(gid, uid, cid)
+
+    if max_time < 5:
         return (False, f"{c.name}等级不足100，请先升级")
-    if dengji == 200:
-        return (False, f"角色{c.name}已经200级了，无法再突破上限")
-    now_level = dengji + 10 if dengji < 190 else 200
-    CE._add_card_exp(gid, uid, cid, now_level, 0)
-    return (True, f"角色{c.name}突破了自己的能力界限 达到了新的高度，当前等级为{now_level}级{nvmes}")
-
-
-@msg_route("前世之忆")
-async def add_zhuansheng(msg, bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    if len(msg) == 0:
-        return (False, "请在道具后+空格+女友名称")
-    name = msg[0]
-    cid = duel_chara.name2id(name)
-    if cid == 1000:
-        return (False, "请输入正确的角色名")
-    duel = DuelCounter()
-    owner = duel._get_card_owner(gid, cid)
-    c = duel_chara.fromid(cid)
-    nvmes = get_nv_icon_with_fashion(gid, uid, cid)
-    if owner == 0:
-        return (False, f"{c.name}现在还是单身哦,先去约到她吧{nvmes}")
-    if uid != owner:
-        msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法对其使用道具哦。'
-        return (False, msg)
-    CE = CECounter()
-    zllevel = CE._get_zhuansheng(gid, uid, cid)
-    MAX_ZS = 5
-    if zllevel == MAX_ZS:
-        return (False, '该女友已经到最高转生等级，无法继续转生啦。')
     CE._add_zhuansheng(gid, uid, cid)
-    return (True, f'您的女友{name}想起了前世的记忆，基础战力加成提升了{nvmes}')
+    max_level = (max_time + 1) * 10 + 50
+    return (True, f"角色{c.name}突破了自己的能力界限，等级上限提高10级，目前上限为{max_level}")
+
+
+@msg_route("后宫之证")
+async def add_zhuansheng(msg, bot, ev: CQEvent):
+    return (False, f'使用【增加女友上限】指令')
 
 
 @msg_route("空想之物")
@@ -339,11 +303,9 @@ async def open_sou(msg, bot, ev: CQEvent):
 async def open_sou(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
-        return (True, f'你使用了咲夜怀表，但是什么也没发生')
     guid = gid, uid
     # 副本 签到 低保 约会 决斗 礼物
-    daily_dun_limiter.reset(guid)
+    daily_stage_limiter.reset(guid)
     daily_sign_limiter.reset(guid)
     daily_zero_get_limiter.reset(guid)
     daily_date_limiter.reset(guid)
@@ -372,19 +334,37 @@ async def xunyou(msg, bot, ev: CQEvent):
     return (False, f'使用"开始巡游"指令开始你的梦境之旅')
 
 
+@msg_route("初级进阶许可")
+async def chuji(msg, bot, ev: CQEvent):
+    return (False, f'提升rank自动消耗 无需使用')
+
+
+@msg_route("中级进阶许可")
+async def zhongji(msg, bot, ev: CQEvent):
+    return (False, f'提升rank自动消耗 无需使用')
+
+
+@msg_route("高级进阶许可")
+async def gaoji(msg, bot, ev: CQEvent):
+    return (False, f'提升rank自动消耗 无需使用')
+
+
+@msg_route("储能核心")
+async def gaoji(msg, bot, ev: CQEvent):
+    return (False, f'请使用[决斗储能]或[副本储能]')
+
+
 @msg_route("超再生力")
 async def super_regenerate(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
-        return (True, f'你使用了超再生力，但是什么也没发生')
     guid = gid, uid
-    if daily_dun_limiter.get_num(guid):
-        daily_dun_limiter.increase(guid, num=-1)
+    if daily_stage_limiter.get_num(guid):
+        daily_stage_limiter.increase(guid, num=-1)
         daily_duel_limiter.increase(guid, num=-1)
     num = get_user_counter(gid, uid, UserModel.RECOVER)
     save_user_counter(gid, uid, UserModel.RECOVER, num + 5)
-    return (True, f'你使用了超再生力恢复了一次决斗和副本次数，接下来直到持续五次为止，每小时恢复一点决斗次数和副本次数')
+    return (True, f'你使用了超再生力恢复了一次决斗和副本次数，接下来直到持续五次为止，每小时恢复一点决斗次数和关卡次数')
 
 
 @msg_route("有效分裂")
@@ -444,21 +424,21 @@ async def fa_money(msg, bot, ev: CQEvent):
 
 def wa_all(gid, uid, msg_li, time=1):
     wa_mr(gid, uid, msg_li, time=time)
-    wa_ur(gid, uid, msg_li, time=2 * time)
+    wa_ur(gid, uid, msg_li, time=time)
     wa_item(gid, uid, msg_li, time=2 * time)
-    wa_gold(gid, uid, msg_li, time=3 * time)
-    wa_sw(gid, uid, msg_li, time=3 * time)
+    wa_gold(gid, uid, msg_li, time=3)
+    wa_sw(gid, uid, msg_li, time=3)
 
 
 def wa_mr(gid, uid, msg_li, time=1):
     for i in range(time):
-        rn = random.randint(1, 100)
+        rn = random.randint(1, 500)
         if rn == 1:
             awardequip_info = add_equip_info(gid, uid, 6, [136, 255, 247, 248, 249, 250, 251, 252, 253, 254])
             msg_li.append(f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
 
 
-def wa_ur(gid, uid, msg_li, time=2):
+def wa_ur(gid, uid, msg_li, time=1):
     for i in range(time):
         rn = random.randint(1, 100)
         if rn <= 1:
@@ -476,7 +456,7 @@ def wa_ur(gid, uid, msg_li, time=2):
 def wa_item(gid, uid, msg_li, time=2):
     for i in range(time):
         rn = random.randint(1, 100)
-        if rn <= 10:
+        if rn <= 5:
             item = choose_item()
             add_item(gid, uid, item)
             msg_li.append(f"你获得了{item['name']}")
@@ -516,27 +496,42 @@ async def wabao(msg, bot, ev: CQEvent):
     return (True, f"你进行了一场惊险的探险:\n" + "\n".join(msg_li))
 
 
-@msg_route("战无不胜")
+@msg_route("蓝药水")
 async def battle_match(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    i_c = ItemCounter()
-    old = i_c._get_buff_state(gid, uid)
-    i_c._save_user_state(gid, uid, 0, old + 200)
-    return (True, f"你使用了战无不胜，下一次进入副本战力计算增加200%！！")
+    guid = gid, uid
+    if daily_dun_limiter.check(guid):
+        await bot.finish(ev, '请先进入副本再使用药剂', at_sender=True)
+    CE = CECounter()
+    dun = CE._select_dun_info(gid, uid)
+    dun.left_sp += 5
+    my = duel_my_buff(gid, uid, dun.cids)
+    if dun.left_sp > my.sp:
+        dun.left_sp = my.sp
+    CE._save_dun_info(dun)
+    return (True, f"你使用了蓝药水，副本队伍sp回复至{dun.left_sp}")
 
 
 @msg_route("战斗记忆")
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    get_exp = 300000
+    get_exp = 50
     weather = get_weather(gid)
     if weather == WeatherModel.WUYU:
         get_exp = int(1.25 * get_exp)
+    if len(msg) == 0:
+        return (False, "请在道具后+空格+女友名称")
+    name = msg[0]
+    cid = duel_chara.name2id(name)
+    c = duel_chara.fromid(cid)
+    if cid == 1000:
+        return (False, "请输入正确的角色名")
+    test, now_level, msg = add_exp(gid, uid, cid, get_exp)
     CE = CECounter()
     CE._add_exp_chizi(gid, uid, get_exp)
-    return (True, f"你观看了一场异常精彩的战斗，获得了{get_exp}经验!！(加入经验池)")
+    return (True, f"{c.name}观看了一场精彩的战斗，获得了{get_exp}经验,{msg}")
 
 
 @msg_route("零时迷子")
@@ -545,21 +540,24 @@ async def battle_exp(msg, bot, ev: CQEvent):
     uid = ev.user_id
     if get_weather(gid) == WeatherModel.HUANGSHA:
         return (False, f'黄砂天禁用零时')
-    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
-        return (True, f'你使用了零时迷子，但是什么也没发生')
     guid = gid, uid
-    daily_dun_limiter.reset(guid)
+    daily_stage_limiter.reset(guid)
     return (True, f'你使用了零时迷子，今天关闭的副本重新开放了（副本限制已重置）')
 
 
-@msg_route("鬼人药剂")
+@msg_route("红药水")
 async def battle_small(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    i_c = ItemCounter()
-    old = i_c._get_buff_state(gid, uid)
-    i_c._save_user_state(gid, uid, 0, old + 100)
-    return (True, f"你使用了鬼人药剂，下一次进入副本战力计算增加100%！！")
+    guid = gid, uid
+    if daily_dun_limiter.check(guid):
+        await bot.finish(ev, '请先进入副本再使用药剂', at_sender=True)
+    CE = CECounter()
+    dun = CE._select_dun_info(gid, uid)
+    my = duel_my_buff(gid, uid, dun.cids)
+    dun.left_hp = my.maxhp
+    CE._save_dun_info(dun)
+    return (True, f"你使用了红药水，副本队伍hp回复至{my.maxhp}")
 
 
 @msg_route("派对狂欢")
@@ -602,7 +600,6 @@ async def favor_cook(msg, bot, ev: CQEvent):
     uid = ev.user_id
     save_user_counter(gid, uid, UserModel.PENG_LAI_USED, 1)
     return (True, f'你服下此药，从此，你就不再是常人，时间和伤害无法在你的身上留下任何痕迹，你感觉自己失去了什么，却也变得无比充实。')
-
 
 @msg_route("心意蛋糕")
 async def favor_cook(msg, bot, ev: CQEvent):
@@ -672,8 +669,6 @@ async def money_mall(msg, bot, ev: CQEvent):
 async def money_mall(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if get_user_counter(gid, uid, UserModel.PENG_LAI_USED):
-        return (True, f'你使用了精英对局，但是什么也没发生')
     guid = gid, uid
     daily_duel_limiter.reset(guid)
     return (True, f'精英从不畏惧挑战（决斗次数已重置）')
@@ -683,13 +678,21 @@ async def money_mall(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    get_exp = 100000
+    get_exp = 100
     weather = get_weather(gid)
     if weather == WeatherModel.WUYU:
         get_exp = int(1.25 * get_exp)
+    if len(msg) == 0:
+        return (False, "请在道具后+空格+女友名称")
+    name = msg[0]
+    cid = duel_chara.name2id(name)
+    c = duel_chara.fromid(cid)
+    if cid == 1000:
+        return (False, "请输入正确的角色名")
+    test, now_level, msg = add_exp(gid, uid, cid, get_exp)
     CE = CECounter()
     CE._add_exp_chizi(gid, uid, get_exp)
-    return (True, f"你通读了一本经验之书，获得了{get_exp}经验(加入经验池)")
+    return (True, f"{c.name}通读了一本经验之书，获得了{get_exp}经验,{msg}")
 
 
 @msg_route("许愿神灯")
@@ -862,7 +865,7 @@ async def rush_world(msg, bot, ev: CQEvent):
 async def happy_day(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    get_fb = 2000
+    get_fb = 20
     weather = get_weather(gid)
     if weather == WeatherModel.WUYU:
         get_fb = int(1.25 * get_fb)
@@ -1047,3 +1050,46 @@ async def _(session: CommandSession):
         session.state[session.current_key] = img
     else:
         session.state[session.current_key] = text
+
+
+@sv.on_fullmatch(["决斗储能"])
+async def duel_contain(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if duel_judger.get_on_off_status(ev.group_id):
+        msg = '现在正在决斗中哦，请决斗后再进行储能吧。'
+        await bot.send(ev, msg, at_sender=True)
+        return
+    item = get_item_by_name("储能核心")
+    if not check_have_item(gid, uid, item):
+        await bot.send(ev, "你没有储能核心，无法进行决斗储能", at_sender=True)
+        return
+    guid = gid, uid
+    daily_duel_limiter.check(guid)
+    if daily_duel_limiter.get_num(guid) != 0:
+        await bot.finish(ev, f"你已经进行过了决斗，无法进行决斗储能", at_sender=True)
+    use_item(gid, uid, item)
+    daily_duel_limiter.increase(guid, num=daily_duel_limiter.max)
+    item = get_item_by_name("精英对局")
+    add_item(gid, uid, item)
+    await bot.send(ev, f'今日暂且休息，来日再战（已清空决斗次数，获得了{item["rank"]}级道具{item["name"]}）', at_sender=True)
+
+
+@sv.on_fullmatch(["副本储能"])
+async def duel_contain(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    item = get_item_by_name("储能核心")
+    if not check_have_item(gid, uid, item):
+        await bot.send(ev, "你没有储能核心，无法进行副本储能", at_sender=True)
+        return
+    guid = gid, uid
+    daily_stage_limiter.check(guid)
+    if daily_stage_limiter.get_num(guid) != 0:
+        await bot.finish(ev, f"你已经进行过了副本，无法进行副本储能", at_sender=True)
+    use_item(gid, uid, item)
+    daily_stage_limiter.increase(guid, num=daily_stage_limiter.max)
+    item = get_item_by_name("零时迷子")
+    add_item(gid, uid, item)
+    await bot.send(ev, f'今日暂且休息，来日再战（已清空副本次数，获得了{item["rank"]}级道具{item["name"]}）', at_sender=True)
+

@@ -1,0 +1,4142 @@
+{
+  "1": {
+    "eid": 1,
+    "type_id": 1,
+    "type": "副手",
+    "name": "木盾",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "2": {
+    "eid": 2,
+    "type_id": 2,
+    "type": "武器",
+    "name": "铁剑",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 12
+      }
+    }
+  },
+  "3": {
+    "eid": 3,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "皮衣",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "4": {
+    "eid": 4,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "草鞋",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "26": {
+    "eid": 26,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "布鞋",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "27": {
+    "eid": 27,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "村民布衣",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "28": {
+    "eid": 28,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "棉衣",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "29": {
+    "eid": 29,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "短袖衬衫",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "9": {
+    "eid": 9,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "背心",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "10": {
+    "eid": 10,
+    "type_id": 1,
+    "type": "副手",
+    "name": "塑料盾",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 20
+      }
+    }
+  },
+  "11": {
+    "eid": 11,
+    "type_id": 1,
+    "type": "副手",
+    "name": "捡来的门板",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 20
+      }
+    }
+  },
+  "12": {
+    "eid": 12,
+    "type_id": 1,
+    "type": "副手",
+    "name": "防撞桶",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 23
+      }
+    }
+  },
+  "13": {
+    "eid": 13,
+    "type_id": 1,
+    "type": "副手",
+    "name": "防撞锥",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 23
+      }
+    }
+  },
+  "14": {
+    "eid": 14,
+    "type_id": 2,
+    "type": "武器",
+    "name": "粗树枝",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 10
+      }
+    }
+  },
+  "15": {
+    "eid": 15,
+    "type_id": 2,
+    "type": "武器",
+    "name": "弹弓",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 13
+      }
+    }
+  },
+  "16": {
+    "eid": 16,
+    "type_id": 2,
+    "type": "武器",
+    "name": "木板",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 12
+      }
+    }
+  },
+  "17": {
+    "eid": 17,
+    "type_id": 2,
+    "type": "武器",
+    "name": "石头",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 10
+      }
+    }
+  },
+  "18": {
+    "eid": 18,
+    "type_id": 2,
+    "type": "武器",
+    "name": "妖精弹幕",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 15
+      }
+    }
+  },
+  "19": {
+    "eid": 19,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "妖精长靴",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "20": {
+    "eid": 20,
+    "type_id": 1,
+    "type": "副手",
+    "name": "门卫盾牌",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "21": {
+    "eid": 21,
+    "type_id": 2,
+    "type": "武器",
+    "name": "门卫警棍",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "22": {
+    "eid": 22,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "门卫衬衣",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "23": {
+    "eid": 23,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "门卫皮靴",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "24": {
+    "eid": 24,
+    "type_id": 2,
+    "type": "武器",
+    "name": "空水桶",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 15
+      }
+    }
+  },
+  "25": {
+    "eid": 25,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "脏女仆装",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "137": {
+    "eid": 137,
+    "type_id": 1,
+    "type": "副手",
+    "name": "头戴胖次",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "138": {
+    "eid": 138,
+    "type_id": 1,
+    "type": "副手",
+    "name": "除了名字酷眩没什么用的奇特防具",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "139": {
+    "eid": 139,
+    "type_id": 1,
+    "type": "副手",
+    "name": "有BBA味道的洋伞",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "140": {
+    "eid": 140,
+    "type_id": 1,
+    "type": "副手",
+    "name": "特厚的魔法书",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "141": {
+    "eid": 141,
+    "type_id": 1,
+    "type": "副手",
+    "name": "有BBA味道的睡帽",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "142": {
+    "eid": 142,
+    "type_id": 2,
+    "type": "武器",
+    "name": "除了名字酷眩没什么用的奇特武器",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "143": {
+    "eid": 143,
+    "type_id": 2,
+    "type": "武器",
+    "name": "雪球",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "144": {
+    "eid": 144,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "妖鼠之尾",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "145": {
+    "eid": 145,
+    "type_id": 2,
+    "type": "武器",
+    "name": "被愤怒的露娜萨砸坏的提琴",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "146": {
+    "eid": 146,
+    "type_id": 2,
+    "type": "武器",
+    "name": "被困扰的梅露兰掰弯的小号",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "147": {
+    "eid": 147,
+    "type_id": 2,
+    "type": "武器",
+    "name": "被抓狂的莉莉卡弹坏的电子琴",
+    "level": 1,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 17
+      }
+    }
+  },
+  "148": {
+    "eid": 148,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "有BBA味道的洋装",
+    "level": 1,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 35
+      }
+    }
+  },
+  "30": {
+    "eid": 30,
+    "type_id": 2,
+    "type": "武器",
+    "name": "高尔夫球杆",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 30
+      }
+    }
+  },
+  "31": {
+    "eid": 31,
+    "type_id": 2,
+    "type": "武器",
+    "name": "球棒",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 27
+      }
+    }
+  },
+  "32": {
+    "eid": 32,
+    "type_id": 2,
+    "type": "武器",
+    "name": "空心钢管",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 27
+      }
+    }
+  },
+  "33": {
+    "eid": 33,
+    "type_id": 1,
+    "type": "副手",
+    "name": "摩托车头盔",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 50
+      }
+    }
+  },
+  "5": {
+    "eid": 5,
+    "type_id": 1,
+    "type": "副手",
+    "name": "铁盾",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 50
+      }
+    }
+  },
+  "6": {
+    "eid": 6,
+    "type_id": 2,
+    "type": "武器",
+    "name": "白银大剑",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 25
+      }
+    }
+  },
+  "7": {
+    "eid": 7,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "白银胸甲",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 50
+      }
+    }
+  },
+  "8": {
+    "eid": 8,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "急速鞋",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 50
+      }
+    }
+  },
+  "34": {
+    "eid": 34,
+    "type_id": 1,
+    "type": "副手",
+    "name": "工地头盔",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 60
+      }
+    }
+  },
+  "35": {
+    "eid": 35,
+    "type_id": 1,
+    "type": "副手",
+    "name": "矿工帽",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 60
+      }
+    }
+  },
+  "36": {
+    "eid": 36,
+    "type_id": 1,
+    "type": "副手",
+    "name": "*禁止通行*路牌",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 60
+      }
+    }
+  },
+  "37": {
+    "eid": 37,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "道袍",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 70
+      }
+    }
+  },
+  "38": {
+    "eid": 38,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "僧衣",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 70
+      }
+    }
+  },
+  "39": {
+    "eid": 39,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "守矢☆应援T恤",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 85
+      }
+    }
+  },
+  "40": {
+    "eid": 40,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "赤足精通",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 90
+      }
+    }
+  },
+  "41": {
+    "eid": 41,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "脚底抹油",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 90
+      }
+    }
+  },
+  "42": {
+    "eid": 42,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "跳跳杆",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 80
+      }
+    }
+  },
+  "43": {
+    "eid": 43,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "自行车",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "44": {
+    "eid": 44,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "弹簧鞋",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 90
+      }
+    }
+  },
+  "45": {
+    "eid": 45,
+    "type_id": 1,
+    "type": "副手",
+    "name": "妖精护目镜",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 80
+      }
+    }
+  },
+  "46": {
+    "eid": 46,
+    "type_id": 1,
+    "type": "副手",
+    "name": "妖精护手",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 80
+      }
+    }
+  },
+  "47": {
+    "eid": 47,
+    "type_id": 2,
+    "type": "武器",
+    "name": "冻青蛙",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 49
+      }
+    }
+  },
+  "48": {
+    "eid": 48,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "妖精连衣裙",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "49": {
+    "eid": 49,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "妖精翅膀",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "50": {
+    "eid": 50,
+    "type_id": 1,
+    "type": "副手",
+    "name": "妖精女仆发饰",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "51": {
+    "eid": 51,
+    "type_id": 2,
+    "type": "武器",
+    "name": "妖精女仆扫把",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 37
+      }
+    }
+  },
+  "52": {
+    "eid": 52,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "妖精女仆装",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "53": {
+    "eid": 53,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "妖精女仆长靴",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "54": {
+    "eid": 54,
+    "type_id": 2,
+    "type": "武器",
+    "name": "湿拖把",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 37
+      }
+    }
+  },
+  "55": {
+    "eid": 55,
+    "type_id": 2,
+    "type": "武器",
+    "name": "破扫把",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 27
+      }
+    }
+  },
+  "56": {
+    "eid": 56,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "旧女仆装",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 60
+      }
+    }
+  },
+  "57": {
+    "eid": 57,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "旧女仆鞋",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 60
+      }
+    }
+  },
+  "149": {
+    "eid": 149,
+    "type_id": 1,
+    "type": "副手",
+    "name": "猫抓板",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 65
+      }
+    }
+  },
+  "150": {
+    "eid": 150,
+    "type_id": 1,
+    "type": "副手",
+    "name": "蕾蒂滑雪帽",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "151": {
+    "eid": 151,
+    "type_id": 1,
+    "type": "副手",
+    "name": "猫猫头套",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 105
+      }
+    }
+  },
+  "152": {
+    "eid": 152,
+    "type_id": 2,
+    "type": "武器",
+    "name": "藏了石头的雪球",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 40
+      }
+    }
+  },
+  "153": {
+    "eid": 153,
+    "type_id": 2,
+    "type": "武器",
+    "name": "猫猫痒痒挠",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 52
+      }
+    }
+  },
+  "154": {
+    "eid": 154,
+    "type_id": 2,
+    "type": "武器",
+    "name": "爆炸人偶-投掷ver.",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 55
+      }
+    }
+  },
+  "155": {
+    "eid": 155,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "蕾蒂运动服",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "156": {
+    "eid": 156,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "猫猫玩偶服",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 105
+      }
+    }
+  },
+  "157": {
+    "eid": 157,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "大号人偶女仆装",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 110
+      }
+    }
+  },
+  "158": {
+    "eid": 158,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "猫猫肉球鞋",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 105
+      }
+    }
+  },
+  "159": {
+    "eid": 159,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "蕾蒂溜冰鞋",
+    "level": 2,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "162": {
+    "eid": 162,
+    "type_id": 2,
+    "type": "武器",
+    "name": "蕾蒂滑雪杖",
+    "level": 2,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 50
+      }
+    }
+  },
+  "58": {
+    "eid": 58,
+    "type_id": 2,
+    "type": "武器",
+    "name": "河童拳套",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "59": {
+    "eid": 59,
+    "type_id": 2,
+    "type": "武器",
+    "name": "撬棍",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "60": {
+    "eid": 60,
+    "type_id": 2,
+    "type": "武器",
+    "name": "*限速20*路牌",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "61": {
+    "eid": 61,
+    "type_id": 1,
+    "type": "副手",
+    "name": "妖精的头盔",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 170
+      }
+    }
+  },
+  "62": {
+    "eid": 62,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "地狱流行款T恤",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 170
+      }
+    }
+  },
+  "63": {
+    "eid": 63,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "河童防水背心",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "64": {
+    "eid": 64,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "学校泳装",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "65": {
+    "eid": 65,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "火箭鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 170
+      }
+    }
+  },
+  "66": {
+    "eid": 66,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "阿拉伯飞毯",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 180
+      }
+    }
+  },
+  "67": {
+    "eid": 67,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "小熊车",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 180
+      }
+    }
+  },
+  "68": {
+    "eid": 68,
+    "type_id": 1,
+    "type": "副手",
+    "name": "命莲寺竹斗笠",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "69": {
+    "eid": 69,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "命莲寺僧衣",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "70": {
+    "eid": 70,
+    "type_id": 2,
+    "type": "武器",
+    "name": "命莲寺飞钵",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "71": {
+    "eid": 71,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "命莲寺布鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "72": {
+    "eid": 72,
+    "type_id": 1,
+    "type": "副手",
+    "name": "雾之湖冰冻结界",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "73": {
+    "eid": 73,
+    "type_id": 2,
+    "type": "武器",
+    "name": "雾之湖结晶",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "74": {
+    "eid": 74,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "雾之湖连衣裙",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "75": {
+    "eid": 75,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "雾之湖溜冰鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "76": {
+    "eid": 76,
+    "type_id": 1,
+    "type": "副手",
+    "name": "女仆长发饰",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "77": {
+    "eid": 77,
+    "type_id": 2,
+    "type": "武器",
+    "name": "女仆长餐刀",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "78": {
+    "eid": 78,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "女仆长连衣裙",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "79": {
+    "eid": 79,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "女仆长皮靴",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "80": {
+    "eid": 80,
+    "type_id": 1,
+    "type": "副手",
+    "name": "五角星帽",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "81": {
+    "eid": 81,
+    "type_id": 2,
+    "type": "武器",
+    "name": "塑料扫把",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "82": {
+    "eid": 82,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "复古女仆装",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 150
+      }
+    }
+  },
+  "83": {
+    "eid": 83,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "咖啡女仆装",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 170
+      }
+    }
+  },
+  "84": {
+    "eid": 84,
+    "type_id": 2,
+    "type": "武器",
+    "name": "妖精改造的真空吸尘器",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 75
+      }
+    }
+  },
+  "135": {
+    "eid": 135,
+    "type_id": 2,
+    "type": "武器",
+    "name": "魔导书",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 100
+      }
+    }
+  },
+  "165": {
+    "eid": 165,
+    "type_id": 1,
+    "type": "副手",
+    "name": "破旧的红围巾",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 180
+      }
+    }
+  },
+  "166": {
+    "eid": 166,
+    "type_id": 1,
+    "type": "副手",
+    "name": "爆炸人偶-反应装甲ver.",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 220
+      }
+    }
+  },
+  "167": {
+    "eid": 167,
+    "type_id": 1,
+    "type": "副手",
+    "name": "累爬了的哈士奇-挂件ver.",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "168": {
+    "eid": 168,
+    "type_id": 2,
+    "type": "武器",
+    "name": "对猫特攻用哈士奇-舔狗ver.",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 102
+      }
+    }
+  },
+  "169": {
+    "eid": 169,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "想睡觉的哈士奇-围脖ver.",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 205
+      }
+    }
+  },
+  "170": {
+    "eid": 170,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "蕾蒂旱冰鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "171": {
+    "eid": 171,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "出门的哈士奇-雪橇ver.",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 205
+      }
+    }
+  },
+  "173": {
+    "eid": 173,
+    "type_id": 1,
+    "type": "副手",
+    "name": "猫妖头饰",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 210
+      }
+    }
+  },
+  "174": {
+    "eid": 174,
+    "type_id": 2,
+    "type": "武器",
+    "name": "猫妖猫爪",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 105
+      }
+    }
+  },
+  "175": {
+    "eid": 175,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "猫妖连衣裙",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 210
+      }
+    }
+  },
+  "176": {
+    "eid": 176,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "猫妖绒绒鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 210
+      }
+    }
+  },
+  "177": {
+    "eid": 177,
+    "type_id": 1,
+    "type": "副手",
+    "name": "告春精礼帽",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 230
+      }
+    }
+  },
+  "178": {
+    "eid": 178,
+    "type_id": 2,
+    "type": "武器",
+    "name": "告春精宣传喇叭",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 115
+      }
+    }
+  },
+  "179": {
+    "eid": 179,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "告春精连衣裙",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 230
+      }
+    }
+  },
+  "180": {
+    "eid": 180,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "告春精翅膀",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 230
+      }
+    }
+  },
+  "181": {
+    "eid": 181,
+    "type_id": 1,
+    "type": "副手",
+    "name": "普莉兹姆利巴乐队眼镜",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 240
+      }
+    }
+  },
+  "182": {
+    "eid": 182,
+    "type_id": 2,
+    "type": "武器",
+    "name": "普莉兹姆利巴主题Call棒",
+    "level": 3,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 120
+      }
+    }
+  },
+  "183": {
+    "eid": 183,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "普莉兹姆利巴应援T恤",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 240
+      }
+    }
+  },
+  "184": {
+    "eid": 184,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "普莉兹姆利巴联动跑鞋",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 240
+      }
+    }
+  },
+  "211": {
+    "eid": 211,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "第十八届博丽神社例大祭入场券",
+    "level": 3,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 220
+      }
+    }
+  },
+  "85": {
+    "eid": 85,
+    "type_id": 2,
+    "type": "武器",
+    "name": "星型糖果",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 150
+      }
+    }
+  },
+  "86": {
+    "eid": 86,
+    "type_id": 2,
+    "type": "武器",
+    "name": "命莲寺体术",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 175
+      }
+    }
+  },
+  "87": {
+    "eid": 87,
+    "type_id": 2,
+    "type": "武器",
+    "name": "河童水枪",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 175
+      }
+    }
+  },
+  "88": {
+    "eid": 88,
+    "type_id": 1,
+    "type": "副手",
+    "name": "河童造头盔",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "89": {
+    "eid": 89,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "BUG",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "90": {
+    "eid": 90,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "河童工装",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "91": {
+    "eid": 91,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "命莲寺袈裟",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "92": {
+    "eid": 92,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "命莲寺罗汉鞋",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "93": {
+    "eid": 93,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "河童脚蹼",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "94": {
+    "eid": 94,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "BUG",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "95": {
+    "eid": 95,
+    "type_id": 1,
+    "type": "副手",
+    "name": "BUG",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "96": {
+    "eid": 96,
+    "type_id": 1,
+    "type": "副手",
+    "name": "河童遮阳帽",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "97": {
+    "eid": 97,
+    "type_id": 1,
+    "type": "副手",
+    "name": "命莲寺念珠",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "98": {
+    "eid": 98,
+    "type_id": 1,
+    "type": "副手",
+    "name": "华丽的女仆头饰",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "99": {
+    "eid": 99,
+    "type_id": 2,
+    "type": "武器",
+    "name": "精致的礼仪餐刀",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 175
+      }
+    }
+  },
+  "100": {
+    "eid": 100,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "干净整洁的女仆装",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "101": {
+    "eid": 101,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "做工精致的怀表",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "102": {
+    "eid": 102,
+    "type_id": 1,
+    "type": "副手",
+    "name": "秘籍「金钟罩」",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "103": {
+    "eid": 103,
+    "type_id": 2,
+    "type": "武器",
+    "name": "吸尘器",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 125
+      }
+    }
+  },
+  "104": {
+    "eid": 104,
+    "type_id": 2,
+    "type": "武器",
+    "name": "马桶皮搋子",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 125
+      }
+    }
+  },
+  "105": {
+    "eid": 105,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "丝质睡衣",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "106": {
+    "eid": 106,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "丝质连衣裙",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "107": {
+    "eid": 107,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "智能扫地机器人",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "129": {
+    "eid": 129,
+    "type_id": 2,
+    "type": "武器",
+    "name": "七曜魔法",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 175
+      }
+    }
+  },
+  "130": {
+    "eid": 130,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "蝙蝠翅膀",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "131": {
+    "eid": 131,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "咲夜的红茶",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "132": {
+    "eid": 132,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "萤火之珠",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "133": {
+    "eid": 133,
+    "type_id": 1,
+    "type": "副手",
+    "name": "威严",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "134": {
+    "eid": 134,
+    "type_id": 1,
+    "type": "副手",
+    "name": "禁忌弹幕",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "185": {
+    "eid": 185,
+    "type_id": 2,
+    "type": "武器",
+    "name": "逗猫棒",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 185
+      }
+    }
+  },
+  "186": {
+    "eid": 186,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "蕾蒂时尚滑板鞋",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 360
+      }
+    }
+  },
+  "187": {
+    "eid": 187,
+    "type_id": 1,
+    "type": "副手",
+    "name": "蕾蒂的围巾",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 360
+      }
+    }
+  },
+  "188": {
+    "eid": 188,
+    "type_id": 2,
+    "type": "武器",
+    "name": "白银结晶",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 180
+      }
+    }
+  },
+  "189": {
+    "eid": 189,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "蕾蒂的披风",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 360
+      }
+    }
+  },
+  "190": {
+    "eid": 190,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "冬之结晶鞋",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 360
+      }
+    }
+  },
+  "191": {
+    "eid": 191,
+    "type_id": 1,
+    "type": "副手",
+    "name": "人偶蝴蝶结头饰",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 380
+      }
+    }
+  },
+  "192": {
+    "eid": 192,
+    "type_id": 2,
+    "type": "武器",
+    "name": "人偶骑兵枪",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 190
+      }
+    }
+  },
+  "193": {
+    "eid": 193,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "人偶长裙",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 380
+      }
+    }
+  },
+  "194": {
+    "eid": 194,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "人偶提线",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 380
+      }
+    }
+  },
+  "203": {
+    "eid": 203,
+    "type_id": 1,
+    "type": "副手",
+    "name": "普莉兹姆利巴演奏会门票",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 400
+      }
+    }
+  },
+  "210": {
+    "eid": 210,
+    "type_id": 1,
+    "type": "副手",
+    "name": "第十八届博丽神社例大祭新刊",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "212": {
+    "eid": 212,
+    "type_id": 2,
+    "type": "武器",
+    "name": "凤蝶纹的扇子",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 225
+      }
+    }
+  },
+  "213": {
+    "eid": 213,
+    "type_id": 2,
+    "type": "武器",
+    "name": "猫又之爪",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 210
+      }
+    }
+  },
+  "214": {
+    "eid": 214,
+    "type_id": 2,
+    "type": "武器",
+    "name": "式神「橙」",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 220
+      }
+    }
+  },
+  "215": {
+    "eid": 215,
+    "type_id": 2,
+    "type": "武器",
+    "name": "能操控隙间的阳伞",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 235
+      }
+    }
+  },
+  "216": {
+    "eid": 216,
+    "type_id": 1,
+    "type": "副手",
+    "name": "天冠",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "217": {
+    "eid": 217,
+    "type_id": 1,
+    "type": "副手",
+    "name": "青绿色的帽子",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "218": {
+    "eid": 218,
+    "type_id": 1,
+    "type": "副手",
+    "name": "式神「蓝」",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 480
+      }
+    }
+  },
+  "219": {
+    "eid": 219,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "庭师服",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "220": {
+    "eid": 220,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "亡灵姬的和服",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "221": {
+    "eid": 221,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "猫又的衣服",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "222": {
+    "eid": 222,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "蓝的道袍",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "223": {
+    "eid": 223,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "隙间妖怪的道袍",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 470
+      }
+    }
+  },
+  "224": {
+    "eid": 224,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "半灵",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "225": {
+    "eid": 225,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "亡灵的木屐",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "226": {
+    "eid": 226,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "猫又之尾",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "227": {
+    "eid": 227,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "携带式隙间",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "256": {
+    "eid": 256,
+    "type_id": 1,
+    "type": "副手",
+    "name": "小虫风暴",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "257": {
+    "eid": 257,
+    "type_id": 2,
+    "type": "武器",
+    "name": "萤火流星",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 210
+      }
+    }
+  },
+  "258": {
+    "eid": 258,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "虫翼披风",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "259": {
+    "eid": 259,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "蝶雨",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 420
+      }
+    }
+  },
+  "261": {
+    "eid": 261,
+    "type_id": 1,
+    "type": "副手",
+    "name": "夜雀头饰",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "262": {
+    "eid": 262,
+    "type_id": 2,
+    "type": "武器",
+    "name": "电吉他",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 215
+      }
+    }
+  },
+  "263": {
+    "eid": 263,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "烧烤用围裙",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "264": {
+    "eid": 264,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "夜雀之翼",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 430
+      }
+    }
+  },
+  "268": {
+    "eid": 268,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "文明长卷",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "269": {
+    "eid": 269,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "一条归桥",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "270": {
+    "eid": 270,
+    "type_id": 1,
+    "type": "副手",
+    "name": "博丽符札",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "271": {
+    "eid": 271,
+    "type_id": 2,
+    "type": "武器",
+    "name": "封魔针",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 250
+      }
+    }
+  },
+  "272": {
+    "eid": 272,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "染血巫女服",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "273": {
+    "eid": 273,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "阴阳宝玉",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "274": {
+    "eid": 274,
+    "type_id": 1,
+    "type": "副手",
+    "name": "大魔法帽",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "275": {
+    "eid": 275,
+    "type_id": 2,
+    "type": "武器",
+    "name": "重生态魔法炸弹",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 250
+      }
+    }
+  },
+  "276": {
+    "eid": 276,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "黑白魔女服",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "277": {
+    "eid": 277,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "特制飞行扫把",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "286": {
+    "eid": 286,
+    "type_id": 2,
+    "type": "武器",
+    "name": "河童制黄金镐头",
+    "level": 4,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 225
+      }
+    }
+  },
+  "287": {
+    "eid": 287,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "河童制黄金挖掘机",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 451
+      }
+    }
+  },
+  "307": {
+    "eid": 307,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "预备弹药",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 460
+      }
+    }
+  },
+  "308": {
+    "eid": 308,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "壶中的大银河",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 480
+      }
+    }
+  },
+  "309": {
+    "eid": 309,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "吊带灯笼裤",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "310": {
+    "eid": 310,
+    "type_id": 1,
+    "type": "副手",
+    "name": "四十叶的三叶草",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 480
+      }
+    }
+  },
+  "311": {
+    "eid": 311,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "胡萝卜吊坠",
+    "level": 4,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 460
+      }
+    }
+  },
+  "108": {
+    "eid": 108,
+    "type_id": 2,
+    "type": "武器",
+    "name": "迷你八卦炉",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 325
+      }
+    }
+  },
+  "109": {
+    "eid": 109,
+    "type_id": 2,
+    "type": "武器",
+    "name": "命莲寺狼牙棒",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 250
+      }
+    }
+  },
+  "110": {
+    "eid": 110,
+    "type_id": 2,
+    "type": "武器",
+    "name": "博丽御币",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 325
+      }
+    }
+  },
+  "111": {
+    "eid": 111,
+    "type_id": 1,
+    "type": "副手",
+    "name": "大红蝴蝶结",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "112": {
+    "eid": 112,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "红白巫女服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "113": {
+    "eid": 113,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "命莲寺铆钉皮夹克",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "114": {
+    "eid": 114,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "光学迷彩服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "115": {
+    "eid": 115,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "河童喷气背包",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "116": {
+    "eid": 116,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "命莲寺摩托车",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "117": {
+    "eid": 117,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "博丽飞行术",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "118": {
+    "eid": 118,
+    "type_id": 1,
+    "type": "副手",
+    "name": "命莲寺机车盔",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "119": {
+    "eid": 119,
+    "type_id": 1,
+    "type": "副手",
+    "name": "红魔馆大门",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "120": {
+    "eid": 120,
+    "type_id": 2,
+    "type": "武器",
+    "name": "背负式吹尘器",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "121": {
+    "eid": 121,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "绿色武术服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "122": {
+    "eid": 122,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "简易火箭原型",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 450
+      }
+    }
+  },
+  "123": {
+    "eid": 123,
+    "type_id": 1,
+    "type": "副手",
+    "name": "巴瓦鲁魔法图书馆",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "124": {
+    "eid": 124,
+    "type_id": 2,
+    "type": "武器",
+    "name": "贤者之石",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 275
+      }
+    }
+  },
+  "125": {
+    "eid": 125,
+    "type_id": 2,
+    "type": "武器",
+    "name": "神枪·冈格尼尔",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 275
+      }
+    }
+  },
+  "126": {
+    "eid": 126,
+    "type_id": 2,
+    "type": "武器",
+    "name": "莱瓦汀",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 275
+      }
+    }
+  },
+  "127": {
+    "eid": 127,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "哥特萝莉装",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "128": {
+    "eid": 128,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "虹水晶翅膀",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 550
+      }
+    }
+  },
+  "195": {
+    "eid": 195,
+    "type_id": 1,
+    "type": "副手",
+    "name": "雪女头巾",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 560
+      }
+    }
+  },
+  "196": {
+    "eid": 196,
+    "type_id": 2,
+    "type": "武器",
+    "name": "暴风雪",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 280
+      }
+    }
+  },
+  "197": {
+    "eid": 197,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "雪女冬服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 560
+      }
+    }
+  },
+  "198": {
+    "eid": 198,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "寒流",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 560
+      }
+    }
+  },
+  "199": {
+    "eid": 199,
+    "type_id": 1,
+    "type": "副手",
+    "name": "人偶军团护盾",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 580
+      }
+    }
+  },
+  "200": {
+    "eid": 200,
+    "type_id": 2,
+    "type": "武器",
+    "name": "人偶军团镭射炮",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 290
+      }
+    }
+  },
+  "201": {
+    "eid": 201,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "人偶军团连衣裙",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 580
+      }
+    }
+  },
+  "202": {
+    "eid": 202,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "人偶军团提线",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 580
+      }
+    }
+  },
+  "204": {
+    "eid": 204,
+    "type_id": 1,
+    "type": "副手",
+    "name": "普莉兹姆利巴演奏会VIP门票",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 600
+      }
+    }
+  },
+  "205": {
+    "eid": 205,
+    "type_id": 2,
+    "type": "武器",
+    "name": "露娜萨的豪华提琴",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "206": {
+    "eid": 206,
+    "type_id": 2,
+    "type": "武器",
+    "name": "梅露兰的豪华小号",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "207": {
+    "eid": 207,
+    "type_id": 2,
+    "type": "武器",
+    "name": "莉莉卡的豪华电子琴",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "208": {
+    "eid": 208,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "猫猫大军",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 570
+      }
+    }
+  },
+  "209": {
+    "eid": 209,
+    "type_id": 2,
+    "type": "武器",
+    "name": "TH18东方虹龙洞体验版",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 250
+      }
+    }
+  },
+  "228": {
+    "eid": 228,
+    "type_id": 2,
+    "type": "武器",
+    "name": "白楼剑",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 300
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "229 in eids",
+        "value": ["心眼"]
+      }
+    },
+    "desc": "当副手装备'楼观剑'时获取技能'心眼'"
+  },
+  "229": {
+    "eid": 229,
+    "type_id": 1,
+    "type": "副手",
+    "name": "楼观剑",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "230": {
+    "eid": 230,
+    "type_id": 2,
+    "type": "武器",
+    "name": "暴食姬之魂",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 315
+      }
+    }
+  },
+  "231": {
+    "eid": 231,
+    "type_id": 2,
+    "type": "武器",
+    "name": "赤鬼",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 290
+      }
+    }
+  },
+  "232": {
+    "eid": 232,
+    "type_id": 2,
+    "type": "武器",
+    "name": "杀生石",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 310
+      }
+    }
+  },
+  "233": {
+    "eid": 233,
+    "type_id": 2,
+    "type": "武器",
+    "name": "攻击式隙间",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 325
+      }
+    }
+  },
+  "234": {
+    "eid": 234,
+    "type_id": 1,
+    "type": "副手",
+    "name": "西行妖树枝",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 290
+      }
+    }
+  },
+  "235": {
+    "eid": 235,
+    "type_id": 1,
+    "type": "副手",
+    "name": "青鬼",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 580
+      }
+    }
+  },
+  "236": {
+    "eid": 236,
+    "type_id": 1,
+    "type": "副手",
+    "name": "歪曲结界",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 700
+      }
+    }
+  },
+  "237": {
+    "eid": 237,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "翠绿和服女仆装",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 600
+      }
+    }
+  },
+  "238": {
+    "eid": 238,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "染血的和服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 630
+      }
+    }
+  },
+  "239": {
+    "eid": 239,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "武术班练功服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 580
+      }
+    }
+  },
+  "240": {
+    "eid": 240,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "「素裸天狐」",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 620
+      }
+    }
+  },
+  "241": {
+    "eid": 241,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "幼女紫的小裙子",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "242": {
+    "eid": 242,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "凭依合体·半灵分身",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 600
+      }
+    }
+  },
+  "243": {
+    "eid": 243,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "西行妖「千本樱」",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 640
+      }
+    }
+  },
+  "244": {
+    "eid": 244,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "妖狐之尾",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 640
+      }
+    }
+  },
+  "245": {
+    "eid": 245,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "隙间废弃列车",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "260": {
+    "eid": 260,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "夜雀烧烤摊",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 570
+      }
+    }
+  },
+  "265": {
+    "eid": 265,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "神器-八尺琼勾玉",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 635
+      }
+    }
+  },
+  "266": {
+    "eid": 266,
+    "type_id": 1,
+    "type": "副手",
+    "name": "神器-八咫镜",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 300
+      },
+      "atk": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "267": {
+    "eid": 267,
+    "type_id": 2,
+    "type": "武器",
+    "name": "神器-天丛云剑",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 317
+      }
+    }
+  },
+  "278": {
+    "eid": 278,
+    "type_id": 1,
+    "type": "副手",
+    "name": "星辰结界",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "279": {
+    "eid": 279,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "爱丽丝特制披肩",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "280": {
+    "eid": 280,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "*彗星*",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "282": {
+    "eid": 282,
+    "type_id": 1,
+    "type": "副手",
+    "name": "霍青娥的黄金发饰",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 666
+      }
+    }
+  },
+  "283": {
+    "eid": 283,
+    "type_id": 1,
+    "type": "副手",
+    "name": "神子的黄金面具",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 666
+      }
+    }
+  },
+  "284": {
+    "eid": 284,
+    "type_id": 2,
+    "type": "武器",
+    "name": "米斯蒂娅的黄金烤串",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 333
+      }
+    }
+  },
+  "285": {
+    "eid": 285,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "村纱水蜜的黄金战舰",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 666
+      }
+    }
+  },
+  "312": {
+    "eid": 312,
+    "type_id": 1,
+    "type": "副手",
+    "name": "离圆花冠",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 630
+      }
+    }
+  },
+  "313": {
+    "eid": 313,
+    "type_id": 2,
+    "type": "武器",
+    "name": "喇叭枪",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 315
+      }
+    }
+  },
+  "288": {
+    "eid": 288,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "兔耳高中生制服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 630
+      }
+    }
+  },
+  "289": {
+    "eid": 289,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "胧月花栞",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 640
+      }
+    }
+  },
+  "290": {
+    "eid": 290,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "国士无双之药",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "291": {
+    "eid": 291,
+    "type_id": 1,
+    "type": "副手",
+    "name": "水银之海",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 280
+      }
+    }
+  },
+  "292": {
+    "eid": 292,
+    "type_id": 2,
+    "type": "武器",
+    "name": "月弓",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 325
+      }
+    }
+  },
+  "293": {
+    "eid": 293,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "北斗七星服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "294": {
+    "eid": 294,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "阿波罗11号",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "295": {
+    "eid": 295,
+    "type_id": 5,
+    "type": "饰品",
+    "name": "八意的秘药",
+    "level": 5,
+    "effect": {
+      "skill": {
+        "type": "const",
+        "value": ["秘药"]
+      }
+    }
+  },
+  "296": {
+    "eid": 296,
+    "type_id": 1,
+    "type": "副手",
+    "name": "佛御石之钵",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 320
+      }
+    }
+  },
+  "297": {
+    "eid": 297,
+    "type_id": 2,
+    "type": "武器",
+    "name": "蓬莱的玉枝",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 335
+      }
+    }
+  },
+  "298": {
+    "eid": 298,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "火鼠的皮衣",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 660
+      }
+    }
+  },
+  "299": {
+    "eid": 299,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "燕的子安贝",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 660
+      }
+    }
+  },
+  "300": {
+    "eid": 300,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "龙颈之玉",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 660
+      }
+    }
+  },
+  "301": {
+    "eid": 301,
+    "type_id": 1,
+    "type": "副手",
+    "name": "辟火符札",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 300
+      }
+    }
+  },
+  "302": {
+    "eid": 302,
+    "type_id": 2,
+    "type": "武器",
+    "name": "不朽的弹幕",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 335
+      }
+    }
+  },
+  "303": {
+    "eid": 303,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "不死鸟之羽",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 670
+      }
+    }
+  },
+  "304": {
+    "eid": 304,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "凯风快晴",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 670
+      }
+    }
+  },
+  "305": {
+    "eid": 305,
+    "type_id": 2,
+    "type": "武器",
+    "name": "开运大纹",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 319
+      }
+    }
+  },
+  "306": {
+    "eid": 306,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "幸运兔脚",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 620
+      }
+    }
+  },
+  "314": {
+    "eid": 314,
+    "type_id": 1,
+    "type": "副手",
+    "name": "深绿色钢盔",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 690
+      }
+    }
+  },
+  "315": {
+    "eid": 315,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "蔷薇花裙",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 690
+      }
+    }
+  },
+  "316": {
+    "eid": 316,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "紧闭的恋之瞳",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 700
+      }
+    }
+  },
+  "317": {
+    "eid": 317,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "带刺的蔷薇园",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 690
+      }
+    }
+  },
+  "318": {
+    "eid": 318,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "梅丽的电话",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 700
+      }
+    }
+  },
+  "319": {
+    "eid": 319,
+    "type_id": 2,
+    "type": "武器",
+    "name": "妖怪测谎仪",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 345
+      }
+    }
+  },
+  "320": {
+    "eid": 320,
+    "type_id": 2,
+    "type": "武器",
+    "name": "梅丽的菜刀",
+    "level": 5,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 350
+      }
+    }
+  },
+  "246": {
+    "eid": 246,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "三日月和服",
+    "level": 5,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 650
+      }
+    }
+  },
+  "136": {
+    "eid": 136,
+    "type_id": 2,
+    "type": "武器",
+    "name": "红之魂",
+    "level": 6,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 400
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "[249,250] in eids",
+        "value": ["命运"]
+      }
+    },
+    "desc": "当衣服装备'红之魔女服'鞋子装备'红梦的世界'时获得技能[命运]"
+  },
+  "255": {
+    "eid": 255,
+    "type_id": 1,
+    "type": "副手",
+    "name": "妖之记忆",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 800
+      },
+      "atk": {
+        "type": "const",
+        "value": 200
+      }
+    }
+  },
+  "247": {
+    "eid": 247,
+    "type_id": 1,
+    "type": "副手",
+    "name": "宿星的加护",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 1200
+      }
+    }
+  },
+  "248": {
+    "eid": 248,
+    "type_id": 2,
+    "type": "武器",
+    "name": "巨星·安塔雷斯",
+    "level": 6,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 500
+      }
+    }
+  },
+  "249": {
+    "eid": 249,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "红之魔女服",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 1000
+      },
+      "sp": {
+        "type": "const",
+        "value": 1
+      }
+    }
+  },
+  "250": {
+    "eid": 250,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "红梦的世界",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 1000
+      }
+    }
+  },
+  "251": {
+    "eid": 251,
+    "type_id": 1,
+    "type": "副手",
+    "name": "草早楼观剑",
+    "level": 6,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 625
+      }
+    }
+  },
+  "252": {
+    "eid": 252,
+    "type_id": 2,
+    "type": "武器",
+    "name": "雷切白楼剑",
+    "level": 6,
+    "effect": {
+      "atk": {
+        "type": "const",
+        "value": 625
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "251 in eids",
+        "value": ["心眼"]
+      }
+    },
+    "desc": "当副手武器装备'草早楼观剑'时获取技能心眼"
+  },
+  "253": {
+    "eid": 253,
+    "type_id": 3,
+    "type": "衣服",
+    "name": "黑之庭师服",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 1250
+      }
+    }
+  },
+  "254": {
+    "eid": 254,
+    "type_id": 4,
+    "type": "鞋子",
+    "name": "一本樱·满开",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "const",
+        "value": 1250
+      }
+    }
+  },
+  "9999": {
+    "eid": 9999,
+    "type_id": 5,
+    "type": "饰品",
+    "name": "永恒的守护",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "exec",
+        "value": "favor/20"
+      }
+    },
+    "desc": "依据好感增加生命值"
+  },
+  "10000": {
+    "eid": 10000,
+    "type_id": 5,
+    "type": "饰品",
+    "name": "世世的相随",
+    "level": 6,
+    "effect": {
+      "hp": {
+        "type": "exec",
+        "value": "favor/200"
+      }
+    },
+    "desc": "依据好感增加攻击力"
+  }
+}

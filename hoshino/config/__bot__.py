@@ -32,6 +32,7 @@ BASE_DB_PATH = "~/Documents/content/DB/"
 # 如欲启用新模块，请认真阅读部署说明，逐个启用逐个配置
 # 切忌一次性开启多个
 MODULES_ON = {
+    'bilibili', # B站相关
     'botmanage',  # 骰娘管理
     # 'chat',
     # 'dice', #骰子功能

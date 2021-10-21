@@ -39,7 +39,6 @@ async def manor_help(bot, ev: CQEvent):
 [我的城市] [我的科技]
 [政策一览] [建筑一览] 
 [科技一览] [购买道具]
-[决斗储能] [副本储能]
 [城市结算]
 [建造建筑] {建筑名称} 
 [拆除建筑] {建筑名称} 
@@ -101,7 +100,7 @@ async def manor_begin(bot, ev: CQEvent):
 耕地面积{geng_manor}
 当前治安状况{zhian}
 耕地税比例为{shui}%
-    请认真维护好自己的城市，无法维护城市时会产生极其恶劣的影响
+请认真维护好自己的城市，无法维护城市时会产生极其恶劣的影响
     '''.strip()
     await bot.finish(ev, msg, at_sender=True)
 
@@ -126,7 +125,7 @@ async def manor_view(bot, ev: CQEvent):
     gold_sum = 0
     sw_sum = 0
     tax_rate = get_geng_profit(gid, uid)
-    geng_gain = geng_manor * tax_rate * 5
+    geng_gain = geng_manor * tax_rate * 3
     gold_sum += geng_gain
     # 正在建造的建筑查询
     # 建筑收益
@@ -396,8 +395,8 @@ async def manor_sign(bot, ev: CQEvent):
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     p_m = PolicyModel.get_by_id(p_id)
     if bao_flag:
-        # 暴乱繁荣无条件-20
-        fanrong -= 50
+        # 暴乱繁荣无条件-100
+        fanrong -= 100
     else:
         # 计算耕地
         geng = get_user_counter(gid, uid, UserModel.GENGDI)
@@ -431,7 +430,7 @@ async def manor_sign(bot, ev: CQEvent):
             fanrong += random.randint(1, 3)
             area_geng = get_geng_manor(gid, uid, level, geng)
             tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
-            geng_gold = int(area_geng * tax * 5 * random.uniform(0.9, 1.1))
+            geng_gold = int(area_geng * tax * 3 * random.uniform(0.9, 1.1))
             if p_m == PolicyModel.CATCH_ALL_FISH:
                 if now_fanrong >= 30:
                     now_fanrong -= 30
@@ -445,7 +444,7 @@ async def manor_sign(bot, ev: CQEvent):
             msg += f"\n耕地收入为{geng_gold}金币"
         else:
             # 沙暴减少20繁荣
-            fanrong -= 20
+            fanrong -= 50
 
         gold_sum += geng_gold
         if get_weather(gid) != WeatherModel.ZUANSHICHEN:
@@ -507,7 +506,7 @@ async def manor_sign(bot, ev: CQEvent):
                     save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
                     msg += f'\n由于警察局的合理维护，治安提高了{ct * 10}，当前治安为{zhian}'
                     if b_c[i] > 1:
-                        rn = random.randint(1, 5)
+                        rn = random.randint(1, 20)
                         if rn == 1:
                             item = get_item_by_name("武装镇压")
                             add_item(gid, uid, item)
@@ -558,7 +557,7 @@ async def manor_sign(bot, ev: CQEvent):
                     add_item(gid, uid, item, num=ct)
                     msg += f'\n冒险工会通过委托冒险家得到了新的藏宝图，你获得了{ct}张{item["name"]}'
                 elif i == BuildModel.MICHELIN_RESTAURANT:
-                    num = 2
+                    num = 1
                     if check_technolog_counter(gid, uid, TechnologyModel.TOUHOU_COOK):
                         num += 1
                     item = get_item_by_name("心意蛋糕")
@@ -584,6 +583,15 @@ async def manor_sign(bot, ev: CQEvent):
                         item = get_item_by_name("有效分裂")
                         add_item(gid, uid, item)
                     msg += f'\n裂变中心的能量充沛，产生了新的分裂，得到了{item["name"]}'
+                elif i == BuildModel.ZHIHUI:
+                    num = 1
+                    if check_technolog_counter(gid, uid, TechnologyModel.BATTLE_RADAR):
+                        num += 1
+                    item = get_item_by_name("红药水")
+                    add_item(gid, uid, item)
+                    item = get_item_by_name("蓝药水")
+                    add_item(gid, uid, item, num)
+                    msg += f'\n作战中心保障了战斗人员后勤，得到了1瓶红药水和{num}瓶蓝药水'
 
     # 更新繁荣度
     now_fanrong += fanrong
@@ -684,47 +692,6 @@ async def manor_tax(bot, ev: CQEvent):
         await bot.finish(ev, f'请在指令后增加"数字"作为税率（30代表30%税率）', at_sender=True)
     save_user_counter(gid, uid, UserModel.TAX_RATIO, number)
     await bot.finish(ev, f'你颁布了行政法令，规定耕地征税{number}%', at_sender=True)
-
-
-@sv.on_fullmatch(["决斗储能"])
-async def duel_contain(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    if get_weather(gid) == WeatherModel.CANGTIAN:
-        return
-    if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
-        await bot.finish(ev, f"你还没有研发出储能中心,无法进行决斗储能", at_sender=True)
-    if duel_judger.get_on_off_status(ev.group_id):
-        msg = '现在正在决斗中哦，请决斗后再进行储能吧。'
-        await bot.send(ev, msg, at_sender=True)
-        return
-    guid = gid, uid
-    daily_duel_limiter.check(guid)
-    if daily_duel_limiter.get_num(guid) != 0:
-        await bot.finish(ev, f"你已经进行过了决斗，无法进行决斗储能", at_sender=True)
-    daily_duel_limiter.increase(guid, num=daily_duel_limiter.max)
-    item = get_item_by_name("精英对局")
-    add_item(gid, uid, item)
-    await bot.send(ev, f'今日暂且休息，来日再战（已清空决斗次数，获得了{item["rank"]}级道具{item["name"]}）', at_sender=True)
-
-
-@sv.on_fullmatch(["副本储能"])
-async def duel_contain(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    if get_weather(gid) == WeatherModel.CANGTIAN:
-        return
-    if not check_technolog_counter(gid, uid, TechnologyModel.ENERGY_STORAGE_CORE):
-        await bot.finish(ev, f"你还没有研发出储能中心,无法进行副本储能", at_sender=True)
-    guid = gid, uid
-    daily_dun_limiter.check(guid)
-    if daily_dun_limiter.get_num(guid) != 0:
-        await bot.finish(ev, f"你已经进行过了副本，无法进行副本储能", at_sender=True)
-    daily_dun_limiter.increase(guid, num=daily_dun_limiter.max)
-    item = get_item_by_name("零时迷子")
-    add_item(gid, uid, item)
-    await bot.send(ev, f'今日暂且休息，来日再战（已清空副本次数，获得了{item["rank"]}级道具{item["name"]}）', at_sender=True)
-
 
 @sv.on_command("购买道具")
 async def buy_item(session: CommandSession):
