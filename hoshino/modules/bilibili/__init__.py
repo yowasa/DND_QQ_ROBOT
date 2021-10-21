@@ -29,7 +29,7 @@ async def subscribe(bot, ev: CQEvent):
     sub = SubInfo()
     sub.gid = ev.group_id
     sub.subid = sub_id
-    sub.last_time=None
+    sub.last_time = None
     bc._save_sub_info(sub)
     await bot.send(ev, "订阅成功")
 
@@ -93,7 +93,14 @@ async def unsubscribe(bot, ev: CQEvent):
 
 def resolve_origin_msg(type, origin_dic):
     msg = ""
-    if type == 4:
+    if type == 2:
+        msg += f"{origin_dic['user']['name']}({origin_dic['user']['uid']}:\n)"
+        msg += origin_dic['item']['description']
+        pics = origin_dic['item']['pictures']
+        for pic in pics:
+            pic_img = pic['img_src']
+        msg += f"\n[CQ:image,file={pic_img}]"
+    elif type == 4:
         name = origin_dic["user"]["uname"]
         uid = origin_dic["user"]["uid"]
         msg += f'{name}({uid}):\n'
@@ -103,13 +110,13 @@ def resolve_origin_msg(type, origin_dic):
         uid = origin_dic["owner"]["mid"]
         msg += f'{name}({uid}):\n'
         msg += origin_dic["desc"]
-        msg += f"\n"+origin_dic['short_link'].replace('\\', '')
-        pic=origin_dic['pic'].replace('\\', '')
+        msg += f"\n" + origin_dic['short_link'].replace('\\', '')
+        pic = origin_dic['pic'].replace('\\', '')
         msg += f"\n[CQ:image,file={pic}]"
     elif type == 4098:
-        msg +=origin_dic["apiSeasonInfo"]["type_name"]+":"+origin_dic["apiSeasonInfo"]["title"]
-        cover=origin_dic['cover'].replace('\\', '')
-        url=origin_dic['url'].replace('\\','')
+        msg += origin_dic["apiSeasonInfo"]["type_name"] + ":" + origin_dic["apiSeasonInfo"]["title"]
+        cover = origin_dic['cover'].replace('\\', '')
+        url = origin_dic['url'].replace('\\', '')
         msg += f"\n[CQ:image,file={cover}]"
         msg += f"\n{url}"
     else:
@@ -124,19 +131,22 @@ def build_msg(card):
     uid = desc['user_profile']['info']['uid']
     name = desc['user_profile']['info']['uname']
     msg += f'{name}({uid}):\n'
-    if desc['type'] == 2:
+
+    if desc["type"] == 1:
+        msg += card['item']['content']
+        msg += "\n=======回复=======\n"
+        origin_dic = eval(card['origin'].replace('null', 'None'))
+        msg += resolve_origin_msg(desc['orig_type'], origin_dic)
+    elif desc['type'] == 2:
         msg += card['item']['description']
         pic = card['item']['pictures']
         for i in pic:
             msg += f"\n[CQ:image,file={i['img_src']}]"
-    elif desc["type"] == 1:
+    elif desc["type"] == 4:
         msg += card['item']['content']
-        msg += "\n=======回复=======\n"
-        origin_dic = eval(card['origin'].replace('null', 'None'))
-        msg+=resolve_origin_msg(desc['orig_type'], origin_dic)
     elif desc["type"] == 8:
-        msg+="=======发布视频======="
-        msg += "\n标题:"+card['title']
+        msg += "=======发布视频======="
+        msg += "\n标题:" + card['title']
         msg += "\n简介:" + card['desc']
         msg += "\n地址:" + card['short_link']
         msg += f"\n[CQ:image,file={card['pic']}]"
