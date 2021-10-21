@@ -28,3 +28,4 @@ fuzzywuzzy==0.18.0
 # tensorflow==2.5.0
 paddlepaddle==2.1.2
 paddlehub==2.1.0
+bilibili-api==8.3.1
