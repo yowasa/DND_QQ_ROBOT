@@ -68,7 +68,7 @@ def init_content(my: Attr):
     content["skills"] = skill_cd
     all_skill_cd = {}
     for i in my.all_skill:
-        skill_cd[i] = 0
+        all_skill_cd[i] = 0
     content["all_skill"] = all_skill_cd
     # 初始化
     return content
@@ -405,12 +405,12 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
     enemy.sp = enemy_content["sp"]
     return success, logs
 
-# my = Attr(1000, 1000, 100, 5)
-# my.skill = ["合奏"]
-#
-# enemy = Attr(1000, 1000, 100, 5)
-# enemy.skill = ["补给","雷破","水毒"]
-#
-# result, log = battle(my, enemy)
-#
-# print("\n".join(log))
+my = Attr(1000, 1000, 100, 5)
+my.all_skill = ["吸血"]
+
+enemy = Attr(1000, 1000, 100, 5)
+enemy.skill = ["补给","雷破","水毒"]
+
+result, log = battle(my, enemy)
+
+print("\n".join(log))

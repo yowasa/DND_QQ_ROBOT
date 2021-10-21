@@ -150,8 +150,6 @@ def build_msg(card):
         msg += "\n简介:" + card['desc']
         msg += "\n地址:" + card['short_link']
         msg += f"\n[CQ:image,file={card['pic']}]"
-
-
     else:
         msg += "未解析的动态类型，请联系开发人员!"
     return msg

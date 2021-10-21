@@ -2,7 +2,7 @@ import json
 from bilibili_api import user, sync
 
 # 实例化
-u = user.User(24724312)
+u = user.User(233114659)
 def resolve_origin_msg(type, origin_dic):
     msg = ""
     if type == 2:
