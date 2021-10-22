@@ -158,6 +158,7 @@ def build_msg(card):
 @sv.scheduled_job('cron', minute='*/5', jitter=20)
 async def scan_job():
     sv.logger.info("开始扫描b站订阅信息")
+    bot=sv.bot
 
     bc = BilibiliCounter()
     sub_li = bc._get_all_sub()
@@ -171,14 +172,25 @@ async def scan_job():
         u = user.User(sub_id)
         page = await u.get_dynamics(0)
         g_sub_li = dic[sub_id]
+        self_dic={}
+        self_ids = bot._wsr_api_clients.keys()
+        for sid in self_ids:
+            gl = await bot.get_group_list(self_id=sid)
+            g_ids=[g['group_id'] for g in gl]
+            self_dic[sid]=g_ids
         for sub in g_sub_li:
             if not sub.last_time:
                 cards = page['cards']
                 if cards:
                     sub.last_time = cards[0]['desc']['timestamp']
                     msg = build_msg(cards[0])
-                    for sid in hoshino.get_self_ids():
-                        await sv.bot.send_group_msg(self_id=sid, group_id=sub.gid, message=msg)
+                    self_ids = bot._wsr_api_clients.keys()
+                    for sid in self_ids:
+                        if sub.gid in self_dic[sid]:
+                            try:
+                                await sv.bot.send_group_msg(self_id=sid, group_id=sub.gid, message=msg)
+                            except:
+                                sv.logger.error("发送群消息失败！")
                 bc._save_sub_info(sub)
             else:
                 cards = page['cards']
@@ -192,6 +204,10 @@ async def scan_job():
                     filter_card.reverse()
                     for i in filter_card:
                         msg = build_msg(i)
-                        for sid in hoshino.get_self_ids():
-                            await sv.bot.send_group_msg(self_id=sid, group_id=sub.gid, message=msg)
+                        for sid in self_ids:
+                            if sub.gid in self_dic[sid]:
+                                try:
+                                    await sv.bot.send_group_msg(self_id=sid, group_id=sub.gid, message=msg)
+                                except:
+                                    sv.logger.error("发送群消息失败！")
                     bc._save_sub_info(sub)

@@ -1755,7 +1755,7 @@ def get_card_battle_info(gid, uid, cid):
         "atk_pian": atk_pian
     }
     for eid in dreeslist:
-        effect = equip_info[eid]['effect']
+        effect = equip_info[str(eid)]['effect']
         if effect.get("hp"):
             if effect['hp']['type'] == "const":
                 hp += effect['hp']['value']

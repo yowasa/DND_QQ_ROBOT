@@ -46,7 +46,7 @@ async def my_equip_list(bot, ev: CQEvent):
         equipinfo_li = sorted(equipinfo_li, key=lambda x: ['N', 'R', 'SR', 'SSR', 'UR', 'MR'].index(x['model']),
                               reverse=True)
         for equipinfo in equipinfo_li:
-            msg_list = msg_list + f"\n{equipinfo['icon']}{equipinfo['type']}:({equipinfo['model']}){equipinfo['name']}:{equipinfo['num']}件"
+            msg_list = msg_list + f"\n{equipinfo['type']}:({equipinfo['model']}){equipinfo['name']}:{equipinfo['num']}件"
         await bot.send(ev, msg_list, at_sender=True)
     else:
         await bot.finish(ev, '您还没有获得装备哦。', at_sender=True)

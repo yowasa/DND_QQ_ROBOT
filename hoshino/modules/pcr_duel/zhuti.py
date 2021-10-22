@@ -2119,8 +2119,8 @@ async def daily_date(bot, ev: CQEvent):
         favor = 5 * favor
         if check_technolog_counter(gid, uid, TechnologyModel.TOUHOU_COOK):
             favor += 100
+    cai_flag = False
     if check_have_character(cid, "坦率"):
-        cai_flag = False
         rd = random.randint(1, 5)
         if rd == 1:
             cai_flag = True
@@ -3100,7 +3100,6 @@ async def my_fashion(bot, ev: CQEvent):
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         return
     duel = DuelCounter()
-    score_counter = ScoreCounter2()
     CE = CECounter()
     c = duel_chara.fromid(cid)
     nvmes = get_nv_icon(cid)
@@ -3143,7 +3142,7 @@ async def my_fashion(bot, ev: CQEvent):
     for eid in dreeslist:
         equipinfo = get_equip_info_id(eid)
         if equipinfo:
-            equip_list = equip_list + f"\n{equipinfo['icon']}{equipinfo['type']}:{equipinfo['name']}({equipinfo['model']})"
+            equip_list = equip_list + f"\n{equipinfo['type']}:{equipinfo['name']}({equipinfo['model']})"
     if equip_list:
         equip_msg = f"\n目前穿戴的装备为:{equip_list}"
     favor = duel._get_favor(gid, uid, cid)
@@ -3162,11 +3161,18 @@ async def my_fashion(bot, ev: CQEvent):
     char_msg = ""
     if char_li:
         char_msg = "\n性格:\n" + "\n".join([f"{i}:{character[i]}" for i in char_li])
+    jiban = ''
+    if char_fetter_json.get(str(cid)):
+        jiban = "\n羁绊:\n"
+        jiban_li = []
+        for i in char_fetter_json.get(str(cid)):
+            jiban_li.append(' '.join([duel_chara.fromid(j).name for j in i]))
+        jiban += '\n'.join(jiban_li)
     msg = f"""
 名称:{c.name}{char_msg}
 {cardstar}星 {zllevel}转 rank{rank} {level_info}级
 hp:{card_hp} atk:{card_atk} sp:{sp}
-技能:{' '.join(skills)}
+技能:{' '.join(skills)}{jiban}
 好感度:{favor}({queen_msg} {relationship})
 “{text}”
 {equip_msg}{up_msg}{nvmes}{lh_msg}
