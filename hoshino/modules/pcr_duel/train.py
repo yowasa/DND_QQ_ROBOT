@@ -82,7 +82,7 @@ async def xiulian_start(bot, ev: CQEvent):
     if not skill_def_json.get(name):
         await bot.finish(ev, f'未查询到名为"{name}"的技能', at_sender=True)
     cost_msg = ''
-    if skill_def_json[i].get('cost'):
+    if skill_def_json[name].get('cost'):
         cost_msg = f"\n触发消耗sp:{skill_def_json[name].get('cost')}"
     msg = f'''
 {name}:
