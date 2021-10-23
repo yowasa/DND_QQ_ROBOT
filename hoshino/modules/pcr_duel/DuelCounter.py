@@ -42,7 +42,7 @@ class DuelCounter:
             r = self._connect().execute(
                 f'SELECT CIDS FROM PVP_INFO WHERE GID={gid} AND UID={uid}', ).fetchall()
             if r:
-                cids=eval(r[0])
+                cids=eval(r[0][0])
                 return cids
             else:
                 return []
