@@ -333,8 +333,11 @@ async def nobleduel(bot, ev: CQEvent):
         await bot.send(ev, '请输入正确的角色名。', at_sender=True)
         duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         return
-    owner = duel._get_card_owner(gid, cid)
     c = duel_chara.fromid(cid)
+    if check_have_character(cid, "病娇"):
+        await bot.send(ev, f"{c.name}:我不会离开你的（病娇女友无法交易）\n{c.icon.cqcode}", at_sender=True)
+        return
+    owner = duel._get_card_owner(gid, cid)
     # 判断是否是妻子。
     if duel._get_queen_owner(gid, cid) != 0:
         owner = duel._get_queen_owner(gid, cid)
