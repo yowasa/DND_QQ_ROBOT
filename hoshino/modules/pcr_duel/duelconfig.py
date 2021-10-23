@@ -1264,7 +1264,7 @@ class WeatherModel(Enum):
     TAIFENG = {"id": 14, "name": "台风", "desc": "拒绝决斗会随时1w金币,不足则损失1k声望"}
     ZHI = {"id": 15, "name": "凪", "desc": "决斗和副本指令无效"}
     ZUANSHICHEN = {"id": 16, "name": "钻石尘", "desc": "城市结算时建筑与科研进度无法推进"}
-    HUANGSHA = {"id": 17, "name": "黄砂", "desc": "禁止使用零时，进入副本时必须消耗5次副本次数，可以掉落道具的副本一定会掉落道具"}
+    HUANGSHA = {"id": 17, "name": "黄砂", "desc": "副本战斗失败回复hp至满血"}
     LIERI = {"id": 18, "name": "烈日", "desc": "使用道具时需要支付1w金币"}
     MEIYU = {"id": 19, "name": "梅雨", "desc": "副本挑战失败时20%概率恢复一次副本次数"}
     JIGUANG = {"id": 20, "name": "极光", "desc": "购买道具时20%获取绯想之剑"}

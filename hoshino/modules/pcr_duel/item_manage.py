@@ -538,8 +538,6 @@ async def battle_exp(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if get_weather(gid) == WeatherModel.HUANGSHA:
-        return (False, f'黄砂天禁用零时')
     guid = gid, uid
     daily_stage_limiter.reset(guid)
     return (True, f'你使用了零时迷子，今天关闭的副本重新开放了（副本限制已重置）')

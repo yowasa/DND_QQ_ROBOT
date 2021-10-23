@@ -248,11 +248,6 @@ async def in_stage(bot, ev: CQEvent):
         await bot.send(ev, '今天的副本次数已经超过上限了哦，明天再来吧。', at_sender=True)
         return
 
-    if weather == WeatherModel.HUANGSHA:
-        if daily_stage_limiter.get_num(guid) != 0:
-            await bot.send(ev, '今天必须消耗5次次数才能进入副本', at_sender=True)
-            return
-
     if weather == WeatherModel.CHUANWU:
         rd = random.randint(1, 10)
         if rd == 1:
@@ -260,10 +255,7 @@ async def in_stage(bot, ev: CQEvent):
         elif rd < 10:
             daily_stage_limiter.increase(guid)
     else:
-        if weather == WeatherModel.HUANGSHA:
-            daily_stage_limiter.increase(guid, num=5)
-        else:
-            daily_stage_limiter.increase(guid)
+        daily_stage_limiter.increase(guid)
     # 获取发动技能
     left_sp = dun.left_sp
     for i in dun.use_skill:
@@ -325,9 +317,14 @@ async def in_stage(bot, ev: CQEvent):
                     dun.able_dun.append(new_road)
                     dun.able_dun = list(set(dun.able_dun))
     cangtian_msg = ""
-    if get_weather(gid) == WeatherModel.CANGTIAN:
-        dun.left_sp = my.max_sp
-        cangtian_msg = "\n由于天气效果sp回复至满值"
+    if success:
+        if get_weather(gid) == WeatherModel.CANGTIAN:
+            dun.left_sp = my.max_sp
+            cangtian_msg = "\n由于天气效果sp回复至满值"
+    else:
+        if get_weather(gid) == WeatherModel.HUANGSHA:
+            dun.left_hp = my.maxhp
+            cangtian_msg = "\n由于天气效果hp回复至满值"
     CE._save_dun_info(dun)
     # 拼接战斗文案
     data = {
@@ -399,8 +396,6 @@ async def in_stage(bot, ev: CQEvent):
     if dungeon['drop'].get("item"):
         item_info = dungeon['drop']["item"][hard]
         rn = random.randint(1, 100)
-        if weather == WeatherModel.HUANGSHA:
-            rn = 1
         if rn <= item_info['rate'] + diaoluo_buff:
             item_name = random.choice(item_info['items'])
             item = get_item_by_name(item_name)
