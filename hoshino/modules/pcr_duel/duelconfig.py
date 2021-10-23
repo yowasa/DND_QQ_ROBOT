@@ -1411,21 +1411,16 @@ def get_dlc_blacklist(gid):
 def get_equip_desc(info):
     model_name_li = ['N', 'R', 'SR', 'SSR', 'UR', 'MR']
     msg = f"[{info['type']}]{info['name']}\n装备品质：{model_name_li[info['level'] - 1]}\n"
-    if info['effect'].get('hp'):
-        if info['effect']['hp']['type'] == 'const':
-            msg += f"hp:{info['effect']['hp']['value']} "
-    if info['effect'].get('sp'):
-        if info['effect']['sp']['type'] == 'const':
-            msg += f"sp:{info['effect']['sp']['value']} "
-    if info['effect'].get('atk'):
-        if info['effect']['atk']['type'] == 'const':
-            msg += f"atk:{info['effect']['atk']['value']} "
-    if info['effect'].get('skill'):
-        if info['effect']['skill']['type'] == 'const':
-            skill_msg = ' '.join(info['effect']['skill']['value'])
-            msg += f"skill:{skill_msg} "
+    for e in info['effect'].keys():
+        if e in ['hp', 'atk', 'sp', 'boost', 'crit', 'double', 'recover', 'dodge']:
+            if info['effect'][e]['type'] == 'const':
+                msg += f"{e}:{info['effect'][e]['value']} "
+        elif e == 'skill':
+            if info['effect'][e]['type'] == 'const':
+                skill_msg = ' '.join(info['effect'][e]['value'])
+                msg += f"{e}:{skill_msg} "
     if info.get('desc'):
-        msg += info.get('desc')
+        msg += '\n' + info.get('desc')
     return msg
 
 
@@ -1685,6 +1680,7 @@ def get_card_battle_info(gid, uid, cid):
     atk = 100
     hp = 1000
     sp = 1
+    # 技能
     skills = list(set(get_char_skill(cid)))
 
     # 等级加成
@@ -1754,30 +1750,31 @@ def get_card_battle_info(gid, uid, cid):
         "hp_pian": hp_pian,
         "atk_pian": atk_pian
     }
+    result = {}
+    result["hp"] = hp
+    result["atk"] = atk
+    result["sp"] = sp
+    result["skills"] = skills
+    result["boost"] = 0
+    result["crit"] = 0
+    result["double"] = 0
+    result["recover"] = 0
+    result["dodge"] = 0
     for eid in dreeslist:
         effect = equip_info[str(eid)]['effect']
-        if effect.get("hp"):
-            if effect['hp']['type'] == "const":
-                hp += effect['hp']['value']
-            elif effect['hp']['type'] == "exec":
-                hp += int(eval(effect['hp']['value']), content)
-        if effect.get("atk"):
-            if effect['atk']['type'] == "const":
-                atk += effect['atk']['value']
-            elif effect['atk']['type'] == "exec":
-                atk += int(eval(effect['atk']['value']), content)
-        if effect.get("sp"):
-            if effect['sp']['type'] == "const":
-                sp += effect['sp']['value']
-            elif effect['sp']['type'] == "exec":
-                sp += int(eval(effect['sp']['value']), content)
-        if effect.get("skill"):
-            if effect['skill']['type'] == "const":
-                skills = list(set(skills.extend(effect['skill']['value'])))
-            elif effect['skill']['type'] == "exec":
-                if eval(effect['skill']['condition']):
-                    skills = list(set(skills.extend(effect['skill']['value'])))
-    return hp, atk, sp, skills
+        for e in effect.keys():
+            if e in ['hp', 'atk', 'sp', 'boost', 'crit', 'double', 'recover', 'dodge']:
+                if effect[e]['type'] == "const":
+                    result[e] += effect[e]['value']
+                elif effect[e]['type'] == "exec":
+                    result[e] += int(eval(effect[e]['value']), content)
+            elif e == 'skill':
+                if effect['skill']['type'] == "const":
+                    result["skills"] = list(set(result["skills"].extend(effect['skill']['value'])))
+                elif effect['skill']['type'] == "exec":
+                    if eval(effect['skill']['condition']):
+                        result["skills"] = list(set(result["skills"].extend(effect['skill']['value'])))
+    return result
 
 
 # 查询单角色战力
@@ -1862,7 +1859,8 @@ def get_power_rank(gid):
         new_data = []
         for girl_data in data:
             gid1, rank, uid, cid = girl_data
-            hp, atk, sp, skills = get_card_battle_info(gid1, uid, cid)
+            content = get_card_battle_info(gid1, uid, cid)
+            hp, atk, sp, skills = content["hp"], content["atk"], content["sp"], content["skills"]
             gpower = hp + 10 * atk
             new_data.append((rank, gpower, uid, cid, hp, atk))
         rankData = sorted(new_data, key=lambda cus: cus[1], reverse=True)
@@ -2110,7 +2108,8 @@ def get_all_build_counter(gid, uid):
 def duel_my_buff(gid, uid, defen):
     z_hp, z_atk, z_sp, z_skills = 0, 0, 0, []
     for i in defen:
-        hp, atk, sp, skills = get_card_battle_info(gid, uid, i)
+        content = get_card_battle_info(gid, uid, i)
+        hp, atk, sp, skills = content["hp"], content["atk"], content["sp"], content["skills"]
         # 羁绊加成
         if char_fetter_json.get(str(i)):
             rate = 1
@@ -2135,10 +2134,12 @@ def duel_my_buff(gid, uid, defen):
     atk_gu = 0
     for i in changwai_li:
         if check_have_character(i, "弱气"):
-            hp, atk = get_card_battle_info(gid, uid, i)
+            content = get_card_battle_info(gid, uid, i)
+            hp = content["hp"]
             hp_gu += int(hp * 0.1)
         if check_have_character(i, "毒舌"):
-            hp, atk = get_card_battle_info(gid, uid, i)
+            content = get_card_battle_info(gid, uid, i)
+            atk = content["atk"]
             atk_gu += int(atk * 0.1)
 
     z_hp = int(z_hp * hp_buff)

@@ -146,7 +146,7 @@
     "eid": 12,
     "type_id": 1,
     "type": "副手",
-    "name": "防撞桶",
+    "name": "防撞桶(红)",
     "level": 1,
     "effect": {
       "hp": {
@@ -159,7 +159,7 @@
     "eid": 13,
     "type_id": 1,
     "type": "副手",
-    "name": "防撞锥",
+    "name": "防撞锥(蓝)",
     "level": 1,
     "effect": {
       "hp": {
@@ -729,14 +729,14 @@
   },
   "45": {
     "eid": 45,
-    "type_id": 1,
-    "type": "副手",
+    "type_id": 5,
+    "type": "饰品",
     "name": "妖精护目镜",
     "level": 2,
     "effect": {
-      "hp": {
+      "skill": {
         "type": "const",
-        "value": 80
+        "value": ["完备"]
       }
     }
   },
@@ -905,7 +905,11 @@
     "effect": {
       "hp": {
         "type": "const",
-        "value": 65
+        "value": 30
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -924,14 +928,14 @@
   },
   "151": {
     "eid": 151,
-    "type_id": 1,
-    "type": "副手",
+    "type_id": 5,
+    "type": "饰品",
     "name": "猫猫头套",
     "level": 2,
     "effect": {
-      "hp": {
+      "double": {
         "type": "const",
-        "value": 105
+        "value": 2
       }
     }
   },
@@ -957,7 +961,11 @@
     "effect": {
       "atk": {
         "type": "const",
-        "value": 52
+        "value": 40
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -996,7 +1004,11 @@
     "effect": {
       "hp": {
         "type": "const",
-        "value": 105
+        "value": 80
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1022,7 +1034,11 @@
     "effect": {
       "hp": {
         "type": "const",
-        "value": 105
+        "value": 80
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1075,6 +1091,10 @@
       "atk": {
         "type": "const",
         "value": 75
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1153,6 +1173,10 @@
       "hp": {
         "type": "const",
         "value": 170
+      },
+      "dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1257,8 +1281,14 @@
       "atk": {
         "type": "const",
         "value": 100
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "[74,75,72] in eids",
+        "value": ["冻结"]
       }
-    }
+    },
+    "desc": "当同时装备有'雾之湖冰冻结界''雾之湖连衣裙''雾之湖溜冰鞋'时获得技能冻结"
   },
   "74": {
     "eid": 74,
@@ -1348,6 +1378,10 @@
       "hp": {
         "type": "const",
         "value": 200
+      },
+      "boost": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1444,40 +1478,40 @@
   },
   "167": {
     "eid": 167,
-    "type_id": 1,
-    "type": "副手",
+    "type_id": 5,
+    "type": "饰品",
     "name": "累爬了的哈士奇-挂件ver.",
     "level": 3,
     "effect": {
-      "hp": {
+      "skill": {
         "type": "const",
-        "value": 200
+        "value": ["安抚"]
       }
     }
   },
   "168": {
     "eid": 168,
-    "type_id": 2,
-    "type": "武器",
+    "type_id": 5,
+    "type": "饰品",
     "name": "对猫特攻用哈士奇-舔狗ver.",
     "level": 3,
     "effect": {
-      "atk": {
+      "skill": {
         "type": "const",
-        "value": 102
+        "value": ["先发"]
       }
     }
   },
   "169": {
     "eid": 169,
-    "type_id": 3,
-    "type": "衣服",
+    "type_id": 5,
+    "type": "饰品",
     "name": "想睡觉的哈士奇-围脖ver.",
     "level": 3,
     "effect": {
-      "hp": {
+      "skill": {
         "type": "const",
-        "value": 205
+        "value": ["终焉"]
       }
     }
   },
@@ -1496,14 +1530,14 @@
   },
   "171": {
     "eid": 171,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "出门的哈士奇-雪橇ver.",
     "level": 3,
     "effect": {
-      "hp": {
+      "skill": {
         "type": "const",
-        "value": 205
+        "value": ["续行"]
       }
     }
   },
@@ -1517,6 +1551,10 @@
       "hp": {
         "type": "const",
         "value": 210
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1530,6 +1568,10 @@
       "atk": {
         "type": "const",
         "value": 105
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1543,6 +1585,10 @@
       "hp": {
         "type": "const",
         "value": 210
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1556,6 +1602,10 @@
       "hp": {
         "type": "const",
         "value": 210
+      },
+      "double": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1569,6 +1619,10 @@
       "hp": {
         "type": "const",
         "value": 230
+      },
+      "recover": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1582,6 +1636,10 @@
       "atk": {
         "type": "const",
         "value": 115
+      },
+      "recover": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1595,6 +1653,10 @@
       "hp": {
         "type": "const",
         "value": 230
+      },
+      "recover": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1608,6 +1670,10 @@
       "hp": {
         "type": "const",
         "value": 230
+      },
+      "recover": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -1634,8 +1700,14 @@
       "atk": {
         "type": "const",
         "value": 120
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "[181,183,184] in eids",
+        "value": ["合奏"]
       }
-    }
+    },
+    "desc": "同时装备有'普莉兹姆利巴乐队眼镜'，'普莉兹姆利巴联动跑鞋'，'普莉兹姆利巴应援T恤'时获得技能[合奏]"
   },
   "183": {
     "eid": 183,
@@ -1712,8 +1784,14 @@
       "atk": {
         "type": "const",
         "value": 175
+      },
+      "skill": {
+        "type": "exec",
+        "condition": "[88,90,93] in eids",
+        "value": ["终结"]
       }
-    }
+    },
+    "desc": "同时装备有'河童造头盔''河童工装''河童脚蹼'时获得技能[终结]"
   },
   "88": {
     "eid": 88,
@@ -1886,14 +1964,14 @@
   },
   "101": {
     "eid": 101,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "做工精致的怀表",
     "level": 4,
     "effect": {
-      "hp": {
+      "skill": {
         "type": "const",
-        "value": 350
+        "value": ["月计时"]
       }
     }
   },
@@ -2232,6 +2310,10 @@
       "atk": {
         "type": "const",
         "value": 210
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -2258,6 +2340,9 @@
       "atk": {
         "type": "const",
         "value": 235
+      },"dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -2336,6 +2421,10 @@
       "hp": {
         "type": "const",
         "value": 420
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -2362,6 +2451,9 @@
       "hp": {
         "type": "const",
         "value": 470
+      },"dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -2401,6 +2493,10 @@
       "hp": {
         "type": "const",
         "value": 420
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -2414,6 +2510,9 @@
       "hp": {
         "type": "const",
         "value": 500
+      },"dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3278,6 +3377,9 @@
       "atk": {
         "type": "const",
         "value": 325
+      },"boost": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3434,6 +3536,9 @@
       "hp": {
         "type": "const",
         "value": 650
+      },"crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3452,14 +3557,14 @@
   },
   "265": {
     "eid": 265,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "神器-八尺琼勾玉",
     "level": 5,
     "effect": {
-      "hp": {
+      "atk": {
         "type": "const",
-        "value": 635
+        "value": 300
       }
     }
   },
@@ -3489,7 +3594,7 @@
     "effect": {
       "atk": {
         "type": "const",
-        "value": 317
+        "value": 400
       }
     }
   },
@@ -3516,6 +3621,9 @@
       "hp": {
         "type": "const",
         "value": 650
+      },"sp": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3529,6 +3637,10 @@
       "hp": {
         "type": "const",
         "value": 650
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3625,27 +3737,43 @@
   },
   "289": {
     "eid": 289,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "胧月花栞",
     "level": 5,
     "effect": {
-      "hp": {
+      "dodge": {
         "type": "const",
-        "value": 640
+        "value": 2
       }
     }
   },
   "290": {
     "eid": 290,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "国士无双之药",
     "level": 5,
     "effect": {
-      "hp": {
+      "boost": {
         "type": "const",
-        "value": 650
+        "value": 1
+      },
+      "recover": {
+        "type": "const",
+        "value": 1
+      },
+      "crit": {
+        "type": "const",
+        "value": 1
+      },
+      "double": {
+        "type": "const",
+        "value": 1
+      },
+      "dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3685,6 +3813,9 @@
       "hp": {
         "type": "const",
         "value": 650
+      },"boost": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3737,6 +3868,10 @@
       "atk": {
         "type": "const",
         "value": 335
+      },
+      "boost": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3750,32 +3885,36 @@
       "hp": {
         "type": "const",
         "value": 660
+      },
+      "dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
   "299": {
     "eid": 299,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "燕的子安贝",
     "level": 5,
     "effect": {
       "hp": {
         "type": "const",
-        "value": 660
+        "value": 1000
       }
     }
   },
   "300": {
     "eid": 300,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "龙颈之玉",
     "level": 5,
     "effect": {
-      "hp": {
+      "atk": {
         "type": "const",
-        "value": 660
+        "value": 400
       }
     }
   },
@@ -3802,6 +3941,9 @@
       "atk": {
         "type": "const",
         "value": 335
+      },"double": {
+        "type": "const",
+        "value": 2
       }
     }
   },
@@ -3815,6 +3957,9 @@
       "hp": {
         "type": "const",
         "value": 670
+      },"recover": {
+        "type": "const",
+        "value": 3
       }
     }
   },
@@ -3841,6 +3986,9 @@
       "atk": {
         "type": "const",
         "value": 319
+      },"boost": {
+        "type": "const",
+        "value": 319
       }
     }
   },
@@ -3854,6 +4002,10 @@
       "hp": {
         "type": "const",
         "value": 620
+      },
+      "dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -3885,14 +4037,14 @@
   },
   "316": {
     "eid": 316,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "紧闭的恋之瞳",
     "level": 5,
     "effect": {
-      "hp": {
+      "dodge": {
         "type": "const",
-        "value": 700
+        "value": 3
       }
     }
   },
@@ -3911,14 +4063,14 @@
   },
   "318": {
     "eid": 318,
-    "type_id": 4,
-    "type": "鞋子",
+    "type_id": 5,
+    "type": "饰品",
     "name": "梅丽的电话",
     "level": 5,
     "effect": {
-      "hp": {
+      "boost": {
         "type": "const",
-        "value": 700
+        "value": 2
       }
     }
   },
@@ -4020,6 +4172,12 @@
       "atk": {
         "type": "const",
         "value": 500
+      },"boost": {
+        "type": "const",
+        "value": 1
+      },"crit": {
+        "type": "const",
+        "value": 1
       }
     }
   },
@@ -4036,7 +4194,7 @@
       },
       "sp": {
         "type": "const",
-        "value": 1
+        "value": 2
       }
     }
   },
@@ -4108,6 +4266,10 @@
       "hp": {
         "type": "const",
         "value": 1250
+      },
+      "dodge": {
+        "type": "const",
+        "value": 1
       }
     }
   },

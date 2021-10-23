@@ -3147,7 +3147,8 @@ async def my_fashion(bot, ev: CQEvent):
         equip_msg = f"\n目前穿戴的装备为:{equip_list}"
     favor = duel._get_favor(gid, uid, cid)
     relationship, text = get_relationship(favor)
-    card_hp, card_atk, sp, skills = get_card_battle_info(gid, uid, cid)
+    content = get_card_battle_info(gid, uid, cid)
+    card_hp, card_atk, sp, skills = content["hp"], content["atk"], content["sp"], content["skills"]
     level_info = CE._get_card_level(gid, uid, cid)
     rank = CE._get_rank(gid, uid, cid)
     if up_icon:
