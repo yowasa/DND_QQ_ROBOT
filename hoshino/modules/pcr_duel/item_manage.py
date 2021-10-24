@@ -505,12 +505,9 @@ async def battle_match(msg, bot, ev: CQEvent):
         await bot.finish(ev, '请先进入副本再使用药剂', at_sender=True)
     CE = CECounter()
     dun = CE._select_dun_info(gid, uid)
-    dun.left_sp += 5
-    my = duel_my_buff(gid, uid, dun.cids)
-    if dun.left_sp > my.sp:
-        dun.left_sp = my.sp
+    dun.left_sp += 10
     CE._save_dun_info(dun)
-    return (True, f"你使用了蓝药水，副本队伍sp回复至{dun.left_sp}")
+    return (True, f"你使用了蓝药水，副本队伍sp提升至{dun.left_sp}")
 
 
 @msg_route("战斗记忆")
