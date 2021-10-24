@@ -421,7 +421,7 @@
     "sp": 0,
     "cost": 0,
     "time": "begin",
-    "condition": "my_hp>=0.9*my_max_hp",
+    "condition": "(my_hp>=0.9*my_max_hp)&(my_sp<my_max_sp)",
     "effect": {
       "my": {
         "nizhuan_hp": {

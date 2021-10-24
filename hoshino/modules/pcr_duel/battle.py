@@ -17,6 +17,7 @@ def init_content(my: Attr):
     content["max_hp"] = my.maxhp
     content["hp"] = my.hp
     content["sp"] = my.sp
+    content["max_sp"] = my.max_sp
     content["atk"] = my.atk
 
     content["preempt"] = my.preempt

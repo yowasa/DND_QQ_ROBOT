@@ -98,8 +98,8 @@ def resolve_origin_msg(type, origin_dic):
         msg += origin_dic['item']['description']
         pics = origin_dic['item']['pictures']
         for pic in pics:
-            pic_img = pic['img_src']
-        msg += f"\n[CQ:image,file={pic_img}]"
+            pic_img = pic['img_src'].replace('\\', '')
+            msg += f"\n[CQ:image,file={pic_img}]"
     elif type == 4:
         name = origin_dic["user"]["uname"]
         uid = origin_dic["user"]["uid"]
