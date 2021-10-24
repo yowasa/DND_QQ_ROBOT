@@ -242,19 +242,23 @@
   },
   "续行": {
     "sp": 0,
-    "cost": 3,
+    "cost": 2,
     "time": "end",
     "condition": "my_sp>=3",
     "effect": {
       "my": {
-        "sp": {
+        "xuxing_hp": {
           "type": "exec",
-          "value": "my_sp+5"
+          "value": "(my_max_hp-my_hp)*0.5"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+((my_max_hp-my_hp)*0.5)"
         }
       }
     },
-    "desc": "战斗胜利时回复5点sp",
-    "log": "回复了5点sp"
+    "desc": "战斗结束时回复一半已损失生命值",
+    "log": "回复了{xuxing_hp}点hp"
   },
   "起死": {
     "sp": 0,

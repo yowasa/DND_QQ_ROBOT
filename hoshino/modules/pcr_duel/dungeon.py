@@ -93,8 +93,10 @@ async def in_dun(bot, ev: CQEvent):
     dun.cids = defen
     dun.dun_model = dun_model
     dun.left_hp = my.hp
-    dun.left_sp = my.sp
-    dun.use_skill = []
+    dun.left_sp = my.max_sp
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        dun.left_sp = my.max_sp + 10
+    dun.use_skill = my.all_skill
     dun.now_dun = None
     dun.from_dun = None
     dun.able_dun = ['春之小径']
@@ -187,17 +189,12 @@ async def in_stage(bot, ev: CQEvent):
         return
     my = duel_my_buff(gid, uid, defen)
     msg_li = str(msg).split(" ")
-    left_sp = dun.left_sp
     for i in msg_li:
         if not skill_def_json.get(i):
             await bot.send(ev, f"未找到名为{i}的技能")
             return
-        left_sp -= skill_def_json[i]["sp"]
         if i not in my.all_skill:
             await bot.send(ev, f"发动技能失败，你队伍中没有会{i}技能的角色,请使用 '发动技能 空格隔开的技能名' 重新设定")
-            return
-        if left_sp < 0:
-            await bot.send(ev, "发动技能失败，sp不足")
             return
     dun.use_skill = msg_li
     CE._save_dun_info(dun)
@@ -258,17 +255,19 @@ async def in_stage(bot, ev: CQEvent):
         daily_stage_limiter.increase(guid)
     # 获取发动技能
     left_sp = dun.left_sp
+    use_skill=[]
     for i in dun.use_skill:
-        left_sp -= skill_def_json[i]["sp"]
         if i not in my.all_skill:
             await bot.send(ev, f"发动技能失败，你队伍中没有会{i}技能的角色,请使用 '发动技能 空格隔开的技能名' 重新设定")
             return
-        if left_sp < 0:
-            await bot.send(ev, "发动技能失败，sp不足，请使用 '发动技能 空格隔开的技能名' 重新设定")
-            return
+        if left_sp>=skill_def_json[i]["sp"]:
+            use_skill.append(i)
+        else:
+            continue
+        left_sp -= skill_def_json[i]["sp"]
     my.hp = dun.left_hp
     my.sp = left_sp
-    my.skill = dun.use_skill
+    my.skill = use_skill
     dungeon = dungeonlist[stage]
     hard = dun.dun_model
     enemy = duel_enemy_buff(defen, dungeon['hp'][hard], dungeon['sp'], dungeon['atk'][hard], dungeon['buff'][hard],
@@ -317,11 +316,10 @@ async def in_stage(bot, ev: CQEvent):
                     dun.able_dun.append(new_road)
                     dun.able_dun = list(set(dun.able_dun))
     cangtian_msg = ""
-    if success:
-        if get_weather(gid) == WeatherModel.CANGTIAN:
-            dun.left_sp = my.max_sp
-            cangtian_msg = "\n由于天气效果sp回复至满值"
-    else:
+    dun.left_sp = my.max_sp
+    if get_weather(gid) == WeatherModel.CANGTIAN:
+        dun.left_sp = my.max_sp + 10
+    if not success:
         if get_weather(gid) == WeatherModel.HUANGSHA:
             dun.left_hp = my.maxhp
             cangtian_msg = "\n由于天气效果hp回复至满值"

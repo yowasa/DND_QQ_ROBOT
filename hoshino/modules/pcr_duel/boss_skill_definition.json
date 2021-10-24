@@ -419,27 +419,27 @@
   },
   "逆转": {
     "sp": 0,
-    "cost": 1,
-    "time": "end",
+    "cost": 0,
+    "time": "begin",
     "condition": "my_hp>=0.9*my_max_hp",
     "effect": {
       "my": {
         "nizhuan_hp": {
           "type": "exec",
-          "value": "my_max_hp*0.2"
+          "value": "my_max_hp*0.1"
         },
         "hp": {
           "type": "exec",
-          "value": "my_hp-my_max_hp*0.2"
+          "value": "my_hp-my_max_hp*0.1"
         },
         "sp": {
           "type": "exec",
-          "value": "my_sp+3"
+          "value": "my_max_sp"
         }
       }
     },
-    "desc": "战斗结束后，若血量大于90%，扣减20%血量恢复3点sp",
-    "log": "失去了{my_nizhuan_hp}点血量恢复了3点sp"
+    "desc": "战斗开始时，若血量大于90%，扣减10%血量恢复sp至sp上限",
+    "log": "失去了{my_nizhuan_hp}点血量恢复了sp"
   },
   "冻结": {
     "sp": 4,
