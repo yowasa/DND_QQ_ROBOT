@@ -265,9 +265,6 @@ async def search_chara(bot, ev: CQEvent):
     角色名称:{chara_json[str(chara_id)]}
     角色头像：{R.img(f'dlc/icon/icon_unit_{chara_id}61.png').cqcode}
     角色全图：{R.img(f'dlc/full/{chara_id}31.png').cqcode}
-    角色技能:
-    角色性格:
-    角色羁绊:
     """
     await bot.send(ev, result)
 
