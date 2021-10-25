@@ -510,6 +510,22 @@ async def battle_match(msg, bot, ev: CQEvent):
     return (True, f"你使用了蓝药水，副本队伍sp提升至{dun.left_sp}")
 
 
+@msg_route("相位迁移")
+async def xiangwei(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    guid = gid, uid
+    if daily_dun_limiter.check(guid):
+        await bot.finish(ev, '请先进入副本再使用相位迁移', at_sender=True)
+    if not dungeonlist.get(msg):
+        await bot.finish(ev, f'找不到名为{msg}的关卡', at_sender=True)
+    CE = CECounter()
+    dun = CE._select_dun_info(gid, uid)
+    dun.able_dun.append(msg)
+    dun.able_dun = list(set(dun.able_dun))
+    CE._save_dun_info(dun)
+    return (True, f'发现了前往{msg}关卡的道路')
+
 @msg_route("战斗记忆")
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id

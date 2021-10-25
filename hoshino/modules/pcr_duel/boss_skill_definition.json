@@ -75,7 +75,7 @@
   },
   "境界反转": {
     "sp": 5,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
@@ -179,9 +179,15 @@
   },
   "梦想封印": {
     "sp": 7,
-    "time": "begin",
+    "time": "prepare",
     "condition": "True",
     "effect": {
+      "my": {
+        "sp": {
+          "type": "const",
+          "value": 0
+        }
+      },
       "enemy": {
         "boost": {
           "type": "const",
@@ -209,7 +215,7 @@
         }
       }
     },
-    "desc": "清除敌方技能 增益，锁定敌方sp为5",
+    "desc": "清除敌方技能和增益，己方sp归0",
     "log": "对方增益归0，技能清空"
   },
   "极限火花": {
@@ -264,14 +270,10 @@
   },
   "解放者之血": {
     "sp": 10,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
-        "max_hp": {
-          "type": "exec",
-          "value": "my_max_hp*2"
-        },
         "hp": {
           "type": "exec",
           "value": "my_max_hp*2"
@@ -299,36 +301,36 @@
         "dodge": {
           "type": "exec",
           "value": "my_dodge+20"
+        },
+        "skills": {
+          "type": "const",
+          "value": {}
         }
       }
     },
-    "desc": "开始战斗时血量翻倍，攻击倍率变为2，全buff加成增加20",
+    "desc": "开始战斗时血量翻倍，攻击倍率变为2，全buff加成增加20，技能清空",
     "log": "全部战斗数值大幅度提升"
   },
   "月计时": {
     "sp": 0,
-    "cost": 3,
+    "cost": 2,
     "cd": 3,
-    "time": "damage",
+    "time": "before_damage",
     "condition": "True",
     "effect": {
-      "enemy": {
-        "total_damage": {
+      "enemy_next": {
+        "next_ts": {
           "type": "const",
-          "value": 0
-        },
-        "is_recover": {
-          "type": "const",
-          "value": false
+          "value": [true]
         }
       }
     },
-    "desc": "每三回合免疫一次伤害 且敌人无法触发回复",
-    "log": "免疫伤害,对方不能触发回复"
+    "desc": "每三回合跳过对手一次战斗阶段",
+    "log": "跳过对手战斗阶段"
   },
   "观武": {
     "sp": 5,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
@@ -420,7 +422,7 @@
   "逆转": {
     "sp": 0,
     "cost": 0,
-    "time": "begin",
+    "time": "init",
     "condition": "(my_hp>=0.9*my_max_hp)&(my_sp<my_max_sp)",
     "effect": {
       "my": {
@@ -493,7 +495,7 @@
   },
   "合奏": {
     "sp": 3,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {

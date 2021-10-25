@@ -471,7 +471,7 @@
   },
   "专注": {
     "sp": 2,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
@@ -492,16 +492,16 @@
       "my": {
         "atk_rate": {
           "type": "const",
-          "value": 1.2
+          "value": 1.1
         }
       }
     },
-    "desc": "本场战斗攻击倍率变为1.2",
-    "log": "本场战斗攻击倍率变为1.2"
+    "desc": "本场战斗攻击倍率变为1.1",
+    "log": "本场战斗攻击倍率变为1.1"
   },
   "暗幕": {
-    "sp": 2,
-    "time": "begin",
+    "sp": 1,
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
@@ -534,34 +534,34 @@
     "log": "额外回复了{my_buji_hp}点血量"
   },
   "受身": {
-    "sp": 5,
-    "time": "begin",
+    "sp": 3,
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
         "reduce_rate": {
           "type": "const",
-          "value": 0.75
+          "value": 0.9
         }
       }
     },
-    "desc": "本场战斗获得25%的战斗减伤",
-    "log": "增加25%的减伤"
+    "desc": "本场战斗获得10%的战斗减伤",
+    "log": "增加10%的减伤"
   },
   "死点": {
-    "sp": 5,
-    "time": "begin",
+    "sp": 3,
+    "time": "init",
     "condition": "True",
     "effect": {
       "enemy": {
         "reduce_rate": {
           "type": "const",
-          "value": 1.25
+          "value": 1.1
         }
       }
     },
-    "desc": "本场战斗敌人受到的战斗伤害增加25%",
-    "log": "敌人受到的战斗伤害增加25%"
+    "desc": "本场战斗敌人受到的战斗伤害增加10%",
+    "log": "敌人受到的战斗伤害增加10%"
   },
   "反击": {
     "sp": 0,
@@ -591,8 +591,8 @@
         }
       }
     },
-    "desc": "战斗开始时削减敌方10%最大生命值",
-    "log": "对方损失了10%最大生命值"
+    "desc": "战斗开始时削减敌方10%最大生命值的hp",
+    "log": "对方损失了10%最大生命值的hp"
   },
   "斩杀": {
     "sp": 0,
@@ -674,7 +674,7 @@
   },
   "果断": {
     "sp": 3,
-    "time": "begin",
+    "time": "init",
     "condition": "True",
     "effect": {
       "my": {
@@ -686,5 +686,281 @@
     },
     "desc": "增加50%暴击伤害",
     "log": "暴击伤害倍率提高到2.5倍"
+  },
+  "直球": {
+    "sp": 1,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "chuanjia": {
+          "type": "const",
+          "value": true
+        }
+      }
+    },
+    "desc": "你的攻击无视减伤",
+    "log": "攻击无视减伤"
+  },
+  "寡断": {
+    "sp": 0,
+    "cost": 2,
+    "cd": 5,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [true]
+        },"next_atk_rate": {
+          "type": "const",
+          "value": [3,3]
+        },"next_reduce_rate": {
+          "type": "const",
+          "value": [0.5]
+        }
+      }
+    },
+    "desc": "放弃这回合的战斗阶段，本回合获得50%的减伤，你下回合的伤害倍率*3",
+    "log": "战斗阶段跳过，获得50%的减伤 下回合攻击倍率为3倍"
+  },
+  "恋心": {
+    "sp": 2,
+    "time": "after_damage",
+    "condition": "my_total_damage!=0",
+    "effect": {
+      "my": {
+        "crit": {
+          "type": "exec",
+          "value": "0 if my_is_crit else my_crit+5"
+        }
+      }
+    },
+    "desc": "每回合增加5%的暴击率 触发暴击后重置暴击为0%",
+    "log": "暴击率为{my_crit}%"
+  },
+  "护佑": {
+    "sp": 0,
+    "cost": 1,
+    "time": "turn_end",
+    "condition": "turn==10",
+    "effect": {
+      "my": {
+        "huyou_hp": {
+          "type": "exec",
+          "value": "my_hp"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp*2"
+        }
+      }
+    },
+    "desc": "第十回合结束时回复你当前生命值的生命值。",
+    "log": "回复{my_huyou_hp}点hp"
+  },
+  "轮回": {
+    "sp": 0,
+    "cost": 1,
+    "time": "turn_end",
+    "condition": "turn==5",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+0.2*my_max_hp"
+        }
+      },"enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp+0.2*enemy_max_hp"
+        }
+      }
+    },
+    "desc": "第5回合结束时，双方各回复20%的生命值",
+    "log": "双方各回复20%的生命值"
+  },
+  "梦幻剑": {
+    "sp": 0,
+    "cost": 2,
+    "time": "before_damage",
+    "condition": "turn==2",
+    "effect": {
+      "enemy_next": {
+        "next_dodge": {
+          "type": "const",
+          "value": [0]
+        },"next_ts": {
+          "type": "const",
+          "value": [true]
+        }
+      }
+    },
+    "desc": "第二回合释放，必中，对手无法攻击",
+    "log": "必中，跳过对手的战斗阶段"
+  },
+  "治疗": {
+    "sp": 0,
+    "cost": 1,
+    "cd": 4,
+    "time": "turn_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "zhiliao_hp": {
+          "type": "exec",
+          "value": "0.1*(my_max_hp-my_hp)"
+        },"hp": {
+          "type": "exec",
+          "value": "my_hp+0.1*(my_max_hp-my_hp)"
+        }
+      }
+    },
+    "desc": "4回合释放一次 回复已损失生命值10%的血量",
+    "log": "回复了{my_zhiliao_hp}点hp"
+  },
+  "局部地震": {
+    "sp": 0,
+    "cost": 2,
+    "cd": 6,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "dizhen_hp": {
+          "type": "exec",
+          "value": "my_atk"
+        },"hp": {
+          "type": "exec",
+          "value": "enemy_hp-my_atk"
+        }
+      },"enemy_next": {
+        "next_dodge": {
+          "type": "const",
+          "value": [0,0,0]
+        }
+      }
+    },
+    "desc": "6回合释放一次造成1倍攻击力的伤害，对手接下来3个回合无法闪避",
+    "log": "造成了{enemy_dizhen_hp}点伤害，接下来三回合对方无法闪避"
+  },
+  "武器附魔": {
+    "sp": 1,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "ex_atk": {
+          "type": "exec",
+          "value": "my_atk*0.1"
+        }
+      }
+    },
+    "desc": "攻击附带0.1倍攻击力的额外伤害",
+    "log": "攻击附带0.1倍攻击力的额外伤害"
+  },
+  "狂攻": {
+    "sp": 0,
+    "cost": 1,
+    "cd": 4,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_double": {
+          "type": "const",
+          "value": [100]
+        },"next_reduce_rate": {
+          "type": "const",
+          "value": [1.5]
+        }
+      }
+    },
+    "desc": "四回合释放一次，攻击必定连击，下一次被攻击自己受到伤害增加50%",
+    "log": "本回合连击率提高至100%，增加50%所受伤害"
+  },
+  "力场": {
+    "sp": 0,
+    "cost": 1,
+    "cd": 4,
+    "time": "damage",
+    "condition": "enemy_total_damage<=(0.9*enemy_atk)",
+    "effect": {
+      "enemy": {
+        "total_damage": {
+          "type": "exec",
+          "value": "enemy_total_damage*0.3"
+        }
+      }
+    },
+    "desc": "四回合释放一次，对方造成少于对方攻击力*90%的伤害减少70%",
+    "log": "降低70%所受伤害"
+  },
+  "高等附魔": {
+    "sp": 2,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "ex_atk_rate": {
+          "type": "const",
+          "value": 2
+        }
+      }
+    },
+    "desc": "造成的额外伤害翻倍",
+    "log": "造成的额外伤害翻倍"
+  },
+  "摧心": {
+    "sp": 1,
+    "cd": 5,
+    "time": "turn_end",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "max_hp": {
+          "type": "exec",
+          "value": "enemy_hp"
+        }
+      }
+    },
+    "desc": "每5回合使对方最大生命值等于当前生命值",
+    "log": "对方最大生命值变为{enemy_hp}"
+  },
+  "破魔": {
+    "sp": 0,
+    "cost": 1,
+    "cd": 3,
+    "time": "before_damage",
+    "condition": "enemy_hp>enemy_max_hp",
+    "effect": {
+      "enemy": {
+        "pomo_hp": {
+          "type": "exec",
+          "value": "enemy_hp-enemy_max_hp"
+        },"hp": {
+          "type": "exec",
+          "value": "enemy_max_hp"
+        }
+      }
+    },
+    "desc": "对方当前生命值大于最大生命值时 对其造成其差值的伤害",
+    "log": "造成了{enemy_pomo_hp}点伤害"
+  },
+  "诅咒": {
+    "sp": 2,
+    "time": "init",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "liushi_hp": {
+          "type": "exec",
+          "value": "enemy_max_hp*0.02"
+        }
+      }
+    },
+    "desc": "敌方每回合流失其最大生命值2%的hp",
+    "log": "对方每回合将会流失生命值"
   }
 }

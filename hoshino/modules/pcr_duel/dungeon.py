@@ -293,7 +293,6 @@ async def in_stage(bot, ev: CQEvent):
     dun.left_hp = my.hp
     dun.left_sp = my.sp
     # 发现新道路
-    dun.use_skill = []
     if dun.now_dun != stage:
         dun.from_dun = dun.now_dun
         dun.now_dun = stage

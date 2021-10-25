@@ -19,7 +19,6 @@ def init_content(my: Attr):
     content["sp"] = my.sp
     content["max_sp"] = my.max_sp
     content["atk"] = my.atk
-
     content["preempt"] = my.preempt
     content["boost"] = my.boost
     content["crit"] = my.crit
@@ -32,13 +31,19 @@ def init_content(my: Attr):
     content["reduce_rate"] = 1
     # 额外伤害
     content["ex_atk"] = 0
+    # 额外伤害倍率
+    content["ex_atk_rate"] = 1
     # 血量流失
     content["liushi_hp"] = 0
     # 回复倍率
     content["recover_rate"] = 1
     # 暴击倍率
     content["crit_rate"] = 2
-
+    # 跳过战斗阶段标识
+    content["ts"] = False
+    content["chuanjia"] = False
+    content["next_chuanjia"] = []
+    content["next_ts"] = []
     content["next_crit_rate"] = []
     content["next_recover_rate"] = []
     content["next_liushi_hp"] = []
@@ -171,16 +176,30 @@ def duel_buff(my_content, enemy_content, prefix):
     atk = content_get("atk", my_content)
     atk_rate = content_get("atk_rate", my_content)
     reduce_rate = content_get("reduce_rate", enemy_content)
-    # 倍率加成
+    is_boost = content_get("is_boost", my_content)
+    is_dodge = content_get("is_dodge", enemy_content)
+    is_crit = content_get("is_crit", my_content)
+    crit_rate = content_get("crit_rate", my_content)
+    is_double = content_get("is_double", my_content)
+    ex_atk = content_get('ex_atk', my_content)
+    ex_atk_rate = content_get('ex_atk_rate', my_content)
+    ts = content_get('ts', my_content)
+    chuanjia = content_get('chuanjia', my_content)
+    if chuanjia:
+        reduce_rate = 1
+    if ts:
+        my_content["damage_log"].append(f"{prefix}战斗阶段跳过")
+        my_content["total_damage"] = dmg
+        return
+        # 倍率加成
     atk = int(atk * atk_rate)
-    if content_get("is_boost", my_content):
+    if is_boost:
         atk = int(1.5 * atk)
         my_content["damage_log"].append(prefix + "触发了boost强化，本轮基础atk增加50%")
-    if content_get("is_dodge", enemy_content):
+    if is_dodge:
         my_content["damage_log"].append(f"{prefix}攻击被闪避！")
     else:
-        if content_get("is_crit", my_content):
-            crit_rate = content_get("crit_rate", my_content)
+        if is_crit:
             rd_dmg = deviation(crit_rate * atk * reduce_rate)
             dmg += rd_dmg
             my_content["damage_log"].append(f"{prefix}造成了暴击，造成了{rd_dmg}点伤害!")
@@ -188,7 +207,7 @@ def duel_buff(my_content, enemy_content, prefix):
             rd_dmg = deviation(atk * reduce_rate)
             dmg += rd_dmg
             my_content["damage_log"].append(f"{prefix}造成了{rd_dmg}点伤害")
-        if content_get("is_double", my_content):
+        if is_double:
             my_content["damage_log"].append(f"{prefix}触发了连击!")
             if content_get("is_crit", my_content):
                 rd_dmg = deviation(2 * atk * reduce_rate)
@@ -198,10 +217,10 @@ def duel_buff(my_content, enemy_content, prefix):
                 rd_dmg = deviation(atk * reduce_rate)
                 dmg += rd_dmg
                 my_content["damage_log"].append(f"{prefix}造成了{rd_dmg}点伤害")
-        ex_atk = content_get('ex_atk', my_content)
         if ex_atk:
-            dmg += ex_atk
-            my_content["damage_log"].append(f"{prefix}造成额外{ex_atk}附加伤害!")
+            ex_dmg=ex_atk*ex_atk_rate
+            dmg += ex_dmg
+            my_content["damage_log"].append(f"{prefix}造成额外{ex_dmg}附加伤害!")
     my_content["total_damage"] = dmg
 
 
@@ -243,8 +262,22 @@ def battle(my: Attr, enemy: Attr):
     logs.append(f"我方hp:{my.hp}\t 敌方hp:{enemy.hp}")
     # 触发技能
     turn = 0
-    logs.extend(skill_engine("begin", my_content, enemy_content, turn, prefix="我方"))
-    logs.extend(skill_engine("begin", enemy_content, my_content, turn, prefix="敌方"))
+    first=random.randint(0,1)
+    if first:
+        logs.extend(skill_engine("init", my_content, enemy_content, turn, prefix="我方"))
+        logs.extend(skill_engine("init", enemy_content, my_content, turn, prefix="敌方"))
+        logs.extend(skill_engine("prepare", my_content, enemy_content, turn, prefix="我方"))
+        logs.extend(skill_engine("prepare", enemy_content, my_content, turn, prefix="敌方"))
+        logs.extend(skill_engine("begin", my_content, enemy_content, turn, prefix="我方"))
+        logs.extend(skill_engine("begin", enemy_content, my_content, turn, prefix="敌方"))
+    else:
+        logs.extend(skill_engine("init", enemy_content, my_content, turn, prefix="敌方"))
+        logs.extend(skill_engine("init", my_content, enemy_content, turn, prefix="我方"))
+        logs.extend(skill_engine("prepare", enemy_content, my_content, turn, prefix="敌方"))
+        logs.extend(skill_engine("prepare", my_content, enemy_content, turn, prefix="我方"))
+        logs.extend(skill_engine("begin", enemy_content, my_content, turn, prefix="敌方"))
+        logs.extend(skill_engine("begin", my_content, enemy_content, turn, prefix="我方"))
+
     # 先攻鉴定
     rd = random.randint(1, my_content["preempt"] + enemy_content["preempt"])
     flag = rd <= my_content["preempt"]
@@ -406,12 +439,11 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
     enemy.sp = enemy_content["sp"]
     return success, logs
 
-# my = Attr(1000, 1000, 100, 5)
-# my.all_skill = ["吸血"]
-#
-# enemy = Attr(1000, 1000, 100, 5)
-# enemy.skill = ["补给","雷破","水毒"]
-#
-# result, log = battle(my, enemy)
-#
-# print("\n".join(log))
+my = Attr(1000, 1000, 100, 5)
+my.skill = ["月计时"]
+
+enemy = Attr(1000, 1000, 100, 5)
+
+result, log = battle(my, enemy)
+
+print("\n".join(log))

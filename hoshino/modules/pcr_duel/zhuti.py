@@ -905,7 +905,7 @@ async def add_girl(bot, ev: CQEvent):
         await bot.finish(ev, f'您的声望不足哦。升级到{futurename}需要{needSW}声望。', at_sender=True)
 
     needFR = get_noblefr(level + 1)
-    nowfr = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+    nowfr = get_fanrong(gid,uid)
     if nowfr < needFR:
         await bot.finish(ev, f'您的城市繁荣度不足哦。升级到{futurename}需要城市拥有{needFR}繁荣度。', at_sender=True)
 

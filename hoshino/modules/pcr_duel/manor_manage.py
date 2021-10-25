@@ -58,53 +58,6 @@ async def manor_help(bot, ev: CQEvent):
     await bot.send(ev, msg)
 
 
-@sv.on_fullmatch(['接受封地', '开启领地', '开拓新城'])
-async def manor_begin(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    # 检查是否已经开启
-    if get_user_counter(gid, uid, UserModel.MANOR_BEGIN):
-        await bot.finish(ev, "你已经接受了封地，无需再次领封", at_sender=True)
-    # 判断是否是准男爵以上
-    duel = DuelCounter()
-    level = duel._get_level(gid, uid)
-    if level == 0:
-        msg = '您还未在本群创建过角色，请发送 创建角色 开始你的人生旅途。'
-        await bot.finish(ev, msg, at_sender=True)
-    elif level < 3:
-        msg = '必须达到准男爵以上才能接受封地'
-        await bot.finish(ev, msg, at_sender=True)
-
-    # 初始化耕地比例
-    geng = 10
-    save_user_counter(gid, uid, UserModel.GENGDI, geng)
-    # 初始化治安
-    zhian = 80
-    save_user_counter(gid, uid, UserModel.ZHI_AN, zhian)
-
-    # 初始化税率
-    shui = 10
-    save_user_counter(gid, uid, UserModel.TAX_RATIO, shui)
-
-    all_manor = get_all_manor(level)
-    city_manor = get_city_manor(gid, uid, level)
-    geng_manor = get_geng_manor(gid, uid, level, geng)
-
-    save_user_counter(gid, uid, UserModel.MANOR_BEGIN, 1)
-
-    # 发送信息
-    noblename = get_noblename(level)
-    msg = f'''尊敬的{noblename}您好，你奉命开拓城市
-城市面积{all_manor}
-城区面积{city_manor}
-耕地面积{geng_manor}
-当前治安状况{zhian}
-耕地税比例为{shui}%
-请认真维护好自己的城市，无法维护城市时会产生极其恶劣的影响
-    '''.strip()
-    await bot.finish(ev, msg, at_sender=True)
-
-
 @sv.on_fullmatch(["领地查询", "查询领地", "我的领地", "城市查询", "查询城市", "我的城市"])
 async def manor_view(bot, ev: CQEvent):
     gid = ev.group_id
@@ -152,7 +105,7 @@ async def manor_view(bot, ev: CQEvent):
             sw_sum += get_sw
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     pm = PolicyModel.get_by_id(p_id)
-    now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+    now_fanrong=get_fanrong(gid, uid)
 
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
@@ -206,6 +159,7 @@ async def build_view(bot, ev: CQEvent):
 {i.value['name']}:
 花费:{i.value['gold']}金币,{i.value['sw']}声望
 维持费用:{i.value['cost']}金币
+固定繁荣:{i.value['fanrong']}点
 限制:最多拥有{i.value['limit']}个
 占地面积:{i.value['area']}
 建筑时间:{i.value['time']}次城市结算
@@ -322,8 +276,9 @@ async def manor_sign(bot, ev: CQEvent):
 
     # 繁荣度增减
     fanrong = 0
+    total_fanrong=get_fanrong(gid,uid)
     now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
-    fan_buff = 1 + (now_fanrong / 2000)
+    fan_buff = 1 + (total_fanrong / 2000)
     # 治安结算
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
     # 判定城市拥堵
@@ -487,15 +442,13 @@ async def manor_sign(bot, ev: CQEvent):
         if get_weather(gid) != WeatherModel.QINGLAN:
             b_c = get_all_build_counter(gid, uid)
             for i in b_c.keys():
-                # 每有一个类建筑 增加1点繁荣度
-                fanrong += b_c[i]
                 if i == BuildModel.CENTER:
                     continue
                 elif i == BuildModel.APARTMENT:
                     ct = b_c[i]
                     if ct == 5:
                         ct = 6
-                    add_fanrong = 5 * ct
+                    add_fanrong = ct
                     fanrong += add_fanrong
                     msg += f'\n公寓的存在推动了人口的增长，城市变得更加繁荣了。繁荣度增加了{add_fanrong}'
                 elif i == BuildModel.POLICE_OFFICE:
@@ -597,15 +550,15 @@ async def manor_sign(bot, ev: CQEvent):
     now_fanrong += fanrong
     if now_fanrong < 0:
         now_fanrong = 0
-    elif now_fanrong > 1000:
+    save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, now_fanrong)
+    total_fanrong=get_fanrong(gid,uid)
+    if total_fanrong >= 1000:
         count = get_user_counter(gid, uid, UserModel.DIWANG)
         if count == 0:
             item = get_item_by_name("帝王法令")
             add_item(gid, uid, item)
             save_user_counter(gid, uid, UserModel.DIWANG, 1)
             msg += f"\n城市在你的带领下变得空前繁荣。获得了{item['rank']}级道具{item['name']}"
-        now_fanrong = 1000
-    save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, now_fanrong)
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
