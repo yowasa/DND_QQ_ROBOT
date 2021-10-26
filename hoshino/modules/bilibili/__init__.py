@@ -124,9 +124,9 @@ def resolve_origin_msg(type, origin_dic):
     return msg
 
 
-def build_msg(card):
-    desc = card.get('desc')
-    card = card.get('card')
+def build_msg(org):
+    desc = org.get('desc')
+    card = org.get('card')
     msg = ""
     uid = desc['user_profile']['info']['uid']
     name = desc['user_profile']['info']['uname']
@@ -150,6 +150,12 @@ def build_msg(card):
         msg += "\n简介:" + card['desc']
         msg += "\n地址:" + card['short_link']
         msg += f"\n[CQ:image,file={card['pic']}]"
+    elif desc["type"] == 64:
+        msg += "\n标题:" + card['title']
+        msg += "\n简介:" + card['summary']+"..."
+        pic = card['image_urls']
+        for i in pic:
+            msg += f"\n[CQ:image,file={i}]"
     else:
         msg += "未解析的动态类型，请联系开发人员!"
     return msg
