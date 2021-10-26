@@ -439,11 +439,11 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
     enemy.sp = enemy_content["sp"]
     return success, logs
 
-my = Attr(1000, 1000, 100, 5)
-my.skill = ["月计时"]
-
-enemy = Attr(1000, 1000, 100, 5)
-
-result, log = battle(my, enemy)
-
-print("\n".join(log))
+# my = Attr(1000, 1000, 100, 5)
+# my.skill = ["月计时"]
+#
+# enemy = Attr(1000, 1000, 100, 5)
+#
+# result, log = battle(my, enemy)
+#
+# print("\n".join(log))
