@@ -119,7 +119,6 @@ async def set_pvp_group(bot, ev: CQEvent):
     duel._del_pvp_info(gid, uid)
     await bot.send(ev, "取消成功", at_sender=True)
 
-
 @sv.on_prefix(['pvp'])
 async def pvp(bot, ev: CQEvent):
     gid = ev.group_id
@@ -150,6 +149,16 @@ async def pvp(bot, ev: CQEvent):
             enemy.sp -= skill_def_json[i]["sp"]
             enemy.skill.append(i)
     result, log = battle(my, enemy)
-
-    msg = f"\n战斗{'胜利' if result else '失败'}\n战斗详情：\n" + '\n'.join(log)
-    await bot.send(ev, msg, at_sender=True)
+    tas_list = []
+    msg = f"战斗{'胜利' if result else '失败'}!"
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": msg
+        }
+    }
+    tas_list.append(data)
+    tas_list.extend(build_battle_tag_list(log))
+    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)

@@ -327,16 +327,8 @@ async def in_stage(bot, ev: CQEvent):
             dun.left_hp = my.maxhp
             cangtian_msg = "\n由于天气效果hp回复至满值"
     CE._save_dun_info(dun)
-    # 拼接战斗文案
-    data = {
-        "type": "node",
-        "data": {
-            "name": "ご主人様",
-            "uin": "1587640710",
-            "content": '\n'.join(logs)
-        }
-    }
-    tas_list.append(data)
+    battle_tags = build_battle_tag_list(log)
+    tas_list.extend(battle_tags)
     # 战斗失败
     if not success:
         msg = ''

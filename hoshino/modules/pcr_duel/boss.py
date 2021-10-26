@@ -128,15 +128,7 @@ async def start_huizhan(bot, ev: CQEvent):
         my = duel_my_buff(gid, uid, defen)
         enemy = duel_enemy_buff([], bossinfo['hp'], bossinfo['sp'], bossinfo['ce'], bossinfo['buff'], bossinfo['skill'])
         success, log = battle(my, enemy)
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": '\n'.join(log)
-            }
-        }
-        tas_list.append(data)
+        tas_list.extend(build_battle_tag_list(log))
         msg = ''
         # 判断造成的伤害是否大于boss血量
         shanghai = bossinfo['hp'] - enemy.hp

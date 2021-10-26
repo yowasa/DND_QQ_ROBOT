@@ -271,7 +271,7 @@
   },
   "解放者之血": {
     "sp": 10,
-    "time": "init",
+    "time": "prepare",
     "condition": "True",
     "effect": {
       "my": {

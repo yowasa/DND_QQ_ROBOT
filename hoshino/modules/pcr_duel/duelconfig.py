@@ -13,6 +13,7 @@ from . import duel_chara as chara
 from .CECounter import *
 from .DuelCounter import *
 from .ItemCounter import *
+import re
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
                 9604]  # 黑名单ID
@@ -2269,3 +2270,32 @@ def get_char_skill(cid):
         return char_skill_json.get(str(cid));
     base = hashval(md5(str(cid)), len(self_skill_def))
     return [list(self_skill_def.keys())[base]]
+
+# 构建战斗记录返回列表
+def build_battle_tag_list(log):
+    tas_list = []
+    index = 0
+    for i in range(len(log)):
+        if re.match(r"【第\d+回合】", log[i], flags=0):
+            msg = "\n".join(log[index:i])
+            index = i
+            data = {
+                "type": "node",
+                "data": {
+                    "name": "ご主人様",
+                    "uin": "1587640710",
+                    "content": msg
+                }
+            }
+            tas_list.append(data)
+    msg = "\n".join(log[index:])
+    data = {
+        "type": "node",
+        "data": {
+            "name": "ご主人様",
+            "uin": "1587640710",
+            "content": msg
+        }
+    }
+    tas_list.append(data)
+    return tas_list
