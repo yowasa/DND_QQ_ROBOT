@@ -126,19 +126,18 @@
   "狂暴": {
     "sp": 0,
     "cost": 1,
+    "cd": 30,
     "time": "before_damage",
     "condition": "my_hp<=0.15*my_max_hp",
     "effect": {
-      "my_next": {
-        "next_atk_rate": {
+      "my": {
+        "atk_rate": {
           "type": "const",
-          "value": [
-            2
-          ]
+          "value": 2
         }
       }
     },
-    "desc": "血量低于15%时 atk翻倍",
+    "desc": "血量低于15%时诱发，后续攻击倍率变为2",
     "log": "atk变为了2倍!"
   },
   "心眼": {
@@ -222,7 +221,7 @@
       }
     },
     "desc": "受到致命一击时 仅一次免疫该伤害",
-    "log": "免疫该回合的伤害"
+    "log": "免疫该回合的战斗伤害"
   },
   "完备": {
     "sp": 0,
@@ -242,7 +241,7 @@
   },
   "续行": {
     "sp": 0,
-    "cost": 2,
+    "cost": 1,
     "time": "end",
     "condition": "my_sp>=3",
     "effect": {
@@ -263,7 +262,7 @@
   "起死": {
     "sp": 0,
     "cost": 1,
-    "cd": 999,
+    "cd": 30,
     "time": "before_damage",
     "condition": "my_hp<=0.1*my_max_hp",
     "effect": {
@@ -286,20 +285,20 @@
       "my": {
         "miyap_hp": {
           "type": "exec",
-          "value": "(my_max_hp-my_hp)*0.1"
+          "value": "(my_max_hp-my_hp)*0.15"
         },
         "hp": {
           "type": "exec",
-          "value": "my_hp+(my_max_hp-my_hp)*0.1"
+          "value": "my_hp+(my_max_hp-my_hp)*0.15"
         }
       }
     },
-    "desc": "触发回复时额外回复已损失生命值10%的血量",
+    "desc": "触发回复时额外回复已损失生命值15%的血量",
     "log": "额外回复了{my_miyap_hp}"
   },
   "根性": {
     "sp": 0,
-    "cost": 2,
+    "cost": 1,
     "cd": 2,
     "time": "damage",
     "condition": "enemy_total_damage>=0.2*my_max_hp",
@@ -330,7 +329,7 @@
         }
       }
     },
-    "desc": "造成伤害时回复伤害的30%的血量",
+    "desc": "造成战斗伤害时回复伤害的30%的血量",
     "log": "吸取了{my_xi_hp}的hp"
   },
   "雷破": {
@@ -360,8 +359,7 @@
     "log": "下次攻击基础攻击力上升，对方伤害减半"
   },
   "水毒": {
-    "sp": 0,
-    "cost": 1,
+    "sp": 1,
     "time": "before_damage",
     "condition": "(turn>=3)&(turn<=5)",
     "effect": {
@@ -430,8 +428,7 @@
     "log": "下次攻击基础攻击力上升,本场战斗暴击率增加10%"
   },
   "风卷": {
-    "sp": 0,
-    "cost": 1,
+    "sp": 1,
     "time": "before_damage",
     "condition": "turn>=5",
     "effect": {
@@ -458,15 +455,15 @@
       "enemy": {
         "tuzang_hp": {
           "type": "exec",
-          "value": "enemy_hp*0.2"
+          "value": "enemy_hp*0.3"
         },
         "hp": {
           "type": "exec",
-          "value": "enemy_hp-enemy_hp*0.2"
+          "value": "enemy_hp-enemy_hp*0.3"
         }
       }
     },
-    "desc": "第六回合释放 检查对方生命值 若高于50%则削减其20%的当前生命值",
+    "desc": "第六回合释放 检查对方生命值 若高于50%则削减其30%的当前生命值",
     "log": "削减了对方{enemy_tuzang_hp}点hp"
   },
   "专注": {
@@ -534,7 +531,7 @@
     "log": "额外回复了{my_buji_hp}点血量"
   },
   "受身": {
-    "sp": 3,
+    "sp": 2,
     "time": "init",
     "condition": "True",
     "effect": {
@@ -549,7 +546,7 @@
     "log": "增加10%的减伤"
   },
   "死点": {
-    "sp": 3,
+    "sp": 2,
     "time": "init",
     "condition": "True",
     "effect": {
@@ -566,21 +563,22 @@
   "反击": {
     "sp": 0,
     "cost": 1,
+    "cd": 3,
     "time": "after_damage",
     "condition": "enemy_total_damage>0.1*my_max_hp",
     "effect": {
       "my_next": {
         "next_ex_atk": {
           "type": "exec",
-          "value": ["enemy_max_hp*0.05"]
+          "value": ["enemy_max_hp*0.1"]
         }
       }
     },
-    "desc": "当你受到大于最大体力值10%的伤害时，下次攻击额外附加敌方5%最大生命值的伤害",
-    "log": "下次攻击附带敌人5%最大生命值的附加伤害"
+    "desc": "当你受到大于最大体力值10%的伤害时，下次攻击额外附加敌方10%最大生命值的伤害",
+    "log": "下次攻击附带敌人10%最大生命值的附加伤害"
   },
   "震慑": {
-    "sp": 4,
+    "sp": 3,
     "time": "begin",
     "condition": "True",
     "effect": {
@@ -642,23 +640,22 @@
     "log": "下次受到伤害减免25%"
   },
   "洞察": {
-    "sp": 2,
-    "cd": 2,
+    "sp": 1,
     "time": "before_damage",
     "condition": "True",
     "effect": {
       "enemy": {
-        "atk": {
+        "atk_rate": {
           "type": "exec",
-          "value": "enemy_atk*0.99"
+          "value": "enemy_atk_rate-0.01"
         }
       }
     },
-    "desc": "每2回合降低敌方1%攻击",
-    "log": "对方攻击力下降了1%"
+    "desc": "每回合降低敌方1%的攻击倍率",
+    "log": "对方攻击倍率下降了1%"
   },
   "牵制": {
-    "sp": 3,
+    "sp": 1,
     "time": "begin",
     "condition": "True",
     "effect": {
@@ -673,7 +670,7 @@
     "log": "对方回复效率降低至50%"
   },
   "果断": {
-    "sp": 3,
+    "sp": 1,
     "time": "init",
     "condition": "True",
     "effect": {
@@ -783,7 +780,7 @@
   },
   "梦幻剑": {
     "sp": 0,
-    "cost": 2,
+    "cost": 1,
     "time": "before_damage",
     "condition": "turn==2",
     "effect": {
@@ -862,7 +859,7 @@
   },
   "狂攻": {
     "sp": 0,
-    "cost": 1,
+    "cost": 0,
     "cd": 4,
     "time": "before_damage",
     "condition": "True",
@@ -898,7 +895,7 @@
     "log": "降低70%所受伤害"
   },
   "高等附魔": {
-    "sp": 2,
+    "sp": 1,
     "time": "begin",
     "condition": "True",
     "effect": {

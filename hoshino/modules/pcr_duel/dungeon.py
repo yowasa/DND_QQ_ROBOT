@@ -236,6 +236,10 @@ async def in_stage(bot, ev: CQEvent):
         star = CE._get_cardstar(gid, uid, cid)
         charalist.append(chara.Chara(cid, star, 0))
         bianzu = bianzu + f"{c.name} "
+    if dun.left_hp <= 0:
+        msg = f'请将自己的hp回复至0以上再进入关卡！'
+        await bot.send(ev, msg)
+        return
     my = duel_my_buff(gid, uid, defen)
     # 校验副本限制
     if not daily_stage_limiter.check(guid):
@@ -255,12 +259,12 @@ async def in_stage(bot, ev: CQEvent):
         daily_stage_limiter.increase(guid)
     # 获取发动技能
     left_sp = dun.left_sp
-    use_skill=[]
+    use_skill = []
     for i in dun.use_skill:
         if i not in my.all_skill:
             await bot.send(ev, f"发动技能失败，你队伍中没有会{i}技能的角色,请使用 '发动技能 空格隔开的技能名' 重新设定")
             return
-        if left_sp>=skill_def_json[i]["sp"]:
+        if left_sp >= skill_def_json[i]["sp"]:
             use_skill.append(i)
         else:
             continue

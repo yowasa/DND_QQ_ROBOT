@@ -94,12 +94,8 @@ async def start_huizhan(bot, ev: CQEvent):
             await bot.finish(ev, msg)
         fightinfo = CE._get_cardfightinfo(gid, uid, cid, fighttime, shijieflag)
         if fightinfo[0] > 0:
-            if fightinfo[1] > 0:
-                msg = f'您现在正处于补时刀状态，无法正常出刀，请输入指令‘{gotype}补时刀’进入下一轮boss战斗。'
-                await bot.finish(ev, msg)
-            else:
-                msg = f'{c.name}今日已战斗过了，无法继续战斗了哦，请替换其他的女友出战哦。'
-                await bot.finish(ev, msg)
+            msg = f'{c.name}今日已战斗过了，无法继续战斗了哦，请替换其他的女友出战哦。'
+            await bot.finish(ev, msg)
 
     # print("开始会战")
     bianzu = ''
@@ -156,7 +152,7 @@ async def start_huizhan(bot, ev: CQEvent):
                 nextzhoumu = 1
             nextbossinfo = get_nextbossinfo(nextzhoumu, nextboss, shijieflag)
             boss_msg = f"击杀了boss\n下一个boss为：第{nextzhoumu}周目{nextboss}号boss({nextbossinfo['name']})"
-            msg = msg + f"您对boss造成了{shanghai}点伤害，{boss_msg}\n由于伤害超出boss剩余血量，实际造成伤害为{bossinfo['hp']}点\n请输入指令‘{gotype}补时刀’进入下一轮boss战斗\n{nextbossinfo['icon']}"
+            msg = msg + f"您对boss造成了{shanghai}点伤害，{boss_msg}"
             shanghai = bossinfo['hp']
         else:
             # 每日次数-1
@@ -186,7 +182,8 @@ async def start_huizhan(bot, ev: CQEvent):
             exp = exp * 2
         for cid in defen:
             c = chara.fromid(cid)
-            card_level = add_exp(gid, uid, cid, bossinfo['add_exp'])
+            card_level = add_exp(gid, uid, cid, exp)
+            CE._add_cardfight(gid, uid, cid, fighttime, 0, shijieflag)
             record_msg += f"\n你的女友 {c.name} 获取了{bossinfo['add_exp']}点经验，{card_level[2]}"
         # 奖励声望
         score_counter = ScoreCounter2()

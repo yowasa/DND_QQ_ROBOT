@@ -14,7 +14,7 @@ async def pvp_help(bot, ev: CQEvent):
 [pvp]@群友
 
 仅双方均设pvp队伍时可以进行pvp战斗
-pvp时双方sp锁定为30 尽可能释放技能
+pvp时双方sp锁定为20 尽可能释放技能
 获胜失败暂无奖惩
 ╚                                        ╝
  '''.strip()
@@ -136,14 +136,14 @@ async def pvp(bot, ev: CQEvent):
     if not cids1:
         await bot.finish(ev, "对方尚未设置pvp队伍，无法pvp")
     my = duel_my_buff(gid, uid, cids1)
-    my.sp = 30
+    my.sp = 20
     # 获取发动技能
     for i in my.all_skill:
         if my.sp > skill_def_json[i]["sp"]:
             my.sp -= skill_def_json[i]["sp"]
             my.skill.append(i)
     enemy = duel_my_buff(gid, id2, cids2)
-    enemy.sp = 30
+    enemy.sp = 20
     # 获取发动技能
     for i in enemy.all_skill:
         if enemy.sp > skill_def_json[i]["sp"]:

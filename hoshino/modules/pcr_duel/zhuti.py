@@ -838,7 +838,7 @@ async def add_girl(bot, ev: CQEvent):
             # 招募女友失败
             count = get_user_counter(gid, uid, UserModel.YUE_FAILE)
             count += 1
-            if count >= 10:
+            if count >= 7:
                 item = get_item_by_name('命运牵引')
                 add_item(gid, uid, item)
                 count = 0
@@ -1878,7 +1878,7 @@ async def breakup(bot, ev: CQEvent):
         if cid == guaji:
             CE._add_guaji(gid, uid, 0)
         msg = f'\n“真正离开的那次，关门声最小。”\n你和{c.name}分手了。失去了{needscore}金币分手费,声望减少了{needSW}。\n{c.icon.cqcode}'
-        if count >= 100:
+        if count >= 50:
             count = 0
             item = get_item_by_name("梦境巡游")
             add_item(gid, uid, item)
@@ -3124,12 +3124,12 @@ async def my_fashion(bot, ev: CQEvent):
                     if jishu < 3:
                         lh_msg = lh_msg + f"\n{fashion['icon']}\n{fashion['name']}"
     owner = duel._get_card_owner(gid, cid)
+    if owner == 0:
+        await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
+        return
     if uid != owner:
         msg = f'{c.name}现在正在\n[CQ:at,qq={owner}]的身边哦，您无法查询哦。'
         await bot.send(ev, msg)
-        return
-    if owner == 0:
-        await bot.send(ev, f'{c.name}现在还是单身哦，快去约到她吧。{nvmes}', at_sender=True)
         return
     queen_msg = ''
     if duel._get_queen_owner(gid, cid) != 0:
