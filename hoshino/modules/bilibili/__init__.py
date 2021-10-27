@@ -123,6 +123,11 @@ def resolve_origin_msg(type, origin_dic):
         msg += "未解析的回复类型，请联系开发人员!"
     return msg
 
+def replace_json(org):
+    new =org.replace('null', 'None')
+    new = new.replace('false', 'False')
+    new = new.replace('true', 'True')
+    return new
 
 def build_msg(org):
     desc = org.get('desc')
@@ -135,7 +140,7 @@ def build_msg(org):
     if desc["type"] == 1:
         msg += card['item']['content']
         msg += "\n=======回复=======\n"
-        origin_dic = eval(card['origin'].replace('null', 'None'))
+        origin_dic = eval(replace_json(card['origin']))
         msg += resolve_origin_msg(desc['orig_type'], origin_dic)
     elif desc['type'] == 2:
         msg += card['item']['description']
