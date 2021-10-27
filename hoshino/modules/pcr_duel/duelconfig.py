@@ -2209,7 +2209,8 @@ def get_char_character(cid):
     if char_character_json.get(str(cid)):
         return char_character_json.get(str(cid))
     else:
-        return []
+        base = hashval(md5(str(cid)), len(character))
+        return [list(character.keys())[base]]
 
 
 # 检查角色是否拥有某性格

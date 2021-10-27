@@ -2116,15 +2116,13 @@ async def daily_date(bot, ev: CQEvent):
     favor = Bonus[num][0]
     ex_msg = ''
     if check_build_counter(gid, uid, BuildModel.MICHELIN_RESTAURANT):
-        if num != 4:
-            ex_msg = '你顺便带她去米其林餐厅吃了甜品。她对你的评价提高了。'
-            num = str(int(num) + 1)
-        favor = 5 * favor
+        ex_msg = '你顺便带她去米其林餐厅吃了甜品。她对你的评价提高了。'
+        favor = 10 + favor
         if check_technolog_counter(gid, uid, TechnologyModel.TOUHOU_COOK):
             favor += 100
     cai_flag = False
     if check_have_character(cid, "坦率"):
-        rd = random.randint(1, 5)
+        rd = random.randint(1, 10)
         if rd == 1:
             cai_flag = True
         favor = favor + 100

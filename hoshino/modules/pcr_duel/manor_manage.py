@@ -51,7 +51,7 @@ async def manor_help(bot, ev: CQEvent):
 注:
 耕地超过非市区面积50%可能会出现沙暴
 治安低于50可能会出现暴乱
-税收超过50会导致人民无法生存
+税收超过50会导致人民无法生存（税收越高征收效能越低）
 结算时请注意剩余金钱能否维持城市运转
 ╚                                        ╝
  '''
@@ -78,7 +78,7 @@ async def manor_view(bot, ev: CQEvent):
     gold_sum = 0
     sw_sum = 0
     tax_rate = get_geng_profit(gid, uid)
-    geng_gain = geng_manor * tax_rate * 3
+    geng_gain = get_gen_gold(gid, uid, level, geng)
     gold_sum += geng_gain
     # 正在建造的建筑查询
     # 建筑收益
@@ -105,8 +105,7 @@ async def manor_view(bot, ev: CQEvent):
             sw_sum += get_sw
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     pm = PolicyModel.get_by_id(p_id)
-    now_fanrong=get_fanrong(gid, uid)
-
+    now_fanrong = get_fanrong(gid, uid)
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
         # 每有一个类建筑 增加1点繁荣度
@@ -259,6 +258,21 @@ async def _build(bot, ev: CQEvent):
     await bot.finish(ev, f"你大兴土木开始建造了{b_m.value['name']}了,预期花费{b_m.value['time']}次计算时间可以建筑完成", at_sender=True)
 
 
+def get_gen_gold(gid, uid, level, geng):
+    tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
+    manor = get_all_manor(level) - get_city_manor(gid, uid, level)
+    if geng < 30:
+        area_geng = int(manor * (geng / 100))
+    else:
+        x = geng - 0.3
+        rate = x / (x + 150) + 0.3
+        area_geng = int(manor * (rate / 100))
+    if tax > 30:
+        x = tax - 0.3
+        tax = x / (x + 150) + 0.3
+    return area_geng * tax * 3
+
+
 @sv.on_fullmatch(["领地结算", "城市结算"])
 async def manor_sign(bot, ev: CQEvent):
     gid = ev.group_id
@@ -276,7 +290,7 @@ async def manor_sign(bot, ev: CQEvent):
 
     # 繁荣度增减
     fanrong = 0
-    total_fanrong=get_fanrong(gid,uid)
+    total_fanrong = get_fanrong(gid, uid)
     now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
     fan_buff = 1 + (total_fanrong / 2000)
     # 治安结算
@@ -383,9 +397,10 @@ async def manor_sign(bot, ev: CQEvent):
         if not sha_flag:
             # 正常收获 随机增加繁荣度
             fanrong += random.randint(1, 3)
-            area_geng = get_geng_manor(gid, uid, level, geng)
-            tax = get_user_counter(gid, uid, UserModel.TAX_RATIO)
-            geng_gold = int(area_geng * tax * 3 * random.uniform(0.9, 1.1))
+            # 获取耕地收益
+            base_geng_gold = get_gen_gold(gid, uid, level, geng)
+            geng_gold = int(base_geng_gold * random.uniform(0.9, 1.1))
+
             if p_m == PolicyModel.CATCH_ALL_FISH:
                 if now_fanrong >= 30:
                     now_fanrong -= 30
@@ -551,7 +566,7 @@ async def manor_sign(bot, ev: CQEvent):
     if now_fanrong < 0:
         now_fanrong = 0
     save_user_counter(gid, uid, UserModel.PROSPERITY_INDEX, now_fanrong)
-    total_fanrong=get_fanrong(gid,uid)
+    total_fanrong = get_fanrong(gid, uid)
     if total_fanrong >= 1000:
         count = get_user_counter(gid, uid, UserModel.DIWANG)
         if count == 0:
@@ -645,6 +660,7 @@ async def manor_tax(bot, ev: CQEvent):
         await bot.finish(ev, f'请在指令后增加"数字"作为税率（30代表30%税率）', at_sender=True)
     save_user_counter(gid, uid, UserModel.TAX_RATIO, number)
     await bot.finish(ev, f'你颁布了行政法令，规定耕地征税{number}%', at_sender=True)
+
 
 @sv.on_command("购买道具")
 async def buy_item(session: CommandSession):
