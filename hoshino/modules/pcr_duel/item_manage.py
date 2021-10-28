@@ -312,6 +312,7 @@ async def open_sou(msg, bot, ev: CQEvent):
     daily_duel_limiter.reset(guid)
     daily_gift_limiter.reset(guid)
     daily_boss_limiter.reset(guid)
+    daily_recruit_limiter.reset(guid)
     key_gid = gid + 999
     gkuid = key_gid, uid
     daily_boss_limiter.reset(gkuid)

@@ -292,7 +292,7 @@ async def manor_sign(bot, ev: CQEvent):
     fanrong = 0
     total_fanrong = get_fanrong(gid, uid)
     now_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
-    fan_buff = 1 + (total_fanrong / 2000)
+    fan_buff = 1 + (total_fanrong / 5000)
     # 治安结算
     zhian = get_user_counter(gid, uid, UserModel.ZHI_AN)
     # 判定城市拥堵
@@ -482,7 +482,7 @@ async def manor_sign(bot, ev: CQEvent):
                 elif i == BuildModel.MARKET:
                     rate = 1.0
                     if check_technolog_counter(gid, uid, TechnologyModel.MONETARY_POLICY):
-                        rate = 1.5
+                        rate = 1.2
                     market_gold = int(rate * 20000 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
                     if buffer_flag:
                         market_gold = int(market_gold * 1.1)
@@ -495,7 +495,7 @@ async def manor_sign(bot, ev: CQEvent):
                 elif i == BuildModel.TV_STATION:
                     rate = 1.0
                     if check_technolog_counter(gid, uid, TechnologyModel.MANIPULATION):
-                        rate = 1.5
+                        rate = 1.2
                     tv_sw = int(rate * 1500 * b_c[i] * random.uniform(0.9, 1.1) * fan_buff)
                     if buffer_flag:
                         tv_sw = int(tv_sw * 1.1)
