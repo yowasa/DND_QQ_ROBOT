@@ -1700,7 +1700,7 @@ def get_card_battle_info(gid, uid, cid):
     hp = 1000
     sp = 1
     # 技能
-    skills = list(set(get_char_skill(cid)))
+    skills = get_char_skill(cid)
 
     # 等级加成
     CE = CECounter()

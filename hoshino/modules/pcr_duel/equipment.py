@@ -219,18 +219,20 @@ async def dress_equip_list_r(bot, ev: CQEvent):
     needlevel = (level / 10) + 1
     equip_list = CE._get_equip_list(gid, uid)
     # 记录不同部位的品质最高装备的品质和eid
-    emax = [[0, 0], [0, 0], [0, 0], [0, 0]]
+    emax = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
     if len(equip_list) > 0:
         for i in equip_list:
             equipinfo = get_equip_info_id(i[0])
             if equipinfo['type_id'] == 1 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[0][0]:
                 emax[0] = [equipinfo['level'], i[0]]
-            if equipinfo['type_id'] == 2 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[1][0]:
+            elif equipinfo['type_id'] == 2 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[1][0]:
                 emax[1] = [equipinfo['level'], i[0]]
-            if equipinfo['type_id'] == 3 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[2][0]:
+            elif equipinfo['type_id'] == 3 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[2][0]:
                 emax[2] = [equipinfo['level'], i[0]]
-            if equipinfo['type_id'] == 4 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[3][0]:
+            elif equipinfo['type_id'] == 4 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[3][0]:
                 emax[3] = [equipinfo['level'], i[0]]
+            elif equipinfo['type_id'] == 5 and equipinfo['level'] <= needlevel and equipinfo['level'] > emax[4][0]:
+                emax[4] = [equipinfo['level'], i[0]]
     else:
         await bot.finish(ev, '您还没有获得装备哦。', at_sender=True)
     c = chara.fromid(cid)
@@ -479,6 +481,7 @@ async def xingchen_change(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
     else:
         await bot.finish(ev, '请输入正确的装备名称。', at_sender=True)
+
 
 @sv.on_prefix(['兑换戒指'])
 async def xingchen_jz(bot, ev: CQEvent):
