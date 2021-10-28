@@ -530,7 +530,7 @@ async def xiangwei(msg, bot, ev: CQEvent):
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    get_exp = 50
+    get_exp = 100
     weather = get_weather(gid)
     if weather == WeatherModel.WUYU:
         get_exp = int(1.25 * get_exp)

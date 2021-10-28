@@ -135,14 +135,14 @@ async def pvp(bot, ev: CQEvent):
     if not cids1:
         await bot.finish(ev, "对方尚未设置pvp队伍，无法pvp")
     my = duel_my_buff(gid, uid, cids1)
-    my.sp = 20
+    my.sp += 10
     # 获取发动技能
     for i in my.all_skill:
         if my.sp > skill_def_json[i]["sp"]:
             my.sp -= skill_def_json[i]["sp"]
             my.skill.append(i)
     enemy = duel_my_buff(gid, id2, cids2)
-    enemy.sp = 20
+    enemy.sp += 10
     # 获取发动技能
     for i in enemy.all_skill:
         if enemy.sp > skill_def_json[i]["sp"]:
