@@ -200,7 +200,7 @@ async def test_scan(bot, ev: CQEvent):
 
 
 def build_msg(item):
-    name = item['user']['name']
+    user_name = item['user']['name']
     screen_name = item['user']['screen_name']
     text = item['text']
     time = time_formatter(item['created_at'])
@@ -216,7 +216,7 @@ def build_msg(item):
         img_msg += '\n' + "\n".join(imgs)
     msg = f"""
 {time}
-{name}({screen_name}):
+{user_name}({screen_name}):
 {text}{img_msg}
 """.strip()
     return msg
