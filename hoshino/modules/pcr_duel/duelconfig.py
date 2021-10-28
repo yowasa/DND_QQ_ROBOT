@@ -1789,10 +1789,12 @@ def get_card_battle_info(gid, uid, cid):
                     result[e] += int(eval(effect[e]['value']), content)
             elif e == 'skill':
                 if effect['skill']['type'] == "const":
-                    result["skills"] = list(set(result["skills"].extend(effect['skill']['value'])))
+                    result["skills"].extend(effect['skill']['value'])
+                    result["skills"] = list(set(result["skills"]))
                 elif effect['skill']['type'] == "exec":
                     if eval(effect['skill']['condition']):
-                        result["skills"] = list(set(result["skills"].extend(effect['skill']['value'])))
+                        result["skills"].extend(effect['skill']['value'])
+                        result["skills"] = list(set(result["skills"]))
     return result
 
 
