@@ -3170,9 +3170,10 @@ async def my_fashion(bot, ev: CQEvent):
         for i in char_fetter_json.get(str(cid)):
             jiban_li.append(' '.join([duel_chara.fromid(j).name for j in i]))
         jiban += '\n'.join(jiban_li)
+    max_level=50+zllevel*10
     msg = f"""
 名称:{c.name}{char_msg}
-{cardstar}星 {zllevel}转 rank{rank} {level_info}级
+{cardstar}星 rank{rank} {level_info}/{max_level}级
 hp:{card_hp} atk:{card_atk} sp:{sp}
 技能:{' '.join(skills)}{jiban}
 好感度:{favor}({queen_msg} {relationship})

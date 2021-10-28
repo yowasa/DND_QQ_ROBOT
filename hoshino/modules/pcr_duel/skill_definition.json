@@ -227,7 +227,7 @@
     "sp": 0,
     "cost": 1,
     "time": "end",
-    "condition": "my_hp>=0.7*my_hp",
+    "condition": "my_hp>=0.7*my_max_hp",
     "effect": {
       "my": {
         "hp": {
