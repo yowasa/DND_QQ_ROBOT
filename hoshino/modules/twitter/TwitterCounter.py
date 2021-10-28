@@ -11,8 +11,8 @@ class SubInfo():
         if r:
             self.gid = r[0]
             self.subid = r[1]
-            self.mode = r[1]
-            self.last_time = r[2]
+            self.mode = r[2]
+            self.last_time = r[3]
 
 
 class TwitterCounter():

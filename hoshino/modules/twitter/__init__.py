@@ -114,8 +114,8 @@ async def subscribe(bot, ev: CQEvent):
     if not r.status_code == 200:
         await bot.finish(ev, '查询用户失败。', at_sender=True)
     screen_name = r.json()[0].get('screen_name')
-    if screen_name == sub_id:
-        await bot.finish(ev, f'用户名查询不符，是否为{screen_name}?', at_sender=True)
+    if screen_name != sub_id:
+        await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
     bc = TwitterCounter()
     sub = SubInfo()
     sub.gid = ev.group_id
@@ -139,8 +139,8 @@ async def subscribe(bot, ev: CQEvent):
     if not r.status_code == 200:
         await bot.finish(ev, '查询用户失败。', at_sender=True)
     screen_name = r.json()[0].get('screen_name')
-    if screen_name == sub_id:
-        await bot.finish(ev, f'用户名查询不符，是否为{screen_name}?', at_sender=True)
+    if screen_name != sub_id:
+        await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
     bc = TwitterCounter()
     sub = SubInfo()
     sub.gid = ev.group_id
@@ -178,7 +178,7 @@ async def checksub(bot, ev: CQEvent):
     await bot.send(ev, result)
 
 
-@sv.on_prefix(['b站订阅列表'])
+@sv.on_prefix(['推特订阅列表'])
 async def sublist(bot, ev: CQEvent):
     gid = ev.group_id
     bc = TwitterCounter()
@@ -218,7 +218,7 @@ def build_msg(item):
 {time}
 {name}({screen_name}):
 {text}{img_msg}
-"""
+""".strip()
     return msg
 
 
@@ -265,15 +265,12 @@ async def scan_job():
                     item = item_li[0]
                     msg = build_msg(item)
                 else:
-                    item = item_li[0]
-                    sub.last_time = time_stamp(item['created_at'])
-                    item_li = filter(has_media, item_li)
-                    if item_li:
-                        msg = build_msg(item_li[0])
+                    filter_li = [i for i in item_li if has_media(i)]
+                    if filter_li:
+                        msg = build_msg(filter_li[0])
                     else:
-                        bc._save_sub_info(sub)
                         continue
-                self_ids = bot._wsr_api_clients.keys()
+                # self_ids = bot._wsr_api_clients.keys()
                 for sid in self_ids:
                     if sub.gid in self_dic[sid]:
                         try:
@@ -288,7 +285,7 @@ async def scan_job():
                     last_time = sub.last_time
                     sub.last_time = time_stamp(item_li[0]['created_at'])
                     filter_li = [i for i in item_li if time_stamp(i['created_at']) > last_time]
-                    filter_li = filter(has_media, filter_li)
+                    filter_li = [i for i in filter_li if has_media(i)]
                 filter_li.reverse()
 
                 for item in filter_li:
