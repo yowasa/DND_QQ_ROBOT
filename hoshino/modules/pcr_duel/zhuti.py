@@ -1986,7 +1986,8 @@ async def breakup_yj(bot, ev: CQEvent):
                 msg = f'您的爵位分手一位女友需要{needscore}金币和{needSW}声望哦。\n分手不易，做好准备再来吧。'
                 await bot.finish(ev, msg, at_sender=True)
             if check_have_character(cid, "病娇"):
-                msg = f"{c.name}:我不会离开你，除非让我带走你的心。(请使用强制分手+女友名进行强制分手)\n{c.icon.cqcode}"
+                msg = f"{c.name}:你以为混在一起就能甩掉我？(请使用强制分手+女友名进行强制分手)\n{c.icon.cqcode}"
+                await bot.finish(ev, msg, at_sender=True)
             else:
                 duel._delete_card(gid, uid, cid)
                 score_counter._reduce_score(gid, uid, needscore)
