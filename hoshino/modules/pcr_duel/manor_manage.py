@@ -264,12 +264,12 @@ def get_gen_gold(gid, uid, level, geng):
     if geng < 30:
         area_geng = int(manor * (geng / 100))
     else:
-        x = geng - 0.3
+        x = geng - 30
         rate = x / (x + 150) + 0.3
-        area_geng = int(manor * (rate / 100))
+        area_geng = int(manor * rate)
     if tax > 30:
-        x = tax - 0.3
-        tax = x / (x + 150) + 0.3
+        x = tax - 30
+        tax = (x / (x + 150) + 0.3)*100
     return area_geng * tax * 3
 
 
