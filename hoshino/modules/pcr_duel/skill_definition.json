@@ -227,7 +227,7 @@
     "sp": 0,
     "cost": 1,
     "time": "end",
-    "condition": "my_hp>=0.7*my_max_hp",
+    "condition": "my_hp>=0.6*my_max_hp",
     "effect": {
       "my": {
         "hp": {
@@ -236,7 +236,7 @@
         }
       }
     },
-    "desc": "战斗结束血量大于70%时 回复至满血",
+    "desc": "战斗结束血量大于60%时 回复至满血",
     "log": "血量回复至满血"
   },
   "续行": {
