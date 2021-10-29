@@ -136,10 +136,11 @@ async def my_fragment_list(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
         return
     equip_list = CE._get_fragment_list(gid, uid)
+    cids=duel._get_cards(gid, uid)
     if len(equip_list) > 0:
         msg_list = '修炼列表：'
         for i in equip_list:
-            if i[0] == 0:
+            if i[0] == 0 or i[0] not in cids:
                 continue
             else:
                 c = chara.fromid(i[0])
