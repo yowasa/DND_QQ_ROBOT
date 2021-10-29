@@ -33,6 +33,7 @@ class DuelCounter:
                           (GID             INT    NOT NULL,
                            UID           INT    NOT NULL,
                            CIDS TEXT NOT NULL,
+                           SKILLS TEXT,
                            PRIMARY KEY(GID, UID));''')
         except:
             raise Exception('创建pvp信息表发生错误')
@@ -48,12 +49,23 @@ class DuelCounter:
                 return []
         except:
             raise Exception('查找pvp信息时生错误')
+    def _select_pvp_skills(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                f'SELECT SKILLS FROM PVP_INFO WHERE GID={gid} AND UID={uid}', ).fetchall()
+            if r:
+                cids=eval(r[0][0])
+                return cids
+            else:
+                return []
+        except:
+            raise Exception('查找pvp信息时生错误')
 
-    def _save_pvp_info(self, gid, uid,cids):
+    def _save_pvp_info(self, gid, uid,cids,skills):
         with self._connect() as conn:
             conn.execute(
-                "INSERT OR REPLACE INTO PVP_INFO (GID, UID, CIDS) VALUES (?, ?, ?)",
-                (gid, uid, str(cids)),
+                "INSERT OR REPLACE INTO PVP_INFO (GID, UID, CIDS, SKILLS) VALUES (?, ?, ?, ?)",
+                (gid, uid, str(cids),skills),
             )
 
     def _del_pvp_info(self, gid, uid):

@@ -44,7 +44,7 @@ async def my_teamlst(bot, ev: CQEvent):
         res.save(bio, format='PNG')
         base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
         mes = f"[CQ:image,file={base64_str}]\n"
-        buff_msg = f"boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover} 闪避:{my.dodge}%"
+        buff_msg = f"boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover}% 闪避:{my.dodge}%"
         msg = msg + f"队伍名称：{teamname}\n队伍成员：{bianzu}\n hp:{my.hp} atk:{my.atk} sp:{my.sp} \nskill:{' '.join(my.all_skill)}\n{buff_msg}\n{mes}"
     await bot.send(ev, msg, at_sender=True)
 
@@ -127,7 +127,7 @@ async def add_team(bot, ev: CQEvent):
     res.save(bio, format='PNG')
     base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
     mes = f"[CQ:image,file={base64_str}]"
-    buff_msg = f"boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover} 闪避:{my.dodge}%"
+    buff_msg = f"boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover}% 闪避:{my.dodge}%"
     msg = f"创建队伍成功！\n队伍名称：{teamname}\n队伍成员为：{bianzu}\nhp:{my.hp} atk:{my.atk} sp:{my.sp} \nskill:{' '.join(my.all_skill)}\n{buff_msg}\n{mes}"
     await bot.send(ev, msg, at_sender=True)
 

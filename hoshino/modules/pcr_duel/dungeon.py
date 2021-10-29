@@ -133,7 +133,7 @@ async def check_road(bot, ev: CQEvent):
 hp:{dun.left_hp}/{my.maxhp} atk:{my.atk} sp:{dun.left_sp}
 发动中的技能:{' '.join(dun.use_skill) if dun.use_skill else ''}
 可发动的技能:{' '.join(my.all_skill)}
-boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover} 闪避:{my.dodge}%
+boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover}% 闪避:{my.dodge}%
 {msg}"""
     await bot.finish(ev, resp, at_sender=True)
 
@@ -185,6 +185,7 @@ async def in_stage(bot, ev: CQEvent):
             return
     if not msg:
         dun.use_skill = []
+        CE._save_dun_info(dun)
         await bot.send(ev, "已取消发动的所有技能")
         return
     my = duel_my_buff(gid, uid, defen)
