@@ -143,8 +143,8 @@
     "log": "削减了对方1点sp,敌方当前sp为{enemy_sp}点"
   },
   "捕蝶": {
-    "sp": 1,
-    "cost": 3,
+    "sp": 0,
+    "cost": 2,
     "time": "before_damage",
     "condition": "enemy_sp==0",
     "effect": {
@@ -314,8 +314,8 @@
   },
   "月计时": {
     "sp": 0,
-    "cost": 2,
-    "cd": 3,
+    "cost": 3,
+    "cd": 4,
     "time": "before_damage",
     "condition": "True",
     "effect": {
@@ -326,7 +326,7 @@
         }
       }
     },
-    "desc": "每三回合跳过对手一次战斗阶段",
+    "desc": "每四回合跳过对手一次战斗阶段",
     "log": "跳过对手战斗阶段"
   },
   "观武": {
