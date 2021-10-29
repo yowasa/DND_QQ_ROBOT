@@ -1969,9 +1969,9 @@
     "name": "做工精致的怀表",
     "level": 4,
     "effect": {
-      "skill": {
+      "hp": {
         "type": "const",
-        "value": ["月计时"]
+        "value": 400
       }
     }
   },
