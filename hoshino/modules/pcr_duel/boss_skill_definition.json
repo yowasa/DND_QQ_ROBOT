@@ -345,7 +345,7 @@
     "log": "复制了对手的技能"
   },
   "狂血": {
-    "sp": 3,
+    "sp": 4,
     "time": "before_damage",
     "condition": "True",
     "effect": {
