@@ -345,7 +345,7 @@
     "log": "复制了对手的技能"
   },
   "狂血": {
-    "sp": 4,
+    "sp": 5,
     "time": "before_damage",
     "condition": "True",
     "effect": {
@@ -368,7 +368,7 @@
     "log": "攻击倍率为{my_kuangxue}%"
   },
   "冥瞳": {
-    "sp": 4,
+    "sp": 3,
     "time": "before_damage",
     "condition": "turn<=3",
     "effect": {
@@ -444,7 +444,8 @@
     "log": "失去了{my_nizhuan_hp}点血量恢复了sp"
   },
   "冻结": {
-    "sp": 4,
+    "sp": 0,
+    "cost": 2,
     "time": "before_damage",
     "condition": "turn%3==0",
     "effect": {
