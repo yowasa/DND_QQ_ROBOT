@@ -91,7 +91,7 @@
   "连闪": {
     "sp": 0,
     "cost": 1,
-    "cd": 2,
+    "cd": 3,
     "time": "after_damage",
     "condition": "my_is_dodge",
     "effect": {

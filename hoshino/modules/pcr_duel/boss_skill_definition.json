@@ -368,7 +368,7 @@
     "log": "攻击倍率为{my_kuangxue}%"
   },
   "冥瞳": {
-    "sp": 3,
+    "sp": 4,
     "time": "before_damage",
     "condition": "turn<=3",
     "effect": {
