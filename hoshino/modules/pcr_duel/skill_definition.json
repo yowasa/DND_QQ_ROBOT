@@ -243,7 +243,7 @@
     "sp": 0,
     "cost": 1,
     "time": "end",
-    "condition": "my_sp>=3",
+    "condition": "True",
     "effect": {
       "my": {
         "xuxing_hp": {
@@ -315,21 +315,21 @@
   },
   "吸血": {
     "sp": 5,
-    "time": "after_damage",
+    "time": "my_total_damage>0",
     "condition": "True",
     "effect": {
       "my": {
         "xi_hp": {
           "type": "exec",
-          "value": "my_total_damage*0.3"
+          "value": "my_total_damage*0.2"
         },
         "hp": {
           "type": "exec",
-          "value": "my_hp+my_total_damage*0.3"
+          "value": "my_hp+my_total_damage*0.2"
         }
       }
     },
-    "desc": "造成战斗伤害时回复伤害的30%的血量",
+    "desc": "造成战斗伤害时回复伤害的20%的血量",
     "log": "吸取了{my_xi_hp}的hp"
   },
   "雷破": {
@@ -564,7 +564,7 @@
     "sp": 0,
     "cost": 1,
     "cd": 3,
-    "time": "after_damage",
+    "time": "turn_end",
     "condition": "enemy_total_damage>0.1*my_max_hp",
     "effect": {
       "my_next": {
@@ -575,7 +575,7 @@
       }
     },
     "desc": "当你受到大于最大体力值10%的伤害时，下次攻击额外附加敌方5%最大生命值的伤害",
-    "log": "下次攻击附带敌人10%最大生命值的附加伤害"
+    "log": "下次攻击附带敌人5%最大生命值的附加伤害"
   },
   "震慑": {
     "sp": 3,

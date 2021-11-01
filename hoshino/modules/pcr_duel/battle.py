@@ -422,7 +422,7 @@ def battle(my: Attr, enemy: Attr):
                 return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
         my_content["hp"] = int(my_content["hp"])
         enemy_content["hp"] = int(enemy_content["hp"])
-        logs.append(f'第{turn}回合结束，我方剩余hp:{my_content["hp"]} 敌方剩余hp:{enemy_content["hp"]}')
+        logs.append(f'第{turn}回合结束===\n我方剩余hp:{my_content["hp"]}，sp:{my_content["sp"]} \n敌方剩余hp:{enemy_content["hp"]}，sp:{enemy_content["sp"]}')
         if turn >= 30:
             logs.append(f'回合数超过30 自动判负。。。。')
             return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)

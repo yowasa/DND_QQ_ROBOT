@@ -135,6 +135,7 @@ async def set_pvp_group(bot, ev: CQEvent):
         star = CE._get_cardstar(gid, uid, cid)
         charalist.append(chara.Chara(cid, star, 0))
     my = duel_my_buff(gid, uid, defen)
+    my.sp+=10
     skills=duel._select_pvp_skills(gid, uid)
     res = chara.gen_team_pic(charalist, star_slot_verbose=False)
     bio = BytesIO()
@@ -170,7 +171,7 @@ async def pvp(bot, ev: CQEvent):
     if not cids1:
         await bot.finish(ev, "你尚未设置pvp队伍，无法pvp")
     cids2 = duel._select_pvp_info(gid, id2)
-    if not cids1:
+    if not cids2:
         await bot.finish(ev, "对方尚未设置pvp队伍，无法pvp")
     my = duel_my_buff(gid, uid, cids1)
     my.sp += 10
@@ -186,7 +187,7 @@ async def pvp(bot, ev: CQEvent):
     # 获取发动技能
     skill2 = duel._select_pvp_skills(gid, id2)
     # 获取发动技能
-    skill2 = [i for i in skill2 if i in my.all_skill]
+    skill2 = [i for i in skill2 if i in enemy.all_skill]
     for i in skill2:
         if enemy.sp > skill_def_json[i]["sp"]:
             enemy.sp -= skill_def_json[i]["sp"]

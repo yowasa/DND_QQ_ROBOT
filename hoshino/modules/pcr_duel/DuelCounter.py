@@ -65,7 +65,7 @@ class DuelCounter:
         with self._connect() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO PVP_INFO (GID, UID, CIDS, SKILLS) VALUES (?, ?, ?, ?)",
-                (gid, uid, str(cids),skills),
+                (gid, uid, str(cids),str(skills)),
             )
 
     def _del_pvp_info(self, gid, uid):
