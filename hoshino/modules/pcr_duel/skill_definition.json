@@ -315,8 +315,8 @@
   },
   "吸血": {
     "sp": 5,
-    "time": "my_total_damage>0",
-    "condition": "True",
+    "time": "after_damage",
+    "condition": "my_total_damage>0",
     "effect": {
       "my": {
         "xi_hp": {

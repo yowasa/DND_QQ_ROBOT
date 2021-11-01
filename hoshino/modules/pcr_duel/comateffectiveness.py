@@ -100,10 +100,12 @@ async def paiming_list(bot, ev: CQEvent):
     await clock()
     print("测试成功")
 
-
+# 每小时的定时任务
 @sv.scheduled_job('cron', hour='*', minute='55', second='30')
 async def clock():
     bot = nonebot.get_bot()
+    # 人物道具结算
+    # 超再生力
     i_c = ItemCounter()
     recover_info = i_c._get_all_user_recover()
     for i in recover_info:
@@ -119,6 +121,7 @@ async def clock():
         save_user_counter(gid, uid, UserModel.RECOVER, num)
         await bot.send_group_msg(group_id=gid, message=f"[CQ:at,qq={uid}]由于超再生力的效果你恢复了一次决斗次数和副本次数")
     now = datetime.now(pytz.timezone('Asia/Shanghai'))
+    # 蓬莱之药
     if now.hour % 2 == 1:
         penglai_info = i_c._get_all_user_penglai()
         for i in penglai_info:
@@ -129,7 +132,8 @@ async def clock():
                 daily_stage_limiter.increase(guid, num=-1)
             if daily_duel_limiter.get_num(guid):
                 daily_duel_limiter.increase(guid, num=-1)
-
+    # 群组状态结算
+    # 庆典
     free_li = i_c._get_free_state()
     duel = DuelCounter()
     for i in free_li:
@@ -160,26 +164,26 @@ async def clock():
         return
 
     jianglilist = {
-        1: 4000,
-        2: 3500,
-        3: 3000,
-        4: 2500,
-        5: 2500,
-        6: 2500,
-        7: 2000,
-        8: 2000,
-        9: 2000,
-        10: 2000,
-        11: 1500,
-        12: 1500,
-        13: 1500,
-        14: 1500,
-        15: 1500,
-        16: 1000,
-        17: 1000,
-        18: 1000,
-        19: 1000,
-        20: 1000,
+        1: 100,
+        2: 70,
+        3: 50,
+        4: 30,
+        5: 20,
+        6: 10,
+        7: 10,
+        8: 10,
+        9: 10,
+        10: 10,
+        11: 10,
+        12: 10,
+        13: 10,
+        14: 10,
+        15: 10,
+        16: 10,
+        17: 10,
+        18: 10,
+        19: 10,
+        20: 10,
     }
 
     CE = CECounter()
