@@ -115,7 +115,7 @@ async def manor_begin(bot, ev: CQEvent):
     char_character_json[str(chara_id)] = [xingge]
     # 持久化
     refresh_char_character()
-    await bot.send(ev, '变更偏好成功，使用购买情报查询', at_sender=True)
+    await bot.send(ev, '变更性格成功，使用购买情报查询', at_sender=True)
 
 
 @sv.on_prefix(['变更偏好'])
