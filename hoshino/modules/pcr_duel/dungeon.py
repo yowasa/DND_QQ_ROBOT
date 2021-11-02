@@ -19,6 +19,7 @@ async def dun_help(bot, ev: CQEvent):
 [副本商城]
 [购买物品] {物品名}
 [兑换装备] {装备名}
+[关卡探索] {关卡名} 花费1副本币探索关卡前面的道路
 ╚                                        ╝
  '''.strip()
     await bot.send(ev, msg)
@@ -629,3 +630,40 @@ async def get_my_dunscore(bot, ev: CQEvent):
     CE = CECounter()
     myscore = CE._get_dunscore(gid, uid)
     await bot.send(ev, f"您的副本币为{myscore}", at_sender=True)
+
+
+@sv.on_prefix(['关卡探索'])
+async def get_my_dunscore(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    stage = str(ev.message).strip().strip()
+    if not check_build_counter(gid, uid, BuildModel.ZHIHUI):
+        await bot.finish(ev, f'你没有指挥中心，无法进行探索', at_sender=True)
+    guid = gid, uid
+    if daily_dun_limiter.check(guid):
+        await bot.finish(ev, '请先进入副本再进行探索', at_sender=True)
+    CE = CECounter()
+    dun = CE._select_dun_info(gid, uid)
+    able_li = get_albe_stage(dun)
+    if stage not in able_li:
+        await bot.finish(ev, f'你没有"{stage}"关卡的路径', at_sender=True)
+    CE = CECounter()
+    myscore = CE._get_dunscore(gid, uid)
+    if myscore < 1:
+        await bot.finish(ev, f'你没有副本币，无法进行探索', at_sender=True)
+    road_map = dungeon_road.get(stage)
+    if not road_map:
+        await bot.finish(ev, f'这已经是最终关卡了，前方没有道路可以探索了', at_sender=True)
+    if not len(road_map.keys()):
+        await bot.finish(ev, f'这已经是最终关卡了，前方没有道路可以探索了', at_sender=True)
+    rn = random.randint(1, 10)
+    total = 0
+    for i in road_map.keys():
+        total += road_map[i]
+        if rn <= total:
+            dun.able_dun.append(i)
+            dun.able_dun = list(set(dun.able_dun))
+            break
+    CE._add_dunscore(gid, uid, -1)
+    CE._save_dun_info(dun)
+    await bot.finish(ev, f'你花费了1副本币发现了道路{i}', at_sender=True)

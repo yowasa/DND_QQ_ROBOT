@@ -6,6 +6,23 @@ from hoshino.config.__bot__ import BASE_DB_PATH
 
 DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'pcr_duel.db')
 
+def get_month_period():
+    nowyear = datetime.now().year
+    nowmonth = datetime.now().month
+    if nowmonth == 1:
+        nowyear = nowyear - 1
+        nowmonth = 12
+    else:
+        nowyear = nowyear
+        nowmonth = nowmonth - 1
+    period = str(nowyear) + str(nowmonth)
+    return period
+
+def get_week_period():
+    nowyear = datetime.now().year
+    zhou=datetime.now().isocalendar()[1]
+    period = str(nowyear) + str(zhou)
+    return period
 
 class DunInfo():
     def __init__(self, r=None):
@@ -367,9 +384,7 @@ class CECounter:
         with self._connect() as conn:
             r = conn.execute("select sql from sqlite_master where type='table' and name='BOSSFIGHT';").fetchall()
             if 'PERIOD' not in str(r):
-                nowyear = datetime.now().year
-                nowmonth = datetime.now().month
-                period = str(nowyear) + str(nowmonth)
+                period = get_week_period()
                 conn.execute(f"ALTER TABLE BOSSFIGHT ADD PERIOD INT DEFAULT {period};").fetchall()
 
     def _create_fightcard(self):
@@ -430,18 +445,14 @@ class CECounter:
             )
 
     def _get_shuchu_pm(self, gid, shijieflag):
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        period = str(nowyear) + str(nowmonth)
+        period = get_week_period()
         with self._connect() as conn:
             r = conn.execute(
                 f"SELECT UID,SUM(NUM) FROM BOSSFIGHT WHERE GID={gid} AND TYPE={shijieflag} AND PERIOD={period} GROUP BY UID ORDER BY SUM(NUM) DESC").fetchall()
             return r if r else 0
 
     def _get_shuchu_pmq(self, period=0):
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        per = str(nowyear) + str(nowmonth)
+        per = get_week_period()
         if period == 0:
             period = per
         with self._connect() as conn:
@@ -451,9 +462,7 @@ class CECounter:
 
     # 获取boss伤害数据
     def _get_shuchulist(self, gid, zhoumu, bossid, shijieflag):
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        period = str(nowyear) + str(nowmonth)
+        period = get_week_period()
         with self._connect() as conn:
             if shijieflag == 1:
                 r = conn.execute(
@@ -465,9 +474,7 @@ class CECounter:
 
     # 记录出刀伤害
     def _add_bossfight(self, gid, uid, zhoumu, bossid, num, shijieflag):
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        period = str(nowyear) + str(nowmonth)
+        period = get_week_period()
         with self._connect() as conn:
             conn.execute(
                 "INSERT INTO BOSSFIGHT (GID, UID, ZHOUMU, BOSSID, NUM, TYPE, PERIOD) VALUES (?, ?, ?, ?, ?, ?, ?)",

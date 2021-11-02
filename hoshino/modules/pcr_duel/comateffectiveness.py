@@ -100,6 +100,7 @@ async def paiming_list(bot, ev: CQEvent):
     await clock()
     print("测试成功")
 
+
 # 每小时的定时任务
 @sv.scheduled_job('cron', hour='*', minute='55', second='30')
 async def clock():
@@ -158,46 +159,36 @@ async def clock():
             rd = random.choice([i for i in WeatherModel])
             save_weather(gid, rd)
 
-    if not now.day == 1:  # 每月1号结算
+    if not now.isocalendar()[2] == 1:  # 每周周一结算
         return
     if not now.hour == 1:  # 每天1点结算
         return
 
     jianglilist = {
-        1: 100,
-        2: 70,
-        3: 50,
-        4: 30,
-        5: 20,
-        6: 10,
-        7: 10,
-        8: 10,
-        9: 10,
-        10: 10,
-        11: 10,
-        12: 10,
-        13: 10,
-        14: 10,
-        15: 10,
-        16: 10,
-        17: 10,
-        18: 10,
-        19: 10,
-        20: 10,
+        1: 50,
+        2: 30,
+        3: 20,
+        4: 10,
+        5: 5,
+        6: 5,
+        7: 5,
+        8: 5,
+        9: 5,
+        10: 5,
+        11: 5,
+        12: 5,
+        13: 5,
+        14: 5,
+        15: 5,
+        16: 5,
+        17: 5,
+        18: 5,
+        19: 5,
+        20: 5,
     }
 
     CE = CECounter()
-
-    nowyear = datetime.now().year
-    nowmonth = datetime.now().month
-    if nowmonth == 1:
-        nowyear = nowyear - 1
-        nowmonth = 12
-    else:
-        nowyear = nowyear
-        nowmonth = nowmonth - 1
-    period = str(nowyear) + str(nowmonth)
-
+    period = get_week_period()
     shuchu_list = CE._get_shuchu_pmq(period)
     if not shuchu_list[0][0]:
         print('无法获取到数据')

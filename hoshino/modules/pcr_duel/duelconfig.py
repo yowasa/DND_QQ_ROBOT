@@ -1166,7 +1166,7 @@ class BuildModel(Enum):
     HUANBAO = {"id": 107, "name": "环保协会", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
                "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)", "cost": 20000,"fanrong":40}
     ZHIHUI = {"id": 108, "name": "作战中心", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
-              "desc": "作战指挥中心，每天获取一瓶蓝药水一瓶红药水", "cost": 30000,"fanrong":15}
+              "desc": "作战指挥中心，每天获取一瓶蓝药水一瓶红药水，可以执行关卡探索指令", "cost": 30000,"fanrong":15}
     DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 30, "time": 4, "limit": 2,
              "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 20000,"fanrong":30}
     KELA = {"id": 110, "name": "大本钟", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,

@@ -310,35 +310,14 @@ async def shuchu_list(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=gid, messages=tas_list)
 
 
-@sv.on_prefix(['群排名', '会战群排名'])
+@sv.on_fullmatch(['群排名', '会战群排名'])
 async def paiming_list(bot, ev: CQEvent):
-    args = ev.message.extract_plain_text().split()
     gid = ev.group_id
     CE = CECounter()
-    if len(args) != 1:
-        leibie = '本月'
-    else:
-        leibie = args[0]
-    if leibie == "本月":
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        period = str(nowyear) + str(nowmonth)
-    elif leibie == "上月":
-        nowyear = datetime.now().year
-        nowmonth = datetime.now().month
-        if nowmonth == 1:
-            nowyear = nowyear - 1
-            nowmonth = 12
-        else:
-            nowyear = nowyear
-            nowmonth = nowmonth - 1
-        period = str(nowyear) + str(nowmonth)
-    else:
-        await bot.finish(ev, '请选择正确的时间(本月/上月)', at_sender=True)
-
+    period=get_week_period()
     shuchu_list = CE._get_shuchu_pmq(period)
     if not shuchu_list[0][0]:
-        await bot.finish(ev, f'无法获取到{leibie}的数据', at_sender=True)
+        await bot.finish(ev, f'无法获取到的数据', at_sender=True)
     with open(os.path.join(FILE_PATH, 'bossinfo.json'), 'r', encoding='UTF-8') as fa:
         bosslist = json.load(fa, strict=False)
     bl_list = []
@@ -382,7 +361,7 @@ async def paiming_list(bot, ev: CQEvent):
     for info in grouplist_s:
         if info[0] == gid:
             groupid = info[0]
-            msg_s_q = f"本群{leibie}总积分{info[1]},排名第{mingc_s}名\n"
+            msg_s_q = f"本群总积分{info[1]},排名第{mingc_s}名\n"
         else:
             groupid = str(info[0])
             groupid = str(groupid[:3]) + '****' + str(groupid[-3:])
@@ -394,7 +373,7 @@ async def paiming_list(bot, ev: CQEvent):
     for info in grouplist_b:
         if info[0] == gid:
             groupid = info[0]
-            msg_s_b = f"本群{leibie}总积分{info[1]},排名第{mingc_b}名\n"
+            msg_s_b = f"本群总积分{info[1]},排名第{mingc_b}名\n"
         else:
             groupid = str(info[0])
             groupid = str(groupid[:3]) + '****' + str(groupid[-3:])
@@ -416,7 +395,7 @@ async def paiming_list(bot, ev: CQEvent):
         "data": {
             "name": "ご主人様",
             "uin": "1587640710",
-            "content": f"{msg_s_q}{leibie}世界boss群排行榜\n{msg_s}"
+            "content": f"{msg_s_q}世界boss群排行榜\n{msg_s}"
         }
     }
     tas_list.append(data)

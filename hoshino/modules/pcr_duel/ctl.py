@@ -7,7 +7,7 @@ from hoshino.modules.pcr_duel import duel_chara
 UNKNOWN = 1000
 
 sv = Service('贵族调整', enable_on_default=False, bundle='贵族游戏', help_=
-"""[游戏帮助]查看相关帮助
+"""[测试帮助]查看相关帮助
 """)
 
 # 测试专用命令
@@ -16,11 +16,11 @@ async def manor_help(bot, ev: CQEvent):
     msg = '''
 ╔                                        ╗
              贵族调整帮助
-[变更性格] {角色名}
+[变更性格] {角色名} {性格}
 [变更技能] {角色名}
 [变更偏好] {角色名} {0-100的数值} 越接近0越偏攻 越接近100越偏防
+[添加羁绊] {角色名}
 [清除羁绊] {角色名}
-[添加羁绊]
 ╚                                        ╝
  '''
     await bot.send(ev, msg)
