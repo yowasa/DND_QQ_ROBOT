@@ -2128,9 +2128,19 @@ def get_all_build_counter(gid, uid):
 # 处理我方队伍增益 defen 为cid列表 z_atk与z_hp是经过buff后的原始攻击和hp
 def duel_my_buff(gid, uid, defen):
     z_hp, z_atk, z_sp, z_skills = 0, 0, 0, []
+    my_recover=0
+    my_double=0
+    my_crit=0
+    my_boost=0
+    my_dodge=0
     for i in defen:
         content = get_card_battle_info(gid, uid, i)
         hp, atk, sp, skills = content["hp"], content["atk"], content["sp"], content["skills"]
+        my_recover+=content["recover"]
+        my_double += content["double"]
+        my_crit += content["crit"]
+        my_boost += content["boost"]
+        my_dodge += content["dodge"]
         # 羁绊加成
         if char_fetter_json.get(str(i)):
             rate = 1
@@ -2165,11 +2175,11 @@ def duel_my_buff(gid, uid, defen):
 
     z_hp = int(z_hp * hp_buff)
     z_atk = int(z_atk * atk_buff)
-    my_recover = chara_map["温柔"] * 5 + chara_map["冷静"] * 1 + changwai_map["温柔"]
-    my_double = chara_map["淘气"] * 5 + chara_map["冷静"] * 1 + changwai_map["淘气"]
-    my_crit = chara_map["天然"] * 5 + chara_map["冷静"] * 1 + changwai_map["天然"]
-    my_boost = chara_map["病娇"] * 5 + chara_map["冷静"] * 1 + changwai_map["病娇"]
-    my_dodge = chara_map["元气"] * 5 + chara_map["冷静"] * 1 + changwai_map["元气"]
+    my_recover += chara_map["温柔"] * 5 + chara_map["冷静"] * 1 + changwai_map["温柔"]
+    my_double += chara_map["淘气"] * 5 + chara_map["冷静"] * 1 + changwai_map["淘气"]
+    my_crit += chara_map["天然"] * 5 + chara_map["冷静"] * 1 + changwai_map["天然"]
+    my_boost += chara_map["病娇"] * 5 + chara_map["冷静"] * 1 + changwai_map["病娇"]
+    my_dodge += chara_map["元气"] * 5 + chara_map["冷静"] * 1 + changwai_map["元气"]
     my = Attr(z_hp, z_hp, z_atk, z_sp)
     my.all_skill = z_skills
     my.skill = []
