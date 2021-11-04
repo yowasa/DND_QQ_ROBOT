@@ -1,501 +1,515 @@
 {
-  "命运": {
-    "sp": 2,
-    "time": "before_damage",
-    "condition": "True",
-    "effect": {
-      "enemy_next": {
-        "next_dodge": {
-          "type": "const",
-          "value": [
-            0
-          ]
-        }
-      }
-    },
-    "desc": "攻击无法被闪避",
-    "log": "攻击无法被闪避"
-  },
-  "星弧破碎": {
-    "sp": 2,
-    "cost": 3,
-    "cd": 2,
-    "time": "after_damage",
-    "condition": "True",
-    "effect": {
-      "enemy": {
-        "xinghu_hp": {
-          "type": "exec",
-          "value": "enemy_max_hp*0.1"
-        },
-        "hp": {
-          "type": "exec",
-          "value": "enemy_hp-enemy_max_hp*0.1"
-        }
-      }
-    },
-    "desc": "每两回合削减对手10%最大生命值",
-    "log": "削减了对方{enemy_xinghu_hp}点hp"
-  },
-  "不死鸟之羽": {
-    "sp": 0,
-    "cost": 5,
-    "time": "after_damage",
-    "condition": "my_hp<=0.1*my_max_hp",
-    "effect": {
-      "my": {
-        "busi_hp": {
-          "type": "exec",
-          "value": "(my_max_hp*0.1)*my_recover_rate"
-        },
-        "total_recovery": {
-          "type": "exec",
-          "value": "my_total_recovery+((my_max_hp*0.1)*my_recover_rate)"
-        },
-        "hp": {
-          "type": "exec",
-          "value": "my_hp+(my_max_hp*0.1)*my_recover_rate"
-        }
-      }
-    },
-    "desc": "生命低于10%时回复10%血量",
-    "log": "回复了{my_busi_hp}点hp"
-  },
-  "境界均衡": {
-    "sp": 0,
-    "cost": 5,
-    "cd": 5,
-    "time": "before_damage",
-    "condition": "(enemy_hp/enemy_max_hp)-(my_hp/my_max_hp)>=0.1",
-    "effect": {
-      "my": {
-        "hp": {
-          "type": "exec",
-          "value": "my_max_hp*((enemy_hp/enemy_max_hp)+0.1)"
-        }
-      }
-    },
-    "desc": "5回合触发一次，血量比例低于敌方血量超过10%时 回复至高于10%的状态",
-    "log": "hp回复至{my_hp}点"
-  },
-  "境界反转": {
-    "sp": 5,
-    "time": "init",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "boost": {
-          "type": "exec",
-          "value": "enemy_boost"
-        },
-        "crit": {
-          "type": "exec",
-          "value": "enemy_crit"
-        },
-        "double": {
-          "type": "exec",
-          "value": "enemy_double"
-        },
-        "recover": {
-          "type": "exec",
-          "value": "enemy_recover"
-        },
-        "dodge": {
-          "type": "exec",
-          "value": "enemy_dodge"
-        }
-      },
-      "enemy": {
-        "boost": {
-          "type": "exec",
-          "value": "my_boost"
-        },
-        "crit": {
-          "type": "exec",
-          "value": "my_crit"
-        },
-        "double": {
-          "type": "exec",
-          "value": "my_double"
-        },
-        "recover": {
-          "type": "exec",
-          "value": "my_recover"
-        },
-        "dodge": {
-          "type": "exec",
-          "value": "my_dodge"
-        }
-      }
-    },
-    "desc": "交换自己与对方的增益",
-    "log": "交换了双方增益效果"
-  },
-  "天网": {
-    "sp": 2,
-    "time": "after_damage",
-    "condition": "enemy_sp>=1",
-    "effect": {
-      "enemy": {
-        "sp": {
-          "type": "exec",
-          "value": "enemy_sp-1"
-        }
-      }
-    },
-    "desc": "每回合削减对手一点sp",
-    "log": "削减了对方1点sp,敌方当前sp为{enemy_sp}点"
-  },
-  "捕蝶": {
-    "sp": 0,
-    "cost": 2,
-    "time": "before_damage",
-    "condition": "enemy_sp==0",
-    "effect": {
-      "enemy": {
-        "budie_hp": {
-          "type": "exec",
-          "value": "enemy_max_hp*0.2"
-        },
-        "hp": {
-          "type": "exec",
-          "value": "enemy_hp-enemy_max_hp*0.2"
-        }
-      }
-    },
-    "desc": "若对方sp为0则每回合削减对手20%最大生命值",
-    "log": "削减了对方{enemy_budie_hp}点hp"
-  },
-  "诱死": {
-    "sp": 0,
-    "cost": 4,
-    "time": "after_damage",
-    "condition": "((my_hp/my_max_hp)<=0.5)&((enemy_hp/enemy_max_hp)<=0.2)",
-    "effect": {
-      "enemy": {
-        "hp": {
-          "type": "const",
-          "value": 0
-        }
-      }
-    },
-    "desc": "自己血量低于50% 敌方血量低于20%时 将其斩杀",
-    "log": "敌方血量归0"
-  },
-  "梦想封印": {
-    "sp": 7,
-    "time": "prepare",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "sp": {
-          "type": "const",
-          "value": 0
-        }
-      },
-      "enemy": {
-        "boost": {
-          "type": "const",
-          "value": 0
-        },
-        "crit": {
-          "type": "const",
-          "value": 0
-        },
-        "double": {
-          "type": "const",
-          "value": 0
-        },
-        "recover": {
-          "type": "const",
-          "value": 0
-        },
-        "dodge": {
-          "type": "const",
-          "value": 0
-        },
-        "skills": {
-          "type": "const",
-          "value": {}
-        }
-      }
-    },
-    "desc": "清除敌方技能和增益，己方sp归0",
-    "log": "对方增益归0，技能清空"
-  },
-  "极限火花": {
-    "sp": 1,
-    "cost": 1,
-    "time": "before_damage",
-    "condition": "turn==10",
-    "effect": {
-      "my_next": {
-        "next_atk_rate": {
-          "type": "const",
-          "value": [
-            5
-          ]
-        }
-      }
-    },
-    "desc": "第十回合释放 造成额外5倍攻击的伤害",
-    "log": "攻击倍率提高到5倍"
-  },
-  "须臾": {
-    "sp": 2,
-    "cd": 6,
-    "time": "before_damage",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "xuyu_hp": {
-          "type": "exec",
-          "value": "my_hp"
-        }
-      }
-    },
-    "desc": "每6回合记录当前血量",
-    "log": "记录当前血量"
-  },
-  "永恒": {
-    "sp": 2,
-    "cd": 6,
-    "time": "before_damage",
-    "condition": "turn not in (1,2,3)",
-    "effect": {
-      "my": {
-        "hp": {
-          "type": "exec",
-          "value": "my_xuyu_hp"
-        }
-      }
-    },
-    "desc": "第四回合发动，每6回合回复至记录的血量",
-    "log": "血量回复至{my_xuyu_hp}"
-  },
-  "解放者之血": {
-    "sp": 10,
-    "time": "prepare",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "hp": {
-          "type": "exec",
-          "value": "my_max_hp*2"
-        },
-        "atk_rate": {
-          "type": "const",
-          "value": 2
-        },
-        "boost": {
-          "type": "const",
-          "value": 20
-        },
-        "crit": {
-          "type": "const",
-          "value": 20
-        },
-        "double": {
-          "type": "const",
-          "value": 20
-        },
-        "recover": {
-          "type": "const",
-          "value": 0
-        },
-        "dodge": {
-          "type": "const",
-          "value": 0
-        },
-        "skills": {
-          "type": "const",
-          "value": {}
-        }
-      }
-    },
-    "desc": "开始战斗时血量翻倍，攻击倍率变为2，boost连击暴击锁定为20，技能清空",
-    "log": "血量和攻击能力大幅度提升"
-  },
-  "月计时": {
-    "sp": 0,
-    "cost": 3,
-    "cd": 4,
-    "time": "before_damage",
-    "condition": "True",
-    "effect": {
-      "enemy_next": {
-        "next_ts": {
-          "type": "const",
-          "value": [true]
-        }
-      }
-    },
-    "desc": "每四回合跳过对手一次战斗阶段",
-    "log": "跳过对手战斗阶段"
-  },
-  "观武": {
-    "sp": 5,
-    "time": "init",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "skills": {
-          "type": "exec",
-          "value": "enemy_all_skill"
-        }
-      }
-    },
-    "desc": "使用对手的技能开始战斗",
-    "log": "复制了对手的技能"
-  },
-  "狂血": {
-    "sp": 5,
-    "time": "before_damage",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "kuangxue": {
-          "type": "exec",
-          "value": "75 if turn>5 else 150"
-        }
-      },
-      "my_next": {
-        "next_atk_rate": {
-          "type": "exec",
-          "value": [
-            "(0.75 if turn>5 else 1.5)"
-          ]
-        }
-      }
-    },
-    "desc": "前5回合攻击力倍率提高到150%，后续攻击倍率降低至75%",
-    "log": "攻击倍率为{my_kuangxue}%"
-  },
-  "冥瞳": {
-    "sp": 4,
-    "time": "before_damage",
-    "condition": "turn<=3",
-    "effect": {
-      "enemy_next": {
-        "next_reduce_rate": {
-          "type": "const",
-          "value": [
-            1.5
-          ]
-        }
-      }
-    },
-    "desc": "前三回合对方受到伤害增加50%",
-    "log": "对方受到伤害增加50%"
-  },
-  "棋局": {
-    "sp": 5,
-    "time": "before_damage",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "atk_rate": {
-          "type": "exec",
-          "value": "my_atk_rate+0.01"
-        },
-        "boost": {
-          "type": "exec",
-          "value": "my_boost+1"
-        },
-        "crit": {
-          "type": "exec",
-          "value": "my_crit+1"
-        },
-        "double": {
-          "type": "exec",
-          "value": "my_double+1"
-        },
-        "recover": {
-          "type": "exec",
-          "value": "my_recover+1"
-        },
-        "dodge": {
-          "type": "exec",
-          "value": "my_dodge+1"
-        }
-      }
-    },
-    "desc": "每回合全属性增加1%",
-    "log": "全属性增加1%"
-  },
-  "逆转": {
-    "sp": 0,
-    "cost": 0,
-    "time": "init",
-    "condition": "(my_hp>=0.9*my_max_hp)&(my_sp<my_max_sp)",
-    "effect": {
-      "my": {
-        "nizhuan_hp": {
-          "type": "exec",
-          "value": "my_max_hp*0.1"
-        },
-        "hp": {
-          "type": "exec",
-          "value": "my_hp-my_max_hp*0.1"
-        },
-        "sp": {
-          "type": "exec",
-          "value": "my_max_sp"
-        }
-      }
-    },
-    "desc": "战斗开始时，若血量大于90%，扣减10%血量恢复sp至sp上限",
-    "log": "失去了{my_nizhuan_hp}点血量恢复了sp"
-  },
-  "冻结": {
-    "sp": 0,
-    "cost": 2,
-    "time": "before_damage",
-    "condition": "turn%3==0",
-    "effect": {
-      "enemy_next": {
-        "next_atk_rate": {
-          "type": "const",
-          "value": [0.5]
-        },
-        "next_reduce_rate": {
-          "type": "const",
-          "value": [1.5]
-        }
-      }
-    },
-    "desc": "3的倍数的回合敌方会受到额外50%的伤害，攻击下降50%",
-    "log": "对方伤害倍率变为50%，受伤倍率变为150%"
-  },
-  "侵入": {
-    "sp": 2,
-    "time": "begin",
-    "condition": "True",
-    "effect": {
-      "enemy": {
-        "boost": {
-          "type": "exec",
-          "value": "(enemy_boost-5) if enemy_boost>=5 else 0"
-        },
-        "crit": {
-          "type": "exec",
-          "value": "(enemy_crit-5) if enemy_crit>=5 else 0"
-        },
-        "double": {
-          "type": "exec",
-          "value": "(enemy_double-5) if enemy_double>=5 else 0"
-        },
-        "recover": {
-          "type": "exec",
-          "value": "(enemy_recover-5) if enemy_recover>=5 else 0"
-        },
-        "dodge": {
-          "type": "exec",
-          "value": "(enemy_dodge-5) if enemy_dodge>=5 else 0"
-        }
-      }
-    },
-    "desc": "使对方全属性下降5%",
-    "log": "对方全属性下降5%"
-  }
+	"星弧破碎": {
+		"sp": 2,
+		"cost": 3,
+		"cd": 2,
+		"time": "after_damage",
+		"condition": "True",
+		"effect": {
+			"enemy": {
+				"xinghu_hp": {
+					"type": "exec",
+					"value": "enemy_max_hp*0.1"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "enemy_hp-enemy_max_hp*0.1"
+				}
+			}
+		},
+		"desc": "每两回合削减对手10%最大生命值",
+		"log": "削减了对方{enemy_xinghu_hp}点hp"
+	},
+	"不死鸟之羽": {
+		"sp": 0,
+		"cost": 5,
+		"time": "after_damage",
+		"condition": "my_hp<=0.1*my_max_hp",
+		"effect": {
+			"my": {
+				"busi_hp": {
+					"type": "exec",
+					"value": "(my_max_hp*0.1)*my_recover_rate"
+				},
+				"total_recovery": {
+					"type": "exec",
+					"value": "my_total_recovery+((my_max_hp*0.1)*my_recover_rate)"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "my_hp+(my_max_hp*0.1)*my_recover_rate"
+				}
+			}
+		},
+		"desc": "生命低于10%时回复10%血量",
+		"log": "回复了{my_busi_hp}点hp"
+	},
+	"境界均衡": {
+		"sp": 0,
+		"cost": 5,
+		"cd": 5,
+		"time": "before_damage",
+		"condition": "(enemy_hp/enemy_max_hp)-(my_hp/my_max_hp)>=0.1",
+		"effect": {
+			"my": {
+				"hp": {
+					"type": "exec",
+					"value": "my_max_hp*((enemy_hp/enemy_max_hp)+0.1)"
+				}
+			}
+		},
+		"desc": "5回合触发一次，血量比例低于敌方血量超过10%时 回复至高于10%的状态",
+		"log": "hp回复至{my_hp}点"
+	},
+	"境界反转": {
+		"sp": 5,
+		"time": "init",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"boost": {
+					"type": "exec",
+					"value": "enemy_boost"
+				},
+				"crit": {
+					"type": "exec",
+					"value": "enemy_crit"
+				},
+				"double": {
+					"type": "exec",
+					"value": "enemy_double"
+				},
+				"recover": {
+					"type": "exec",
+					"value": "enemy_recover"
+				},
+				"dodge": {
+					"type": "exec",
+					"value": "enemy_dodge"
+				}
+			},
+			"enemy": {
+				"boost": {
+					"type": "exec",
+					"value": "my_boost"
+				},
+				"crit": {
+					"type": "exec",
+					"value": "my_crit"
+				},
+				"double": {
+					"type": "exec",
+					"value": "my_double"
+				},
+				"recover": {
+					"type": "exec",
+					"value": "my_recover"
+				},
+				"dodge": {
+					"type": "exec",
+					"value": "my_dodge"
+				}
+			}
+		},
+		"desc": "交换自己与对方的增益",
+		"log": "交换了双方增益效果"
+	},
+	"天网": {
+		"sp": 2,
+		"time": "after_damage",
+		"condition": "enemy_sp>=1",
+		"effect": {
+			"enemy": {
+				"sp": {
+					"type": "exec",
+					"value": "enemy_sp-1"
+				}
+			}
+		},
+		"desc": "每回合削减对手一点sp",
+		"log": "削减了对方1点sp,敌方当前sp为{enemy_sp}点"
+	},
+	"捕蝶": {
+		"sp": 0,
+		"cost": 2,
+		"time": "before_damage",
+		"condition": "enemy_sp==0",
+		"effect": {
+			"enemy": {
+				"budie_hp": {
+					"type": "exec",
+					"value": "enemy_max_hp*0.2"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "enemy_hp-enemy_max_hp*0.2"
+				}
+			}
+		},
+		"desc": "若对方sp为0则每回合削减对手20%最大生命值",
+		"log": "削减了对方{enemy_budie_hp}点hp"
+	},
+	"诱死": {
+		"sp": 0,
+		"cost": 4,
+		"time": "after_damage",
+		"condition": "((my_hp/my_max_hp)<=0.5)&((enemy_hp/enemy_max_hp)<=0.2)",
+		"effect": {
+			"enemy": {
+				"hp": {
+					"type": "const",
+					"value": 0
+				}
+			}
+		},
+		"desc": "自己血量低于50% 敌方血量低于20%时 将其斩杀",
+		"log": "敌方血量归0"
+	},
+	"梦想封印": {
+		"sp": 7,
+		"time": "prepare",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"sp": {
+					"type": "const",
+					"value": 0
+				}
+			},
+			"enemy": {
+				"boost": {
+					"type": "const",
+					"value": 0
+				},
+				"crit": {
+					"type": "const",
+					"value": 0
+				},
+				"double": {
+					"type": "const",
+					"value": 0
+				},
+				"recover": {
+					"type": "const",
+					"value": 0
+				},
+				"dodge": {
+					"type": "const",
+					"value": 0
+				},
+				"skills": {
+					"type": "const",
+					"value": {}
+				}
+			}
+		},
+		"desc": "清除敌方技能和增益，己方sp归0",
+		"log": "对方增益归0，技能清空"
+	},
+	"极限火花": {
+		"sp": 1,
+		"cost": 1,
+		"time": "before_damage",
+		"condition": "turn==10",
+		"effect": {
+			"enemy": {
+				"jixianhuohua_hp": {
+					"type": "exec",
+					"value": "my_atk*5*my_ap_rate*enemy_ap_reduce_rate"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "enemy_hp-(my_atk*5*my_ap_rate*enemy_ap_reduce_rate)"
+				}
+			}
+		},
+		"desc": "第十回合释放 造成5倍攻击的伤害",
+		"log": "造成了{enemy_jixianhuohua_hp}点伤害"
+	},
+	"须臾": {
+		"sp": 2,
+		"cd": 6,
+		"time": "before_damage",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"xuyu_hp": {
+					"type": "exec",
+					"value": "my_hp"
+				}
+			}
+		},
+		"desc": "每6回合记录当前血量",
+		"log": "记录当前血量"
+	},
+	"永恒": {
+		"sp": 2,
+		"cd": 6,
+		"time": "before_damage",
+		"condition": "turn not in (1,2,3)",
+		"effect": {
+			"my": {
+				"hp": {
+					"type": "exec",
+					"value": "my_xuyu_hp"
+				}
+			}
+		},
+		"desc": "第四回合发动，每6回合回复至记录的血量",
+		"log": "血量回复至{my_xuyu_hp}"
+	},
+	"解放者之血": {
+		"sp": 5,
+		"time": "prepare",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"hp": {
+					"type": "exec",
+					"value": "my_max_hp*1.5"
+				},
+				"atk_rate": {
+					"type": "const",
+					"value": 1.5
+				},
+				"boost": {
+					"type": "const",
+					"value": 10
+				},
+				"crit": {
+					"type": "const",
+					"value": 10
+				},
+				"double": {
+					"type": "const",
+					"value": 10
+				},
+				"recover": {
+					"type": "const",
+					"value": 0
+				},
+				"dodge": {
+					"type": "const",
+					"value": 0
+				},
+				"skills": {
+					"type": "const",
+					"value": {}
+				}
+			}
+		},
+		"desc": "开始战斗时血量,攻击倍率提高50%，boost连击暴击锁定为10，技能清空",
+		"log": "血量和攻击能力大幅度提升"
+	},
+	"月计时": {
+		"sp": 0,
+		"cost": 3,
+		"cd": 4,
+		"time": "before_damage",
+		"condition": "True",
+		"effect": {
+			"enemy_next": {
+				"next_ts": {
+					"type": "const",
+					"value": [true]
+				}
+			}
+		},
+		"desc": "每四回合跳过对手一次战斗阶段",
+		"log": "跳过对手战斗阶段"
+	},
+	"观武": {
+		"sp": 5,
+		"time": "init",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"skills": {
+					"type": "exec",
+					"value": "enemy_all_skill"
+				}
+			}
+		},
+		"desc": "使用对手的技能开始战斗",
+		"log": "复制了对手的技能"
+	},
+	"狂血": {
+		"sp": 5,
+		"time": "before_damage",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"kuangxue": {
+					"type": "exec",
+					"value": "75 if turn>5 else 150"
+				}
+			},
+			"my_next": {
+				"next_atk_rate": {
+					"type": "exec",
+					"value": [
+						"(0.75 if turn>5 else 1.5)"
+					]
+				}
+			}
+		},
+		"desc": "前5回合攻击力倍率提高到150%，后续攻击倍率降低至75%",
+		"log": "攻击倍率为{my_kuangxue}%"
+	},
+	"冥瞳": {
+		"sp": 4,
+		"time": "before_damage",
+		"condition": "turn<=3",
+		"effect": {
+			"enemy_next": {
+				"next_reduce_rate": {
+					"type": "const",
+					"value": [
+						1.5
+					]
+				}
+			}
+		},
+		"desc": "前三回合对方受到伤害增加50%",
+		"log": "对方受到伤害增加50%"
+	},
+	"棋局": {
+		"sp": 5,
+		"time": "before_damage",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"atk_rate": {
+					"type": "exec",
+					"value": "my_atk_rate+0.01"
+				},
+				"boost": {
+					"type": "exec",
+					"value": "my_boost+1"
+				},
+				"crit": {
+					"type": "exec",
+					"value": "my_crit+1"
+				},
+				"double": {
+					"type": "exec",
+					"value": "my_double+1"
+				},
+				"recover": {
+					"type": "exec",
+					"value": "my_recover+1"
+				},
+				"dodge": {
+					"type": "exec",
+					"value": "my_dodge+1"
+				}
+			}
+		},
+		"desc": "每回合全属性增加1%",
+		"log": "全属性增加1%"
+	},
+	"逆转": {
+		"sp": 0,
+		"cost": 0,
+		"time": "init",
+		"condition": "(my_hp>=0.9*my_max_hp)&(my_sp<my_max_sp)",
+		"effect": {
+			"my": {
+				"nizhuan_hp": {
+					"type": "exec",
+					"value": "my_max_hp*0.1"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "my_hp-my_max_hp*0.1"
+				},
+				"sp": {
+					"type": "exec",
+					"value": "my_max_sp"
+				}
+			}
+		},
+		"desc": "战斗开始时，若血量大于90%，扣减10%血量恢复sp至sp上限",
+		"log": "失去了{my_nizhuan_hp}点血量恢复了sp"
+	},
+	"冻结": {
+		"sp": 0,
+		"cost": 2,
+		"time": "before_damage",
+		"condition": "turn%3==0",
+		"effect": {
+			"enemy_next": {
+				"next_atk_rate": {
+					"type": "const",
+					"value": [0.5]
+				},
+				"next_reduce_rate": {
+					"type": "const",
+					"value": [1.5]
+				}
+			}
+		},
+		"desc": "3的倍数的回合敌方会受到额外50%的伤害，攻击下降50%",
+		"log": "对方伤害倍率变为50%，受伤倍率变为150%"
+	},
+	"神签": {
+		"sp": 1,
+		"time": "begin",
+		"condition": "True",
+		"effect": {
+			"my": {
+				"shenqian": {
+					"type": "const",
+					"value": true
+				}
+			}
+		},
+		"desc": "每回合判定一次运势 运势大于90时随机将一个有cd的技能清0",
+		"log": "也许会有好事发生"
+	},
+	"保险": {
+		"sp": 1,
+		"time": "damage",
+		"condition": "(turn<4)&(my_hp<=enemy_total_damage)",
+		"effect": {
+			"enemy": {
+				"total_damage": {
+					"type": "const",
+					"value": 0
+				}
+			}
+		},
+		"desc": "前三回合自己不会因战斗伤害死亡",
+		"log": "免疫该回合的战斗伤害"
+	},
+	"真值": {
+		"sp": 0,
+		"cost": 1,
+		"time": "turn_end",
+		"condition": "(my_total_recovery>0)|(enemy_total_recovery>0)",
+		"effect": {
+			"my": {
+				"zhenzhi_hp": {
+					"type": "exec",
+					"value": "2*my_total_recovery"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "my_hp-(2*my_total_recovery)"
+				}
+			},
+			"enemy": {
+				"zhenzhi_hp": {
+					"type": "exec",
+					"value": "2*enemy_total_recovery"
+				},
+				"hp": {
+					"type": "exec",
+					"value": "enemy_hp-(2*enemy_total_recovery)"
+				}
+			}
+		},
+		"desc": "回合结束时双方扣除双倍于治疗的血量",
+		"log": "自己流失{my_zhenzhi_hp}点hp，对方流失{enemy_zhenzhi_hp}点hp"
+	}
 }
