@@ -363,6 +363,7 @@ async def manor_sign(bot, ev: CQEvent):
     sw_sum = 0
     p_id = get_user_counter(gid, uid, UserModel.MANOR_POLICY)
     p_m = PolicyModel.get_by_id(p_id)
+    b_c = get_all_build_counter(gid, uid)
     if bao_flag:
         # 暴乱繁荣无条件-100
         fanrong -= 100
@@ -455,7 +456,6 @@ async def manor_sign(bot, ev: CQEvent):
                 save_user_counter(gid, uid, UserModel.TECHNOLOGY_CD, t_cd)
         # 计算建筑收益
         if get_weather(gid) != WeatherModel.QINGLAN:
-            b_c = get_all_build_counter(gid, uid)
             for i in b_c.keys():
                 if i == BuildModel.CENTER:
                     continue
@@ -577,7 +577,6 @@ async def manor_sign(bot, ev: CQEvent):
     # 计算上缴金额
     taxes = get_taxes(gid, uid, level)
     for i in b_c.keys():
-        # 每有一个类建筑 增加1点繁荣度
         if i.value.get("cost"):
             taxes += i.value.get("cost") * b_c[i]
     msg += f'\n为了维持城市开销，需要花费{taxes}金币'
