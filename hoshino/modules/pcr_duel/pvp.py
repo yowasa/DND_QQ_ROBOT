@@ -77,7 +77,7 @@ async def set_pvp_group(bot, ev: CQEvent):
     base64_str = 'base64://' + base64.b64encode(bio.getvalue()).decode()
     mes = f"[CQ:image,file={base64_str}]"
     buff_msg = f"boost:{my.boost}% 暴击:{my.crit}% 连击:{my.double}% 回复:{my.recover}% 闪避:{my.dodge}%"
-    msg = f"设置pvp队伍成功！\n队伍成员为：{bianzu}\nhp:{my.hp} atk:{my.atk} sp:{my.sp} \nskill:{' '.join(my.all_skill)}\n{buff_msg}\n{mes}"
+    msg = f"设置pvp队伍成功！\n队伍成员为：{bianzu}\nhp:{my.hp} atk:{my.atk} sp:{my.sp+10} \nskill:{' '.join(my.all_skill)}\n{buff_msg}\n{mes}"
     await bot.send(ev, msg, at_sender=True)
 
 @sv.on_prefix(['发动pvp技能'])
@@ -90,7 +90,6 @@ async def set_pvp_group(bot, ev: CQEvent):
     defen = duel._select_pvp_info(gid, uid)
     if not defen:
         await bot.finish(ev, "你尚未设置pvp队伍，请使用[设置pvp队伍]进行设置")
-    CE = CECounter()
     for cid in defen:
         c = chara.fromid(cid)
         nvmes = get_nv_icon(cid)

@@ -15,9 +15,9 @@ from .fkcy import genImage
 from .rua import generate_gif
 
 sv = Service('图片生成器', help_='''
-[5000兆元] (上半句)|(下半句)
+[5kcy] (上半句)|(下半句)
 [ph] (上半句)|(下半句)
-[搓头]@群友
+[rua]@群友
 [mt] 生成幻影坦克
 '''.strip(), bundle="图片生成器")
 
@@ -60,7 +60,6 @@ async def gen_5000_pic(bot, ev: CQEvent):
         await bot.send(ev, '生成失败……请检查命令格式是否正确')
 
 
-sv = Service('Rua')
 data_dir = path.join(path.dirname(__file__), 'data')
 
 

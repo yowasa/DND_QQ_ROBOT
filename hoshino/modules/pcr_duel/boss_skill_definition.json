@@ -46,11 +46,15 @@
       "my": {
         "busi_hp": {
           "type": "exec",
-          "value": "my_max_hp*0.1"
+          "value": "(my_max_hp*0.1)*my_recover_rate"
+        },
+        "total_recovery": {
+          "type": "exec",
+          "value": "my_total_recovery+((my_max_hp*0.1)*my_recover_rate)"
         },
         "hp": {
           "type": "exec",
-          "value": "my_hp+my_max_hp*0.1"
+          "value": "my_hp+(my_max_hp*0.1)*my_recover_rate"
         }
       }
     },
@@ -493,21 +497,5 @@
     },
     "desc": "使对方全属性下降5%",
     "log": "对方全属性下降5%"
-  },
-  "合奏": {
-    "sp": 2,
-    "time": "init",
-    "condition": "True",
-    "effect": {
-      "my": {
-        "double": {
-          "type": "exec",
-          "value": "my_double+10"
-        }
-      }
-    },
-    "desc": "自身连击率上升10%",
-    "log": "连击率上升10%"
   }
-
 }

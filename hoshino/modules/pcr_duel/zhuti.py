@@ -195,9 +195,9 @@ async def duel_biao(bot, ev: CQEvent):
 "5": "子爵",升级需要{LEVEL_SW_NEED[str(5)]}声望和{LEVEL_COST_DICT[str(5)]}金币及{LEVEL_FR_NEED[str(5)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(5)]}名女友，保持等级最少持有{LEVEL_GIRL_NEED[str(4)]}名女友。
 "6": "伯爵",升级需要{LEVEL_SW_NEED[str(6)]}声望和{LEVEL_COST_DICT[str(6)]}金币及{LEVEL_FR_NEED[str(6)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(6)]}名女友，保持等级最少持有{LEVEL_GIRL_NEED[str(5)]}名女友。
 "7": "侯爵",升级需要{LEVEL_SW_NEED[str(7)]}声望和{LEVEL_COST_DICT[str(7)]}金币及{LEVEL_FR_NEED[str(7)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(7)]}名女友，保持等级最少持有{LEVEL_GIRL_NEED[str(6)]}名女友。
-"8": "公爵",升级需要{LEVEL_SW_NEED[str(8)]}声望和{LEVEL_COST_DICT[str(8)]}金币及{LEVEL_FR_NEED[str(8)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(8)]}名女友，不再会掉级，可拥有一名妻子。
-"9": "国王",升级需要{LEVEL_SW_NEED[str(9)]}声望和{LEVEL_COST_DICT[str(9)]}金币及{LEVEL_FR_NEED[str(9)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(9)]}名女友，不再会掉级，可拥有一名妻子。
-"10": "皇帝"升级需要{LEVEL_SW_NEED[str(10)]}声望和{LEVEL_COST_DICT[str(10)]}金币及{LEVEL_FR_NEED[str(10)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(10)]}名女友，不再会掉级，可拥有一名妻子。
+"8": "公爵",升级需要{LEVEL_SW_NEED[str(8)]}声望和{LEVEL_COST_DICT[str(8)]}金币及{LEVEL_FR_NEED[str(8)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(8)]}名女友，不再会掉级。
+"9": "国王",升级需要{LEVEL_SW_NEED[str(9)]}声望和{LEVEL_COST_DICT[str(9)]}金币及{LEVEL_FR_NEED[str(9)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(9)]}名女友，不再会掉级。
+"10": "皇帝"升级需要{LEVEL_SW_NEED[str(10)]}声望和{LEVEL_COST_DICT[str(10)]}金币及{LEVEL_FR_NEED[str(10)]}城市繁荣度，最多可持有{LEVEL_GIRL_NEED[str(10)]}名女友，不再会掉级。
 '''
     await bot.send(ev, msg)
 

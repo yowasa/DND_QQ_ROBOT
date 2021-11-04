@@ -104,7 +104,7 @@ async def manor_begin(bot, ev: CQEvent):
     if not msg:
         await bot.finish(ev, '请在指令后添加角色名', at_sender=True)
     if len(msg) != 2:
-        await bot.finish(ev, '请使用[变更偏好] {角色名} {性格} 性格在性格列表中查询', at_sender=True)
+        await bot.finish(ev, '请使用[变更性格] {角色名} {性格} 性格在性格列表中查询', at_sender=True)
     char_name = msg[0]
     xingge = msg[1]
     if not character.get(xingge):

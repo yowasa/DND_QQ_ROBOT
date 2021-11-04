@@ -25,8 +25,14 @@ def init_content(my: Attr):
     content["double"] = my.double
     content["recover"] = my.recover
     content["dodge"] = my.dodge
+    # 透支次数
+    content["touzhi"] = 0
     # 伤害倍率
     content["atk_rate"] = 1
+    # ap倍率
+    content["ap_rate"] = 1
+    # ap抵抗倍率
+    content["ap_reduce_rate"] = 1
     # 减伤效果
     content["reduce_rate"] = 1
     # 额外伤害
@@ -41,7 +47,14 @@ def init_content(my: Attr):
     content["crit_rate"] = 2
     # 跳过战斗阶段标识
     content["ts"] = False
+    # 穿甲标识
     content["chuanjia"] = False
+    # 净化标识
+    content["jinghua"] = False
+    # 神签标识
+    content["shenqian"] = False
+    content["yunshi"] = random.randint(1, 100)
+    content["next_jinghua"] = []
     content["next_chuanjia"] = []
     content["next_ts"] = []
     content["next_crit_rate"] = []
@@ -62,6 +75,9 @@ def init_content(my: Attr):
     content["is_double"] = False
     content["is_recover"] = False
     content["is_dodge"] = False
+
+    content["total_damage"] = 0
+    content["total_recovery"] = 0
 
     content["next_is_boost"] = []
     content["next_is_crit"] = []
@@ -184,6 +200,7 @@ def duel_buff(my_content, enemy_content, prefix):
     ex_atk = content_get('ex_atk', my_content)
     ex_atk_rate = content_get('ex_atk_rate', my_content)
     ts = content_get('ts', my_content)
+    jinghua = content_get('jinghua', my_content)
     chuanjia = content_get('chuanjia', my_content)
     if chuanjia:
         reduce_rate = 1
@@ -217,8 +234,8 @@ def duel_buff(my_content, enemy_content, prefix):
                 rd_dmg = deviation(atk * reduce_rate)
                 dmg += rd_dmg
                 my_content["damage_log"].append(f"{prefix}造成了{rd_dmg}点伤害")
-        if ex_atk:
-            ex_dmg=ex_atk*ex_atk_rate
+        if ex_atk and not jinghua:
+            ex_dmg = ex_atk * ex_atk_rate
             dmg += ex_dmg
             my_content["damage_log"].append(f"{prefix}造成额外{ex_dmg}附加伤害!")
     my_content["total_damage"] = dmg
@@ -247,6 +264,21 @@ def judge_rate(content):
 def duel_debuff(prefix, my_content, enemy_content):
     log = []
     liushi_hp = content_get("liushi_hp", my_content)
+    shenqian = content_get("shenqian", my_content)
+    if shenqian:
+        yunshi = content_get("yunshi", my_content)
+        if yunshi <= 10:
+            skill = []
+            for i in my_content["skills"].keys():
+                if my_content["skills"][i] > 1:
+                    skill.append(i)
+            if skill:
+                sk_c = random.choice(skill)
+                my_content["skills"][sk_c] = 0
+                log.append(f"{prefix}的{sk_c}的冷却刷新了")
+    jinghua = content_get("jinghua", my_content)
+    if jinghua:
+        return log
     my_content['hp'] -= liushi_hp
     if liushi_hp:
         log.append(f"{prefix}生命值流失{liushi_hp}点")
@@ -262,7 +294,7 @@ def battle(my: Attr, enemy: Attr):
     logs.append(f"我方hp:{my.hp}\t 敌方hp:{enemy.hp}")
     # 触发技能
     turn = 0
-    first=random.randint(0,1)
+    first = random.randint(0, 1)
     if first:
         logs.extend(skill_engine("init", my_content, enemy_content, turn, prefix="我方"))
         logs.extend(skill_engine("init", enemy_content, my_content, turn, prefix="敌方"))
@@ -316,9 +348,6 @@ def battle(my: Attr, enemy: Attr):
         if flag:
             # 伤害日志
             logs.extend(my_content["damage_log"])
-            # 同步血量
-            my.hp = my_content["hp"]
-            my.sp = my_content["sp"]
             # 扣血动作
             enemy_content["hp"] -= my_content["total_damage"]
             # 触发技能
@@ -332,9 +361,6 @@ def battle(my: Attr, enemy: Attr):
             logs.extend(enemy_content["damage_log"])
             # 扣血动作
             my_content["hp"] -= enemy_content["total_damage"]
-            # 同步血量
-            my.hp = my_content["hp"]
-            my.sp = my_content["sp"]
             logs.extend(skill_engine("after_damage", enemy_content, my_content, turn, prefix="敌方"))
             if my_content["hp"] <= 0:
                 logs.append("我方血量归0，战斗失败...")
@@ -344,9 +370,6 @@ def battle(my: Attr, enemy: Attr):
             logs.extend(enemy_content["damage_log"])
             # 扣血动作
             my_content["hp"] -= enemy_content["total_damage"]
-            # 同步血量
-            my.hp = my_content["hp"]
-            my.sp = my_content["sp"]
             logs.extend(skill_engine("after_damage", enemy_content, my_content, turn, prefix="敌方"))
             if my_content["hp"] <= 0:
                 logs.append("我方血量归0，战斗失败...")
@@ -354,9 +377,6 @@ def battle(my: Attr, enemy: Attr):
 
             # 伤害日志
             logs.extend(my_content["damage_log"])
-            # 同步血量
-            my.hp = my_content["hp"]
-            my.sp = my_content["sp"]
             # 扣血动作
             enemy_content["hp"] -= my_content["total_damage"]
             # 触发技能
@@ -364,6 +384,38 @@ def battle(my: Attr, enemy: Attr):
             if enemy_content["hp"] <= 0:
                 logs.append("敌方血量归0，战斗胜利！")
                 return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+        # 战斗阶段结束
+        if flag:
+            logs.extend(skill_engine("battle_end", my_content, enemy_content, turn, prefix="我方"))
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+            logs.extend(skill_engine("battle_end", enemy_content, my_content, turn, prefix="敌方"))
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+        else:
+            logs.extend(skill_engine("battle_end", enemy_content, my_content, turn, prefix="敌方"))
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+            logs.extend(skill_engine("battle_end", my_content, enemy_content, turn, prefix="我方"))
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+
         # 开始判定回复
         if flag:
             logs.extend(skill_engine("before_recover", my_content, enemy_content, turn, prefix="我方"))
@@ -371,7 +423,7 @@ def battle(my: Attr, enemy: Attr):
                 atk = content_get("atk", my_content)
                 hp_add = deviation(atk) * content_get("recover_rate", my_content)
                 my_content["hp"] += hp_add
-                my.hp = my_content["hp"]
+                my_content["total_recovery"] += hp_add
                 logs.append(f"我方触发了恢复，hp增加了{hp_add}")
             logs.extend(skill_engine("after_recover", my_content, enemy_content, turn, prefix="我方"))
             logs.extend(skill_engine("before_recover", enemy_content, my_content, turn, prefix="敌方"))
@@ -379,6 +431,7 @@ def battle(my: Attr, enemy: Attr):
                 atk = content_get("atk", enemy_content)
                 hp_add = deviation(atk) * content_get("recover_rate", enemy_content)
                 enemy_content["hp"] += hp_add
+                enemy_content["total_recovery"] += hp_add
                 logs.append(f"敌方触发了恢复，hp增加了{hp_add}")
             logs.extend(skill_engine("after_recover", enemy_content, my_content, turn, prefix="敌方"))
         else:
@@ -387,6 +440,7 @@ def battle(my: Attr, enemy: Attr):
                 atk = content_get("atk", enemy_content)
                 hp_add = deviation(atk) * content_get("recover_rate", enemy_content)
                 enemy_content["hp"] += hp_add
+                enemy_content["total_recovery"] += hp_add
                 logs.append(f"敌方触发了恢复，hp增加了{hp_add}")
             logs.extend(skill_engine("after_recover", enemy_content, my_content, turn, prefix="敌方"))
             logs.extend(skill_engine("before_recover", my_content, enemy_content, turn, prefix="我方"))
@@ -394,7 +448,7 @@ def battle(my: Attr, enemy: Attr):
                 atk = content_get("atk", my_content)
                 hp_add = deviation(atk) * content_get("recover_rate", my_content)
                 my_content["hp"] += hp_add
-                my.hp = my_content["hp"]
+                my_content["total_recovery"] += hp_add
                 logs.append(f"我方触发了恢复，hp增加了{hp_add}")
             logs.extend(skill_engine("after_recover", my_content, enemy_content, turn, prefix="我方"))
         # 回合结束
@@ -404,25 +458,46 @@ def battle(my: Attr, enemy: Attr):
             if enemy_content["hp"] <= 0:
                 logs.append("敌方血量归0，战斗胜利！")
                 return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
             logs.extend(skill_engine("turn_end", enemy_content, my_content, turn, prefix="敌方"))
             logs.extend(duel_debuff('我方', my_content, enemy_content))
             if my_content["hp"] <= 0:
-                logs.append("我方血量归0，战斗失败！")
+                logs.append("我方血量归0，战斗失败...")
                 return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
         else:
             logs.extend(skill_engine("turn_end", enemy_content, my_content, turn, prefix="敌方"))
             logs.extend(duel_debuff('我方', my_content, enemy_content))
             if my_content["hp"] <= 0:
-                logs.append("我方血量归0，战斗失败！")
+                logs.append("我方血量归0，战斗失败...")
                 return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
+            if enemy_content["hp"] <= 0:
+                logs.append("敌方血量归0，战斗胜利！")
+                return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
             logs.extend(skill_engine("turn_end", my_content, enemy_content, turn, prefix="我方"))
             logs.extend(duel_debuff('敌方', enemy_content, my_content))
             if enemy_content["hp"] <= 0:
                 logs.append("敌方血量归0，战斗胜利！")
                 return end_battle(True, logs, turn, my, enemy, my_content, enemy_content)
+            if my_content["hp"] <= 0:
+                logs.append("我方血量归0，战斗失败...")
+                return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
         my_content["hp"] = int(my_content["hp"])
         enemy_content["hp"] = int(enemy_content["hp"])
-        logs.append(f'第{turn}回合结束===\n我方剩余hp:{my_content["hp"]}，sp:{my_content["sp"]} \n敌方剩余hp:{enemy_content["hp"]}，sp:{enemy_content["sp"]}')
+        # 重置双方造成伤害和回复
+        my_content["total_damage"] = 0
+        my_content["total_recovery"] = 0
+        enemy_content["total_damage"] = 0
+        enemy_content["total_recovery"] = 0
+        # 随机出运势
+        my_content["yunshi"] = random.randint(1, 100)
+        enemy_content["yunshi"] = random.randint(1, 100)
+        logs.append(
+            f'第{turn}回合结束===\n我方剩余hp:{my_content["hp"]}，sp:{my_content["sp"]} \n敌方剩余hp:{enemy_content["hp"]}，sp:{enemy_content["sp"]}')
         if turn >= 30:
             logs.append(f'回合数超过30 自动判负。。。。')
             return end_battle(False, logs, turn, my, enemy, my_content, enemy_content)
@@ -439,11 +514,10 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
     enemy.sp = enemy_content["sp"]
     return success, logs
 
-# my = Attr(1000, 1000, 100, 5)
-# my.skill = ["月计时"]
-#
-# enemy = Attr(1000, 1000, 100, 5)
-#
+# my = Attr(1000, 1000, 100, 20)
+# my.skill = ["神签","急救"]
+# enemy = Attr(1000, 1000, 100, 0)
+# enemy.skill=[]
 # result, log = battle(my, enemy)
 #
 # print("\n".join(log))
