@@ -2206,7 +2206,7 @@ def get_battle_style(cid):
 # 获取角色的基础技能
 def get_char_skill(cid):
     if char_skill_json.get(str(cid)):
-        return char_skill_json.get(str(cid));
+        return char_skill_json.get(str(cid)).copy();
     base = hashval(md5(str(cid)), len(self_skill_def))
     return [list(self_skill_def.keys())[base]]
 
