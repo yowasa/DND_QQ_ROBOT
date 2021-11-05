@@ -1152,35 +1152,35 @@ class DailyAmountLimiter(DailyNumberLimiter):
 # 建筑枚举类
 class BuildModel(Enum):
     CENTER = {"id": 101, "name": "市政府", "sw": 0, "gold": 10000, "area": 10, "time": 1, "limit": 1,
-              "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令", "cost": 1000,"fanrong":10}
+              "desc": "只有拥有市政府才能执行政策，税收，建造等行政命令", "cost": 1000, "fanrong": 10}
     MARKET = {"id": 102, "name": "商场", "sw": 1000, "gold": 50000, "area": 12, "time": 3, "limit": 5,
-              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）", "cost": 0,"fanrong":20}
+              "desc": "城市商业贸易中心，能为你带来不菲的收入（增加2w金币）", "cost": 0, "fanrong": 20}
     ITEM_SHOP = {"id": 103, "name": "神秘商店", "sw": 100, "gold": 10000, "area": 15, "time": 2, "limit": 1,
-                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）", "cost": 5000,"fanrong":5}
+                 "desc": "神秘的道具商店，黑心老板商只允许顾客盲盒购买（可使用[购买道具]指令）", "cost": 5000, "fanrong": 5}
     TV_STATION = {"id": 104, "name": "事务所", "sw": 5000, "gold": 10000, "area": 13, "time": 3, "limit": 5,
-                  "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）", "cost": 5000,"fanrong":20}
+                  "desc": "城市的各种职能部门，能能让你的城市功能更加齐全（增加1500声望）", "cost": 5000, "fanrong": 20}
     POLICE_OFFICE = {"id": 105, "name": "警察局", "sw": 2000, "gold": 30000, "area": 10, "time": 3, "limit": 2,
-                     "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）", "cost": 10000,"fanrong":30}
+                     "desc": "城市的治安部门，让你城市治安稳定（增加10点治安）", "cost": 10000, "fanrong": 30}
     KONGFU = {"id": 106, "name": "道馆", "sw": 2500, "gold": 20000, "area": 6, "time": 2, "limit": 2,
-              "desc": "修炼是游戏的一部分，挂机修炼额外获得5点经验/小时(拥有两个的话会无视24小时时间限制)", "cost": 10000,"fanrong":20}
+              "desc": "修炼是游戏的一部分，挂机修炼额外获得5点经验/小时(拥有两个的话会无视24小时时间限制)", "cost": 10000, "fanrong": 20}
     HUANBAO = {"id": 107, "name": "环保协会", "sw": 40000, "gold": 30000, "area": 15, "time": 3, "limit": 1,
-               "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)", "cost": 20000,"fanrong":40}
+               "desc": "环境保护，人人有责，可以依据城市林地面积提供声望(林地面积*5)", "cost": 20000, "fanrong": 40}
     ZHIHUI = {"id": 108, "name": "作战中心", "sw": 10000, "gold": 100000, "area": 20, "time": 3, "limit": 1,
-              "desc": "作战指挥中心，每天获取一瓶蓝药水一瓶红药水，可以执行关卡探索指令", "cost": 30000,"fanrong":15}
+              "desc": "作战指挥中心，每天获取一瓶蓝药水一瓶红药水，可以执行关卡探索指令", "cost": 30000, "fanrong": 15}
     DIZHI = {"id": 109, "name": "冒险工会", "sw": 3500, "gold": 200000, "area": 30, "time": 4, "limit": 2,
-             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 20000,"fanrong":30}
+             "desc": "冒险者的聚集地，为冒险者们提供服务(获取一张藏宝图)", "cost": 20000, "fanrong": 30}
     KELA = {"id": 110, "name": "大本钟", "sw": 50000, "gold": 500000, "area": 70, "time": 7, "limit": 1,
-            "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)", "cost": 50000,"fanrong":50}
+            "desc": "城市中心地标建筑，每日准时报时(获取一个零时迷子，低概率产出咲夜怀表)", "cost": 50000, "fanrong": 50}
     FISSION_CENTER = {"id": 111, "name": "裂变中心", "sw": 100000, "gold": 1000000, "area": 120, "time": 10, "limit": 1,
-                      "desc": "拥有无限可能性的裂变中心（获取一个有效分裂,低概率产出四重存在或好事成双）", "cost": 80000,"fanrong":50}
+                      "desc": "拥有无限可能性的裂变中心（获取一个有效分裂,低概率产出四重存在或好事成双）", "cost": 80000, "fanrong": 50}
     EQUIP_CENTER = {"id": 112, "name": "熔炼工厂", "sw": 2000, "gold": 100000, "area": 15, "time": 3, "limit": 1,
-                    "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦", "cost": 10000,"fanrong":30}
+                    "desc": "可以使用[装备熔炼]指令，用低级装备合成高级装备,装备合成会有一定失败率哦", "cost": 10000, "fanrong": 30}
     TECHNOLOGY_CENTER = {"id": 113, "name": "科研中心", "sw": 10000, "gold": 100000, "area": 30, "time": 5, "limit": 1,
-                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令", "cost": 20000,"fanrong":40}
+                         "desc": "解锁城市科技 可以使用[我的科技]和[科技研发]指令", "cost": 20000, "fanrong": 40}
     APARTMENT = {"id": 114, "name": "公寓", "sw": 1000, "gold": 10000, "area": 6, "time": 2, "limit": 5,
-                 "desc": "人民住宿的设施，每回合增加1点繁荣度", "cost": 2000,"fanrong":50}
+                 "desc": "人民住宿的设施，每回合增加1点繁荣度", "cost": 2000, "fanrong": 50}
     MICHELIN_RESTAURANT = {"id": 115, "name": "米其林餐厅", "sw": 3000, "gold": 50000, "area": 20, "time": 3, "limit": 1,
-                           "desc": "甜点餐厅，产出1个心意蛋糕，是约会的好地方", "cost": 20000,"fanrong":30}
+                           "desc": "甜点餐厅，产出1个心意蛋糕，是约会的好地方", "cost": 20000, "fanrong": 30}
 
     @staticmethod
     def get_by_id(id):
@@ -1476,18 +1476,20 @@ def check_technolog_counter(gid, uid, t_m: TechnologyModel):
     i_c = ItemCounter()
     return i_c._get_user_state(gid, uid, t_m.value['id'])
 
+
 # 领地繁荣度查询
 def get_fanrong(gid, uid):
-    ex_fanrong=get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
+    ex_fanrong = get_user_counter(gid, uid, UserModel.PROSPERITY_INDEX)
     # 建筑收益
     b_c = get_all_build_counter(gid, uid)
     build_fanrong = 0
     for i in b_c.keys():
-         build_fanrong+=i.value['fanrong'] * b_c[i]
-    total_fanrong=build_fanrong+ex_fanrong
-    if total_fanrong>1000:
-        total_fanrong=1000
+        build_fanrong += i.value['fanrong'] * b_c[i]
+    total_fanrong = build_fanrong + ex_fanrong
+    if total_fanrong > 1000:
+        total_fanrong = 1000
     return total_fanrong
+
 
 # ========== 道具相关方法 ==========
 # 随机选择道具
@@ -1730,7 +1732,12 @@ def get_card_battle_info(gid, uid, cid):
 
     # rank加成
     rank = CE._get_rank(gid, uid, cid)
-    sp += int(rank / 10)
+    if rank > 10:
+        sp += 1
+    if level > 30:
+        sp += 1
+    if cardstar == 5:
+        sp += 1
     hp += 200 * rank
     atk += 30 * rank
 
@@ -1796,6 +1803,7 @@ def get_card_battle_info(gid, uid, cid):
                         result["skills"].extend(effect['skill']['value'])
                         result["skills"] = list(set(result["skills"]))
     return result
+
 
 # 获取战力排行榜
 def get_power_rank(gid):
@@ -2054,15 +2062,15 @@ def get_all_build_counter(gid, uid):
 # 处理我方队伍增益 defen 为cid列表 z_atk与z_hp是经过buff后的原始攻击和hp
 def duel_my_buff(gid, uid, defen):
     z_hp, z_atk, z_sp, z_skills = 0, 0, 0, []
-    my_recover=0
-    my_double=0
-    my_crit=0
-    my_boost=0
-    my_dodge=0
+    my_recover = 0
+    my_double = 0
+    my_crit = 0
+    my_boost = 0
+    my_dodge = 0
     for i in defen:
         content = get_card_battle_info(gid, uid, i)
         hp, atk, sp, skills = content["hp"], content["atk"], content["sp"], content["skills"]
-        my_recover+=content["recover"]
+        my_recover += content["recover"]
         my_double += content["double"]
         my_crit += content["crit"]
         my_boost += content["boost"]
@@ -2209,6 +2217,7 @@ def get_char_skill(cid):
         return char_skill_json.get(str(cid)).copy();
     base = hashval(md5(str(cid)), len(self_skill_def))
     return [list(self_skill_def.keys())[base]]
+
 
 # 构建战斗记录返回列表
 def build_battle_tag_list(log):
