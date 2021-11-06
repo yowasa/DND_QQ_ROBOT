@@ -380,7 +380,7 @@ async def equip_fenjie_one(bot, ev: CQEvent):
         equipnum = CE._get_equip_num(gid, uid, equipinfo['eid'])
         if equipnum == 0:
             await bot.finish(ev, '你的这件装备的库存不足哦。', at_sender=True)
-        fj_one = FenjieGet(equipinfo['level'])
+        fj_one = FenjieGet[equipinfo['level']]
         get_xcz = fj_one * equipnum
         now_num = CE._add_xingchen_num(gid, uid, get_xcz)
         deletenum = 0 - equipnum
@@ -425,7 +425,7 @@ async def equip_fenjie_n(bot, ev: CQEvent):
             equipinfo = get_equip_info_id(i[0])
             if equipinfo['level'] == equiplevel:
                 equipnum = i[1]
-                fj_one = FenjieGet(equipinfo['level'])
+                fj_one = FenjieGet[equipinfo['level']]
                 get_xcz = fj_one * equipnum
                 total_equipnum += equipnum
                 xingchen += get_xcz
