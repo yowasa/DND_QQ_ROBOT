@@ -1799,7 +1799,7 @@ def get_card_battle_info(gid, uid, cid):
                     result["skills"].extend(effect['skill']['value'])
                     result["skills"] = list(set(result["skills"]))
                 elif effect['skill']['type'] == "exec":
-                    if eval(effect['skill']['condition']):
+                    if eval(effect['skill']['condition'],content):
                         result["skills"].extend(effect['skill']['value'])
                         result["skills"] = list(set(result["skills"]))
     return result
