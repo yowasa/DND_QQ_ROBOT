@@ -158,10 +158,10 @@ async def clock():
         for gid in group_list:
             rd = random.choice([i for i in WeatherModel])
             save_weather(gid, rd)
-
-    if not now.isocalendar()[2] == 1:  # 每周周一结算
+    # 每周周天的18点结算
+    if not now.isocalendar()[2] == 7:
         return
-    if not now.hour == 1:  # 每天1点结算
+    if not now.hour == 18:
         return
 
     jianglilist = {

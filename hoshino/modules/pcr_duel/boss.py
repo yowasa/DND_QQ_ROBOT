@@ -126,6 +126,8 @@ async def start_huizhan(bot, ev: CQEvent):
         }
         tas_list.append(data)
         my = duel_my_buff(gid, uid, defen)
+        my.sp += 10
+        my.skill=my.all_skill
         enemy = duel_enemy_buff([], bossinfo['hp'], bossinfo['sp'], bossinfo['ce'], bossinfo['buff'], bossinfo['skill'])
         success, log = battle(my, enemy)
         tas_list.extend(build_battle_tag_list(log))
@@ -171,7 +173,7 @@ async def start_huizhan(bot, ev: CQEvent):
         record_msg = '出刀奖励结算：'
         exp = bossinfo['add_exp']
         if success:
-            exp = exp * 2
+            exp = exp * 5
         for cid in defen:
             c = chara.fromid(cid)
             card_level = add_exp(gid, uid, cid, exp)
