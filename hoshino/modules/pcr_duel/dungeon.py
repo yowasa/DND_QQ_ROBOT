@@ -302,6 +302,7 @@ async def in_stage(bot, ev: CQEvent):
     if dun.now_dun != stage:
         dun.from_dun = dun.now_dun
         dun.now_dun = stage
+    xin_lu=set()
     if success:
         new_buff = sum_character(defen, "勤奋")
         road_map = dungeon_road.get(stage)
@@ -312,6 +313,7 @@ async def in_stage(bot, ev: CQEvent):
                 total += road_map[i]
                 if rn <= total:
                     dun.able_dun.append(i)
+                    xin_lu.add(i)
                     dun.able_dun = list(set(dun.able_dun))
                     break
             if len(road_map.keys()) > 1:
@@ -319,6 +321,7 @@ async def in_stage(bot, ev: CQEvent):
                 if rn <= new_buff:
                     new_road = random.choice([i for i in road_map.keys()])
                     dun.able_dun.append(new_road)
+                    xin_lu.add(new_road)
                     dun.able_dun = list(set(dun.able_dun))
     cangtian_msg = ""
     dun.left_sp = my.max_sp
@@ -464,6 +467,9 @@ async def in_stage(bot, ev: CQEvent):
     }
     tas_list.append(data)
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+    if xin_lu:
+        xin_lu_msg="\n发现了道路："+" ".join(xin_lu)
+        await bot.send(ev, xin_lu_msg, at_sender=True)
 
 
 # 获取装备品质
