@@ -27,8 +27,7 @@ async def girl_power_rank(bot, ev: CQEvent):
                 user_card = uid2card(uid, user_card_dict)
                 c = chara.fromid(cid)
                 dengji = CE._get_card_level(gid, uid, cid)
-                zhuansheng = CE._get_zhuansheng(gid, uid, cid)
-                msg += f'第{rank}名: {user_card}的 {c.name}({dengji}级，{zhuansheng}转，rank{rank1})，hp:{hp} atk:{atk}\n'
+                msg += f'第{rank}名: {user_card}的 {c.name}({dengji}级，rank{rank1})，hp:{hp} atk:{atk}\n'
             rank = rank + 1
     else:
         msg += '暂无女友上榜'
