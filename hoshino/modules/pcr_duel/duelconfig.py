@@ -1418,14 +1418,16 @@ def get_dlc_blacklist(gid):
 def get_equip_desc(info):
     model_name_li = ['N', 'R', 'SR', 'SSR', 'UR', 'MR']
     msg = f"[{info['type']}]{info['name']}\n装备品质：{model_name_li[info['level'] - 1]}\n"
+    name_map = {'hp': 'hp', 'atk': 'atk', 'sp': 'sp', 'boost': '强化', 'crit': '暴击', 'double': '连击', 'recover': "回复",
+                'dodge': "闪避"}
     for e in info['effect'].keys():
         if e in ['hp', 'atk', 'sp', 'boost', 'crit', 'double', 'recover', 'dodge']:
             if info['effect'][e]['type'] == 'const':
-                msg += f"{e}:{info['effect'][e]['value']} "
+                msg += f"{name_map[e]}:{info['effect'][e]['value']} "
         elif e == 'skill':
             if info['effect'][e]['type'] == 'const':
                 skill_msg = ' '.join(info['effect'][e]['value'])
-                msg += f"{e}:{skill_msg} "
+                msg += f"技能:{skill_msg} "
     if info.get('desc'):
         msg += '\n' + info.get('desc')
     return msg
@@ -1732,9 +1734,9 @@ def get_card_battle_info(gid, uid, cid):
 
     # rank加成
     rank = CE._get_rank(gid, uid, cid)
-    if rank > 10:
+    if rank >= 10:
         sp += 1
-    if level > 30:
+    if level >= 30:
         sp += 1
     if cardstar == 5:
         sp += 1
@@ -1799,7 +1801,7 @@ def get_card_battle_info(gid, uid, cid):
                     result["skills"].extend(effect['skill']['value'])
                     result["skills"] = list(set(result["skills"]))
                 elif effect['skill']['type'] == "exec":
-                    if eval(effect['skill']['condition'],content):
+                    if eval(effect['skill']['condition'], content):
                         result["skills"].extend(effect['skill']['value'])
                         result["skills"] = list(set(result["skills"]))
     return result
