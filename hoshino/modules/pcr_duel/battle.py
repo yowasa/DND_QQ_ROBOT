@@ -519,5 +519,4 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
 # enemy = Attr(1000, 2000, 100, 0)
 # enemy.skill=[]
 # result, log = battle(my, enemy)
-#
 # print("\n".join(log))
