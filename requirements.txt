@@ -29,3 +29,4 @@ fuzzywuzzy==0.18.0
 paddlepaddle==2.1.2
 paddlehub==2.1.0
 bilibili-api==8.3.1
+ImageHash==4.2.1

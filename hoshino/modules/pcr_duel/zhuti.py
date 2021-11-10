@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import re
+from pathlib import Path
 
 import pytz
 
@@ -11,31 +12,38 @@ from . import sv
 from .ScoreCounter import *
 from .duelconfig import *
 
+from hoshino.util.image_utils import CreateImg
+from hoshino import R
+guizu_help = """
+                    贵族游戏相关指令
+                  
+      [创建角色][个人信息][每日签到][爵位升级]
+      
+      [招募女友][领金币][查金币][查声望]
+      
+      [查女友]{角色名}  [分手]{角色名}
+      
+      [决斗] @群友     [我的女友]{角色名}
+      
+      ===== 关键词+帮助查看更多 =====
+      
+      [交易] [道具] [城市] [好感] [时装] [培养]
+      
+      [会战] [装备] [副本] [队伍] [排行] [天气]
+      
+      [pvp] [其他]
+
+      *一个女友只属于一位群友
+"""
+background=Path("./resources/img") / "background" / "check" / "0.jpg"
+update_img_help = CreateImg(900, 900, font_size=38,background=background)
+update_img_help.text((10, 10), guizu_help)
+update_img_help.save(R.img("ghs/cache/guizu_help.png").path)
+
 
 @sv.on_fullmatch(['游戏帮助', '贵族决斗帮助', '贵族帮助', '贵族指令'])
 async def duel_help(bot, ev: CQEvent):
-    msg = '''
-╔                                       ╗    
-        贵族游戏相关指令
-[创建角色][个人信息]
-[每日签到][爵位升级]
-[招募女友][领金币]
-[查金币][查声望]
-[查女友]{角色名}
-[分手]{角色名}
-[决斗] @群友
-[我的女友]{角色名}
-
-== 关键词+帮助查看更多 ==
-[交易][道具][城市]
-[好感][时装][培养]
-[会战][装备][副本]
-[队伍][排行][天气]
-[pvp][其他]
-*一个女友只属于一位群友
-╚                                        ╝
-'''
-    await bot.send(ev, msg)
+    await bot.send(ev, R.img("ghs/cache/guizu_help.png").cqcode)
 
 
 @sv.on_fullmatch(['管理帮助'])
@@ -581,8 +589,8 @@ async def noblelogin(bot, ev: CQEvent):
             randomtext = random.choice(Addgirlsuccess)
             new_msg = f"\n新招募的女友为：{c.name}{nvmes}"
             msg = f"""
-            你参加了一场豪华的舞会。
-            {randomtext}{new_msg}"""
+你参加了一场豪华的舞会。
+{randomtext}{new_msg}"""
             await bot.send(ev, msg, at_sender=True)
 
 

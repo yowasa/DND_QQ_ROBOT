@@ -13,12 +13,15 @@ from hoshino.typing import MessageSegment
 from hoshino.util import pic2b64
 from .fkcy import genImage
 from .rua import generate_gif
+from .luxunshuo import luxunshuo
 
 sv = Service('图片生成器', help_='''
 [5kcy] (上半句)|(下半句)
 [ph] (上半句)|(下半句)
 [rua]@群友
 [mt] 生成幻影坦克
+[改图]
+[鲁迅说]{内容}
 '''.strip(), bundle="图片生成器")
 
 
@@ -126,3 +129,9 @@ async def _(session: CommandSession):
         session.state[session.current_key] = img
     else:
         session.state[session.current_key] = text
+
+@sv.on_prefix(('鲁迅说'))
+async def luxun(bot: HoshinoBot, ev: CQEvent):
+    text = ev.message.extract_plain_text().strip()
+    result = luxunshuo(text)
+    await bot.send(ev, result)

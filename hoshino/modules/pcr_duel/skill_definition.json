@@ -1067,12 +1067,12 @@
 			"enemy": {
 				"atk_rate": {
 					"type": "exec",
-					"value": "enemy_atk_rate-0.01"
+					"value": "enemy_atk_rate-0.02"
 				}
 			}
 		},
-		"desc": "每回合降低敌方1%的攻击倍率",
-		"log": "对方攻击倍率下降了1%"
+		"desc": "每回合降低敌方2%的攻击倍率",
+		"log": "对方攻击倍率下降了2%"
 	},
 	"牵制": {
 		"sp": 1,
