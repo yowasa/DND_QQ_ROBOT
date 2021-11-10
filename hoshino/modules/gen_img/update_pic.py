@@ -3,16 +3,12 @@ import aiohttp
 import cv2
 import numpy as np
 from PIL import Image, ImageFilter
-
 from hoshino import R
 from hoshino.typing import CommandSession
 from hoshino.util.image_utils import CreateImg, pic2b64
 from hoshino.util.message_builder import image
 from hoshino.util.utils import is_number
 from . import sv
-
-IMAGE_PATH = R.get('img/ghs/cache/').path + '/'
-
 
 @sv.on_command('修改图片', aliases=('操作图片', '改图'))
 async def update_img(session: CommandSession):
@@ -89,7 +85,7 @@ async def update_img(session: CommandSession):
             async with session.get(img_url, timeout=7) as response:
                 if response.status == 200:
                     async with aiofiles.open(
-                            IMAGE_PATH + f"temp/{event.user_id}_{index}_update.png", "wb"
+                            R.get(f'img/ghs/cache/temp/{event.user_id}_{index}_update.png').path, "wb"
                     ) as f:
                         await f.write(await response.read())
                         index += 1
@@ -99,7 +95,7 @@ async def update_img(session: CommandSession):
         return
     if method in ["修改尺寸", "1"]:
         for i in range(index):
-            img = Image.open(IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png")
+            img = Image.open(R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path)
             img = img.convert("RGB")
             img = img.resize((int(x), int(y)), Image.ANTIALIAS)
             result += image(b64=pic2b64(img))
@@ -107,7 +103,7 @@ async def update_img(session: CommandSession):
         return
     if method in ["等比压缩", "2"]:
         for i in range(index):
-            img = Image.open(IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png")
+            img = Image.open(R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path)
             width, height = img.size
             img = img.convert("RGB")
             if width * x < 8000 and height * x < 8000:
@@ -118,42 +114,42 @@ async def update_img(session: CommandSession):
                 return
     if method in ["旋转图片", "3"]:
         for i in range(index):
-            img = Image.open(IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png")
+            img = Image.open(R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path)
             img = img.rotate(x)
             result += image(b64=pic2b64(img))
     if method in ["水平翻转", "4"]:
         for i in range(index):
-            img = Image.open(IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png")
+            img = Image.open(R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path)
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
             result += image(b64=pic2b64(img))
     if method in ["铅笔滤镜", "5"]:
         for i in range(index):
             img = Image.open(
-                IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png"
+                R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path
             ).filter(ImageFilter.CONTOUR)
             result += image(b64=pic2b64(img))
     if method in ["模糊效果", "6"]:
         for i in range(index):
             img = Image.open(
-                IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png"
+                R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path
             ).filter(ImageFilter.BLUR)
             result += image(b64=pic2b64(img))
     if method in ["锐化效果", "7"]:
         for i in range(index):
             img = Image.open(
-                IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png"
+                R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path
             ).filter(ImageFilter.EDGE_ENHANCE)
             result += image(b64=pic2b64(img))
     if method in ["高斯模糊", "8"]:
         for i in range(index):
             img = Image.open(
-                IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png"
+                R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path
             ).filter(ImageFilter.GaussianBlur)
             result += image(b64=pic2b64(img))
     if method in ["边缘检测", "9"]:
         for i in range(index):
             img = Image.open(
-                IMAGE_PATH + f"temp/{event.user_id}_{i}_update.png"
+                R.get(f'img/ghs/cache/temp/{event.user_id}_{i}_update.png').path
             ).filter(ImageFilter.FIND_EDGES)
             result += image(b64=pic2b64(img))
     if method in ["底色替换", "10"]:
@@ -174,7 +170,8 @@ async def update_img(session: CommandSession):
         if y in ["黄色", "黄"]:
             color = (0, 255, 255)
         for k in range(index):
-            img = cv2.imread(IMAGE_PATH + f"temp/{event.user_id}_{k}_update.png")
+
+            img = cv2.imread(R.get(f'img/ghs/cache/temp/{event.user_id}_{k}_update.png').path)
             img = cv2.resize(img, None, fx=0.3, fy=0.3)
             rows, cols, channels = img.shape
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -185,7 +182,7 @@ async def update_img(session: CommandSession):
                 for j in range(cols):
                     if dilate[i, j] == 255:
                         img[i, j] = color
-            cv2.imwrite(IMAGE_PATH + f"temp/{event.user_id}_{k}_ok_update.png", img)
+            cv2.imwrite(R.get(f'img/ghs/cache/temp/{event.user_id}_{k}_update.png').path, img)
         for i in range(index):
             result += image(f"{event.user_id}_{i}_ok_update.png", "temp")
     await bot.send(event, result, at_sender=True)

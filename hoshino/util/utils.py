@@ -155,7 +155,7 @@ def is_number(s: str) -> bool:
 
 
 
-def get_message_at(data: str) -> List[int]:
+def get_message_at(data: dict) -> List[int]:
     """
     说明：
         获取消息中所有的 at 对象的 qq
@@ -164,7 +164,6 @@ def get_message_at(data: str) -> List[int]:
     """
     try:
         qq_list = []
-        data = json.loads(data)
         for msg in data["message"]:
             if msg["type"] == "at":
                 qq_list.append(int(msg["data"]["qq"]))
@@ -190,7 +189,7 @@ def get_message_imgs(data: str) -> List[str]:
         return []
 
 
-def get_message_text(data: str) -> str:
+def get_message_text(data: dict) -> str:
     """
     说明：
         获取消息中 纯文本 的信息

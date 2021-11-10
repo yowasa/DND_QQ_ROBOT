@@ -2,7 +2,7 @@ import hashlib
 import os
 from io import BytesIO
 from os import path
-
+import re
 import requests
 from PIL import Image
 from hoshino.typing import CommandSession
@@ -14,6 +14,10 @@ from hoshino.util import pic2b64
 from .fkcy import genImage
 from .rua import generate_gif
 from .luxunshuo import luxunshuo
+from hoshino.util.utils import get_user_avatar,get_message_at,get_message_text
+from hoshino.util.image_utils import CreateImg
+from hoshino.util.message_builder import image
+import random
 
 sv = Service('图片生成器', help_='''
 [5kcy] (上半句)|(下半句)
@@ -22,6 +26,7 @@ sv = Service('图片生成器', help_='''
 [mt] 生成幻影坦克
 [改图]
 [鲁迅说]{内容}
+[我有个朋友说] {内容} @朋友
 '''.strip(), bundle="图片生成器")
 
 
@@ -135,3 +140,46 @@ async def luxun(bot: HoshinoBot, ev: CQEvent):
     text = ev.message.extract_plain_text().strip()
     result = luxunshuo(text)
     await bot.send(ev, result)
+
+@sv.on_rex('^我.*?朋友.*?(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问).*')
+async def pengyou_say(bot: HoshinoBot, ev: CQEvent):
+    qq=get_message_at(ev)
+    msg = get_message_text(ev)
+    if not qq:
+        qq = random.choice(
+            [
+                x["user_id"]
+                for x in await bot.get_group_member_list(
+                    self_id=ev.self_id, group_id=ev.group_id
+                )
+            ]
+        )
+        user_name = "朋友"
+    else:
+        qq = qq[0]
+        at_user = await bot.get_group_member_info(group_id=ev.group_id, user_id=qq)
+        user_name = at_user["card"] if at_user["card"] else at_user["nickname"]
+    msg = re.search(
+        r"^我.*?朋友.*?(想问问|说|让我问问|想问|让我问|想知道|让我帮他问问|让我帮他问|让我帮忙问|让我帮忙问问|问)(.*)", msg
+    )
+    msg = msg.group(2)
+    if not msg:
+        msg = "都不知道问什么"
+    msg = msg.replace("他", "我").replace("她", "我").replace("它", "我")
+    x=get_user_avatar(qq)
+    url = f'http://q1.qlogo.cn/g?b=qq&nk={qq}&s=160'
+    resp = await aiorequests.get(url)
+    resp_cont = await resp.content
+    if x:
+        ava = CreateImg(200, 100, background=BytesIO(resp_cont))
+    else:
+        ava = CreateImg(200, 100, color=(0, 0, 0))
+    ava.circle()
+    text = CreateImg(300, 30, font_size=30)
+    text.text((0, 0), user_name)
+    A = CreateImg(700, 150, font_size=25, color="white")
+    A.paste(ava, (30, 25), True)
+    A.paste(text, (150, 38))
+    A.text((150, 85), msg, (125, 125, 125))
+
+    await bot.send(ev, image(b64=A.pic2bs4()))
