@@ -966,7 +966,7 @@ async def roll_item(bot, ev: CQEvent):
         'D': 5,
     }
     if not rank:
-        await bot.finish(ev, f"请输入 兑换物品 + 物品等级 来兑换指定等级的物品", at_sender=True)
+        await bot.finish(ev, f"请输入 兑换道具 + 物品等级 来兑换指定等级的物品", at_sender=True)
     if rank in ['S', 'EX']:
         await bot.finish(ev, f"A级以上物品无法兑换哦", at_sender=True)
     if not price.get(rank):
