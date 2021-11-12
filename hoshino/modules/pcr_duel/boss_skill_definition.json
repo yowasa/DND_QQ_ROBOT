@@ -210,8 +210,14 @@
 		"sp": 1,
 		"cost": 1,
 		"time": "before_damage",
-		"condition": "turn==10",
+		"condition": "(turn>=10)|(('蓄力' in my_skills.keys())&(turn>=8))",
 		"effect": {
+			"my_next": {
+				"next_ts": {
+					"type": "const",
+					"value": [true]
+				}
+			},
 			"enemy": {
 				"jixianhuohua_hp": {
 					"type": "exec",
@@ -223,7 +229,7 @@
 				}
 			}
 		},
-		"desc": "第十回合释放 造成5倍攻击的伤害",
+		"desc": "第十回合之后释放 跳过自己的战斗阶段 造成5倍攻击的伤害，若发动了技能蓄力，则第八回合开始释放",
 		"log": "造成了{enemy_jixianhuohua_hp}点伤害"
 	},
 	"须臾": {

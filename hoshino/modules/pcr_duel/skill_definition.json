@@ -949,7 +949,7 @@
 	},
 	"死光": {
 		"sp": 0,
-		"cost": 2,
+		"cost": 1,
 		"time": "before_damage",
 		"condition": "turn==7",
 		"effect": {
