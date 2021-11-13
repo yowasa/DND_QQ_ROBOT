@@ -514,9 +514,9 @@ def end_battle(success, logs, turn, my, enemy, my_content, enemy_content):
     enemy.sp = enemy_content["sp"]
     return success, logs
 
-my = Attr(1000, 2000, 100, 10)
-my.skill = ["极限火花","蓄力"]
-enemy = Attr(1000, 2000, 100, 10)
-enemy.skill=[]
-result, log = battle(my, enemy)
-print("\n".join(log))
+# my = Attr(1000, 2000, 100, 10)
+# my.skill = ["极限火花","蓄力"]
+# enemy = Attr(1000, 2000, 100, 10)
+# enemy.skill=[]
+# result, log = battle(my, enemy)
+# print("\n".join(log))
