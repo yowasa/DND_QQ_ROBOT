@@ -78,7 +78,7 @@ async def item_all(bot, ev: CQEvent):
     await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
 
 
-@sv.on_prefix(['道具效果', '道具查询', '查询道具'])
+@sv.on_prefix(['道具效果', '道具查询', '查询道具', '查道具'])
 async def item_info(bot, ev: CQEvent):
     name = str(ev.message).strip()
     info = ITEM_NAME_MAP.get(name)
@@ -528,6 +528,7 @@ async def xiangwei(msg, bot, ev: CQEvent):
     CE._save_dun_info(dun)
     return (True, f'发现了前往{name}关卡的道路')
 
+
 @msg_route("战斗记忆")
 async def battle_exp(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -613,6 +614,7 @@ async def favor_cook(msg, bot, ev: CQEvent):
     uid = ev.user_id
     save_user_counter(gid, uid, UserModel.PENG_LAI_USED, 1)
     return (True, f'你服下此药，从此，你就不再是常人，时间和伤害无法在你的身上留下任何痕迹，你感觉自己失去了什么，却也变得无比充实。')
+
 
 @msg_route("心意蛋糕")
 async def favor_cook(msg, bot, ev: CQEvent):
@@ -1105,4 +1107,3 @@ async def duel_contain(bot, ev: CQEvent):
     item = get_item_by_name("零时迷子")
     add_item(gid, uid, item)
     await bot.send(ev, f'今日暂且休息，来日再战（已清空副本次数，获得了{item["rank"]}级道具{item["name"]}）', at_sender=True)
-
