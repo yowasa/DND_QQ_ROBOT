@@ -146,7 +146,7 @@
 	},
 	"斩杀": {
 		"sp": 0,
-		"cost": 3,
+		"cost": 1,
 		"time": "before_damage",
 		"condition": "turn==10",
 		"effect": {
