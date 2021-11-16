@@ -34,10 +34,11 @@ BASE_DB_PATH = "~/Documents/content/DB/"
 MODULES_ON = {
     # 'bilibili', # B站相关
     'botmanage',  # 骰娘管理
+    # 'bt', # bt搜索
     # 'chat',
     # 'dice', #骰子功能
     # 'dnd', #DND跑团
-    'gen_img',  # 图片生成器
+    # 'gen_img',  # 图片生成器
     # 'ghs', #Pixiv功能
     # 'groupmaster', #基础群组功能
     # 'hourcall', # 准点报时
