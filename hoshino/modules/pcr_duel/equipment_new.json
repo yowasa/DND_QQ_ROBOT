@@ -3957,9 +3957,10 @@
       "hp": {
         "type": "const",
         "value": 670
-      },"recover": {
+      },
+      "recover": {
         "type": "const",
-        "value": 3
+        "value": 2
       }
     }
   },
@@ -3986,9 +3987,10 @@
       "atk": {
         "type": "const",
         "value": 319
-      },"boost": {
+      },
+      "boost": {
         "type": "const",
-        "value": 319
+        "value": 1
       }
     }
   },
@@ -4044,7 +4046,7 @@
     "effect": {
       "dodge": {
         "type": "const",
-        "value": 3
+        "value": 2
       }
     }
   },
