@@ -45,10 +45,10 @@ MODULES_ON = {
     # 'majsoul', # 雀魂查询
     # 'mikan', #蜜柑番剧订阅
     # 'pcr_duel', # 贵族决斗
-    # 'priconne', # pcr相关功能
     # 'relife',  # 人生重开模拟器
     # 'saucenao', # 搜图功能
-    # 'setu', # 色图功能
+    # 'setu', # 本地色图功能
+    'setu_renew', # 在线色图功能
     # 'touhou_img', #东方人工智能识图
     # 'traceanime', # 搜番功能
     # 'twitter',  # 轮询版转推（old）

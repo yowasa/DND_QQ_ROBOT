@@ -14,8 +14,10 @@ _max = 5
 EXCEED_NOTICE = f'您今天已经冲过{_max}次了，请明早5点后再来！'
 _nlmt = DailyNumberLimiter(_max)
 _flmt = FreqLimiter(5)
+HELP_MSG = "本地色图，识别到关键字自动触发"
 
-sv = Service('setu', manage_priv=priv.SUPERUSER, enable_on_default=True, visible=False)
+sv = Service('本地色图', manage_priv=priv.SUPERUSER, bundle="图片功能", enable_on_default=False, visible=True
+             , help_=HELP_MSG)
 setu_folder = R.img('setu/').path
 
 def setu_gener():
@@ -26,7 +28,9 @@ def setu_gener():
             if os.path.isfile(os.path.join(setu_folder, filename)):
                 yield R.img('setu/', filename)
 
+
 setu_gener = setu_gener()
+
 
 def get_setu():
     return setu_gener.__next__()
