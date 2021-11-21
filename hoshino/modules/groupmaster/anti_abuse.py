@@ -5,12 +5,14 @@
 import random
 from datetime import timedelta
 
-import nonebot
-from nonebot import Message, MessageSegment, message_preprocessor, on_command
-from nonebot.message import _check_calling_me_nickname
+from nonebot import on_command
 
 import hoshino
-from hoshino import R, Service, util
+from hoshino import R, util
+
+from PIL import Image
+from hoshino.util.message_builder import image
+from hoshino.util.image_utils import pic2b64
 
 '''
 from nonebot.command import CommandManager
@@ -83,6 +85,8 @@ async def ban_word(session):
         msg_from += f'@[讨论组:{ctx["discuss_id"]}]'
     hoshino.logger.critical(f'Self: {ctx["self_id"]}, Message {ctx["message_id"]} from {msg_from}: {ctx["message"]}')
     hoshino.priv.set_block_user(user_id, timedelta(hours=8))
-    pic = R.img(f"chieri{random.randint(1, 4)}.jpg").cqcode
+    path = f'./resources/img/pa/{random.randint(0, 45)}.jpg'
+    img = Image.open(path)
+    pic = image(b64=pic2b64(img))
     await session.send(f"不理你啦！バーカー\n{pic}", at_sender=True)
     await util.silence(session.ctx, 8 * 60 * 60)

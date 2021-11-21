@@ -1,6 +1,9 @@
 import random
-
 from hoshino import R, Service, priv, util
+import os
+from PIL import Image
+from hoshino.util.message_builder import image
+from hoshino.util.image_utils import pic2b64
 
 sv = Service('简单聊天', visible=False)
 
@@ -12,8 +15,14 @@ async def say_sorry(bot, ev):
 
 @sv.on_fullmatch('老婆', 'waifu', 'laopo', only_to_me=True)
 async def chat_waifu(bot, ev):
+    path = './resources/img/laopo'
+    list = os.listdir(path)  # 列出文件夹下所有的目录与文件
+    laopo = random.choice(list)
+    path += f"/{laopo}"
+    img = Image.open(path)
+    result=image(b64=pic2b64(img))
     if not priv.check_priv(ev, priv.SUPERUSER):
-        await bot.send(ev, R.img('早坂爱laopo.jpg').cqcode)
+        await bot.send(ev, result)
     else:
         await bot.send(ev, 'mua~')
 
@@ -26,12 +35,6 @@ async def chat_laogong(bot, ev):
 @sv.on_fullmatch('mua', only_to_me=True)
 async def chat_mua(bot, ev):
     await bot.send(ev, '笨蛋~', at_sender=True)
-
-
-@sv.on_fullmatch('我有个朋友说他好了', '我朋友说他好了')
-async def ddhaole(bot, ev):
-    await bot.send(ev, '那个朋友是不是你弟弟？')
-    await util.silence(ev, 30)
 
 
 @sv.on_fullmatch('我好了')

@@ -40,7 +40,7 @@ MODULES_ON = {
     # 'dnd', #DND跑团
     # 'gen_img',  # 图片生成器
     # 'ghs', #Pixiv功能
-    # 'groupmaster', #基础群组功能
+    'groupmaster', #基础群组功能
     # 'hourcall', # 准点报时
     # 'majsoul', # 雀魂查询
     # 'mikan', #蜜柑番剧订阅

@@ -36,9 +36,11 @@ guizu_help = """
       *一个女友只属于一位群友
 """
 background=Path("./resources/img") / "background" / "check" / "0.jpg"
+kuangPath=Path("./resources/img") / "background" / "0.jpg"
 update_img_help = CreateImg(900, 900, font_size=38,background=background)
 update_img_help.text((10, 10), guizu_help)
 update_img_help.save(R.img("ghs/cache/guizu_help.png").path)
+
 
 
 @sv.on_fullmatch(['游戏帮助', '贵族决斗帮助', '贵族帮助', '贵族指令'])
