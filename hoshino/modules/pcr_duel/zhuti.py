@@ -2973,9 +2973,9 @@ async def fashion_list(bot, ev: CQEvent):
                         lh_msg = ''
                         icon = get_fashion_icon(fashion['fid'])
                         lh_msg = lh_msg + f"\n{icon}\n时装名:{fashion['name']}"
-                        if cfg.fashionlist[fashion]['pay_score'] > 0:
+                        if fashion['pay_score'] > 0:
                             lh_msg = lh_msg + f"\n需要金币:{fashion['pay_score']}"
-                        if cfg.fashionlist[fashion]['pay_sw'] > 0:
+                        if fashion['pay_sw'] > 0:
                             lh_msg = lh_msg + f"\n需要声望:{fashion['pay_sw']}"
                         cid_msg_li.append(lh_msg)
             if cid_msg_li:
