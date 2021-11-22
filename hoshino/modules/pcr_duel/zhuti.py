@@ -2980,7 +2980,7 @@ async def fashion_list(bot, ev: CQEvent):
                         cid_msg_li.append(lh_msg)
             if cid_msg_li:
                 c = chara.fromid(fashion['cid'])
-                msg = f"女友:{c.name}:\n" + "\n".join(cid_msg_li)
+                msg = f"女友:{c.name}" + "\n".join(cid_msg_li)
                 data = {
                     "type": "node",
                     "data": {
