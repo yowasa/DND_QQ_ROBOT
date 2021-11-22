@@ -36,8 +36,7 @@ guizu_help = """
 
       *一个女友只属于一位群友
 """
-background = Path("./resources/img") / "background" / "check" / "0.jpg"
-kuangPath = Path("./resources/img") / "background" / "0.jpg"
+background = Path("./resources/img") / "background" / "white" / "0.jpg"
 update_img_help = CreateImg(900, 900, font_size=38, background=background)
 update_img_help.text((10, 10), guizu_help)
 update_img_help.save(R.img("ghs/cache/guizu_help.png").path)
