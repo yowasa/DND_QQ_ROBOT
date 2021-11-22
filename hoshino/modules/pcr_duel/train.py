@@ -104,21 +104,25 @@ async def skill_li(bot, ev: CQEvent):
         }
     }
     tas_list.append(data)
-    for i in skill_def_json.keys():
-        cost_msg = ''
-        if skill_def_json[i].get('cost'):
-            cost_msg = f"\n触发消耗sp:{skill_def_json[i].get('cost')}"
-        msg = f'''
-{i}:
+    t = list(skill_def_json.keys())
+    step = 5
+    b = [t[i:i + step] for i in range(0, len(t), step)]
+    for x in b:
+        msgli = []
+        for i in x:
+            cost_msg = ''
+            if skill_def_json[i].get('cost'):
+                cost_msg = f"\n触发消耗sp:{skill_def_json[i].get('cost')}"
+            msg = f'''{i}:
 发动消耗sp:{skill_def_json[i]['sp']}{cost_msg}
-{skill_def_json[i]['desc']}
-    '''.strip()
+{skill_def_json[i]['desc']}'''.strip()
+            msgli.append(msg)
         data = {
             "type": "node",
             "data": {
                 "name": "ご主人様",
                 "uin": "1587640710",
-                "content": msg
+                "content": "\n\n".join(msgli)
             }
         }
         tas_list.append(data)
@@ -136,7 +140,7 @@ async def my_fragment_list(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
         return
     equip_list = CE._get_fragment_list(gid, uid)
-    cids=duel._get_cards(gid, uid)
+    cids = duel._get_cards(gid, uid)
     if len(equip_list) > 0:
         msg_list = '修炼列表：'
         for i in equip_list:

@@ -14,6 +14,7 @@ from .duelconfig import *
 
 from hoshino.util.image_utils import CreateImg
 from hoshino import R
+
 guizu_help = """
                     贵族游戏相关指令
                   
@@ -35,12 +36,11 @@ guizu_help = """
 
       *一个女友只属于一位群友
 """
-background=Path("./resources/img") / "background" / "check" / "0.jpg"
-kuangPath=Path("./resources/img") / "background" / "0.jpg"
-update_img_help = CreateImg(900, 900, font_size=38,background=background)
+background = Path("./resources/img") / "background" / "check" / "0.jpg"
+kuangPath = Path("./resources/img") / "background" / "0.jpg"
+update_img_help = CreateImg(900, 900, font_size=38, background=background)
 update_img_help.text((10, 10), guizu_help)
 update_img_help.save(R.img("ghs/cache/guizu_help.png").path)
-
 
 
 @sv.on_fullmatch(['游戏帮助', '贵族决斗帮助', '贵族帮助', '贵族指令'])
@@ -915,7 +915,7 @@ async def add_girl(bot, ev: CQEvent):
         await bot.finish(ev, f'您的声望不足哦。升级到{futurename}需要{needSW}声望。', at_sender=True)
 
     needFR = get_noblefr(level + 1)
-    nowfr = get_fanrong(gid,uid)
+    nowfr = get_fanrong(gid, uid)
     if nowfr < needFR:
         await bot.finish(ev, f'您的城市繁荣度不足哦。升级到{futurename}需要城市拥有{needFR}繁荣度。', at_sender=True)
 
@@ -2956,30 +2956,64 @@ async def fashion_list(bot, ev: CQEvent):
                 }
             }
             tas_list.append(data)
+        c_fashion_map = {}
         for fashion in cfg.fashionlist:
-            if cfg.fashionlist[fashion]['cid'] in cidlist:
-                if cfg.fashionlist[fashion]['xd_flag'] == 0:
-                    buy_info = duel._get_fashionbuy(gid, uid, cfg.fashionlist[fashion]['cid'],
-                                                    cfg.fashionlist[fashion]['fid'])
+            cid = cfg.fashionlist[fashion]['cid']
+            if cid in cidlist:
+                if not c_fashion_map.get(cid):
+                    c_fashion_map[cid] = []
+                c_fashion_map[cid].append(cfg.fashionlist[fashion])
+
+        for cid in c_fashion_map.keys():
+            cid_msg_li=[]
+
+            for fashion in c_fashion_map[cid]:
+                if fashion['xd_flag'] == 0:
+                    buy_info = duel._get_fashionbuy(gid, uid, fashion['cid'],fashion['fid'])
                     if buy_info == 0:
                         jishu = jishu + 1
-                        lh_msg = ''
-                        icon = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
-                        c = chara.fromid(cfg.fashionlist[fashion]['cid'])
-                        lh_msg = lh_msg + f"\n{icon}\n女友:{c.name}\n时装名:{cfg.fashionlist[fashion]['name']}"
+                        icon = get_fashion_icon(fashion['fid'])
+                        lh_msg = lh_msg + f"\n{icon}\n时装名:{cfg.fashionlist[fashion]['name']}"
                         if cfg.fashionlist[fashion]['pay_score'] > 0:
                             lh_msg = lh_msg + f"\n需要金币:{cfg.fashionlist[fashion]['pay_score']}"
                         if cfg.fashionlist[fashion]['pay_sw'] > 0:
                             lh_msg = lh_msg + f"\n需要声望:{cfg.fashionlist[fashion]['pay_sw']}"
-                        data = {
-                            "type": "node",
-                            "data": {
-                                "name": "ご主人様",
-                                "uin": "1587640710",
-                                "content": lh_msg
-                            }
-                        }
-                        tas_list.append(data)
+                        cid_msg_li.append(lh_msg)
+            if cid_msg_li:
+                c = chara.fromid(fashion['cid'])
+                msg=f"女友:{c.name}:\n"+"\n".join(cid_msg_li)
+                data = {
+                    "type": "node",
+                    "data": {
+                        "name": "ご主人様",
+                        "uin": "1587640710",
+                        "content": msg
+                    }
+                }
+                tas_list.append(data)
+            # if cfg.fashionlist[fashion]['cid'] in cidlist:
+            #     if cfg.fashionlist[fashion]['xd_flag'] == 0:
+            #         buy_info = duel._get_fashionbuy(gid, uid, cfg.fashionlist[fashion]['cid'],
+            #                                         cfg.fashionlist[fashion]['fid'])
+            #         if buy_info == 0:
+            #             jishu = jishu + 1
+            #             lh_msg = ''
+            #             icon = get_fashion_icon(cfg.fashionlist[fashion]['fid'])
+            #             c = chara.fromid(cfg.fashionlist[fashion]['cid'])
+            #             lh_msg = lh_msg + f"\n{icon}\n女友:{c.name}\n时装名:{cfg.fashionlist[fashion]['name']}"
+            #             if cfg.fashionlist[fashion]['pay_score'] > 0:
+            #                 lh_msg = lh_msg + f"\n需要金币:{cfg.fashionlist[fashion]['pay_score']}"
+            #             if cfg.fashionlist[fashion]['pay_sw'] > 0:
+            #                 lh_msg = lh_msg + f"\n需要声望:{cfg.fashionlist[fashion]['pay_sw']}"
+            #             data = {
+            #                 "type": "node",
+            #                 "data": {
+            #                     "name": "ご主人様",
+            #                     "uin": "1587640710",
+            #                     "content": lh_msg
+            #                 }
+            #             }
+            #             tas_list.append(data)
         if jishu > 0:
             await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
         else:
@@ -3180,7 +3214,7 @@ async def my_fashion(bot, ev: CQEvent):
         for i in char_fetter_json.get(str(cid)):
             jiban_li.append(' '.join([duel_chara.fromid(j).name for j in i]))
         jiban += '\n'.join(jiban_li)
-    max_level=50+zllevel*10
+    max_level = 50 + zllevel * 10
     msg = f"""
 名称:{c.name}{char_msg}
 {cardstar}星 rank{rank} {level_info}/{max_level}级
