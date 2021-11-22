@@ -2964,23 +2964,23 @@ async def fashion_list(bot, ev: CQEvent):
                 c_fashion_map[cid].append(cfg.fashionlist[fashion])
 
         for cid in c_fashion_map.keys():
-            cid_msg_li=[]
-
+            cid_msg_li = []
             for fashion in c_fashion_map[cid]:
                 if fashion['xd_flag'] == 0:
-                    buy_info = duel._get_fashionbuy(gid, uid, fashion['cid'],fashion['fid'])
+                    buy_info = duel._get_fashionbuy(gid, uid, fashion['cid'], fashion['fid'])
                     if buy_info == 0:
                         jishu = jishu + 1
+                        lh_msg = ''
                         icon = get_fashion_icon(fashion['fid'])
-                        lh_msg = lh_msg + f"\n{icon}\n时装名:{cfg.fashionlist[fashion]['name']}"
+                        lh_msg = lh_msg + f"\n{icon}\n时装名:{fashion['name']}"
                         if cfg.fashionlist[fashion]['pay_score'] > 0:
-                            lh_msg = lh_msg + f"\n需要金币:{cfg.fashionlist[fashion]['pay_score']}"
+                            lh_msg = lh_msg + f"\n需要金币:{fashion['pay_score']}"
                         if cfg.fashionlist[fashion]['pay_sw'] > 0:
-                            lh_msg = lh_msg + f"\n需要声望:{cfg.fashionlist[fashion]['pay_sw']}"
+                            lh_msg = lh_msg + f"\n需要声望:{fashion['pay_sw']}"
                         cid_msg_li.append(lh_msg)
             if cid_msg_li:
                 c = chara.fromid(fashion['cid'])
-                msg=f"女友:{c.name}:\n"+"\n".join(cid_msg_li)
+                msg = f"女友:{c.name}:\n" + "\n".join(cid_msg_li)
                 data = {
                     "type": "node",
                     "data": {
