@@ -153,7 +153,7 @@ async def stage_info(bot, ev: CQEvent):
     resp = f"""{msg}
 hp:{dungeonlist[msg]["hp"][hard]} atk:{dungeonlist[msg]["atk"][hard]}
 技能:{' '.join(dungeonlist[msg]["skill"][hard])}
-boost:{dungeonlist[msg]["buff"][hard][0]}% 暴击:{dungeonlist[msg]["buff"][hard][1]}% 连击:{dungeonlist[msg]["buff"][hard][2]}% 回复:{dungeonlist[msg]["buff"][hard][3]} 闪避{dungeonlist[msg]["buff"][hard][4]}%
+boost:{dungeonlist[msg]["buff"][hard][0]}% 暴击:{dungeonlist[msg]["buff"][hard][1]}% 连击:{dungeonlist[msg]["buff"][hard][2]}% 回复:{dungeonlist[msg]["buff"][hard][3]}% 闪避{dungeonlist[msg]["buff"][hard][4]}%
 掉落
 金币：{dungeonlist[msg]['drop']["gold"][hard]} 声望：{dungeonlist[msg]['drop']["sw"][hard]} exp:{dungeonlist[msg]['drop']["exp"][hard]} 好感：{dungeonlist[msg]['drop']["favor"][hard]}
 {dungeonlist[msg]["desc"]}"""
