@@ -1284,7 +1284,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "[74,75,72] in eids",
+        "condition": "{74,75,72} < set(eids)",
         "value": ["冻结"]
       }
     },
@@ -1703,7 +1703,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "[181,183,184] in eids",
+        "condition": "{181,183,184} < set(eids)",
         "value": ["合奏"]
       }
     },
@@ -1787,7 +1787,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "[88,90,93] in eids",
+        "condition": "{88,90,93} < set(eids)",
         "value": ["终结"]
       }
     },
@@ -3309,7 +3309,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "229 in eids",
+        "condition": "{229} < set(eids)",
         "value": ["心眼"]
       }
     },
@@ -4128,7 +4128,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "[249,250] in eids",
+        "condition": "{249,250} < set(eids)",
         "value": ["命运"]
       }
     },
@@ -4239,7 +4239,7 @@
       },
       "skill": {
         "type": "exec",
-        "condition": "251 in eids",
+        "condition": "{251} < set(eids)",
         "value": ["心眼"]
       }
     },
