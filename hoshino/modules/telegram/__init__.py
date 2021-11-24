@@ -5,9 +5,8 @@ from .TelegramCounter import *
 from nonebot import MessageSegment
 import time
 from telethon import TelegramClient
-
+import socks
 proxy = dict(hostname=cfg.proxy_ip, port=int(cfg.proxy_port))
-
 
 def getClient():
     return TelegramClient('anon',cfg.api_id, cfg.api_hash, proxy=("socks5", cfg.proxy_ip, cfg.proxy_port))
