@@ -36,7 +36,7 @@ MODULES_ON = {
     'botmanage',  # 骰娘管理
     # 'bt', # bt搜索
     # 'chat',
-    'coser',
+    # 'coser',
     # 'dice', #骰子功能
     # 'dnd', #DND跑团
     # 'gen_img',  # 图片生成器
@@ -45,10 +45,11 @@ MODULES_ON = {
     # 'hourcall', # 准点报时
     # 'majsoul', # 雀魂查询
     # 'mikan', #蜜柑番剧订阅
-    'pcr_duel', # 贵族决斗
+    # 'pcr_duel', # 贵族决斗
     # 'relife',  # 人生重开模拟器
     # 'saucenao', # 搜图功能
     # 'setu_renew', # 新版色图功能
+    'telegram',# 电报功能
     # 'touhou_img', #东方人工智能识图
     # 'traceanime', # 搜番功能
     # 'twitter',  # 轮询版转推（old）
