@@ -803,13 +803,10 @@ async def batch_equip_fuse(bot, ev: CQEvent):
     modelname = args[0]
     if len(args) != 1:
         await bot.finish(ev, '请输入 装备熔炼+装备等级(N/R/SR/SSR/UR/MR) 中间用空格隔开。', at_sender=True)
-    with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
+    with open(os.path.join(FILE_PATH, 'equipment_new.json'), 'r', encoding='UTF-8') as fa:
         equiplist = json.load(fa, strict=False)
-    equiplevel = 0
-    for i in equiplist:
-        if str(modelname) == str(equiplist[i]['model']):
-            equiplevel = equiplist[i]['level']
-            break
+    model_name_li = ['N', 'R', 'SR', 'SSR', 'UR', 'MR']
+    equiplevel = model_name_li.index(modelname) + 1
     if equiplevel == 0:
         await bot.finish(ev, '请输入正确的装备等级(N/R/SR/SSR/UR/MR)。', at_sender=True)
     CE = CECounter()
@@ -860,7 +857,7 @@ async def batch_equip_fuse(bot, ev: CQEvent):
             rate = [100, 100, 80, 50, 10, 30]
             rn = random.randint(1, 100)
             if rn <= rate[equiplevel - 1]:
-                e_li = equiplist[str(eid)]["eid"]
+                e_li = [equiplist[i]['eid'] for i in equiplist.keys() if equiplist[i]['level']==eid]
                 awardequip_info = add_equip_info(gid, uid, eid, e_li)
                 fuse_result_msg.append(
                     f"获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}")
@@ -886,13 +883,10 @@ async def equip_fuse(bot, ev: CQEvent):
     modelname = args[0]
     if len(args) != 1:
         await bot.finish(ev, '请输入 装备熔炼+装备等级(N/R/SR/SSR/UR/MR) 中间用空格隔开。', at_sender=True)
-    with open(os.path.join(FILE_PATH, 'equipment.json'), 'r', encoding='UTF-8') as fa:
+    with open(os.path.join(FILE_PATH, 'equipment_new.json'), 'r', encoding='UTF-8') as fa:
         equiplist = json.load(fa, strict=False)
-    equiplevel = 0
-    for i in equiplist:
-        if str(modelname) == str(equiplist[i]['model']):
-            equiplevel = equiplist[i]['level']
-            break
+    model_name_li = ['N', 'R', 'SR', 'SSR', 'UR', 'MR']
+    equiplevel=model_name_li.index(modelname)+1
     if equiplevel == 0:
         await bot.finish(ev, '请输入正确的装备等级(N/R/SR/SSR/UR/MR)。', at_sender=True)
     CE = CECounter()
@@ -933,7 +927,7 @@ async def equip_fuse(bot, ev: CQEvent):
         rate = [100, 100, 80, 50, 10, 30]
         rn = random.randint(1, 100)
         if rn <= rate[equiplevel - 1]:
-            e_li = equiplist[str(eid)]["eid"]
+            e_li = [equiplist[i]['eid'] for i in equiplist.keys() if equiplist[i]['level']==eid]
             awardequip_info = add_equip_info(gid, uid, eid, e_li)
             await bot.finish(ev,
                              f"你获得了{awardequip_info['model']}品质的{awardequip_info['type']}:{awardequip_info['name']}",

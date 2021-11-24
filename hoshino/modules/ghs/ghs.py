@@ -374,22 +374,31 @@ async def fetch_sub(bot, ev: CQEvent):
 
 @sv_img.scheduled_job('cron', minute='2,17,32,47', second='30')
 async def send_job():
+    bot=sv_img.bot
     sv_img.logger.info("开始投放订阅图片")
     try:
         need_send_list = send_list()
+        self_dic = {}
+        self_ids = bot._wsr_api_clients.keys()
+        for sid in self_ids:
+            gl = await bot.get_group_list(self_id=sid)
+            g_ids = [g['group_id'] for g in gl]
+            self_dic[sid] = g_ids
+
         for each in need_send_list:
             context = each.get('content')
             user_type = context['message_type']
             if not context:
                 continue
+            if user_type != 'group':
+                continue
             message = each.get('message')
-            for sid in hoshino.get_self_ids():
-                if user_type == 'group':
-                    await sv_img.bot.send_group_msg(self_id=sid, group_id=context['group_id'], message=message)
-                elif user_type == 'private':
-                    await sv_img.bot.send_private_msg(self_id=sid, user_id=context['user_id'], message=message)
-                elif user_type == 'discuss':
-                    await sv_img.bot.send_discuss_msg(self_id=sid, discuss_id=context['discuss_id'], message=message)
+            for sid in self_ids:
+                if context['group_id'] in self_dic[sid]:
+                    try:
+                        await sv_img.bot.send_group_msg(self_id=sid, group_id=context['group_id'], message=message)
+                    except:
+                        sv_img.logger.error("发送群消息失败！")
         sv_img.logger.info("发送完成")
         return
     except Exception as e:

@@ -279,12 +279,11 @@ async def scan_job():
                             sv.logger.error("发送群消息失败！")
             else:
                 if sub.mode:
-                    sub.last_time = time_stamp(item_li[0]['created_at'])
-                    filter_li = [i for i in item_li if time_stamp(i['created_at']) > last_time]
+                    filter_li = [i for i in item_li if time_stamp(i['created_at']) > old_time]
                 else:
                     last_time = sub.last_time
                     sub.last_time = time_stamp(item_li[0]['created_at'])
-                    filter_li = [i for i in item_li if time_stamp(i['created_at']) > last_time]
+                    filter_li = [i for i in item_li if time_stamp(i['created_at']) > old_time]
                     filter_li = [i for i in filter_li if has_media(i)]
                 filter_li.reverse()
 
