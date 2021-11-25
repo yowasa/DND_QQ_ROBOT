@@ -1795,7 +1795,7 @@ def get_card_battle_info(gid, uid, cid):
                 if effect[e]['type'] == "const":
                     result[e] += effect[e]['value']
                 elif effect[e]['type'] == "exec":
-                    result[e] += int(eval(effect[e]['value']), content)
+                    result[e] += int(eval(effect[e]['value'],content))
             elif e == 'skill':
                 if effect['skill']['type'] == "const":
                     result["skills"].extend(effect['skill']['value'])
