@@ -1,0 +1,47 @@
+{
+  "天磐水灵玉": {
+    "name": "天磐水灵玉",
+    "condition": "('水' in linggen)",
+    "effect": {
+      "cost": 10,
+      "time": "after_damage",
+      "condition": "my_total_damage>0",
+      "effect": {
+        "my": {
+          "xi_hp": {
+            "type": "exec",
+            "value": "int(my_total_damage*0.2)"
+          },
+          "hp": {
+            "type": "exec",
+            "value": "my_hp+int(my_total_damage*0.2)"
+          }
+        }
+      },
+      "log": "恢复了{my_xi_hp}的hp"
+    }
+  },
+  "冰火诵歌": {
+    "name": "冰火诵歌",
+    "condition": "('水' in linggen)&('火' in linggen)",
+    "effect": {
+      "cost": 20,
+      "cd": 2,
+      "time": "after_damage",
+      "condition": "enemy_total_damage>(my_max_hp*0.2)",
+      "effect": {
+        "my": {
+          "binghuo_hp": {
+            "type": "exec",
+            "value": "int(enemy_total_damage/2)"
+          },
+          "hp": {
+            "type": "exec",
+            "value": "my_hp+int(enemy_total_damage/2)"
+          }
+        }
+      },
+      "log": "{my_name}由于冰火诵歌受到的伤害降低了{my_binghuo_hp}点"
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "六库仙贼": {
+    "name": "六库仙贼",
+    "condition": "(wuxing>=20)&(level>6)",
+    "condition_desc": "需要练气以上，悟性大于20",
+    "speed": "(wuxing/10)+1",
+    "effect": {
+      "time": "after_damage",
+      "condition": "enemy_mp>int(my_max_mp*0.1)",
+      "effect": {
+        "my": {
+          "xi_mp": {
+            "type": "exec",
+            "value": "int(my_max_mp*0.1)"
+          },
+          "mp": {
+            "type": "exec",
+            "value": "my_mp+int(my_max_mp*0.1)"
+          }
+        },
+        "enemy": {
+          "mp": {
+            "type": "exec",
+            "value": "enemy_mp-int(my_max_mp*0.1)"
+          }
+        }
+      },
+      "log": "偷取了{my_xi_mp}的mp"
+    },
+    "desc": "战斗每回合有几率偷取对方「10%自己最大MP」的MP"
+  },
+  "太玄经": {
+    "name": "太玄经",
+    "condition": "(wuxing<=20)&(level<7)",
+    "condition_desc": "需要练气以下，悟性小于20",
+    "speed": "(100-wuxing)/5+1"
+  },
+  "百锻成仙": {
+    "name": "百锻成仙",
+    "condition": "(wuxing>=60)&(level<2)&('火' in linggen)",
+    "condition_desc": "需要锻体以下,悟性大于60,必须有火灵根",
+    "speed": "int(wuxing/20)+1"
+  },
+  "天罡经": {
+    "name": "天罡经",
+    "condition": "(level>1)&(wuxing>=20)&('土' in linggen)",
+    "condition_desc": "需要锻体以上,悟性大于20,包含土灵根",
+    "speed": "int(wuxing/5)+5"
+  },
+  "八九玄功": {
+    "name": "八九玄功",
+    "condition": "(wuxing>=40)&(level>6)&('水' in linggen)",
+    "condition_desc": "需要练气以上,悟性大于40,包含水灵根",
+    "speed": "int(wuxing/10)+5"
+  },
+  "震磐裂山崩": {
+    "name": "震磐裂山崩",
+    "condition": "(wuxing>=30)&(level>9)&('土'==linggen)",
+    "condition_desc": "需要筑基以上,悟性大于30,只有土灵根",
+    "speed": "int(wuxing/20)+2",
+    "effect": {
+      "cost": 50,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "defen1": {
+            "type": "exec",
+            "value": "int(my_defen1*1.5)"
+          },
+          "defen2": {
+            "type": "exec",
+            "value": "int(my_defen2*1.5)"
+          }
+        }
+      },
+      "log": "由于震磐裂山崩的效果防御力增加50%"
+    }
+  },
+  "大罗洞观": {
+    "name": "大罗洞观",
+    "condition": "(wuxing>=80)&(level>15)",
+    "condition_desc": "需要金丹以上,悟性大于80",
+    "speed": "int(wuxing/30)+3"
+  },
+  "脱峰式": {
+    "name": "脱峰式",
+    "condition": "(wuxing>=40)&(level>6)",
+    "condition_desc": "需要练气以上,悟性大于40",
+    "speed": "int(wuxing/5)+5"
+  },
+  "化功大法": {
+    "name": "化功大法",
+    "condition": "(wuxing>=50)&(level>13)&(shanren>=5)",
+    "condition_desc": "需要结丹以上,悟性大于50,杀害人数大于5人",
+    "speed": "int(wuxing/10)+5"
+  },
+  "袖里乾坤": {
+    "name": "袖里乾坤",
+    "condition": "(wuxing>=50)&(level>13)",
+    "condition_desc": "需要结丹以上,悟性大于50",
+    "speed": "int(wuxing/5)+5"
+  }
+}

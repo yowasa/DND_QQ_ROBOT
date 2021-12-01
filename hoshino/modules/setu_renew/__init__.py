@@ -52,10 +52,10 @@ config_default = {
 }
 group_list_default = {
 	"white_list": [
-	
+
 	],
 	"black_list": [
-	
+
 	]
 }
 groupconfig_default = {}

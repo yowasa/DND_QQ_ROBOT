@@ -11,7 +11,16 @@ DUEL_DB_PATH = os.path.expanduser(BASE_DB_PATH + 'xiuxian_item.db')
 class UserModel(Enum):
     KILL = [0, "杀人计数器"]
     LINGSHI = [1, "灵石数量"]
-
+    SHANGSHI = [2, "伤势情况"]  # 0 未受伤 1 轻伤 2重伤 3濒死
+    STUDY_GONGFA = [3, "正在学习的功法"]  # 功法学习进度
+    GONGFA_RATE = [4, "正在学习的功法"]  # 功法学习进度
+    XIUYANG_TIME = [5, "修养次数"]  # 修养次数
+    ZHUJIDAN = [6, "筑基丹服用标识"]  # 筑基丹服用标识
+    JINDANSHA = [7, "杀害金丹的数量"]  # 5次以上方能破丹
+    HONGCHEN = [8, "红尘标识"]  # 触发过红尘之绊的标识
+    QIUXIAN = [9, "求仙标识"]  # 触发过求仙之绊的标识
+    MIJING = [10, "秘境标识"]  # 触发过秘境之绊的标识
+    SHENZHOU = [11, "神州标识"]  # 触发过神州之绊的标识
 
 
 # 群组状态储存枚举类
@@ -96,6 +105,21 @@ class ItemCounter:
             return 0
         pass
 
+    # 获取用户信息
+    def _query_user_info(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                "SELECT BUFF_TYPE,BUFF_INFO FROM USER_INFO WHERE GID=? AND UID=? AND BUFF_INFO>0",
+                (gid, uid),
+            ).fetchall()
+            if not r:
+                return []
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+            return 0
+        pass
+
     # 获取建筑信息
     def _get_build_info(self, gid, uid):
         try:
@@ -139,7 +163,7 @@ class ItemCounter:
             return 0
 
     # 覆盖存储群组状态
-    def _save_group_state(self, gid, type:GroupModel, type_flag):
+    def _save_group_state(self, gid, type: GroupModel, type_flag):
         with self._connect() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO GROUP_INFO (GID, INFO_TYPE, INFO_FLAG) VALUES (?, ?, ?)",
@@ -233,6 +257,7 @@ class ItemCounter:
                 (gid, uid, iid, now_num),
             )
             return now_num
+
     # 获取道具数量
     def _count_item_num(self, gid, uid):
         try:
