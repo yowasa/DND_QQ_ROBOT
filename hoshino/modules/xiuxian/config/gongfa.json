@@ -100,5 +100,31 @@
     "condition": "(wuxing>=50)&(level>13)",
     "condition_desc": "需要结丹以上,悟性大于50",
     "speed": "int(wuxing/5)+5"
+  },
+  "吸星大法": {
+    "name": "吸星大法",
+    "condition": "(wuxing>=10)&(sharen>=5)",
+    "condition_desc": "悟性大于10,杀人数超过5",
+    "speed": "int(wuxing/5)+25"
+  },
+  "摧心浪": {
+    "name": "摧心浪",
+    "condition": "(wuxing>=10)&('水'==linggen)",
+    "condition_desc": "悟性大于10,必须是水属性单灵根",
+    "speed": "int(wuxing/20)+5",
+    "effect": {
+      "cost": 20,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "atk2": {
+            "type": "exec",
+            "value": "int(my_atk2*1.2)"
+          }
+        }
+      },
+      "log": "由于摧心浪的效果术法攻击力增加20%"
+    }
   }
 }

@@ -109,7 +109,7 @@ async def canwu(bot, ev: CQEvent):
     gongfa = get_user_counter(gid, uid, UserModel.STUDY_GONGFA)
     if not gongfa:
         await bot.finish(ev, "你还没有参悟中的功法，请使用功法书后再进行参悟", at_sender=True)
-    user.check_and_start_cd(bot, ev)
+    await user.check_and_start_cd(bot, ev)
     gongfa_name = ITEM_INFO[str(gongfa)]['name']
     gongfa_info = get_gongfa_by_name(gongfa_name)
     content = {"wuxing": user.wuxing}
@@ -221,7 +221,7 @@ async def duanti(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     if (user.level < 7) or (user.level > 9):
         await bot.finish(ev, "只有练气境可以练气")
-    if user.tizhi >= 100:
+    if user.lingli >= 100:
         await bot.finish(ev, "练气灵力上限为100点")
     await user.check_and_start_cd(bot, ev)
     ct = XiuxianCounter()

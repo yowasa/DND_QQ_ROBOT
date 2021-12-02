@@ -6,17 +6,22 @@ from hoshino.util.utils import get_message_at, get_message_text
 @sv.on_fullmatch(["#修仙手册", "#修仙帮助"])
 async def help(bot, ev: CQEvent):
     send_msg = """
-#开始修仙 名字（注册账号）
-#修炼（随机获得(1-50)/灵根数量的经验）
+#开始修仙 名字 (注册账号)
+#修炼 (依据所在地点的灵气和自身修炼速度获取经验)
+#突破 (突破当前境界)
 #游历 (触发随机事件，与当前所在地相关)
+#对战 名字（PVP，会死人的）
+#前往 地名 (切换所在地)
 #锻体（增加体质，仅锻体期可用）
-#对战 名字（PVP，1V1，输掉的人一半概率被击杀）
-#前往 地名 (现在有新手村、大千世界、修仙秘境)
-=======以下指令不消耗cd=======
-#背包 （查看自己拥有的物品）
-#使用/丢弃 物品名
-#查询（查询自身属性）
-以上所有功能除查询外共CD，CD为10分钟，CD期间进行操作减道行1点，道行归零则心魔入体自尽而亡
+#练气（增加灵力，仅练气期可用）
+==== 以下操作不消耗cd ====
+#查询 (查看个人状态)
+#time (查看操作间隔)
+#背包 (查看背包)
+#道具效果 物品名 (查看持有道具的说明)
+#使用 物品名(使用物品)
+#丢弃 物品名(丢弃物品)
+以上所有功能除查询外共CD，CD为10分钟，CD期间进行操作减道行1点，道行归零则心魔入体爆体而亡
 死亡一小时CD
 """.strip()
     await bot.finish(ev, send_msg)
@@ -113,6 +118,23 @@ def cal_is_die(my):
         return True, f"{my.name}被击杀"
 
 
+# 杀人结算
+def kill_user_cal(my, enemy):
+    log = ""
+    # 增加杀人计数器
+    add_user_counter(my.gid, my.uid, UserModel.KILL)
+    delete_user(enemy)
+    if my.gongfa3 == "吸星大法":
+        my.act += 1
+        my.act2 += 1
+        get_hp = random.randint(1, 20)
+        my.hp += get_hp
+        ct = XiuxianCounter()
+        ct._save_user_info(my)
+        log += f"{my.name}使用了吸星大法，获取了{get_hp}点HP和1点物理术法攻击力"
+    return log
+
+
 @sv.on_prefix(["#对战"])
 async def duanti(bot, ev: CQEvent):
     gid = ev.group_id
@@ -172,6 +194,7 @@ async def duanti(bot, ev: CQEvent):
     # 伤势判断
     my_rate = my_hp / my.hp
     he_rate = he_hp / enemy.hp
+    log2 = ""
     if not my_die_flag:
         if my_rate <= 0:
             save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 3)
@@ -183,9 +206,7 @@ async def duanti(bot, ev: CQEvent):
             save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 1)
             log += f"{my_name}受了轻伤 "
     else:
-        add_user_counter(gid, enemy.uid, UserModel.KILL)
-        delete_user(my)
-
+        log2 += kill_user_cal(enemy, my)
     if not he_die_flag:
         if he_rate <= 0:
             save_user_counter(enemy.gid, enemy.uid, UserModel.SHANGSHI, 3)
@@ -197,9 +218,10 @@ async def duanti(bot, ev: CQEvent):
             save_user_counter(enemy.gid, enemy.uid, UserModel.SHANGSHI, 1)
             log += f"{he_name}受了轻伤 "
     else:
-        add_user_counter(gid, my.uid, UserModel.KILL)
-        delete_user(enemy)
+        log2 += kill_user_cal(my, enemy)
     send_msg_li.append(log)
+    if log2:
+        send_msg_li.append(log2)
     await bot.finish(ev, '\n'.join(send_msg_li))
 
 
@@ -210,6 +232,8 @@ async def go(bot, ev: CQEvent):
     adress = MAP.get(name)
     if not adress:
         await bot.finish(ev, f"未找到名为「{name}」的地点")
+    if name == user.map:
+        await bot.finish(ev, f"你已经再{name}了 无需前往")
     need_level = adress["in_level"]
     if user.level < need_level:
         await bot.finish(ev, f"你的还不足以应对接下来的挑战，请先提升自己的实力吧（{name}需要{JingJieMap[str(need_level)]}才能前往）")

@@ -167,7 +167,7 @@ async def equip(bot, ev, param):
     user = get_full_user(gid, uid)
     equip = get_equip_by_name(param)
     content = {"level": user.level, "wuxing": user.wuxing, "linggen": user.linggen, "tizhi": user.tizhi,
-               "defen1": user.defen, "defen2": user.defen2, "daohang": user.daohang}
+               "defen1": user.defen, "defen2": user.defen2, "daohang": user.daohang, "sharen": user.sharen}
     if eval(equip['condition'], content):
         desc = get_item_by_name(param)['desc']
         if user.wuqi != '赤手空拳':
@@ -193,7 +193,7 @@ async def equip_fa(bot, ev, param):
     ct = XiuxianCounter()
     user = get_full_user(gid, uid)
     equip_fa = get_fabao_by_name(param)
-    content = {"level": user.level, "wuxing": user.wuxing, "linggen": user.linggen, "tizhi": user.tizhi}
+    content = {"level": user.level, "wuxing": user.wuxing, "linggen": user.linggen, "tizhi": user.tizhi, "sharen": user.sharen}
     if eval(equip_fa['condition'], content):
         desc = get_item_by_name(param)['desc']
         if user.fabao != '无':

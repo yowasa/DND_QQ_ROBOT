@@ -1,7 +1,8 @@
 {
   "天磐水灵玉": {
     "name": "天磐水灵玉",
-    "condition": "('水' in linggen)",
+    "condition": "(level>15)&('水' in linggen)",
+    "condition_desc": "需要金丹以上 且具有水灵根",
     "effect": {
       "cost": 10,
       "time": "after_damage",
@@ -23,7 +24,8 @@
   },
   "冰火诵歌": {
     "name": "冰火诵歌",
-    "condition": "('水' in linggen)&('火' in linggen)",
+    "condition": "(level>15)&('水' in linggen)&('火' in linggen)",
+    "condition_desc": "需要金丹以上 且同时具有水火灵根",
     "effect": {
       "cost": 20,
       "cd": 2,
@@ -42,6 +44,399 @@
         }
       },
       "log": "{my_name}由于冰火诵歌受到的伤害降低了{my_binghuo_hp}点"
+    }
+  },
+  "阴阳手环（阳）": {
+    "name": "阴阳手环（阳）",
+    "condition": "(level>15)&('金' in linggen)&('火' in linggen)",
+    "condition_desc": "需要金丹以上 且同时具有金火灵根",
+    "effect": {
+      "cost": 100,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "enemy": {
+          "defen1": {
+            "type": "exec",
+            "value": "int(enemy_defen1*0.8)"
+          },
+          "defen2": {
+            "type": "exec",
+            "value": "int(enemy_defen2*0.8)"
+          }
+        }
+      },
+      "log": "{enemy_name}由于阴阳手环（阳）的效果防御力降低了20%"
+    }
+  },
+  "阴阳手环（阴）": {
+    "name": "阴阳手环（阴）",
+    "condition": "(level>15)&('水' in linggen)&('土' in linggen)",
+    "condition_desc": "需要金丹以上 且同时具有水土灵根",
+    "effect": {
+      "cost": 100,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "enemy": {
+          "atk1": {
+            "type": "exec",
+            "value": "int(enemy_atk1*0.8)"
+          },
+          "atk2": {
+            "type": "exec",
+            "value": "int(enemy_atk2*0.8)"
+          }
+        }
+      },
+      "log": "{enemy_name}由于阴阳手环（阴）的效果攻击力降低了20%"
+    }
+  },
+  "金雷竹笛": {
+    "name": "金雷竹笛",
+    "condition": "(level>15)&('金' in linggen)&('木' in linggen)",
+    "condition_desc": "需要金丹以上 且同时具有金木灵根",
+    "effect": {
+      "cost": 100,
+      "time": "begin",
+      "condition": "('水' in linggen)&('火' in linggen)",
+      "effect": {
+        "my": {
+          "atk1": {
+            "type": "exec",
+            "value": "int(my_atk1*1.5)"
+          },
+          "atk2": {
+            "type": "exec",
+            "value": "int(my_atk2*1.5)"
+          }
+        }
+      },
+      "log": "{my_name}由于金雷竹笛的效果攻击力增加了50%"
+    }
+  },
+  "阴阳二气瓶": {
+    "name": "阴阳二气瓶",
+    "condition": "(level>15)&('水' in linggen)&('火' in linggen)",
+    "condition_desc": "需要金丹以上 且同时具有金木灵根",
+    "effect": {
+      "cost": 100,
+      "time": "begin",
+      "condition": "('金' in linggen)&('木' in linggen)",
+      "effect": {
+        "my": {
+          "atk1": {
+            "type": "exec",
+            "value": "int(my_atk1*1.5)"
+          },
+          "atk2": {
+            "type": "exec",
+            "value": "int(my_atk2*1.5)"
+          }
+        }
+      },
+      "log": "{my_name}由于阴阳二气瓶的效果攻击力增加了50%"
+    }
+  },
+  "合欢铃": {
+    "name": "合欢铃",
+    "condition": "(level>15)",
+    "condition_desc": "需要金丹以上",
+    "effect": {
+      "cost": 200,
+      "time": "before_damage",
+      "condition": "my_yunshi>80",
+      "effect": {
+        "ememy_next": {
+          "next_ts": {
+            "type": "const",
+            "value": [
+              true
+            ]
+          }
+        }
+      },
+      "log": "由于合欢铃的效果{enemy_name}的回合被跳过"
+    }
+  },
+  "噬魂": {
+    "name": "噬魂",
+    "condition": "(level>15)",
+    "condition_desc": "需要金丹以上",
+    "effect": {
+      "cost": 30,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "ememy": {
+          "shihun_mp": {
+            "type": "exec",
+            "value": "int(my_total_damage*0.3)"
+          },
+          "mp": {
+            "type": "exec",
+            "value": "ememy_mp-int(my_total_damage*0.3)"
+          }
+        }
+      },
+      "log": "由于噬魂的效果削减了{enemy_name}{enemy_shihun_mp}点MP"
+    }
+  },
+  "孔雀翎": {
+    "name": "孔雀翎",
+    "condition": "(level>6)",
+    "condition_desc": "需要练气以上",
+    "effect": {
+      "cost": 30,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "ememy": {
+          "hp": {
+            "type": "exec",
+            "value": "ememy_hp-40"
+          }
+        }
+      },
+      "log": "{my_name}使用了孔雀翎造成了40HP伤害"
+    }
+  },
+  "暴雨梨花": {
+    "name": "暴雨梨花",
+    "condition": "(level>9)",
+    "condition_desc": "需要筑基以上",
+    "effect": {
+      "cost": 50,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "ememy": {
+          "hp": {
+            "type": "exec",
+            "value": "ememy_hp-60"
+          }
+        }
+      },
+      "log": "{my_name}使用了暴雨梨花造成了60HP伤害"
+    }
+  },
+  "无影神针": {
+    "name": "无影神针",
+    "condition": "(level>12)",
+    "condition_desc": "需要结丹以上",
+    "effect": {
+      "cost": 100,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "ememy": {
+          "hp": {
+            "type": "exec",
+            "value": "ememy_hp-80"
+          }
+        }
+      },
+      "log": "{my_name}使用了无影神针造成了80HP伤害"
+    }
+  },
+  "凌波仙符": {
+    "name": "凌波仙符",
+    "condition": "(level>6)&('水' in linggen)",
+    "condition_desc": "需要练气以上，具有水灵根",
+    "effect": {
+      "cost": 20,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "dmg_type": {
+            "type": "const",
+            "value": 1
+          }
+        }
+      }
+    }
+  },
+  "烽火狼烟": {
+    "name": "烽火狼烟",
+    "condition": "(level>6)&('火' in linggen)",
+    "condition_desc": "需要练气以上，具有火灵根",
+    "effect": {
+      "cost": 20,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "dmg_type": {
+            "type": "const",
+            "value": 0
+          }
+        }
+      }
+    }
+  },
+  "蟠龙玉壁": {
+    "name": "蟠龙玉壁",
+    "condition": "(level>6)&('土' in linggen)",
+    "condition_desc": "需要练气以上，具有土灵根",
+    "effect": {
+      "cost": 0,
+      "time": "begin",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "panlong_add": {
+            "type": "exec",
+            "value": "my_atk1+int(defen1/2)"
+          },
+          "atk1": {
+            "type": "exec",
+            "value": "my_atk1+int(defen1/2)"
+          }
+        }
+      },
+      "log": "{my_name}由于使用了蟠龙玉壁增加了{my_panlong_add}点物理攻击力"
+    }
+  },
+  "万民玺": {
+    "name": "万民玺",
+    "condition": "(level<7)&('土' in linggen)",
+    "condition_desc": "需要练气以以下，具有土灵根",
+    "effect": {
+      "cost": 50,
+      "cd": 3,
+      "time": "after_damage",
+      "condition": "True",
+      "effect": {
+        "enemy": {
+          "wanmin_hp": {
+            "type": "exec",
+            "value": "int(my_atk1*0.3)"
+          },
+          "hp": {
+            "type": "exec",
+            "value": "enemy_hp-int(my_atk1*0.3)"
+          }
+        }
+      },
+      "log": "{my_name}触发了万民玺对{enemy_name}造成{my_wanmin_hp}点伤害"
+    }
+  },
+  "墨冥妖花": {
+    "name": "墨冥妖花",
+    "condition": "(level>15)&('木' in linggen)&('水' in linggen)&('土' in linggen)",
+    "condition_desc": "需要金丹期以上，同时具有木水土灵根",
+    "effect": {
+      "cost": 100,
+      "time": "battle_end",
+      "condition": "turn==5",
+      "effect": {
+        "my": {
+          "hp": {
+            "type": "exec",
+            "value": "my_max_hp"
+          }
+        }
+      },
+      "log": "{my_name}触发了墨冥妖花,HP回复至满血"
+    }
+  },
+  "念罡无相戒": {
+    "name": "念罡无相戒",
+    "condition": "(level>1)",
+    "condition_desc": "需要锻体期以上",
+    "effect": {
+      "cost": 0,
+      "time": "before_damage",
+      "condition": "turn==1",
+      "effect": {
+        "my_next": {
+          "next_atk1": {
+            "type": "exec",
+            "value": [
+              "int(my_atk1*1.5)"
+            ]
+          }
+        }
+      },
+      "log": "{my_name}触发了念罡无相戒,物理攻击力临时提高50%"
+    }
+  },
+  "打神鞭": {
+    "name": "打神鞭",
+    "condition": "(level>9)",
+    "condition_desc": "需要筑基期以上",
+    "effect": {
+      "cost": 0,
+      "time": "battle_end",
+      "condition": "(my_hp<my_atk1) or (enemy_hp<my_atk1) ",
+      "effect": {
+        "my": {
+          "hp": {
+            "type": "exec",
+            "value": "0 if my_hp<my_atk1 else my_hp"
+          }
+        },
+        "enemy": {
+          "hp": {
+            "type": "exec",
+            "value": "0 if enemy_hp<my_atk1 else enemy_hp"
+          }
+        }
+      },
+      "log": "{my_name}触发了打神鞭,血量低于{my_atk1}的人HP归0"
+    }
+  },
+  "捆仙绳": {
+    "name": "捆仙绳",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "effect": {
+      "cost": 0,
+      "time": "before_damage",
+      "condition": "(my_max_mp==my_mp) and (enemy_mp<my_mp)",
+      "effect": {
+        "my": {
+          "mp": {
+            "type": "const",
+            "value": 0
+          }
+        },
+        "enemy_next": {
+          "ts": {
+            "type": "const",
+            "value": [
+              true
+            ]
+          }
+        }
+      },
+      "log": "{my_name}触发了捆仙绳"
+    }
+  },
+  "遮天布": {
+    "name": "遮天布",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "effect": {
+      "cost": 0,
+      "time": "init",
+      "condition": "True",
+      "effect": {
+        "my": {
+          "skills": {
+            "type": "const",
+            "value": {}
+          }
+        },
+        "enemy": {
+          "skills": {
+            "type": "const",
+            "value": {}
+          }
+        }
+      },
+      "log": "{my_name}触发了遮天布，双方失去所有特效"
     }
   }
 }

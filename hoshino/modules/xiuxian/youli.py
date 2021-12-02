@@ -6,8 +6,10 @@ import random
 
 EVENT_MAP = {
     "新手村": {"小试牛刀": 45, "高人指点": 30, "尊老爱幼": 5, "游山玩水": 5, "玩物丧志": 5, "一剑西来": 5, "恐怖如斯": 5},
-    "大千世界": {"比武招亲": 30, "悬赏缉凶": 35, "锻炼身体": 10, "物尽其用": 5, "摸金校尉": 5, "灵猫报恩": 5, "误入洞天": 5, "红尘之伴": 5},
-    "修仙秘境": {"指点之光": 20, "奇珍异兽": 40, "行侠仗义": 5, "狗头人兽": 5, "无妄之灾": 5, "福地洞天": 5, "怪谈棋局": 5, "花妖向葵": 5, "求仙之伴": 5},
+    "大千世界": {"比武招亲": 20, "悬赏缉凶": 35, "锻炼身体": 10, "物尽其用": 5, "摸金校尉": 5, "灵猫报恩": 5, "误入洞天": 5, "红尘之伴": 5, "落难老妇": 5,
+             "坐而论道": 5},
+    "修仙秘境": {"指点之光": 20, "奇珍异兽": 40, "行侠仗义": 5, "狗头人兽": 5, "无妄之灾": 5, "福地洞天": 5, "怪谈棋局": 5, "花妖向葵": 5, "求仙之伴": 5,
+             "碧水寒潭": 5},
     '秘境迷踪': {"交谈心得": 32, "仙府机缘": 50, "黄粱一梦": 5, "剑冢遇险": 5, "名胜古景": 5, "神秘商人": 5, "比划比划": 5, "秘境之伴": 3},
     '苍穹神州': {"捕捉小兽": 47, "井中洞天": 10, "黑店风云": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
              "心魔历练": 5, "神州之伴": 3},
@@ -186,6 +188,39 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     return f"你捡来的小猫不知从哪里叼来一把武器，“据说猫的修行有三个阶段，猫在变、猫在练、猫报恩”，获得{equip_name}{ex_msg}"
 
 
+@msg_route("坐而论道")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    msg = "你游历在外忽见一名风度翩翩的白衣公子在抚琴清唱，吸引来了众多灵珍异兽，你在好奇之余发现对方停下了奏乐并朝你招手，他发现你也是一名修仙者并邀请你与之论道,"
+    if user.wuxing < 50:
+        user.wuxing += 5
+        msg += "你修行上的困惑得到了解答，忽感一阵明悟，回过神来身边已无一人，悟性+5"
+        ct = XiuxianCounter()
+        ct._save_user_info(user)
+    else:
+        equip_li = ["百锻成仙", "天罡经", "八九玄功", "震磐裂山崩", "脱峰式", "袖里乾坤"]
+        equip_name = random.choice(equip_li)
+        ex_msg = ""
+        if not add_item(user.gid, user.uid, get_item_by_name(equip_name)):
+            ex_msg = "(背包已满,只得丢弃)"
+        msg += f"你高谈阔论与这位白衣公子相谈甚欢，忽感一阵明悟回过神来身边已无一人,获得{equip_name}{ex_msg}"
+    return msg
+
+
+@msg_route("碧水寒潭")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    msg = "你偶然进入一处异境，这里冰天雪地但有一处潭水仍泛着碧波，你观察了一下发现潭水下泛着异光，你决定潜下去一探究竟..."
+    if user.tizhi < 100 or user.battle_defen2 < 20:
+        msg += "由于你无法忍受这渗骨的寒气，你不得不退出此处."
+    else:
+        equip_li = ["打神鞭", "万民玺", "蟠龙玉壁", "孔雀翎", "暴雨梨花", "无影神针", "凌波仙符", "烽火狼烟"]
+        equip_name = random.choice(equip_li)
+        ex_msg = ""
+        if not add_item(user.gid, user.uid, get_item_by_name(equip_name)):
+            ex_msg = "(背包已满,只得丢弃)"
+        msg += f"你潜水到潭底深处，发现果然有异宝在此！获得{equip_name}{ex_msg}"
+    return msg
+
+
 @msg_route("误入洞天")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     item = get_item_by_name("筑基丹")
@@ -345,25 +380,25 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(1, 4)
     if rd == 1:
         get_num = random.randint(1, 3)
-        if user.act > 50:
+        if user.act > 100:
             get_num = 0
         user.act += get_num
         ex_msg = f"增加了{get_num}点物理攻击力"
     elif rd == 1:
         get_num = random.randint(1, 3)
-        if user.act2 > 50:
+        if user.act2 > 100:
             get_num = 0
         user.act2 += get_num
         ex_msg = f"增加了{get_num}点术法攻击力"
     elif rd == 3:
         get_num = 1
-        if user.defen > 30:
+        if user.defen > 50:
             get_num = 0
         user.defen += get_num
         ex_msg = f"增加了{get_num}点物理防御力"
     else:
         get_num = 1
-        if user.defen2 > 30:
+        if user.defen2 > 50:
             get_num = 0
         user.defen2 += get_num
         ex_msg = f"增加了{get_num}点术法防御力"
@@ -463,7 +498,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ct = XiuxianCounter()
     get_num = random.randint(1, 3)
-    if user.hp > 300:
+    if user.hp > 500:
         get_num = 0
     user.hp -= get_num
     ct._save_user_info(user)
@@ -473,12 +508,23 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 @msg_route("妙手空空")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     lingshi = get_user_counter(user.gid, user.uid, UserModel.LINGSHI)
+    get_num = 20
+    if lingshi < 20:
+        get_num = lingshi
+    add_user_counter(user.gid, user.uid, UserModel.LINGSHI, num=-get_num)
+
+    return f"你在路上被人撞到,回去后身上一些灵石被顺走，并留下一个画着鬼脸的纸条，你的拳头硬了（灵石-{get_num}）"
+
+
+@msg_route("落难老妇")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    lingshi = get_user_counter(user.gid, user.uid, UserModel.LINGSHI)
     get_num = 10
     if lingshi < 10:
         get_num = lingshi
     add_user_counter(user.gid, user.uid, UserModel.LINGSHI, num=-get_num)
 
-    return f"你在路上被人撞到,回去后身上一些灵石被顺走，并留下一个画着鬼脸的纸条，你的拳头硬了（灵石-{get_num}）"
+    return f"你见到一名老妇人不慎摔倒在地，你好心将其扶起，却被她诬告是你撞到的她，在众人围观之下你不得不掏出灵石破财挡债（灵石-{get_num}）"
 
 
 @msg_route("棋逢对手")
@@ -515,7 +561,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ct = XiuxianCounter()
     get_num = random.randint(1, 3)
-    if user.act > 70:
+    if user.act > 150:
         get_num = 0
     user.act2 += get_num
     ct._save_user_info(user)
