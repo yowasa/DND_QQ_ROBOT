@@ -336,18 +336,22 @@ class AllUserInfo():
         self.battle_double = 0
         self.battle_dodge = 0
 
+        num = len(self.linggen)
+        buff_rate = 1 + (50 / num) / 100
+        low_buff_rate = 1 + ((50 / num) * 0.7) / 100
+
         # 灵根加成
         if '金' in self.linggen:
-            self.battle_atk1 = int(self.battle_atk1 * 1.2)
+            self.battle_atk1 = int(self.battle_atk1 * low_buff_rate)
         if '木' in self.linggen:
-            self.battle_hp = int(self.battle_hp * 1.25)
+            self.battle_hp = int(self.battle_hp * buff_rate)
         if '水' in self.linggen:
-            self.battle_mp = int(self.battle_mp * 1.1)
+            self.battle_mp = int(self.battle_mp * buff_rate)
         if '火' in self.linggen:
-            self.battle_atk2 = int(self.battle_atk2 * 1.2)
+            self.battle_atk2 = int(self.battle_atk2 * low_buff_rate)
         if '土' in self.linggen:
-            self.battle_defen1 = int(self.battle_defen1 * 1.2)
-            self.battle_defen2 = int(self.battle_defen2 * 1.2)
+            self.battle_defen1 = int(self.battle_defen1 * buff_rate)
+            self.battle_defen2 = int(self.battle_defen2 * buff_rate)
         # 武器加成
         wuqi = get_equip_by_name(self.wuqi)
         if wuqi:

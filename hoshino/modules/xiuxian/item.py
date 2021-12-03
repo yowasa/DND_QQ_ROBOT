@@ -419,3 +419,75 @@ async def choose_girl(msg, bot, ev: CQEvent):
         return (False, f"你没有受伤")
     save_user_counter(gid, uid, UserModel.SHANGSHI, 0)
     return (True, f"你使用了回魂丹,恢复了伤势。")
+
+
+@msg_route("赤血丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if user.hp > 400:
+        (False, f"你已经足够强壮,赤血丹对你没有效果了")
+    if user.level < 7:
+        (False, f"你现在境界还无法吸收赤血丹，请至少达到练气期")
+    user.hp += 20
+    ct._save_user_info(user)
+    return (True, f"你使用了赤血丹,增加了20HP上限。")
+
+
+@msg_route("涤魂丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if user.mp > 200:
+        (False, f"你法力足够雄厚,涤魂丹对你没有效果了")
+    if user.level < 13:
+        (False, f"你现在境界还无法吸收赤血丹，请至少达到结丹期")
+    user.mp += 10
+    ct._save_user_info(user)
+    return (True, f"你使用了涤魂丹,增加了10MP上限。")
+
+
+@msg_route("无极散")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if user.defen > 80:
+        (False, f"你已经足够强壮,无极散对你没有效果了")
+    if user.level < 13:
+        (False, f"你现在境界还无法吸收无极散，请至少达到结丹期")
+    user.defen += 5
+    ct._save_user_info(user)
+    return (True, f"你使用了无极散,物理防御增加了5点。")
+
+
+@msg_route("月华露")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if user.defen2 > 80:
+        (False, f"你已经足够强壮,月华露对你没有效果了")
+    if user.level < 13:
+        (False, f"你现在境界还无法吸收月华露，请至少达到结丹期")
+    user.defen2 += 5
+    ct._save_user_info(user)
+    return (True, f"你使用了月华露,术法防御增加了5点。")
+
+@msg_route("悟道丸")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if user.wuxing > 80:
+        (False, f"你已经足够聪明,悟道丸对你没有效果了")
+    user.wuxing += 5
+    ct._save_user_info(user)
+    return (True, f"你使用了悟道丸,悟性增加了5点。")

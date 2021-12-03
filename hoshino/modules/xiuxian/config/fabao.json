@@ -287,11 +287,11 @@
         "my": {
           "panlong_add": {
             "type": "exec",
-            "value": "my_atk1+int(defen1/2)"
+            "value": "int(my_defen1/2)"
           },
           "atk1": {
             "type": "exec",
-            "value": "my_atk1+int(defen1/2)"
+            "value": "my_atk1+int(my_defen1/2)"
           }
         }
       },

@@ -72,6 +72,7 @@ async def xiulian(bot, ev: CQEvent):
     if 2 <= user.level <= 6:
         user.hp += random.randint(5, 20)
         user.act += random.randint(5, 10)
+        user.defen += 1
     elif 7 <= user.level <= 9:
         user.hp += random.randint(10, 25)
         user.mp += random.randint(1, 5)
@@ -99,6 +100,19 @@ async def xiulian(bot, ev: CQEvent):
         user.act2 += random.randint(30, 40)
     ct._save_user_info(user)
     await bot.finish(ev, f"开始修炼，本次修炼获得经验值{get_exp}点,并突破至{JingJieMap[str(user.level)]}")
+
+
+@sv.on_fullmatch(["#放弃参悟"])
+async def give_up_canwu(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    gongfa = get_user_counter(gid, uid, UserModel.STUDY_GONGFA)
+    if not gongfa:
+        await bot.finish(ev, "你还没有参悟中的功法，请使用功法书后再进行参悟", at_sender=True)
+    gongfa_name = ITEM_INFO[str(gongfa)]['name']
+    save_user_counter(gid, uid, UserModel.GONGFA_RATE, 0)
+    save_user_counter(gid, uid, UserModel.STUDY_GONGFA, 0)
+    await bot.finish(ev, f"你放弃了参悟「{gongfa_name}」。。。", at_sender=True)
 
 
 @sv.on_fullmatch(["#参悟"])
@@ -210,6 +224,7 @@ async def duanti(bot, ev: CQEvent):
     get_hp = random.randint(1, 3)
     user.tizhi += get_tizhi
     user.hp += get_hp
+    user.defen += 1
     if user.tizhi > 100:
         user.tizhi = 100
     ct._save_user_info(user)
@@ -229,7 +244,10 @@ async def duanti(bot, ev: CQEvent):
     get_hp = random.randint(1, 3)
     user.lingli += get_lingli
     user.mp += get_hp
+    get_act = random.randint(1, 3)
+    user.act2 += get_act
+    user.defen2 += 1
     if user.lingli > 100:
         user.lingli = 100
     ct._save_user_info(user)
-    await bot.finish(ev, f'锻体成功，灵力增加{get_lingli}点，mp增加了{get_hp}点')
+    await bot.finish(ev, f'锻体成功，灵力增加{get_lingli}点，mp增加了{get_hp}点,术法攻击力增加{get_act}点')

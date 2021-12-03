@@ -11,7 +11,7 @@ EVENT_MAP = {
     "修仙秘境": {"指点之光": 20, "奇珍异兽": 40, "行侠仗义": 5, "狗头人兽": 5, "无妄之灾": 5, "福地洞天": 5, "怪谈棋局": 5, "花妖向葵": 5, "求仙之伴": 5,
              "碧水寒潭": 5},
     '秘境迷踪': {"交谈心得": 32, "仙府机缘": 50, "黄粱一梦": 5, "剑冢遇险": 5, "名胜古景": 5, "神秘商人": 5, "比划比划": 5, "秘境之伴": 3},
-    '苍穹神州': {"捕捉小兽": 47, "井中洞天": 10, "黑店风云": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
+    '苍穹神州': {"捕捉小兽": 47, "井中洞天": 10, "女仆咖啡": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
              "心魔历练": 5, "神州之伴": 3},
     '九天十国': {"无": 100},
     '洪荒大陆': {"无": 100},
@@ -169,13 +169,10 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 
 @msg_route("摸金校尉")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
-    ct = XiuxianCounter()
-    get_num = random.randint(1, 3)
-    if user.lingli < 1:
-        get_num = 0
-    user.lingli -= get_num
-    ct._save_user_info(user)
-    return f"你跋山涉水终于找到藏宝图所示地点，一铲下去只见一团黑雾冒出，你不禁头昏眼花，不得不花费灵力进行解毒，降低{get_num}点灵力"
+    ex_msg = ""
+    if not add_item(user.gid, user.uid, get_item_by_name("悟道丸")):
+        ex_msg = "(背包已满,只得丢弃)"
+    return f"你跋山涉水终于找到藏宝图所示地点，挖开后发现了精美的盒子，获得了[悟道丸]{ex_msg}"
 
 
 @msg_route("灵猫报恩")
@@ -304,9 +301,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(1, 2)
     msg = ""
     if rd == 1:
-        item = get_item_by_name("筑基丹")
-        if check_have_item(user.gid, user.uid, item):
-            item = get_item_by_name("合气丹")
+        item = get_item_by_name("赤血丹")
         result = add_item(user.gid, user.uid, item)
         msg += f"棋局胜利，你旗胜一招，赢得了棋局，抬起头来却发现对方已不见了踪影，周围的浓雾也已然散去只留下座位上的一个布袋,获得了道具{item['name']}"
     else:
@@ -380,25 +375,25 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(1, 4)
     if rd == 1:
         get_num = random.randint(1, 3)
-        if user.act > 100:
+        if user.act > 150:
             get_num = 0
         user.act += get_num
         ex_msg = f"增加了{get_num}点物理攻击力"
     elif rd == 1:
         get_num = random.randint(1, 3)
-        if user.act2 > 100:
+        if user.act2 > 150:
             get_num = 0
         user.act2 += get_num
         ex_msg = f"增加了{get_num}点术法攻击力"
     elif rd == 3:
         get_num = 1
-        if user.defen > 50:
+        if user.defen > 80:
             get_num = 0
         user.defen += get_num
         ex_msg = f"增加了{get_num}点物理防御力"
     else:
         get_num = 1
-        if user.defen2 > 50:
+        if user.defen2 > 80:
             get_num = 0
         user.defen2 += get_num
         ex_msg = f"增加了{get_num}点术法防御力"
@@ -436,10 +431,11 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 
     left = lingshi - rd
     save_user_counter(user.gid, user.uid, UserModel.LINGSHI, left)
-    names = ["造化丸", "补天丹", "定神香", "震磐裂山崩", "大罗洞观", "脱峰式", "化功大法", "袖里乾坤", "冰火诵歌", "天磐水灵玉", "火狐剑", "清风剑", "精钢剑", "天师剑",
+    names = ["造化丸", "补天丹", "定神香", "无极散", "月华露", "涤魂丹", "震磐裂山崩", "大罗洞观", "脱峰式", "化功大法", "袖里乾坤", "冰火诵歌", "天磐水灵玉", "火狐剑",
+             "清风剑", "精钢剑", "天师剑",
              "道韵剑", "妖刀村雨", "紫电青霜", "龙泉剑", "影匕", "狼牙棒", "青风笔", "天狼盾", "天狼刀", "天狼剑", "天狼枪", "青影蓝荧", "赤血飞光", "黑樱斩魄",
              "陨火流云", "七窍玲珑", "金珀银花", "龙吟虎啸", "太清归一", "太乙大道", "萤光辉月", "天琊神剑", "阴阳手环（阳）", "阴阳手环（阴）", "金雷竹笛", "阴阳二气瓶",
-             "合欢铃", "噬魂", "孔雀翎", "暴雨梨花", "无影神针", "凌波仙符", "烽火狼烟", "蟠龙玉壁", "万民玺", "墨冥妖花", "念罡无相戒", "打神鞭", "捆仙绳", "一苇渡江"]
+             "合欢铃", "噬魂", "孔雀翎", "暴雨梨花", "无影神针", "凌波仙符", "烽火狼烟", "蟠龙玉壁", "万民玺", "墨冥妖花", "念罡无相戒", "打神鞭"]
     name = random.choice(names)
     item = get_item_by_name(name)
     ex_msg = ""
@@ -487,12 +483,12 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     return msg
 
 
-@msg_route("黑店风云")
+@msg_route("女仆咖啡")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user.act -= 1
     ct._save_user_info(user)
-    return "店大欺客，只能暂且忍让，避其锋芒（损失1点攻击力）"
+    return "在女仆咖啡厅吃饭的给女仆打赏出手大方，侍女给你了些杀必死（损失1点攻击力）"
 
 
 @msg_route("灵药风波")
@@ -562,7 +558,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ct = XiuxianCounter()
     get_num = random.randint(1, 3)
-    if user.act > 150:
+    if user.act > 200:
         get_num = 0
     user.act2 += get_num
     ct._save_user_info(user)

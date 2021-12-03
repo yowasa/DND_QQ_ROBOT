@@ -56,6 +56,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
         return (False, f"突破失败，请重新突破")
     user.hp += int(0.2 * user.hp)
     user.act += int(0.2 * user.act)
+    user.act2 += 10
     return (True, f"你成功突破到了练气！")
 
 
@@ -193,12 +194,12 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     if rd > need:
         user.exp = 0
         return (False, f"突破失败，经验清空！")
-    user.hp += int(0.2 * user.hp)
+    user.hp += int(0.1 * user.hp)
     user.mp += int(0.1 * user.mp)
-    user.act += int(0.2 * user.act)
-    user.act2 += int(0.2 * user.act2)
-    user.defen += int(0.2 * user.defen)
-    user.defen2 += int(0.2 * user.defen2)
+    user.act += int(0.1 * user.act)
+    user.act2 += int(0.1 * user.act2)
+    user.defen += int(0.1 * user.defen)
+    user.defen2 += int(0.1 * user.defen2)
     return (True, f"你成功突破到了筑基！")
 
 
@@ -210,12 +211,12 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     if rd > need:
         user.exp = 0
         return (False, f"突破失败，经验清空！")
-    user.hp += int(0.2 * user.hp)
+    user.hp += int(0.1 * user.hp)
     user.mp += int(0.1 * user.mp)
-    user.act += int(0.2 * user.act)
-    user.act2 += int(0.2 * user.act2)
-    user.defen += int(0.2 * user.defen)
-    user.defen2 += int(0.2 * user.defen2)
+    user.act += int(0.1 * user.act)
+    user.act2 += int(0.1 * user.act2)
+    user.defen += int(0.1 * user.defen)
+    user.defen2 += int(0.1 * user.defen2)
     return (True, f"你成功突破到了筑基！")
 
 
@@ -234,7 +235,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
         user.exp = 0
         return (False, f"突破失败，经验清空！")
     user.hp += int(0.2 * user.hp)
-    user.mp += int(0.1 * user.mp)
+    user.mp += int(0.2 * user.mp)
     user.act += int(0.2 * user.act)
     user.act2 += int(0.2 * user.act2)
     user.defen += int(0.2 * user.defen)
@@ -251,7 +252,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
         user.exp = 0
         return (False, f"突破失败，经验清空！")
     user.hp += int(0.2 * user.hp)
-    user.mp += int(0.1 * user.mp)
+    user.mp += int(0.2 * user.mp)
     user.act += int(0.2 * user.act)
     user.act2 += int(0.2 * user.act2)
     user.defen += int(0.2 * user.defen)
@@ -268,7 +269,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
         user.exp = 0
         return (False, f"突破失败，经验清空！")
     user.hp += int(0.2 * user.hp)
-    user.mp += int(0.1 * user.mp)
+    user.mp += int(0.2 * user.mp)
     user.act += int(0.2 * user.act)
     user.act2 += int(0.2 * user.act2)
     user.defen += int(0.2 * user.defen)
@@ -276,7 +277,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     return (True, f"你成功突破到了筑基！")
 
 
-# 渡劫突破
+# 金仙突破
 @msg_route("40")
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     return (False, f"穹顶之上，无法突破")
