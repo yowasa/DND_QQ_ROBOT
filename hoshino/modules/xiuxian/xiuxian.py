@@ -118,12 +118,53 @@ def cal_is_die(my):
         return True, f"{my.name}被击杀"
 
 
+# 舔包结算
+def tianbao(my, enemy):
+    log = ""
+    # 基础概率
+    need_base = 50
+    # 杀人数
+    eme_kill = get_user_counter(enemy.gid, enemy.uid, UserModel.KILL)
+    if eme_kill < 0:
+        eme_kill = 0
+    # 杀人每多一个就多10%概率
+    need = need_base + eme_kill * 10
+    # 获得道具的个数
+    num = 0
+    if need >= 100:
+        num += int(need / 100)
+        need = need % 100
+    rd = random.randint(1, 100)
+    if rd < need:
+        num += 1
+    counter = ItemCounter()
+    items = counter._get_item(enemy.gid, enemy.uid)
+    total_count = 0
+    item_li = []
+    for i in items:
+        item_li += [i[0]] * i[1]
+        total_count += i[1]
+    if total_count < num:
+        num = total_count
+    get_li = random.sample(item_li, num)
+    if get_li:
+        log += "抢夺了对方的"
+    for i in get_li:
+        item = ITEM_INFO[str(i)]
+        log += f"[{item['name']}]"
+        if not add_item(my.gid, my.uid, item):
+            log += "(背包已满 已丢弃)"
+    lingshi = get_user_counter(enemy.gid, enemy.uid, UserModel.LINGSHI)
+    get_lingshi = int(lingshi / 2)
+    add_user_counter(my.gid, my.uid, UserModel.LINGSHI,get_lingshi)
+    log += f"抢夺了{enemy.name}{get_lingshi}灵石"
+    return log
+
 # 杀人结算
 def kill_user_cal(my, enemy):
     log = ""
     # 增加杀人计数器
     add_user_counter(my.gid, my.uid, UserModel.KILL)
-    delete_user(enemy)
     if my.gongfa3 == "吸星大法":
         my.act += 1
         my.act2 += 1
@@ -132,6 +173,10 @@ def kill_user_cal(my, enemy):
         ct = XiuxianCounter()
         ct._save_user_info(my)
         log += f"{my.name}使用了吸星大法，获取了{get_hp}点HP和1点物理术法攻击力"
+    # 舔包
+    log += tianbao(my, enemy)
+    # 敌人死亡
+    delete_user(enemy)
     return log
 
 

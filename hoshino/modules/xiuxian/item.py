@@ -107,6 +107,40 @@ async def consume_item(bot, ev: CQEvent):
     await bot.send(ev, f"你丢弃掉了一个「{msg[0]}」", at_sender=True)
 
 
+@sv.on_prefix(["#卸下"])
+async def canwu(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    msg = str(ev.message).strip()
+    user = await get_ev_user(bot, ev)
+    if msg not in ["武器", "法宝"] and msg not in [user.wuqi, user.fabao]:
+        await bot.finish(ev, f"未找到名为[{msg}]的穿戴中的武器或法宝", at_sender=True)
+    ct = XiuxianCounter()
+    if msg in [user.wuqi, "武器"]:
+        old_wuqi = user.wuqi
+        if user.wuqi == "赤手空拳":
+            await bot.finish(ev, f"你没有武器可以卸下", at_sender=True)
+        item = get_item_by_name(user.wuqi)
+        if add_item(gid, uid, item, 1):
+            user.wuqi = "赤手空拳"
+            ct._save_user_info(user)
+            await bot.finish(ev, f"卸下{old_wuqi}成功", at_sender=True)
+        else:
+            await bot.finish(ev, f"请至少腾出一格背包空间", at_sender=True)
+
+    if msg in [user.fabao, "法宝"]:
+        old_fabao = user.fabao
+        if user.fabao == "无":
+            await bot.finish(ev, f"你没有法宝可以卸下", at_sender=True)
+        item = get_item_by_name(user.fabao)
+        if add_item(gid, uid, item, 1):
+            user.fabao = "无"
+            ct._save_user_info(user)
+            await bot.finish(ev, f"卸下{old_fabao}成功", at_sender=True)
+        else:
+            await bot.finish(ev, f"请至少腾出一格背包空间", at_sender=True)
+
+
 register = dict()
 
 
@@ -193,7 +227,8 @@ async def equip_fa(bot, ev, param):
     ct = XiuxianCounter()
     user = get_full_user(gid, uid)
     equip_fa = get_fabao_by_name(param)
-    content = {"level": user.level, "wuxing": user.wuxing, "linggen": user.linggen, "tizhi": user.tizhi, "sharen": user.sharen}
+    content = {"level": user.level, "wuxing": user.wuxing, "linggen": user.linggen, "tizhi": user.tizhi,
+               "sharen": user.sharen}
     if eval(equip_fa['condition'], content):
         desc = get_item_by_name(param)['desc']
         if user.fabao != '无':

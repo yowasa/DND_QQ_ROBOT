@@ -228,7 +228,7 @@ async def duanti(bot, ev: CQEvent):
     get_lingli = random.randint(1, 10)
     get_hp = random.randint(1, 3)
     user.lingli += get_lingli
-    user.hp += get_hp
+    user.mp += get_hp
     if user.lingli > 100:
         user.lingli = 100
     ct._save_user_info(user)

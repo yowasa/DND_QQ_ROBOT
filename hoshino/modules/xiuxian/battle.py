@@ -224,7 +224,7 @@ def duel_buff(my_content, enemy_content):
         atk1 = int(1.5 * atk1)
         atk2 = int(1.5 * atk2)
         boost_tag = "(暴击)"
-    if is_dodge:
+    if is_dodge and dmg_type == 0:
         my_content["damage_log"] += f"攻击被闪避!"
     else:
         if dmg_type:
@@ -271,10 +271,21 @@ def judge_rate(content):
         content["is_" + i] = (rd <= value)
 
 
+def duel_skill(my, enemy):
+    if my['skill'] > enemy['skill']:
+        my['boost'] += my['skill'] / enemy['skill'] * 2
+        my['dodge'] += my['skill'] / enemy['skill']
+    else:
+        enemy['boost'] += enemy['skill'] / my['skill'] * 2
+        enemy['dodge'] += enemy['skill'] / my['skill']
+
+
 def battle(my: AllUserInfo, enemy: AllUserInfo):
     logs = []
     my_content = init_content(my)
     enemy_content = init_content(enemy)
+    # 处理战斗技巧
+    duel_skill(my_content, enemy_content)
     # 战斗开始
     logs.append(f"{my_content['name']}HP:{my_content['hp']}\t {enemy_content['name']}HP:{enemy_content['hp']}")
     # 触发技能
