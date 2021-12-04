@@ -372,6 +372,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 
 @msg_route("黄粱一梦")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    ct = XiuxianCounter()
     rd = random.randint(1, 4)
     if rd == 1:
         get_num = random.randint(1, 3)
@@ -397,6 +398,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
             get_num = 0
         user.defen2 += get_num
         ex_msg = f"增加了{get_num}点术法防御力"
+    ct._save_user_info(user)
     return f"你睡觉做了个梦，尝尽轮回喜怒悲哀后醒来感悟颇多，{ex_msg}"
 
 
