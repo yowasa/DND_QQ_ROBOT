@@ -88,9 +88,16 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(1, 100)
     need = 50
+    eat = get_user_counter(user.gid, user.uid, UserModel.HUNYUAN)
+    if eat:
+        save_user_counter(user.gid, user.uid, UserModel.HUNYUAN, 0)
+        need += 20
     if rd > need:
         user.exp = 0
         return (False, f"突破失败，经验清空！")
+    if eat:
+        user.defen += 5
+        user.defen2 += 5
     user.hp += int(0.1 * user.hp)
     user.mp += int(0.1 * user.mp)
     user.act += int(0.1 * user.act)

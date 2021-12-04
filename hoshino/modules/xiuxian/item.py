@@ -383,6 +383,15 @@ async def choose_girl(msg, bot, ev: CQEvent):
     save_user_counter(gid, uid, UserModel.ZHUJIDAN, 1)
     return (True, f"你服用了筑基丹,筑基更容易成功")
 
+@msg_route("混元丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.HUNYUAN):
+        return (False, f"你已经服用了混元丹,无需多次服用")
+    save_user_counter(gid, uid, UserModel.HUNYUAN, 1)
+    return (True, f"你服用了混元丹,突破到结丹更容易成功")
+
 
 @msg_route("金疮药")
 async def choose_girl(msg, bot, ev: CQEvent):
