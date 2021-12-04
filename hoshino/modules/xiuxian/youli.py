@@ -402,13 +402,10 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 
 @msg_route("剑冢遇险")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
-    ct = XiuxianCounter()
-    get_num = random.randint(1, 2)
-    if user.hp < 60:
-        get_num = 0
-    user.hp -= get_num
-    ct._save_user_info(user)
-    return f"与人探索一个剑冢，不小心失散且触发了禁制！大量机关傀儡禁制被触发拼命逃出，HP属性降低{get_num}点。"
+    ex_msg = ""
+    if not add_item(user.gid, user.uid, get_item_by_name("混元丹")):
+        ex_msg = "(背包已满,只得丢弃)"
+    return f"与人探索一个剑冢，探索后发现了精美的盒子，获得了[混元丹]{ex_msg}"
 
 
 @msg_route("名胜古景")
