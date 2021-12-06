@@ -22,6 +22,8 @@ class UserModel(Enum):
     MIJING = [10, "秘境标识"]  # 触发过秘境之绊的标识
     SHENZHOU = [11, "神州标识"]  # 触发过神州之绊的标识
     HUNYUAN = [12, "混元丹服用标识"]  # 混元丹服用标识
+    LIANDAN_CD = [13, "炼丹cd"]  # 炼丹cd标识
+    LIANDAN_ITEM = [14, "炼丹item"]  # 炼的丹药是什么
 
 
 # 群组状态储存枚举类
@@ -36,6 +38,7 @@ class ItemCounter:
         self._create_item()
         self._create_group()
         self._create_user()
+        self._create_trade()
 
     def _connect(self):
         return sqlite3.connect(DUEL_DB_PATH)
@@ -74,6 +77,18 @@ class ItemCounter:
                            PRIMARY KEY(GID, UID,BUFF_TYPE));''')
         except:
             raise Exception('创建用户状态表发生错误')
+
+    # 交易表
+    def _create_trade(self):
+        try:
+            self._connect().execute('''CREATE TABLE IF NOT EXISTS TRADE_INFO
+                              (GID             INT    NOT NULL,
+                               UID           INT    NOT NULL,
+                               ITEM_ID           INT    NOT NULL,
+                               PRICE           INT    NOT NULL,
+                               PRIMARY KEY(GID, UID,ITEM_ID));''')
+        except:
+            raise Exception('创建交易表发生错误')
 
     # 覆盖存储用户状态
     def _save_user_state(self, gid, uid, type, type_flag):
@@ -270,3 +285,41 @@ class ItemCounter:
             return r[0]
         except Exception as e:
             raise Exception('错误:\n' + str(e))
+
+    # 添加交易信息
+    def _save_trade_item(self, gid, uid, itemId, price):
+        with self._connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO TRADE_INFO (GID, UID, ITEM_ID, PRICE) VALUES (?, ?, ?, ?)",
+                (gid, uid, itemId, price),
+            )
+
+    # 获取交易信息
+    def _get_trade_item(self, gid, uid):
+        try:
+            r = self._connect().execute(
+                "SELECT * FROM TRADE_INFO WHERE GID=? AND UID=?",
+                (gid, uid)).fetchone()
+            if not r:
+                return None
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+
+    # 获取最低价格的三件物品信息
+    def _get_low_3_trade_item(self, gid, itemId):
+        try:
+            r = self._connect().execute(
+                "SELECT * FROM TRADE_INFO WHERE GID=? AND ITEM_ID=? ORDER BY PRICE ASC LIMIT 3",
+                (gid, itemId)).fetchall()
+            if not r:
+                return None
+            return r
+        except Exception as e:
+            raise Exception('错误:\n' + str(e))
+
+    # 删除贸易信息
+    def _del_trade_info(self, gid, uid):
+        with self._connect() as conn:
+            conn.execute(
+                f"DELETE FROM TRADE_INFO WHERE GID={gid} AND UID={uid}")

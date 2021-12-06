@@ -188,6 +188,9 @@ with open(os.path.join(FILE_PATH, 'config/gongfa.json'), 'r', encoding='UTF-8') 
 with open(os.path.join(FILE_PATH, 'config/fabao.json'), 'r', encoding='UTF-8') as fa:
     FABAO_INFO = json.load(fa, strict=False)
 
+# 丹方
+with open(os.path.join(FILE_PATH, 'config/danfang.json'), 'r', encoding='UTF-8') as fa:
+    DANFANG = json.load(fa, strict=False)
 
 # 根据名字获取道具
 def get_item_by_name(name):
@@ -209,6 +212,11 @@ def add_item(gid, uid, item, num=1):
     i_c._add_item(gid, uid, int(item['id']), num)
     return 1
 
+# 检查背包空间是否足够
+def check_have_space(gid, uid):
+    if count_item(gid, uid) >= get_max_count(gid, uid):
+        return 0
+    return 1
 
 # 消耗道具
 def use_item(gid, uid, item, num=1):

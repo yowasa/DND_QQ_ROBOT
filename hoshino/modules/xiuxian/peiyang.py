@@ -250,4 +250,4 @@ async def duanti(bot, ev: CQEvent):
     if user.lingli > 100:
         user.lingli = 100
     ct._save_user_info(user)
-    await bot.finish(ev, f'锻体成功，灵力增加{get_lingli}点，mp增加了{get_hp}点,术法攻击力增加{get_act}点')
+    await bot.finish(ev, f'练气成功，灵力增加{get_lingli}点，mp增加了{get_hp}点,术法攻击力增加{get_act}点')
