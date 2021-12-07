@@ -359,7 +359,7 @@ class AllUserInfo():
             if buff.get('atk1'):
                 self.battle_atk1 += buff.get('atk1')
             if buff.get('atk2'):
-                self.battle_atk1 += buff.get('atk2')
+                self.battle_atk2 += buff.get('atk2')
             if buff.get('hp'):
                 self.battle_hp += buff.get('hp')
             if buff.get('mp'):
