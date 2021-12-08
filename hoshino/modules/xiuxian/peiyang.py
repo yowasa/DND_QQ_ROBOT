@@ -52,7 +52,7 @@ async def xiulian(bot, ev: CQEvent):
     if user.level > MAP[user.map]['max_level']:
         await bot.finish(ev, f"此地的灵气浓度不足以支撑你的修炼，请到灵气更加浓郁的地方。")
     if (user.level in PINGJING) and user.exp > EXP_NEED_MAP[str(user.level)]:
-        await bot.finish(ev, f"你到达了当前境界的瓶颈，无法继续获得经验！请使用#突破 来突破当前境界")
+        await bot.finish(ev, f"你已经到达了当前境界的瓶颈，无法继续获得经验！请使用#突破 来突破当前境界")
     await user.check_cd(bot, ev)
     user.start_cd()
     get_exp = cal_get_exp(user)
@@ -65,7 +65,7 @@ async def xiulian(bot, ev: CQEvent):
     if (user.level in PINGJING) and left_exp >= 0:
         user.exp = user.exp + get_exp
         ct._save_user_info(user)
-        await bot.finish(ev, f"你到达了当前境界的瓶颈，请使用#突破 来突破当前境界")
+        await bot.finish(ev, f"你通过本次修炼到达了当前境界的瓶颈，请使用#突破 来突破当前境界")
     cal_add_shuxing(user)
     user.exp = left_exp
     user.level += 1

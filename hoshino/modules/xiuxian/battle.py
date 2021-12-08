@@ -346,7 +346,7 @@ def battle(my: AllUserInfo, enemy: AllUserInfo):
         # 有人血量归零
         if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
             return end_battle(logs, my_content, enemy_content)
-        if turn > 10:
+        if turn >= 10:
             logs.append(f'不分胜负')
             return end_battle(logs, my_content, enemy_content)
 

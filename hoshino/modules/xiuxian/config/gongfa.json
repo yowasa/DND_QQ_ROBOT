@@ -126,5 +126,35 @@
       },
       "log": "由于摧心浪的效果术法攻击力增加20%"
     }
+  },
+  "封魔阵法": {
+    "name": "封魔阵法",
+    "condition": "(wuxing>=20)&(level>6)",
+    "condition_desc": "练气期以上,悟性大于20",
+    "speed": "int(wuxing/5)+25"
+  },
+  "千里神行": {
+    "name": "千里神行",
+    "condition": "(wuxing>=20)&(level>6)",
+    "condition_desc": "练气期以上,悟性大于20",
+    "speed": "int(wuxing/5)+20"
+  },
+  "啼血神殇": {
+    "name": "啼血神殇",
+    "condition": "(wuxing>=20)&(level>6)",
+    "condition_desc": "练气期以上,悟性大于20",
+    "speed": "int(wuxing/5)+15"
+  },
+  "狡兔三窟": {
+    "name": "狡兔三窟",
+    "condition": "(wuxing>=20)&(level>6)",
+    "condition_desc": "练气期以上,悟性大于20",
+    "speed": "int(wuxing/5)+15"
+  },
+  "左右互搏": {
+    "name": "左右互搏",
+    "condition": "(wuxing<=20)&(level>6)",
+    "condition_desc": "悟性小于20,练气期以上",
+    "speed": "(100-wuxing)/5+1"
   }
 }

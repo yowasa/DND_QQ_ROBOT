@@ -16,7 +16,7 @@ class UserModel(Enum):
     GONGFA_RATE = [4, "正在学习的功法"]  # 功法学习进度
     XIUYANG_TIME = [5, "修养次数"]  # 修养次数
     ZHUJIDAN = [6, "筑基丹服用标识"]  # 筑基丹服用标识
-    JINDANSHA = [7, "杀害金丹的数量"]  # 5次以上方能破丹
+    JINDANSHA = [7, "杀害金丹的数量"]  # 3次以上方能破丹
     HONGCHEN = [8, "红尘标识"]  # 触发过红尘之绊的标识
     QIUXIAN = [9, "求仙标识"]  # 触发过求仙之绊的标识
     MIJING = [10, "秘境标识"]  # 触发过秘境之绊的标识
@@ -24,6 +24,10 @@ class UserModel(Enum):
     HUNYUAN = [12, "混元丹服用标识"]  # 混元丹服用标识
     LIANDAN_CD = [13, "炼丹cd"]  # 炼丹cd标识
     LIANDAN_ITEM = [14, "炼丹item"]  # 炼的丹药是什么
+    ZUOYOU_XINFA = [15, "左右互博储存的心法"]
+    ZUOYOU_GONGFA = [16, "左右互博储存的功法"]
+    RANHUN = [17, "燃魂丹服用标识"]
+    HUFA_NUM = [18, "护法数量"]
 
 
 # 群组状态储存枚举类

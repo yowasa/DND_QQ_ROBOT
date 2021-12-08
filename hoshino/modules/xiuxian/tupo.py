@@ -1,4 +1,68 @@
-from .xiuxian_config import *
+from hoshino.util.utils import get_message_at, get_message_text
+from .battle import *
+
+
+@sv.on_prefix(["#护法"])
+async def hufa(bot, ev: CQEvent):
+    gid = ev.group_id
+    my = await get_ev_user(bot, ev)
+    if my.level < 18:
+        await bot.finish(ev, f"只有达到金丹后期才能为他人护法")
+    name = get_message_text(ev)
+    at = get_message_at(ev)
+    ct = XiuxianCounter()
+    if at:
+        at = at[0]
+        enemy = ct._get_user(gid, at)
+    else:
+        enemy = ct._get_user_by_name(gid, name)
+    if not enemy:
+        await bot.finish(ev, f"未找到名【{name}】的角色")
+    if my.uid == enemy.uid:
+        await bot.finish(ev, f"不能对自己护法（恼）")
+    if get_user_counter(enemy.gid, enemy.uid, UserModel.HUFA_NUM) >= 4:
+        await bot.finish(ev, f"对方已经有足够人员护法")
+    await my.check_and_start_cd(bot, ev)
+    add_user_counter(enemy.gid, enemy.uid, UserModel.HUFA_NUM, num=1)
+    await bot.finish(ev, f"你为{enemy.name}进行护法，压制了对方对心魔")
+
+
+@sv.on_fullmatch(["#斩心魔"])
+async def zhanmo(bot, ev: CQEvent):
+    my = await get_ev_user(bot, ev)
+    if (my.level != 18) or (my.exp < EXP_NEED_MAP[str(my.level)]):
+        await bot.finish(ev, "你当前还未到金丹瓶颈")
+
+    num = get_user_counter(my.gid, my.uid, UserModel.JINDANSHA)
+    if num >= 3:
+        await bot.finish(ev, "你已经无心魔可斩。。")
+    rates = [0.8, 1.0, 1.2]
+    rate = rates[num]
+    hufa = get_user_counter(my.gid, my.uid, UserModel.HUFA_NUM)
+    rate = rate - hufa * 0.05
+    enemy = await get_ev_user(bot, ev)
+    enemy.name = '心魔'
+    enemy.battle_hp = int(enemy.battle_hp * rate)
+    enemy.battle_mp = int(enemy.battle_mp * rate)
+    enemy.battle_atk1 = int(enemy.battle_atk1 * rate)
+    enemy.battle_atk2 = int(enemy.battle_atk1 * rate)
+    enemy.battle_defen1 = int(enemy.battle_defen1 * rate)
+    enemy.battle_defen2 = int(enemy.battle_defen2 * rate)
+    my_hp, he_hp, send_msg_li = battle(my, enemy)
+
+    if my_hp > 0 and he_hp <= 0:
+        save_user_counter(my.gid, my.uid, UserModel.HUFA_NUM, 0)
+        add_user_counter(my.gid, my.uid, UserModel.JINDANSHA, 1)
+        left = 2 - num
+        await bot.finish(ev, '\n'.join(send_msg_li) + f"\n你成功斩除了心魔!还剩{left}个心魔(护法清空)", at_sender=True)
+    else:
+        my.exp = 0
+        ct = XiuxianCounter()
+        ct._save_user_info(my)
+        save_user_counter(my.gid, my.uid, UserModel.HUFA_NUM, 0)
+        save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 3)
+        save_user_counter(my.gid, my.uid, UserModel.JINDANSHA, 0)
+        await bot.finish(ev, '\n'.join(send_msg_li) + "\n你斩除心魔失败了。。经验清空，护法清空，进入濒死状态，心魔数量重置。。。", at_sender=True)
 
 
 @sv.on_fullmatch(["#突破"])
@@ -164,8 +228,8 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
 @msg_route("18")
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     count = get_user_counter(user.gid, user.uid, UserModel.JINDANSHA)
-    if count < 5:
-        return (False, f"不经历生死，如何碎丹，需要与金丹后期生死战5场以上")
+    if count < 3:
+        return (False, f"不驱除心魔，如何碎丹，使用#斩心魔 击杀心魔3次，每击杀金丹后期以可以释放一次心魔")
     user.hp += int(0.1 * user.hp)
     user.mp += int(0.1 * user.mp)
     user.act += int(0.1 * user.act)
@@ -188,8 +252,6 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     user.mp += int(0.1 * user.mp)
     user.act += int(0.1 * user.act)
     user.act2 += int(0.1 * user.act2)
-    user.defen += int(0.1 * user.defen)
-    user.defen2 += int(0.1 * user.defen2)
     return (True, f"你成功突破到了筑基！")
 
 

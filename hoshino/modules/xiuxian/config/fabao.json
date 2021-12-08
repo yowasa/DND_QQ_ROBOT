@@ -225,7 +225,7 @@
     "condition": "(level>12)",
     "condition_desc": "需要结丹以上",
     "effect": {
-      "cost": 100,
+      "cost": 80,
       "time": "after_damage",
       "condition": "True",
       "effect": {
@@ -301,7 +301,7 @@
   "万民玺": {
     "name": "万民玺",
     "condition": "(level<7)&('土' in linggen)",
-    "condition_desc": "需要练气以以下，具有土灵根",
+    "condition_desc": "需要练气以下，具有土灵根",
     "effect": {
       "cost": 50,
       "cd": 3,
@@ -329,16 +329,20 @@
     "effect": {
       "cost": 100,
       "time": "battle_end",
-      "condition": "turn==5",
+      "condition": "turn==2",
       "effect": {
         "my": {
+          "yaohua_hp": {
+            "type": "exec",
+            "value": "int(0.5*(my_max_hp-my_hp))"
+          },
           "hp": {
             "type": "exec",
-            "value": "my_max_hp"
+            "value": "my_hp+int(0.5*(my_max_hp-my_hp))"
           }
         }
       },
-      "log": "{my_name}触发了墨冥妖花,HP回复至满血"
+      "log": "{my_name}触发了墨冥妖花,回复{my_yaohua_hp}点HP"
     }
   },
   "念罡无相戒": {

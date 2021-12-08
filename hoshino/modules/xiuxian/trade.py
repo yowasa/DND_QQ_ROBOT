@@ -26,6 +26,12 @@ async def shangjia(bot, ev: CQEvent):
         await bot.finish(ev, f"你已经上架了物品[{item_shangjia['name']}]，不可上架多个物品")
     if not check_have_item(user.gid, user.uid, item):
         await bot.finish(ev, f'你背包中没有「{item_name}」', at_sender=True)
+    # 检查灵石
+    shui = int(0.1 * price)
+    if user.lingshi < shui:
+        await bot.finish(ev, f'上架「{item_name}」需要预先缴纳10%售价的税款，你的灵石不足。', at_sender=True)
+    # 扣减灵石
+    add_user_counter(user.gid, user.uid, UserModel.LINGSHI, num=-shui)
     # 上架物品
     it._save_trade_item(user.gid, user.uid, int(item['id']), price)
     # 损耗物品
@@ -92,8 +98,7 @@ async def shangjia(bot, ev: CQEvent):
     # 扣减灵石
     add_user_counter(user.gid, user.uid, UserModel.LINGSHI, num=-sale_price)
     # 增加灵石
-    add_lingshi = int(0.9 * sale_price)
-    add_user_counter(user.gid, sale_user, UserModel.LINGSHI, num=add_lingshi)
+    add_user_counter(user.gid, sale_user, UserModel.LINGSHI, num=sale_price)
     await bot.finish(ev,
-                     f'你花费了{sale_price}灵石购买了{item_name}\n[CQ:at,qq={sale_user}]你上架的{item_name}成功卖出,获得了{add_lingshi}灵石(扣除10%交易税)',
+                     f'你花费了{sale_price}灵石购买了{item_name}\n[CQ:at,qq={sale_user}]你上架的{item_name}成功卖出,获得了{sale_price}灵石',
                      at_sender=True)

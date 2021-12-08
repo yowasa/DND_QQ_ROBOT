@@ -1,4 +1,3 @@
-from .xiuxian_config import *
 from .battle import *
 from hoshino.util.utils import get_message_at, get_message_text
 
@@ -100,7 +99,7 @@ async def query(bot, ev: CQEvent):
 门派:{user.belong}  所在地:{user.map}
 体质:{user.tizhi} 悟性:{user.wuxing} 灵力:{user.lingli} 道行:{user.daohang}
 攻击:{user.battle_atk1} 术法:{user.battle_atk2} 物防:{user.battle_defen1} 魔抗:{user.battle_defen2}
-生命:{user.battle_hp} 法力:{user.battle_mp} 战斗技巧:{user.skill}
+HP:{user.battle_hp} MP:{user.battle_mp} 战斗技巧:{user.skill}
 """.strip()
     await bot.finish(ev, sendmsg)
 
@@ -127,8 +126,8 @@ def tianbao(my, enemy):
     eme_kill = get_user_counter(enemy.gid, enemy.uid, UserModel.KILL)
     if eme_kill < 0:
         eme_kill = 0
-    # 杀人每多一个就多10%概率
-    need = need_base + eme_kill * 10
+    # 杀人每多一个就多20%概率
+    need = need_base + eme_kill * 20
     # 获得道具的个数
     num = 0
     if need >= 100:
@@ -144,6 +143,15 @@ def tianbao(my, enemy):
     for i in items:
         item_li += [i[0]] * i[1]
         total_count += i[1]
+    # 加入身上的装备道具
+    if enemy.wuqi != "赤手空拳":
+        item = get_item_by_name(enemy.wuqi)
+        item_li.append(int(item['id']))
+        total_count += 1
+    if enemy.fabao != "无":
+        item = get_item_by_name(enemy.fabao)
+        item_li.append(int(item['id']))
+        total_count += 1
     if total_count < num:
         num = total_count
     get_li = random.sample(item_li, num)
@@ -156,27 +164,48 @@ def tianbao(my, enemy):
             log += "(背包已满 已丢弃)"
     lingshi = get_user_counter(enemy.gid, enemy.uid, UserModel.LINGSHI)
     get_lingshi = int(lingshi / 2)
-    add_user_counter(my.gid, my.uid, UserModel.LINGSHI,get_lingshi)
+    add_user_counter(my.gid, my.uid, UserModel.LINGSHI, get_lingshi)
     log += f"抢夺了{enemy.name}{get_lingshi}灵石"
     return log
+
 
 # 杀人结算
 def kill_user_cal(my, enemy):
     log = ""
     # 增加杀人计数器
     add_user_counter(my.gid, my.uid, UserModel.KILL)
+    if my.level == 18 and enemy.level >= 18:
+        add_user_counter(my.gid, my.uid, UserModel.JINDANSHA)
+        log += f"{my.name}释放了心中的心魔，感觉体内的金丹有所松动"
+    if my.gongfa3 == "化功大法":
+        my.exp += enemy.exp
+        log += f",{my.name}使用[化功大法]获取了{enemy.exp}点经验"
     if my.gongfa3 == "吸星大法":
         my.act += 1
         my.act2 += 1
         get_hp = random.randint(1, 20)
         my.hp += get_hp
-        ct = XiuxianCounter()
-        ct._save_user_info(my)
         log += f"{my.name}使用了吸星大法，获取了{get_hp}点HP和1点物理术法攻击力"
+    ct = XiuxianCounter()
+    ct._save_user_info(my)
     # 舔包
     log += tianbao(my, enemy)
     # 敌人死亡
     delete_user(enemy)
+    return log
+
+
+def cal_shangshi(my_rate, my):
+    log = ""
+    if my_rate <= 0:
+        save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 3)
+        log += f"{my.name}陷入濒死 "
+    elif my_rate < 0.1:
+        save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 2)
+        log += f"{my.name}受了重伤 "
+    elif my_rate < 0.3:
+        save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 1)
+        log += f"{my.name}受了轻伤 "
     return log
 
 
@@ -197,14 +226,34 @@ async def duanti(bot, ev: CQEvent):
     if my.uid == enemy.uid:
         await bot.finish(ev, f"不能自己打自己（恼）")
     await my.check_and_start_cd(bot, ev)
+    # 判断境界
+    min = 1
+    for i in PINGJING:
+        if my.level > i:
+            min = i
+        else:
+            break
+    if enemy.level <= min:
+        if not check_have_item(my.gid, my.uid, get_item_by_name("下界符")):
+            await bot.finish(ev, f"没有[下界符]不能对战境界低于自己的人")
     if my.map != enemy.map:
-        await bot.finish(ev, f"你找遍了四周也没有发现{name}的身影，或许他根本不在这里？")
+        await bot.finish(ev, f"你找遍了四周也没有发现{enemy.name}的身影，或许他根本不在这里？")
+    if enemy.gongfa3 == '狡兔三窟':
+        if random.randint(1, 5) == 1:
+            await bot.finish(ev, f"你找遍了四周也没有发现{enemy.name}的身影，或许他根本不在这里？")
+    if enemy.level <= min:
+        use_item(my.gid, my.uid, get_item_by_name("下界符"))
     enemy = AllUserInfo(enemy)
+    flag = get_user_counter(my.gid, my.uid, UserModel.RANHUN)
+    if flag:
+        my.battle_hp = my.battle_hp * 2
+        my.battle_mp = my.battle_mp * 2
+        my.battle_atk1 = my.battle_atk1 * 2
+        my.battle_atk2 = my.battle_atk1 * 2
+        my.battle_defen1 = my.battle_defen1 * 2
+        my.battle_defen2 = my.battle_defen2 * 2
     # 战斗
     my_hp, he_hp, send_msg_li = battle(my, enemy)
-    my_name = my.name
-    he_name = enemy.name
-
     skill_max = my.skill if my.skill > enemy.skill else enemy.skill
     skill_min = my.skill if my.skill < enemy.skill else enemy.skill
     skill_rate = skill_max / skill_min if skill_max / skill_min < 5 else 5
@@ -217,17 +266,12 @@ async def duanti(bot, ev: CQEvent):
     if he_hp <= 0:
         he_die_flag, log_he = cal_is_die(enemy)
         log += log_he
-        if he_die_flag:
-            log += f"[CQ:at,qq={enemy.uid}]"
-            if my.gongfa3 == "化功大法":
-                my.exp += enemy.exp
-                log += f",{my.name}使用[化功大法]获取了{enemy.exp}点经验"
-            if my.level == 18 and enemy.level >= 18 and my_hp <= int(my.hp * 0.3):
-                add_user_counter(my.gid, my.uid, UserModel.JINDANSHA)
-                log += f",{my.name}经历了生死，感觉体内的金丹有所松动"
+        log += f"[CQ:at,qq={enemy.uid}]"
     if my_hp > 0 and he_hp > 0:
         log += "二人战斗难舍难分，不分胜负就此罢了。"
-
+    if not my_die_flag and flag:
+        my_die_flag = True
+        log += f"{my.name}由于服用了燃魂丹，魂力耗尽而亡。。"
     get_skill = random.randint(1, 3)
     # 相差50%战斗技巧无法获得技巧值
     if skill_rate >= 1.5:
@@ -238,35 +282,24 @@ async def duanti(bot, ev: CQEvent):
     ct._save_user_info(enemy)
     # 伤势判断
     my_rate = my_hp / my.hp
+    if enemy.gongfa3 == '啼血神殇' and my_rate > 0.3:
+        my_rate = 0.25
     he_rate = he_hp / enemy.hp
-    log2 = ""
-    if not my_die_flag:
-        if my_rate <= 0:
-            save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 3)
-            log += f"{my_name}陷入濒死 "
-        elif my_rate < 0.1:
-            save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 2)
-            log += f"{my_name}受了重伤 "
-        elif my_rate < 0.3:
-            save_user_counter(my.gid, my.uid, UserModel.SHANGSHI, 1)
-            log += f"{my_name}受了轻伤 "
+    if my.gongfa3 == '啼血神殇' and he_rate > 0.3:
+        he_rate = 0.25
+    if my_die_flag and he_die_flag:
+        delete_user(enemy)
+        delete_user(my)
+    elif he_die_flag and not my_die_flag:
+        log += kill_user_cal(my, enemy)
+        log += cal_shangshi(my_rate, my)
+    elif not he_die_flag and my_die_flag:
+        log += kill_user_cal(enemy, my)
+        log += cal_shangshi(he_rate, enemy)
     else:
-        log2 += kill_user_cal(enemy, my)
-    if not he_die_flag:
-        if he_rate <= 0:
-            save_user_counter(enemy.gid, enemy.uid, UserModel.SHANGSHI, 3)
-            log += f"{he_name}陷入濒死 "
-        elif he_rate < 0.1:
-            save_user_counter(enemy.gid, enemy.uid, UserModel.SHANGSHI, 2)
-            log += f"{he_name}受了重伤 "
-        elif he_rate < 0.3:
-            save_user_counter(enemy.gid, enemy.uid, UserModel.SHANGSHI, 1)
-            log += f"{he_name}受了轻伤 "
-    else:
-        log2 += kill_user_cal(my, enemy)
+        log += cal_shangshi(my_rate, my)
+        log += cal_shangshi(he_rate, enemy)
     send_msg_li.append(log)
-    if log2:
-        send_msg_li.append(log2)
     await bot.finish(ev, '\n'.join(send_msg_li))
 
 
@@ -277,12 +310,15 @@ async def go(bot, ev: CQEvent):
     adress = MAP.get(name)
     if not adress:
         await bot.finish(ev, f"未找到名为「{name}」的地点")
-    if name == user.map:
-        await bot.finish(ev, f"你已经再{name}了 无需前往")
+    user_adress = MAP.get(user.map)
+    if name not in user_adress['able']:
+        await bot.finish(ev, f"你当前所在的[{user.map}]只能前往 {'｜'.join(user_adress['able'])}")
     need_level = adress["in_level"]
     if user.level < need_level:
         await bot.finish(ev, f"你的还不足以应对接下来的挑战，请先提升自己的实力吧（{name}需要{JingJieMap[str(need_level)]}才能前往）")
-    await user.check_and_start_cd(bot, ev)
+    await user.check_cd(bot, ev)
+    if user.gongfa3 != "千里神行":
+        user.start_cd()
     user.map = name
     ct = XiuxianCounter()
     ct._save_user_info(user)

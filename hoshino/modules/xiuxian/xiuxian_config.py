@@ -98,17 +98,17 @@ EXP_NEED_MAP = {
 }
 # 地图
 MAP = {
-    '新手村': {"max_level": 1, "in_level": 0, "lingqi_max": 10, "lingqi_min": 10},
-    '大千世界': {"max_level": 9, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30},
-    '修仙秘境': {"max_level": 12, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50},
-    '秘境迷踪': {"max_level": 15, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70},
-    '苍穹神州': {"max_level": 18, "in_level": 13, "lingqi_max": 150, "lingqi_min": 100},
-    '九天十国': {"max_level": 21, "in_level": 16, "lingqi_max": 200, "lingqi_min": 150},
-    '洪荒大陆': {"max_level": 24, "in_level": 19, "lingqi_max": 260, "lingqi_min": 200},
-    '诸天万界': {"max_level": 27, "in_level": 22, "lingqi_max": 320, "lingqi_min": 280},
-    '灵寰福址': {"max_level": 30, "in_level": 25, "lingqi_max": 400, "lingqi_min": 350},
-    '混沌绝地': {"max_level": 31, "in_level": 30, "lingqi_max": 500, "lingqi_min": 500},
-    '荧惑仙境': {"max_level": 40, "in_level": 10, "lingqi_max": 1000, "lingqi_min": 1000},
+    '新手村': {"max_level": 1, "in_level": 0, "lingqi_max": 10, "lingqi_min": 10, "able": ['大千世界']},
+    '大千世界': {"max_level": 9, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30, "able": ['新手村', '修仙秘境', '苍穹神州']},
+    '修仙秘境': {"max_level": 12, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50, "able": ['大千世界', '灵寰福址', '无尽之海']},
+    '无尽之海': {"max_level": 15, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['修仙秘境']},
+    '苍穹神州': {"max_level": 18, "in_level": 13, "lingqi_max": 150, "lingqi_min": 100, "able": ['大千世界', '洪荒大陆', '九天十国']},
+    '九天十国': {"max_level": 21, "in_level": 16, "lingqi_max": 200, "lingqi_min": 150, "able": ['苍穹神州', '诸天万界']},
+    '洪荒大陆': {"max_level": 24, "in_level": 19, "lingqi_max": 260, "lingqi_min": 200, "able": ['苍穹神州', '混沌绝地']},
+    '诸天万界': {"max_level": 27, "in_level": 22, "lingqi_max": 320, "lingqi_min": 280, "able": ['九天十国']},
+    '灵寰福址': {"max_level": 30, "in_level": 25, "lingqi_max": 400, "lingqi_min": 350, "able": ['修仙秘境']},
+    '混沌绝地': {"max_level": 31, "in_level": 30, "lingqi_max": 500, "lingqi_min": 500, "able": ['洪荒大陆']},
+    '荧惑仙境': {"max_level": 40, "in_level": 10, "lingqi_max": 1000, "lingqi_min": 1000, "able": []},
 }
 # 境界所能拥有的道具上限
 ITEM_CARRY = {
@@ -153,6 +153,7 @@ ITEM_CARRY = {
     "39": 20,
     "40": 20,
 }
+
 # 瓶颈
 PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
@@ -192,6 +193,7 @@ with open(os.path.join(FILE_PATH, 'config/fabao.json'), 'r', encoding='UTF-8') a
 with open(os.path.join(FILE_PATH, 'config/danfang.json'), 'r', encoding='UTF-8') as fa:
     DANFANG = json.load(fa, strict=False)
 
+
 # 根据名字获取道具
 def get_item_by_name(name):
     return ITEM_NAME_MAP.get(name)
@@ -212,11 +214,13 @@ def add_item(gid, uid, item, num=1):
     i_c._add_item(gid, uid, int(item['id']), num)
     return 1
 
+
 # 检查背包空间是否足够
 def check_have_space(gid, uid):
     if count_item(gid, uid) >= get_max_count(gid, uid):
         return 0
     return 1
+
 
 # 消耗道具
 def use_item(gid, uid, item, num=1):
@@ -292,6 +296,9 @@ def delete_user(user):
         item = ITEM_INFO[str(i[0])]
         num = i[1]
         use_item(user.gid, user.uid, item, num)
+    # 删除上架物品
+    it = ItemCounter()
+    it._del_trade_info(user.gid, user.uid)
     # 进入死亡cd
     die_flmt.start_cd(user.uid)
 
@@ -427,7 +434,7 @@ class AllUserInfo():
 
     def start_cd(self):
         if self.gongfa3 == "大罗洞观":
-            if random.randint(1, 20) > 1:
+            if random.randint(1, 10) > 1:
                 flmt.start_cd(self.uid)
         else:
             flmt.start_cd(self.uid)
@@ -479,3 +486,13 @@ def get_gongfa_by_name(name):
 # 获取法宝
 def get_fabao_by_name(name):
     return FABAO_INFO.get(name)
+
+
+# 筛选道具名称
+def filter_item_name(type=[], level=[]):
+    result = [i for i in ITEM_NAME_MAP.keys()]
+    if type:
+        result = [i for i in result if ITEM_NAME_MAP[i]['type'] in type]
+    if level:
+        result = [i for i in result if ITEM_NAME_MAP[i]['level'] in level]
+    return result

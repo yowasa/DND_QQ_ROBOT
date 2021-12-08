@@ -102,6 +102,7 @@
   },
   "双狼剑": {
     "name": "双狼剑",
+    "condition_desc": "需要锻体以上",
     "condition": "level>1",
     "damage_type": 0,
     "buff": {
@@ -163,6 +164,7 @@
   "流云剑": {
     "name": "流云剑",
     "condition": "level>6",
+    "condition_desc": "需要练气以上",
     "damage_type": 0,
     "buff": {
       "atk1": 10,

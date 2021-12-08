@@ -75,7 +75,7 @@ async def consume_item(bot, ev: CQEvent):
         result = await equip(bot, ev, item_info['name'])
     elif item_info['type'] == '法宝':
         result = await equip_fa(bot, ev, item_info['name'])
-    elif item_info['type'] == '丹药':
+    elif item_info['type'] in ['丹药', "消耗品"]:
         result = await _use_item(msg[0], msg[1:], bot, ev)
     else:
         result = (False, f"【{item_info['type']}】{item_info['name']}:{item_info['desc']}")
@@ -319,7 +319,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     user = ct._get_user(gid, uid)
     if user.level < 16:
         return (False, f"你当前的境界无法吸收补天丹")
-    user.exp += 800
+    user.exp += 500
     ct._save_user_info(user)
     return (True, f"你服用了补天丹，感觉到灵力喷涌而出，获得了800点EXP")
 
@@ -383,6 +383,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     save_user_counter(gid, uid, UserModel.ZHUJIDAN, 1)
     return (True, f"你服用了筑基丹,筑基更容易成功")
 
+
 @msg_route("混元丹")
 async def choose_girl(msg, bot, ev: CQEvent):
     gid = ev.group_id
@@ -437,9 +438,9 @@ async def choose_girl(msg, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user = ct._get_user(gid, uid)
     if user.hp > 400:
-        (False, f"你已经足够强壮,赤血丹对你没有效果了")
+        return (False, f"你已经足够强壮,赤血丹对你没有效果了")
     if user.level < 7:
-        (False, f"你现在境界还无法吸收赤血丹，请至少达到练气期")
+        return (False, f"你现在境界还无法吸收赤血丹，请至少达到练气期")
     user.hp += 20
     ct._save_user_info(user)
     return (True, f"你使用了赤血丹,增加了20HP上限。")
@@ -452,9 +453,9 @@ async def choose_girl(msg, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user = ct._get_user(gid, uid)
     if user.mp > 200:
-        (False, f"你法力足够雄厚,涤魂丹对你没有效果了")
+        return (False, f"你法力足够雄厚,涤魂丹对你没有效果了")
     if user.level < 13:
-        (False, f"你现在境界还无法吸收赤血丹，请至少达到结丹期")
+        return (False, f"你现在境界还无法吸收赤血丹，请至少达到结丹期")
     user.mp += 10
     ct._save_user_info(user)
     return (True, f"你使用了涤魂丹,增加了10MP上限。")
@@ -467,9 +468,9 @@ async def choose_girl(msg, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user = ct._get_user(gid, uid)
     if user.defen > 80:
-        (False, f"你已经足够强壮,无极散对你没有效果了")
+        return (False, f"你已经足够强壮,无极散对你没有效果了")
     if user.level < 13:
-        (False, f"你现在境界还无法吸收无极散，请至少达到结丹期")
+        return (False, f"你现在境界还无法吸收无极散，请至少达到结丹期")
     user.defen += 5
     ct._save_user_info(user)
     return (True, f"你使用了无极散,物理防御增加了5点。")
@@ -482,12 +483,13 @@ async def choose_girl(msg, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user = ct._get_user(gid, uid)
     if user.defen2 > 80:
-        (False, f"你已经足够强壮,月华露对你没有效果了")
+        return (False, f"你已经足够强壮,月华露对你没有效果了")
     if user.level < 13:
-        (False, f"你现在境界还无法吸收月华露，请至少达到结丹期")
+        return (False, f"你现在境界还无法吸收月华露，请至少达到结丹期")
     user.defen2 += 5
     ct._save_user_info(user)
     return (True, f"你使用了月华露,术法防御增加了5点。")
+
 
 @msg_route("悟道丸")
 async def choose_girl(msg, bot, ev: CQEvent):
@@ -496,7 +498,46 @@ async def choose_girl(msg, bot, ev: CQEvent):
     ct = XiuxianCounter()
     user = ct._get_user(gid, uid)
     if user.wuxing > 80:
-        (False, f"你已经足够聪明,悟道丸对你没有效果了")
+        return (False, f"你已经足够聪明,悟道丸对你没有效果了")
     user.wuxing += 5
     ct._save_user_info(user)
     return (True, f"你使用了悟道丸,悟性增加了5点。")
+
+
+@msg_route("水猴子的感恩礼盒")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if check_have_space(gid, uid):
+        return (False, f"至少保有一格背包空间")
+    lingshi = get_user_counter(gid, uid, UserModel.LINGSHI)
+    if lingshi < 50:
+        return (False, f"开启盒子需要50灵石")
+    add_user_counter(gid, uid, UserModel.LINGSHI, num=-50)
+    rd = random.randint(1, 100)
+    msg = "你打开了盒子，发现了"
+    if rd <= 74:
+        names = filter_item_name(type=['武器', '法宝', '心法', '功法', '神通', '材料', '符咒'],
+                                 level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
+        name = random.choice(names)
+        item = get_item_by_name(name)
+        add_item(gid, uid, item)
+        msg += f"{item}"
+    elif rd <= 99:
+        add_user_counter(gid, uid, UserModel.LINGSHI, 10)
+        msg += f"老太太的菜篮子（内含你被碰瓷亏的10灵石）"
+    else:
+        get_lingshi = random.randint(300, 500)
+        add_user_counter(gid, uid, UserModel.LINGSHI, get_lingshi)
+        msg += f"村口胡了国士无双人的钱包（内含{get_lingshi}灵石）"
+    return (True, msg)
+
+
+@msg_route("燃魂丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.RANHUN):
+        return (False, "你已经服用过了燃魂丹，无法服用多个")
+    save_user_counter(gid, uid, UserModel.RANHUN, 1)
+    return (True, "你服用了燃魂丹 下一次主动对战战斗力翻倍 自己必定死亡")

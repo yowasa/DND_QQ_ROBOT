@@ -4,8 +4,8 @@
 "培元丹":{"name":"培元丹","time":1,"price":150,"ex_item":[]},
 "纯阳丹":{"name":"纯阳丹","time":1,"price":200,"ex_item":[]},
 "造化丸":{"name":"造化丸","time":1,"price":300,"ex_item":[]},
-"补天丹":{"name":"补天丹","time":1,"price":800,"ex_item":[]},
-"定神香":{"name":"定神香","time":1,"price":1600,"ex_item":[]},
+"补天丹":{"name":"补天丹","time":1,"price":500,"ex_item":[]},
+"定神香":{"name":"定神香","time":1,"price":800,"ex_item":[]},
 "洗髓丹":{"name":"洗髓丹","time":1,"price":300,"ex_item":[]},
 "涅槃丹":{"name":"涅槃丹","time":1,"price":500,"ex_item":[]},
 "筑基丹":{"name":"筑基丹","time":1,"price":200,"ex_item":[]},
@@ -17,5 +17,6 @@
 "涤魂丹":{"name":"涤魂丹","time":2,"price":500,"ex_item":["玄牝珠"]},
 "无极散":{"name":"无极散","time":2,"price":500,"ex_item":["赭黄精","琅琊果"]},
 "月华露":{"name":"月华露","time":2,"price":500,"ex_item":["赭黄精","朱果"]},
-"悟道丸":{"name":"悟道丸","time":2,"price":500,"ex_item":[]}
+"悟道丸":{"name":"悟道丸","time":2,"price":500,"ex_item":[]},
+"燃魂丹":{"name":"燃魂丹","time":1,"price":800,"ex_item":["朱果"]}
 }
