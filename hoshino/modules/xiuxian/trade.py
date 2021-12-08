@@ -36,7 +36,7 @@ async def shangjia(bot, ev: CQEvent):
     it._save_trade_item(user.gid, user.uid, int(item['id']), price)
     # 损耗物品
     use_item(user.gid, user.uid, item)
-    await bot.finish(ev, f'你以{price}灵石的价格成功上架物品「{item_name}」', at_sender=True)
+    await bot.finish(ev, f'你支付了{shui}灵石的税款，以{price}灵石的价格成功上架物品「{item_name}」', at_sender=True)
 
 
 @sv.on_fullmatch(["#下架"])
