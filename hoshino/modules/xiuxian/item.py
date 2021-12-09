@@ -508,7 +508,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
 async def choose_girl(msg, bot, ev: CQEvent):
     gid = ev.group_id
     uid = ev.user_id
-    if check_have_space(gid, uid):
+    if not check_have_space(gid, uid):
         return (False, f"至少保有一格背包空间")
     lingshi = get_user_counter(gid, uid, UserModel.LINGSHI)
     if lingshi < 50:
@@ -522,7 +522,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
         name = random.choice(names)
         item = get_item_by_name(name)
         add_item(gid, uid, item)
-        msg += f"{item}"
+        msg += f"{name}"
     elif rd <= 99:
         add_user_counter(gid, uid, UserModel.LINGSHI, 10)
         msg += f"老太太的菜篮子（内含你被碰瓷亏的10灵石）"
