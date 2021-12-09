@@ -13,7 +13,7 @@ EVENT_MAP = {
     '无尽之海': {"交谈心得": 32, "仙府机缘": 40, "黄粱一梦": 5, "剑冢遇险": 5, "名胜古景": 5, "神秘商人": 5, "比划比划": 5, "秘境之伴": 3},
     '苍穹神州': {"捕捉小兽": 52, "井中洞天": 5, "女仆咖啡": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
              "心魔历练": 5, "神州之伴": 3},
-    '九天十国': {"人面兽心": 50, "沉迷赌博": 5, "黑白无常": 5, "狗头人兽": 5, "妖兽侵扰": 10, "乌云笼罩": 5, "神秘商人": 5, "水猴赠礼": 15},
+    '九天十国': {"人面兽心": 52, "沉迷赌博": 5, "黑白无常": 5, "狗头人兽": 5, "妖兽侵扰": 10, "乌云笼罩": 3, "神秘商人": 5, "水猴赠礼": 15},
     '洪荒大陆': {"无": 100},
     '诸天万界': {"无": 100},
     '灵寰福址': {"无": 100},
@@ -386,7 +386,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 @msg_route("剑冢遇险")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ex_msg = ""
-    if not add_item(user.gid, user.uid, get_item_by_name("琅邪果")):
+    if not add_item(user.gid, user.uid, get_item_by_name("琅琊果")):
         ex_msg = "(背包已满,只得丢弃)"
     save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 1)
     return f"与人探索一个剑冢，不小心失散且触发了禁制！大量机关傀儡禁制被触发拼命逃出，逃出之时发现路边一处暗室有宝物气息，为取宝物耽搁了时间，身受轻伤，获得琅邪果{ex_msg}"
@@ -411,7 +411,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
         return f"偶遇一个神秘怪人，向你兜售一件神秘物品，一番讨价还价之后开价{rd}灵石，但是你没有这么多灵石，只得罢了。"
     left = lingshi - rd
     save_user_counter(user.gid, user.uid, UserModel.LINGSHI, left)
-    names = filter_item_name(type=['武器', '心法', '功法', '神通', '材料', '符咒'], level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
+    names = filter_item_name(type=['心法', '功法', '神通', '材料', '符咒'], level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
     name = random.choice(names)
     item = get_item_by_name(name)
     ex_msg = ""
@@ -641,8 +641,13 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 
 @msg_route("妖兽侵扰")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
-    names = ["凡铁", "精铁", "玄铁"]
-    name = random.choice(names)
+    rd = random.randint(1, 10)
+    if rd <= 6:
+        name = "凡铁"
+    elif rd <= 9:
+        name = "精铁"
+    else:
+        name = "玄铁"
     item = get_item_by_name(name)
     if not add_item(user.gid, user.uid, item):
         ex_msg = "(背包已满,只得丢弃)"
@@ -674,6 +679,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 @msg_route("水猴赠礼")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     item = get_item_by_name("水猴子的感恩礼盒")
+    ex_msg=""
     if not add_item(user.gid, user.uid, item):
         ex_msg = "(背包已满,只得丢弃)"
     return f"因为你曾经对水猴子的悉心照料，水猴子送给了你一份礼物，获得【水猴子的感恩礼盒】一份（来自水猴子的礼物，不知道里面有什么，消耗50灵石打开）{ex_msg}"

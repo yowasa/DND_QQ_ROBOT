@@ -159,15 +159,15 @@ PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
 XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
-# 时间限制
-# 操作间隔
-flmt = FreqLimiter(10*60)
-# 死亡cd
-die_flmt = FreqLimiter(1*60*60)
+# # 时间限制
+# # 操作间隔
+# flmt = FreqLimiter(10*60)
+# # 死亡cd
+# die_flmt = FreqLimiter(1*60*60)
 
 # 测试服
-# flmt = FreqLimiter(1)
-# die_flmt = FreqLimiter(10)
+flmt = FreqLimiter(1)
+die_flmt = FreqLimiter(10)
 
 # 文件路径
 FILE_PATH = os.path.dirname(__file__)
@@ -192,6 +192,10 @@ with open(os.path.join(FILE_PATH, 'config/fabao.json'), 'r', encoding='UTF-8') a
 # 丹方
 with open(os.path.join(FILE_PATH, 'config/danfang.json'), 'r', encoding='UTF-8') as fa:
     DANFANG = json.load(fa, strict=False)
+
+# 锻造
+with open(os.path.join(FILE_PATH, 'config/duanzao.json'), 'r', encoding='UTF-8') as fa:
+    DUANZAO = json.load(fa, strict=False)
 
 
 # 根据名字获取道具
@@ -241,11 +245,6 @@ def get_max_count(gid, uid):
     max = ITEM_CARRY[str(user.level)]
     if user.gongfa3 == "袖里乾坤":
         max = 2 * max
-    return max
-
-
-def get_max_count_by_level(level):
-    max = ITEM_CARRY[str(level)]
     return max
 
 
@@ -406,7 +405,7 @@ class AllUserInfo():
         # 持有道具数
         self.have_item_count = count_item(self.gid, self.uid)
         # 最大持有道具数
-        self.max_item_count = get_max_count_by_level(self.level)
+        self.max_item_count = get_max_count(self.gid, self.uid)
         # 灵石
         self.lingshi = flags.get(UserModel.LINGSHI)
         # 杀人数量
