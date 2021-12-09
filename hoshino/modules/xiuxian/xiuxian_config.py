@@ -159,15 +159,15 @@ PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
 XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
-# # 时间限制
-# # 操作间隔
-# flmt = FreqLimiter(10*60)
-# # 死亡cd
-# die_flmt = FreqLimiter(1*60*60)
+# 时间限制
+# 操作间隔
+flmt = FreqLimiter(10*60)
+# 死亡cd
+die_flmt = FreqLimiter(1*60*60)
 
 # 测试服
-flmt = FreqLimiter(1)
-die_flmt = FreqLimiter(10)
+# flmt = FreqLimiter(1)
+# die_flmt = FreqLimiter(10)
 
 # 文件路径
 FILE_PATH = os.path.dirname(__file__)
