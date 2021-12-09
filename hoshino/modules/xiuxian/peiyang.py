@@ -10,7 +10,7 @@ def cal_get_exp(user):
     speed = base_speed
     if user.gongfa == '太玄经':
         if 30 - user.wuxing > 0:
-            speed += (30 - user.wuxing) * (6 - len(user.linggen))
+            speed += (30 - user.wuxing) * (10 - len(user.linggen))
         return int(lingqi * speed / 100) + 2
     if user.gongfa in ['天罡经', '八九玄功']:
         speed += 30
@@ -18,7 +18,7 @@ def cal_get_exp(user):
             speed = 100
     if user.gongfa == '百锻成仙':
         speed = int(speed / 2)
-        rd = random.randint(1, 10)
+        rd = random.randint(1, 5)
         if rd == 1:
             rd = random.randint(1, 6)
             if rd == 1:
