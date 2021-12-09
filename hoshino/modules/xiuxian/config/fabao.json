@@ -118,7 +118,7 @@
   "阴阳二气瓶": {
     "name": "阴阳二气瓶",
     "condition": "(level>15)&('水' in linggen)&('火' in linggen)",
-    "condition_desc": "需要金丹以上 且同时具有金木灵根",
+    "condition_desc": "需要金丹以上 且同时具有水火灵根",
     "effect": {
       "cost": 100,
       "time": "begin",
