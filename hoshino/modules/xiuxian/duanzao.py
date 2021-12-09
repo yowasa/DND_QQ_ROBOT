@@ -11,7 +11,7 @@ async def shangjia(bot, ev: CQEvent):
         item = ITEM_INFO[str(item_id)]
         cd = get_user_counter(user.gid, user.uid, UserModel.DUANZAO_CD)
         cd += 1
-        danfang = DANFANG[item['name']]
+        danfang = DUANZAO[item['name']]
         if cd >= danfang['time']:
             if not add_item(user.gid, user.uid, item):
                 await bot.finish(ev, "请先腾出一格背包空间")

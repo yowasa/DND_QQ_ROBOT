@@ -649,6 +649,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     else:
         name = "玄铁"
     item = get_item_by_name(name)
+    ex_msg = ""
     if not add_item(user.gid, user.uid, item):
         ex_msg = "(背包已满,只得丢弃)"
     return f"此城的一位长老拜托你调查附近边界的妖兽活跃问题。清理了附近的兽群并得到了一块{name}{ex_msg}"
@@ -679,7 +680,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 @msg_route("水猴赠礼")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     item = get_item_by_name("水猴子的感恩礼盒")
-    ex_msg=""
+    ex_msg = ""
     if not add_item(user.gid, user.uid, item):
         ex_msg = "(背包已满,只得丢弃)"
     return f"因为你曾经对水猴子的悉心照料，水猴子送给了你一份礼物，获得【水猴子的感恩礼盒】一份（来自水猴子的礼物，不知道里面有什么，消耗50灵石打开）{ex_msg}"
