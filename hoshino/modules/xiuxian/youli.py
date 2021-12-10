@@ -622,7 +622,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
         msg += "只听到这长江天险后，便是江东铁壁后便被此人击成重伤，不得已逃跑。"
     else:
-        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 1)
         counter = ItemCounter()
         items = counter._get_item(user.gid, user.uid)
         total_count = 0
