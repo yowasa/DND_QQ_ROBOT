@@ -28,8 +28,10 @@ class UserModel(Enum):
     ZUOYOU_GONGFA = [16, "左右互博储存的功法"]
     RANHUN = [17, "燃魂丹服用标识"]
     HUFA_NUM = [18, "护法数量"]
-    DUANZAO_CD = [13, "锻造cd"]  # 炼丹cd标识
-    DUANZAO_ITEM = [14, "锻造item"]  # 炼的丹药是什么
+    DUANZAO_CD = [19, "锻造cd"]  # 锻造cd
+    DUANZAO_ITEM = [20, "锻造item"]  # 锻造物品
+    LIANBAO_ITEM = [21, "炼宝item"]
+    LIANBAO_LINGQI = [22, "炼宝灵气"]
 
 
 # 群组状态储存枚举类

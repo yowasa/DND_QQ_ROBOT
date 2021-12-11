@@ -35,6 +35,7 @@ async def youli(bot, ev: CQEvent):
         if rn <= total:
             msg = i
             break
+    sv.logger.info(f"进行游历:[{msg}]")
     result = await _youli(msg, user, bot, ev)
     await bot.send(ev, result, at_sender=True)
 

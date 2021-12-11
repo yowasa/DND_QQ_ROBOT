@@ -154,6 +154,22 @@ ITEM_CARRY = {
     "40": 20,
 }
 
+LIANBAO_NEED_LINGQI = {
+    "凡人": 200,
+    "锻体": 300,
+    "练气": 400,
+    "筑基": 500,
+    "结丹": 600,
+    "金丹": 800,
+    "元婴": 1000,
+    "化神": 1200,
+    "洞虚": 1500,
+    "大乘": 1800,
+    "天仙": 3000,
+    "真仙": 4000,
+    "金仙": 5000,
+}
+
 # 瓶颈
 PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
@@ -418,6 +434,13 @@ class AllUserInfo():
     async def check_cd(self, bot, ev):
         if self.shangshi >= 2:
             await bot.finish(ev, "你伤势过重，只能修养！")
+        item_id = get_user_counter(self.gid, self.uid, UserModel.LIANBAO_ITEM)
+        if item_id:
+            item = ITEM_INFO[str(item_id)]
+            need = LIANBAO_NEED_LINGQI[item['level']]
+            have = get_user_counter(self.gid, self.uid, UserModel.LIANBAO_LINGQI)
+            if have >= need:
+                await bot.send(ev, "炼宝灵气已经充足，请使用#练宝 指令获取炼制完成的法宝")
         await self.check_cd_ignore_other(bot, ev)
 
     async def check_cd_ignore_other(self, bot, ev):
@@ -432,6 +455,14 @@ class AllUserInfo():
             await bot.finish(ev, f"做事急躁，有损道心，道行-1，距离下次操作还需要{round(int(flmt.left_time(self.uid)))}秒")
 
     def start_cd(self):
+        # 练宝相关
+        item_id = get_user_counter(self.gid, self.uid, UserModel.LIANBAO_ITEM)
+        if item_id:
+            address = MAP.get(self.map)
+            min = address["lingqi_min"]
+            max = address["lingqi_max"]
+            lingqi = int(random.randint(min, max) * 0.1)
+            add_user_counter(self.gid, self.uid, UserModel.LIANBAO_LINGQI, lingqi)
         if self.gongfa3 == "大罗洞观":
             if random.randint(1, 10) > 1:
                 flmt.start_cd(self.uid)

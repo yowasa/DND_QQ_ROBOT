@@ -91,8 +91,7 @@ async def query(bot, ev: CQEvent):
 async def query(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     sendmsg = f"""
-道号:{user.name} 灵石:{user.lingshi} 背包:{user.have_item_count}/{user.max_item_count}
-灵根:{user.linggen} 伤势:{user.shangshi_desc} 
+道号:{user.name} 灵根:{user.linggen} 伤势:{user.shangshi_desc} 
 境界:{JingJieMap[str(user.level)]}  EXP:{user.exp}
 武器:{user.wuqi}  法宝:{user.fabao}
 心法:{user.gongfa} 功法:{user.gongfa2} 神通:{user.gongfa3}
