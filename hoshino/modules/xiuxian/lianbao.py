@@ -2,7 +2,6 @@ from .xiuxian_config import *
 from hoshino.util.utils import get_message_text
 
 
-
 @sv.on_prefix(["#炼宝"])
 async def shangjia(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
@@ -36,6 +35,8 @@ async def shangjia(bot, ev: CQEvent):
             await bot.finish(ev, f"不存在名为[{i}]的武器或法宝")
         if not check_have_item(user.gid, user.uid, item):
             await bot.finish(ev, f"你背包中没有[{i}]")
+        if item['type'] == 'EX':
+            await bot.finish(ev, f"[{item['name']}]无法当作底物")
         if order.index(item['level']) == order.index(max_level):
             max_level_count += 1
         elif order.index(item['level']) > order.index(max_level):
