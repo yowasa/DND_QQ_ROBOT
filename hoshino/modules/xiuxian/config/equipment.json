@@ -486,5 +486,97 @@
       "defen1": 30,
       "defen1": 30
     }
+  },
+  "金童剑": {
+    "name": "金童剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1_exec": "atk1+tizhi"
+    }
+  },
+  "玉女剑": {
+    "name": "玉女剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2_exec": "atk2+lingli"
+    }
+  },
+  "圣洁光辉": {
+    "name": "圣洁光辉",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 140,
+      "double": 5
+    }
+  },
+  "净水之息": {
+    "name": "净水之息",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 100,
+      "double": 25
+    }
+  },
+  "苍华剑施": {
+    "name": "苍华剑施",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 60,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "流星芸剑": {
+    "name": "流星芸剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 60,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "黑白剑": {
+    "name": "黑白剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10
+    },
+    "skill": [
+      "黑白剑"
+    ]
+  },
+  "暗夜之影": {
+    "name": "暗夜之影",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "defen2": 80
+    }
+  },
+  "白狼天牙": {
+    "name": "白狼天牙",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "defen1": 80
+    }
   }
 }

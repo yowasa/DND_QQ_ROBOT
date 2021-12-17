@@ -564,5 +564,4 @@
     "condition_desc": "金丹以上",
     "speed": "int(wuxing/10)+10"
   }
-
 }

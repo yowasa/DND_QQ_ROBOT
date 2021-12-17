@@ -1,5 +1,7 @@
 from .xiuxian_config import *
+from .xiuxian_base import *
 from hoshino.util.utils import get_message_text
+
 
 
 @sv.on_prefix(["#锻造"])

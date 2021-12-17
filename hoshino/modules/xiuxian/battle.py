@@ -1,4 +1,4 @@
-from hoshino.modules.xiuxian.xiuxian_config import *
+from .xiuxian_config import *
 import random
 
 
@@ -246,7 +246,7 @@ def duel_buff(my_content, enemy_content):
     dmg_type = content_get("dmg_type", my_content)
     dmg_rate = content_get("dmg_rate", my_content)
     reduce_rate = content_get("reduce_rate", enemy_content)
-    du_flag = content_get("du_flag", enemy_content)
+    du_flag = content_get("du_flag", my_content)
     ex_atk = content_get('ex_atk', my_content)
     # 处理自适应伤害
     if dmg_type == 2:
@@ -260,7 +260,6 @@ def duel_buff(my_content, enemy_content):
         my_content["damage_log"] += f"无法行动!"
         my_content["total_damage"] = dmg
         return
-        # 倍率加成
 
     boost_tag = ""
     if is_boost:
@@ -339,7 +338,7 @@ def cal_yichang(my_content, enemy_content):
         my_content["du_count"] = du_count
     if du_count > 0:
         my_content["hp"] -= du_count
-        logs.extend(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
+        logs.append(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
     return logs
 
 

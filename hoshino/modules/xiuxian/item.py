@@ -1,5 +1,7 @@
 from .xiuxian_config import *
+from .xiuxian_base import *
 from hoshino.util.utils import get_message_text, get_message_at
+
 
 # @sv.on_prefix(['#获取'])
 # async def my_item(bot, ev: CQEvent):
@@ -30,6 +32,30 @@ from hoshino.util.utils import get_message_text, get_message_at
 #     num = int(msg)
 #     add_user_counter(gid, uid, UserModel.LINGSHI, num)
 #     await bot.finish(ev, f"充值{num}灵石成功", at_sender=True)
+
+@sv.on_prefix(["#传送"])
+async def go(bot, ev: CQEvent):
+    user = await get_ev_user(bot, ev)
+    name = str(ev.message).strip()
+    adress = MAP.get(name)
+    count = get_user_counter(user.gid, user.uid, UserModel.CHUANSONG)
+    if count <= 0:
+        item = get_item_by_name("传送符")
+        if check_have_item(user.gid, user.uid, item):
+            use_item(user.gid, user.uid, item)
+            add_user_counter(user.gid, user.uid, UserModel.CHUANSONG, num=3)
+        else:
+            await bot.finish(ev, f"你剩余传送次数不足且没有传送符")
+    if not adress:
+        await bot.finish(ev, f"未找到名为「{name}」的地点")
+    need_level = adress["in_level"]
+    if user.level < need_level:
+        await bot.finish(ev, f"你实力还不足以进入该地图（{name}需要{JingJieMap[str(need_level)]}才能进入）")
+    add_user_counter(user.gid, user.uid, UserModel.CHUANSONG, num=-1)
+    user.map = name
+    ct = XiuxianCounter()
+    ct._save_user_info(user)
+    await bot.finish(ev, f"你使用了传送符传送到了[{name}]")
 
 
 @sv.on_fullmatch(['#背包'])

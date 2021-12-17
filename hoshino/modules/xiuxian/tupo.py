@@ -1,6 +1,6 @@
 from hoshino.util.utils import get_message_at, get_message_text
 from .battle import *
-
+from .xiuxian_base import *
 
 @sv.on_prefix(["#护法"])
 async def hufa(bot, ev: CQEvent):

@@ -1,6 +1,6 @@
 from .battle import *
 from hoshino.util.utils import get_message_text, get_message_at
-
+from .xiuxian_base import *
 
 @sv.on_fullmatch(["#拜入"])
 async def _(bot, ev: CQEvent):
@@ -34,7 +34,7 @@ async def _(bot, ev: CQEvent):
         item = get_item_by_name(i)
         # gongfa = get_gongfa_by_name(i)
         li.append(f"[{item['type']}]{i}({CANGJING[user.map][i]}帮贡)")
-    await bot.finish(ev, "\n"+"\n".join(li), at_sender=True)
+    await bot.finish(ev, "\n" + "\n".join(li), at_sender=True)
 
 
 @sv.on_prefix(["#学习"])
@@ -129,33 +129,45 @@ MISSION = {
 }
 
 
-@sv.on_prefix(["#任务"])
+@sv.on_prefix(["#放弃任务"])
 async def _(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     await user.check_cd(bot, ev)
+    id = get_user_counter(user.gid, user.uid, UserModel.MISSION)
+    if not id:
+        await bot.finish(ev, "你尚未接受任务", at_sender=True)
+    else:
+        daily_mission_limiter.increase([user.uid])
+        save_user_counter(user.gid, user.uid, UserModel.MISSION, 0)
+        save_user_counter(user.gid, user.uid, UserModel.MISSION_COMPLETE, 0)
+        await bot.finish(ev, "放弃任务成功", at_sender=True)
+
+
+@sv.on_prefix(["#任务"])
+async def _(bot, ev: CQEvent):
+    user = await get_ev_user(bot, ev)
     id = get_user_counter(user.gid, user.uid, UserModel.MISSION)
     if id:
         mission_name = MISSION[str(id)]
         suc, result = await _complete(mission_name, user, bot, ev)
         if suc:
-            user.start_cd()
             daily_mission_limiter.increase([user.uid])
             save_user_counter(user.gid, user.uid, UserModel.MISSION, 0)
             save_user_counter(user.gid, user.uid, UserModel.MISSION_COMPLETE, 0)
-        await bot.send(ev, result, at_sender=True)
-
+        await bot.finish(ev, result, at_sender=True)
     else:
+        await user.check_cd(bot, ev)
         if user.map != user.belong:
-            await bot.send(ev, "必须在宗门才能接受任务", at_sender=True)
+            await bot.finish(ev, "必须在宗门才能接受任务", at_sender=True)
         if not daily_mission_limiter.check([user.uid]):
-            await bot.send(ev, "你今日完成任务次数已达上限，无法继续接受任务", at_sender=True)
+            await bot.finish(ev, "你今日完成任务次数已达上限，无法继续接受任务", at_sender=True)
         li = list(MISSION.keys())
         id = random.choice(li)
         mission_name = MISSION[id]
         result = await _accept(mission_name, user, bot, ev)
         save_user_counter(user.gid, user.uid, UserModel.MISSION, int(id))
         user.start_cd()
-        await bot.send(ev, result, at_sender=True)
+        await bot.finish(ev, result, at_sender=True)
 
 
 mission_register = dict()
@@ -264,8 +276,6 @@ async def _(user: AllUserInfo, bot, ev: CQEvent):
     return (True, f"你完成了宗门修筑清扫，获得了{get_banggong}帮贡")
 
 
-# 采药地点:
-
 @mission_route("寻花采药")
 async def _(user: AllUserInfo, bot, ev: CQEvent):
     return f"你领取了[寻花采药]任务,请前往大千世界或者百花谷使用#任务 完成采药，回到宗门再使用#任务 完成任务"
@@ -359,6 +369,8 @@ async def duanti(bot, ev: CQEvent):
     id = get_user_counter(my.gid, my.uid, UserModel.WUXUE)
     if not id:
         await bot.finish(ev, f"你尚未接受交流武学的任务，严禁私下切磋！")
+    if get_user_counter(my.gid, my.uid, UserModel.MISSION_COMPLETE):
+        await bot.finish(ev, f"你已经完成交流武学的任务，严禁私下继续切磋！")
     if enemy.belong != QIE_CUO_MAP[str(id)]['name']:
         await bot.finish(ev, f"你接到的切磋请求是与[{QIE_CUO_MAP[str(id)]['name']}]而不是[{enemy.belong}]！")
     if my.map != enemy.map:

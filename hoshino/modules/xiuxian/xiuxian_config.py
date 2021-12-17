@@ -1,15 +1,10 @@
 from hoshino.util import FreqLimiter
-from hoshino import Service, priv
-from hoshino.typing import CQEvent
 from .ItemCounter import *
 from .XiuxianCounter import *
 from hoshino import util
 import random
 import json
 
-sv = Service('修仙', manage_priv=priv.SUPERUSER, enable_on_default=False, visible=True, bundle='修仙', help_=
-'''[#修仙手册] 查询修仙帮助
-''')
 # 境界列表
 JingJieMap = {
     "1": '凡人',
@@ -235,11 +230,11 @@ DAQIAN_MAP = {
     "4": {"id": "4", "name": "无尽之海", "in_level": 10},
     "5": {"id": "5", "name": "苍穹神州", "in_level": 13},
     "6": {"id": "6", "name": "九天十国", "in_level": 16},
-    "7": {"id": "7", "name": "洪荒大陆", "in_level": 19},
-    "8": {"id": "8", "name": "诸天万界", "in_level": 22},
-    "9": {"id": "9", "name": "灵寰福址", "in_level": 25},
-    "10": {"id": "10", "name": "混沌绝地", "in_level": 30},
-    "11": {"id": "11", "name": "荧惑仙境", "in_level": 10}
+    # "7": {"id": "7", "name": "洪荒大陆", "in_level": 19},
+    # "8": {"id": "8", "name": "诸天万界", "in_level": 22},
+    # "9": {"id": "9", "name": "灵寰福址", "in_level": 25},
+    # "10": {"id": "10", "name": "混沌绝地", "in_level": 30},
+    # "11": {"id": "11", "name": "荧惑仙境", "in_level": 32}
 }
 
 QIE_CUO_MAP = {
@@ -261,7 +256,7 @@ flmt = FreqLimiter(10 * 60)
 # 死亡cd
 die_flmt = FreqLimiter(1 * 60 * 60)
 
-# 测试服
+# # 测试服
 # flmt = FreqLimiter(1)
 # die_flmt = FreqLimiter(10)
 
@@ -501,7 +496,7 @@ class AllUserInfo():
         if buff.get('dodge'):
             self.battle_dodge += buff.get('dodge')
         content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2,
-                   "defen1": self.battle_defen1,
+                   "defen1": self.battle_defen1,"tizhi":self.tizhi,"lingli":self.lingli,
                    "defen2": self.battle_defen2, "hp": self.battle_hp, "mp": self.battle_mp, "level": self.level}
         if buff.get('hp_exec'):
             self.battle_hp = int(eval(buff.get('hp_exec'), content))
@@ -767,5 +762,5 @@ class DailyAmountLimiter(DailyNumberLimiter):
 
 
 daily_fenglu_limiter = DailyAmountLimiter("fenglu", 1, 5)
-daily_huafu_limiter = DailyAmountLimiter("huafu", 1, 5)
+daily_huafu_limiter = DailyAmountLimiter("huafu", 2, 5)
 daily_mission_limiter = DailyAmountLimiter("mission", 10, 5)

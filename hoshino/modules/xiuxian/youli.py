@@ -1,6 +1,7 @@
 from .xiuxian_config import *
 from hoshino import util
 import random
+from .xiuxian_base import *
 
 # 游历
 

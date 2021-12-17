@@ -1,6 +1,6 @@
 from .xiuxian_config import *
 from hoshino.util.utils import get_message_text
-
+from .xiuxian_base import *
 
 @sv.on_prefix(["#上架"])
 async def shangjia(bot, ev: CQEvent):

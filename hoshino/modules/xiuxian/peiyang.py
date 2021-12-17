@@ -1,5 +1,5 @@
 from .xiuxian_config import *
-
+from .xiuxian_base import *
 
 def get_max_min_zongmen(user):
     min = 0

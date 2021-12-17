@@ -39,6 +39,7 @@ class UserModel(Enum):
     YOULI_DAQIAN = [27, "游历大千的地点"]
     YOULI_DAQIAN_COUNT = [28, "游历大千的次数"]
     WUXUE = [29, "武学交流的门派"]
+    CHUANSONG = [30, "传送剩余次数"]
 
 
 # 群组状态储存枚举类

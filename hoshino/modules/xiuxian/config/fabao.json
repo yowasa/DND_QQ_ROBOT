@@ -3,120 +3,256 @@
     "name": "天磐水灵玉",
     "condition": "(level>15)&('水' in linggen)",
     "condition_desc": "需要金丹以上 且具有水灵根",
-    "skill": ["吸血"]
+    "skill": [
+      "吸血"
+    ]
   },
   "冰火诵歌": {
     "name": "冰火诵歌",
     "condition": "(level>15)&('水' in linggen)&('火' in linggen)",
     "condition_desc": "需要金丹以上 且同时具有水火灵根",
-    "skill": ["冰火"]
+    "skill": [
+      "冰火"
+    ]
   },
   "阴阳手环（阳）": {
     "name": "阴阳手环（阳）",
     "condition": "(level>15)&('金' in linggen)&('火' in linggen)",
     "condition_desc": "需要金丹以上 且同时具有金火灵根",
-    "skill": ["阴阳阳"]
+    "skill": [
+      "阴阳阳"
+    ]
   },
   "阴阳手环（阴）": {
     "name": "阴阳手环（阴）",
     "condition": "(level>15)&('水' in linggen)&('土' in linggen)",
     "condition_desc": "需要金丹以上 且同时具有水土灵根",
-    "skill": ["阴阳阴"]
+    "skill": [
+      "阴阳阴"
+    ]
   },
   "金雷竹笛": {
     "name": "金雷竹笛",
     "condition": "(level>15)&('金' in linggen)&('木' in linggen)",
     "condition_desc": "需要金丹以上 且同时具有金木灵根",
-    "skill": ["金雷"]
+    "skill": [
+      "金雷"
+    ]
   },
   "阴阳二气瓶": {
     "name": "阴阳二气瓶",
     "condition": "(level>15)&('水' in linggen)&('火' in linggen)",
     "condition_desc": "需要金丹以上 且同时具有水火灵根",
-    "skill": ["二气"]
+    "skill": [
+      "二气"
+    ]
   },
   "合欢铃": {
     "name": "合欢铃",
     "condition": "(level>15)",
     "condition_desc": "需要金丹以上",
-    "skill": ["合欢"]
+    "skill": [
+      "合欢"
+    ]
   },
   "噬魂": {
     "name": "噬魂",
     "condition": "(level>15)",
     "condition_desc": "需要金丹以上",
-    "skill": ["削蓝"]
+    "skill": [
+      "削蓝"
+    ]
   },
   "孔雀翎": {
     "name": "孔雀翎",
     "condition": "(level>6)",
     "condition_desc": "需要练气以上",
-    "skill": ["暗器1"]
+    "skill": [
+      "暗器1"
+    ]
   },
   "暴雨梨花": {
     "name": "暴雨梨花",
     "condition": "(level>9)",
     "condition_desc": "需要筑基以上",
-    "skill": ["暗器2"]
+    "skill": [
+      "暗器2"
+    ]
   },
   "无影神针": {
     "name": "无影神针",
     "condition": "(level>12)",
     "condition_desc": "需要结丹以上",
-    "skill": ["暗器3"]
+    "skill": [
+      "暗器3"
+    ]
   },
   "凌波仙符": {
     "name": "凌波仙符",
     "condition": "(level>6)&('水' in linggen)",
     "condition_desc": "需要练气以上，具有水灵根",
-    "skill": ["转魔攻"]
+    "skill": [
+      "转魔攻"
+    ]
   },
   "烽火狼烟": {
     "name": "烽火狼烟",
     "condition": "(level>6)&('火' in linggen)",
     "condition_desc": "需要练气以上，具有火灵根",
-    "skill": ["转物攻"]
+    "skill": [
+      "转物攻"
+    ]
   },
   "蟠龙玉壁": {
     "name": "蟠龙玉壁",
     "condition": "(level>6)&('土' in linggen)",
     "condition_desc": "需要练气以上，具有土灵根",
-    "skill": ["蟠龙"]
+    "skill": [
+      "蟠龙"
+    ]
   },
   "万民玺": {
     "name": "万民玺",
     "condition": "(level<7)&('土' in linggen)",
     "condition_desc": "需要练气以下，具有土灵根",
-    "skill": ["反伤"]
+    "skill": [
+      "反伤"
+    ]
   },
   "墨冥妖花": {
     "name": "墨冥妖花",
     "condition": "(level>15)&('木' in linggen)&('水' in linggen)&('土' in linggen)",
     "condition_desc": "需要金丹期以上，同时具有木水土灵根",
-    "skill": ["妖花"]
+    "skill": [
+      "妖花"
+    ]
   },
   "念罡无相戒": {
     "name": "念罡无相戒",
     "condition": "(level>1)",
     "condition_desc": "需要锻体期以上",
-    "skill": ["念罡"]
+    "skill": [
+      "念罡"
+    ]
   },
   "打神鞭": {
     "name": "打神鞭",
     "condition": "(level>9)",
     "condition_desc": "需要筑基期以上",
-    "skill": ["打神鞭"]
+    "skill": [
+      "打神鞭"
+    ]
   },
   "捆仙绳": {
     "name": "捆仙绳",
     "condition": "(level>19)",
     "condition_desc": "需要元婴期以上",
-    "skill": ["捆仙"]
+    "skill": [
+      "捆仙"
+    ]
   },
   "遮天布": {
     "name": "遮天布",
     "condition": "(level>19)",
     "condition_desc": "需要元婴期以上",
-    "skill": ["遮天"]
+    "skill": [
+      "遮天"
+    ]
+  },
+  "千寻一醉": {
+    "name": "千寻一醉",
+    "condition": "(level>19)&(linggen='水')",
+    "condition_desc": "需要元婴期以上且只有水灵根",
+    "skill": [
+      "千寻一醉"
+    ]
+  },
+  "蛟龙手套": {
+    "name": "蛟龙手套",
+    "condition": "(level>19)&('水' in linggen)&(len(linggen)<3)",
+    "condition_desc": "需要元婴期以上且2灵根以下饱含水灵根",
+    "skill": [
+      "蛟龙手套"
+    ]
+  },
+  "凤羽流苏": {
+    "name": "凤羽流苏",
+    "condition": "(level>19)&('火' in linggen)&(len(linggen)<3)",
+    "condition_desc": "需要元婴期以上且2灵根以下饱含火灵根",
+    "skill": [
+      "凤羽流苏"
+    ]
+  },
+  "落星飞鸿": {
+    "name": "落星飞鸿",
+    "condition": "(level>19)&('金' in linggen)&(len(linggen)<3)",
+    "condition_desc": "需要元婴期以上且2灵根以下饱含金灵根",
+    "skill": [
+      "落星飞鸿"
+    ]
+  },
+  "七宝妙树": {
+    "name": "七宝妙树",
+    "condition": "(level>19)&('木' in linggen)&(len(linggen)<3)",
+    "condition_desc": "需要元婴期以上且2灵根以下饱含木灵根",
+    "skill": [
+      "七宝妙树"
+    ]
+  },
+  "玄黄如意": {
+    "name": "玄黄如意",
+    "condition": "(level>19)&('土' in linggen)&(len(linggen)<3)",
+    "condition_desc": "需要元婴期以上且2灵根以下饱含土灵根",
+    "skill": [
+      "玄黄如意"
+    ]
+  },
+  "凤凰羽翎": {
+    "name": "凤凰羽翎",
+    "condition": "(level>19)&('火' in linggen)",
+    "condition_desc": "需要元婴期以上且包含火灵根",
+    "skill": [
+      "凤凰羽翎"
+    ]
+  },
+  "龛神链": {
+    "name": "龛神链",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "skill": [
+      "龛神链"
+    ]
+  },
+  "恍惚之境": {
+    "name": "恍惚之境",
+    "condition": "(level>19)&(('木' in linggen)|('水' in linggen))",
+    "condition_desc": "需要元婴期以上且包含木或水灵根",
+    "skill": [
+      "恍惚之境"
+    ]
+  },
+  "白无常的玉佩": {
+    "name": "白无常的玉佩",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "skill": [
+      "白无常"
+    ]
+  },
+  "黑无常的金带": {
+    "name": "黑无常的金带",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "skill": [
+      "黑无常"
+    ]
+  },
+  "时之沙漏": {
+    "name": "时之沙漏",
+    "condition": "(level>19)",
+    "condition_desc": "需要元婴期以上",
+    "skill": [
+      "时之沙漏"
+    ]
   }
 }

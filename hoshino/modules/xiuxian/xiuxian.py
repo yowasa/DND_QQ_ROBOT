@@ -1,6 +1,6 @@
 from .battle import *
 from hoshino.util.utils import get_message_at, get_message_text
-
+from .xiuxian_base import *
 
 @sv.on_fullmatch(["#修仙手册", "#修仙帮助"])
 async def help(bot, ev: CQEvent):

@@ -48,11 +48,11 @@
       "my": {
         "atk2": {
           "type": "exec",
-          "value": "int(my_atk2*1.2)"
+          "value": "int(my_atk2*1.1)"
         }
       }
     },
-    "log": "法攻击力增加20%"
+    "log": "法攻击力增加10%"
   },
   "吸血": {
     "cost": 10,
@@ -751,6 +751,211 @@
       }
     },
     "log": "{my_name}触发了剑神幻化术,第一回合额外获得50%物防"
+  },
+  "黑白剑": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_ex_atk": {
+          "type": "exec",
+          "value": [
+            "my_yunshi"
+          ]
+        }
+      }
+    }
+  },
+  "千寻一醉": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "(my_max_mp<=my_mp)&(my_linggen=='水')",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+my_max_mp"
+        },
+        "mp": {
+          "type": "const",
+          "value": 0
+        }
+      }
+    },
+    "log": "{my_name}触发了千寻一醉,HP增加了{my_max_mp}"
+  },
+  "蛟龙手套": {
+    "cost": 80,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.05)"
+        }
+      }
+    },
+    "log": "法攻击力增加5%"
+  },
+  "凤羽流苏": {
+    "cost": 80,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-int(enemy_max_hp*0.05)"
+        },
+        "max_hp": {
+          "type": "exec",
+          "value": "enemy_max_hp-int(enemy_max_hp*0.05)"
+        }
+      }
+    },
+    "log": "{enemy_name}HP和最大HP减少了5%"
+  },
+  "落星飞鸿": {
+    "cost": 80,
+    "time": "battle_end",
+    "condition": "(enemy_is_dodge)|(enemy_is_double)|(enemy_is_boost)",
+    "effect": {
+      "my": {
+        "dodge": {
+          "type": "exec",
+          "value": "my_dodge+10 if enemy_is_dodge else my_dodge"
+        },
+        "double": {
+          "type": "exec",
+          "value": "my_double+10 if enemy_is_double else my_double"
+        },
+        "boost": {
+          "type": "exec",
+          "value": "my_boost+10 if enemy_is_boost else my_boost"
+        }
+      }
+    },
+    "log": "{my_name}触发了落星飞鸿"
+  },
+  "七宝妙树": {
+    "cost": 100,
+    "time": "init",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "skills": {
+          "type": "exec",
+          "value": "enemy_skills"
+        }
+      }
+    },
+    "log": "复制了对手的技能"
+  },
+  "玄黄如意": {
+    "cost": 0,
+    "time": "after_damage",
+    "condition": "enemy_total_damage>(0.1*my_max_hp)",
+    "effect": {
+      "my_next": {
+        "next_reduce_rate": {
+          "type": "const",
+          "value": [
+            0.75
+          ]
+        }
+      }
+    },
+    "log": "下次受到伤害减免25%"
+  },
+  "凤凰羽翎": {
+    "cost": 100,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+50"
+        }
+      }
+    },
+    "log": "{my_name}回复了50HP"
+  },
+  "龛神链": {
+    "cost": 150,
+    "time": "after_damage",
+    "condition": "turn==2",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+my_total_damage"
+        }
+      }
+    },
+    "log": "{my_name}回复了{my_total_damage}HP"
+  },
+  "恍惚之境": {
+    "cost": 100,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "du_count": {
+          "type": "exec",
+          "value": "du_count+10"
+        }
+      }
+    }
+  },
+  "白无常": {
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "double": {
+          "type": "exec",
+          "value": "0 if my_is_double else my_double+5"
+        }
+      }
+    }
+  },
+  "黑无常": {
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "boost": {
+          "type": "exec",
+          "value": "int(my_boost/2) if my_is_boost else my_boost+5"
+        }
+      }
+    }
+  },
+  "时之沙漏": {
+    "cd": 3,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "enemy_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      },
+      "my_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      }
+    }
   }
 }
 
