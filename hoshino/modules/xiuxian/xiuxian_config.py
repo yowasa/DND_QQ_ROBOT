@@ -228,7 +228,7 @@ LIANBAO_NEED_LINGQI = {
     "金仙": 5000,
 }
 
-DAQIAN_MAP: {
+DAQIAN_MAP = {
     "1": {"id": "1", "name": "新手村", "in_level": 0},
     "2": {"id": "2", "name": "大千世界", "in_level": 2},
     "3": {"id": "3", "name": "修仙秘境", "in_level": 7},
@@ -257,9 +257,9 @@ XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
 # 时间限制
 # 操作间隔
-flmt = FreqLimiter(10*60)
+flmt = FreqLimiter(10 * 60)
 # 死亡cd
-die_flmt = FreqLimiter(1*60*60)
+die_flmt = FreqLimiter(1 * 60 * 60)
 
 # 测试服
 # flmt = FreqLimiter(1)
@@ -500,7 +500,8 @@ class AllUserInfo():
             self.battle_double += buff.get('double')
         if buff.get('dodge'):
             self.battle_dodge += buff.get('dodge')
-        content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2, "defen1": self.battle_defen1,
+        content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2,
+                   "defen1": self.battle_defen1,
                    "defen2": self.battle_defen2, "hp": self.battle_hp, "mp": self.battle_mp, "level": self.level}
         if buff.get('hp_exec'):
             self.battle_hp = int(eval(buff.get('hp_exec'), content))

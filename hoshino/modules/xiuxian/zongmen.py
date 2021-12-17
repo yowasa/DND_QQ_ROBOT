@@ -166,14 +166,14 @@ async def _accept(name, user, bot, ev):
     func = mission_register.get(name)
     if func:
         return await func(user, bot, ev)
-    return "游历未实装"
+    return "任务未实装"
 
 
 async def _complete(name, user, bot, ev):
     func = complete_register.get(name)
     if func:
         return await func(user, bot, ev)
-    return "游历未实装"
+    return "任务未实装"
 
 
 # 注解msg 传入正则表达式进行匹配
@@ -250,18 +250,18 @@ async def _(user: AllUserInfo, bot, ev: CQEvent):
     return (True, f"你缴纳了素材[{name}]，获得了{get_lingshi}灵石和{get_banggong}帮贡")
 
 
-@mission_route("宗门打扫")
+@mission_route("修筑清扫")
 async def _(user: AllUserInfo, bot, ev: CQEvent):
-    return f"你领取了[宗门打扫]任务,请在宗门使用#任务 以完成任务"
+    return f"你领取了[修筑清扫]任务,请在宗门使用#任务 以完成任务"
 
 
-@complete_route("宗门打扫")
+@complete_route("修筑清扫")
 async def _(user: AllUserInfo, bot, ev: CQEvent):
     if user.map != user.belong:
         return (False, f"只有在宗门才能打扫")
     get_banggong = random.randint(10, 20)
     add_user_counter(user.gid, user.uid, UserModel.BANGGONG, num=get_banggong)
-    return (True, f"你完成了宗门打扫，获得了{get_banggong}帮贡")
+    return (True, f"你完成了宗门修筑清扫，获得了{get_banggong}帮贡")
 
 
 # 采药地点:

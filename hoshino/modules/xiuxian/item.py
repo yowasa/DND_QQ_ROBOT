@@ -41,7 +41,8 @@ async def my_item(bot, ev: CQEvent):
     max = get_max_count(gid, uid)
     count = count_item(gid, uid)
     lingshi = get_user_counter(gid, uid, UserModel.LINGSHI)
-    msg = f"\n道具列表 {count}/{max} 灵石:{lingshi}"
+    banggong = get_user_counter(gid, uid, UserModel.BANGGONG)
+    msg = f"\n道具列表 {count}/{max} 灵石:{lingshi} 帮贡:{banggong}"
     item_li = []
     for i in items:
         ITEM_INFO[str(i[0])]['num'] = i[1]
