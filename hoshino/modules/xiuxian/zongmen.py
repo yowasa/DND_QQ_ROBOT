@@ -13,7 +13,7 @@ async def _(bot, ev: CQEvent):
     zongmen = ZONGMEN[user.map]
     content = {"linggen": user.linggen}
     if not eval(zongmen['condition'], content):
-        await bot.finish(ev, f"{zongmen.condition_desc}", at_sender=True)
+        await bot.finish(ev, f"{zongmen['condition_desc']}", at_sender=True)
     user.check_and_start_cd(bot, ev)
     user.belong = user.map
     ct = XiuxianCounter()

@@ -76,6 +76,8 @@ def init_content(my: AllUserInfo):
     content["ex_atk"] = 0
     # 武器伤害
     content["equip_atk"] = get_equip_atk(my.wuqi)
+    # 灵根
+    content["linggen"] = my.linggen
 
     skill_cd = {}
     content["skills"] = skill_cd

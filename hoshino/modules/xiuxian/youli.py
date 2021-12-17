@@ -26,7 +26,10 @@ EVENT_MAP = {
 async def youli(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     await user.check_and_start_cd(bot, ev)
-    all_li = EVENT_MAP[user.map]
+    all_li = EVENT_MAP.get(user.map)
+    if not all_li:
+        await bot.finish(ev, "此地无法游历", at_sender=True)
+
     rn = random.randint(1, 100)
     total = 0
     msg = ""
@@ -671,6 +674,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     if rd <= 40:
         names = filter_item_name(type=['武器'], level=['金丹'])
         name = random.choice(names)
+        ex_msg=""
         if not add_item(user.gid, user.uid, get_item_by_name(name)):
             ex_msg = "(背包已满,只得丢弃)"
         msg += f"你过去捡漏发现了无爱之遗,获得了{name}{ex_msg}"
