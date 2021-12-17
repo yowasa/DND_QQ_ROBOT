@@ -1,5 +1,5 @@
 from .xiuxian_config import *
-
+from hoshino.util.utils import get_message_text, get_message_at
 
 # @sv.on_prefix(['#获取'])
 # async def my_item(bot, ev: CQEvent):
@@ -532,7 +532,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     rd = random.randint(1, 100)
     msg = "你打开了盒子，发现了"
     if rd <= 74:
-        names = filter_item_name(type=['武器', '法宝', '心法', '功法', '神通', '材料', '符咒'],
+        names = filter_item_name(type=['武器', '法宝', '心法', '功法', '神通', '素材', '符咒'],
                                  level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
         name = random.choice(names)
         item = get_item_by_name(name)

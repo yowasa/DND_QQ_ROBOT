@@ -12,7 +12,10 @@ async def shangjia(bot, ev: CQEvent):
         cd = get_user_counter(user.gid, user.uid, UserModel.DUANZAO_CD)
         cd += 1
         danfang = DUANZAO[item['name']]
-        if cd >= danfang['time']:
+        time = danfang['time']
+        if user.gongfa3 == "千锤百炼":
+            time = 2
+        if cd >= time:
             if not add_item(user.gid, user.uid, item):
                 await bot.finish(ev, "请先腾出一格背包空间")
             save_user_counter(user.gid, user.uid, UserModel.DUANZAO_CD, 0)
@@ -24,6 +27,8 @@ async def shangjia(bot, ev: CQEvent):
             save_user_counter(user.gid, user.uid, UserModel.DUANZAO_CD, cd)
             left_time = danfang['time'] - cd
             await bot.finish(ev, f"还需{left_time}次[#锻造]指令（无需加武器名）可以获得武器[{item['name']}]")
+    if user.belong != "百炼山庄":
+        await bot.finish(ev, f"只有百炼山庄可以锻造！")
     msg = get_message_text(ev)
     danfang = DUANZAO.get(msg)
     if not danfang:
@@ -33,22 +38,25 @@ async def shangjia(bot, ev: CQEvent):
         if not check_have_space(user.gid, user.uid):
             await bot.finish(ev, "请先腾出一格背包空间再进行炼制")
     # 检查素材和灵石是否足够
-    if danfang['lingshi'] > user.lingshi:
-        await bot.finish(ev, f"你没有足够的灵石为武器注灵，需要{danfang['lingshi']}灵石")
+    need_lingshi = danfang['lingshi']
+    if user.gongfa3 == "千锤百炼":
+        need_lingshi = int(need_lingshi / 2)
+    if need_lingshi > user.lingshi:
+        await bot.finish(ev, f"你没有足够的灵石为武器注灵，需要{need_lingshi}灵石")
     need_items = danfang['item']
     for i in need_items:
         item = get_item_by_name(i)
         if not check_have_item(user.gid, user.uid, item):
-            await bot.finish(ev, f"锻造{msg}需要{i},你背包中的材料不足")
+            await bot.finish(ev, f"锻造{msg}需要{i},你背包中的素材不足")
     user.start_cd()
     # 消耗灵石和材料
     for i in need_items:
         item = get_item_by_name(i)
         use_item(user.gid, user.uid, item)
-    add_user_counter(user.gid, user.uid, UserModel.LINGSHI, -danfang['lingshi'])
+    add_user_counter(user.gid, user.uid, UserModel.LINGSHI, -need_lingshi)
     # 检查是否可以直接炼制
     get_item = get_item_by_name(msg)
-    costmsg = f"你消耗了{danfang['lingshi']}灵石 " + " ".join(need_items)
+    costmsg = f"你消耗了{need_lingshi}灵石 " + " ".join(need_items)
     if danfang['time'] == 1:
         add_item(user.gid, user.uid, get_item)
         await bot.finish(ev, f"锻造成功，{costmsg} 获得武器[{get_item['name']}]")

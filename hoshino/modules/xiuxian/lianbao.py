@@ -19,7 +19,8 @@ async def shangjia(bot, ev: CQEvent):
         save_user_counter(user.gid, user.uid, UserModel.LIANBAO_LINGQI, 0)
         user.start_cd()
         await bot.finish(ev, f"炼宝成功，获得法宝[{item['name']}]")
-
+    if user.belong!="狮府":
+        await bot.finish(ev, f"只有狮府可以炼宝！")
     msg = get_message_text(ev).split()
     msg = list(set(msg))
     if len(msg) > 3:
@@ -48,6 +49,8 @@ async def shangjia(bot, ev: CQEvent):
         item = get_item_by_name(i)
         use_item(user.gid, user.uid, item)
     max_index = order.index(max_level)
+    if max_level != "金仙" and user.gongfa3 == "天灵地动":
+        max_index += 1
     # 最高品质不足3件
     if max_level_count < 3:
         if max_level_count == 2:
@@ -62,8 +65,13 @@ async def shangjia(bot, ev: CQEvent):
                 max_index -= 2
     if max_index < 1:
         max_index = 1
-    pinzhi_get = order[max_index]
-    names = filter_item_name(type=['法宝'], level=[pinzhi_get])
+    while True:
+        pinzhi_get = order[max_index]
+        names = filter_item_name(type=['法宝'], level=[pinzhi_get])
+        if names:
+            break
+        else:
+            max_index -= 1
     name = random.choice(names)
     fabao_item = get_item_by_name(name)
     save_user_counter(user.gid, user.uid, UserModel.LIANBAO_ITEM, int(fabao_item['id']))

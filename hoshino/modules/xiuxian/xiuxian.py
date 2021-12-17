@@ -13,13 +13,29 @@ async def help(bot, ev: CQEvent):
 #前往 地名 (切换所在地)
 #锻体（增加体质，仅锻体期可用）
 #练气（增加灵力，仅练气期可用）
+==== 宗门指令 ====
+#拜入 (在宗门地图，自己是散修的情况下 可以拜入)
+#任务 (在宗门地图接受任务，一天至多完成10次）
+#俸禄 (每天可以领取一次 混元门专属)
+#炼丹 丹药名（百花谷专属，炼制丹药，需要灵石，有的丹药需要素材）
+#锻造 武器名（百炼山庄专属 锻造武器，需要灵石和素材）
+#炼宝 武器/法宝（狮府专属 炼制法宝 需要武器或法宝 和时间积累灵气 也可以#注灵 催熟）
+#画符 (每天可以画一次 蜀山派专属)
+#藏经阁 查看门派可以学习的功法
+#学习 学习藏经阁中的功法
 ==== 以下操作不消耗cd ====
 #查询 (查看个人状态)
-#time (查看操作间隔)
+#t (查看操作间隔)
 #背包 (查看背包)
 #道具效果 物品名 (查看持有道具的说明)
 #使用 物品名(使用物品)
 #丢弃 物品名(丢弃物品)
+#卸下 装备或法宝
+#放弃参悟
+#上架 物品名 价格 （上架物品，每人最多上架一个）
+#下架（下架物品）
+#查价 物品名（查询该物品最低的三个价格）
+#购买 物品名（购买物品，找最低价格的上架物品购买）
 以上所有功能除查询外共CD，CD为10分钟，CD期间进行操作减道行1点，道行归零则心魔入体爆体而亡
 死亡一小时CD
 """.strip()
@@ -185,6 +201,9 @@ def kill_user_cal(my, enemy):
         get_hp = random.randint(1, 20)
         my.hp += get_hp
         log += f"{my.name}使用了吸星大法，获取了{get_hp}点HP和1点物理术法攻击力"
+    if enemy.gongfa3 == "天轮毒诀":
+        log += f"{my.name}中了天轮毒，永久降低10%的生命上限！"
+        my.hp = int(0.9 * my.hp)
     ct = XiuxianCounter()
     ct._save_user_info(my)
     # 舔包
@@ -224,7 +243,7 @@ async def duanti(bot, ev: CQEvent):
         await bot.finish(ev, f"未找到名【{name}】的角色")
     if my.uid == enemy.uid:
         await bot.finish(ev, f"不能自己打自己（恼）")
-    await my.check_and_start_cd(bot, ev)
+
     # 判断境界
     min = 1
     for i in PINGJING:
@@ -235,6 +254,10 @@ async def duanti(bot, ev: CQEvent):
     if enemy.level <= min:
         if not check_have_item(my.gid, my.uid, get_item_by_name("下界符")):
             await bot.finish(ev, f"没有[下界符]不能对战境界低于自己的人")
+    if enemy.gongfa3 == "缩地成寸":
+        if get_user_counter(enemy.gid, enemy.uid, UserModel.SUODI) > 0:
+            await bot.finish(ev, f"你知道对方在这，但对方使用缩地成寸躲了起来,无法对战")
+    await my.check_and_start_cd(bot, ev)
     if my.map != enemy.map:
         await bot.finish(ev, f"你找遍了四周也没有发现{enemy.name}的身影，或许他根本不在这里？")
     if enemy.gongfa3 == '狡兔三窟':
@@ -242,6 +265,8 @@ async def duanti(bot, ev: CQEvent):
             await bot.finish(ev, f"你找遍了四周也没有发现{enemy.name}的身影，或许他根本不在这里？")
     if enemy.level <= min:
         use_item(my.gid, my.uid, get_item_by_name("下界符"))
+    if enemy.gongfa3 == "缩地成寸":
+        add_user_counter(enemy.gid, enemy.uid, UserModel.SUODI, num=5)
     enemy = AllUserInfo(enemy)
     flag = get_user_counter(my.gid, my.uid, UserModel.RANHUN)
     if flag:

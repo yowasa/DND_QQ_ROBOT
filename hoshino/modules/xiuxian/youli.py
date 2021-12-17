@@ -37,6 +37,14 @@ async def youli(bot, ev: CQEvent):
             break
     sv.logger.info(f"进行游历:[{msg}]")
     result = await _youli(msg, user, bot, ev)
+    if user.gongfa3 == '飞龙探云手':
+        if random.randint(1, 20) == 1:
+            add_user_counter(user.gid, user.uid, UserModel.LINGSHI, 20)
+            await bot.send(ev, "你发动了飞龙探云手，获取了20灵石", at_sender=True)
+    id = get_user_counter(user.gid, user.uid, UserModel.YOULI_DAQIAN)
+    if id:
+        if DAQIAN_MAP[str(id)]['name'] == user.map:
+            add_user_counter(user.gid, user.uid, UserModel.YOULI_DAQIAN_COUNT)
     await bot.send(ev, result, at_sender=True)
 
 
@@ -341,7 +349,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(1, 100)
     if rd <= 20:
-        names = filter_item_name(type=["武器", "功法", "法宝", "材料", "符咒"], level=['凡人', '锻体', '练气'])
+        names = filter_item_name(type=["武器", "功法", "法宝", "素材", "符咒"], level=['凡人', '锻体', '练气'])
         name = random.choice(names)
     else:
         get_num = random.randint(20, 40)
@@ -412,7 +420,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
         return f"偶遇一个神秘怪人，向你兜售一件神秘物品，一番讨价还价之后开价{rd}灵石，但是你没有这么多灵石，只得罢了。"
     left = lingshi - rd
     save_user_counter(user.gid, user.uid, UserModel.LINGSHI, left)
-    names = filter_item_name(type=['心法', '功法', '神通', '材料', '符咒'], level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
+    names = filter_item_name(type=['心法', '功法', '神通', '素材', '符咒'], level=['凡人', '锻体', '练气', '筑基', '结丹', '金丹'])
     name = random.choice(names)
     item = get_item_by_name(name)
     ex_msg = ""
@@ -520,7 +528,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     if count_item(user.gid, user.uid) >= get_max_count(user.gid, user.uid):
         return f"你在黑市闲逛，路过一个邋遢男人摊前无意间发现一件被埋没的灵宝，但是你背包已经没用空间了，只得罢了。"
     if lingshi < 50:
-        return f"你在黑市闲逛，路过一个邋遢男人摊前无意间发现一件被埋没的灵宝，但是你身上连20灵石也拿不出来，只得罢了。"
+        return f"你在黑市闲逛，路过一个邋遢男人摊前无意间发现一件被埋没的灵宝，但是你身上连50灵石也拿不出来，只得罢了。"
     left = lingshi - 50
     save_user_counter(user.gid, user.uid, UserModel.LINGSHI, left)
     names = filter_item_name(type=['武器', '法宝'], level=['凡人', '锻体', '练气'])
@@ -661,7 +669,8 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     msg = "一股恶风突然兴起，各路大能杀生证道夺取那晋级的一线机缘。许些时间过后，漂浮在修仙界的乌云已经消逝，看其模样，也许不期还会卷土从来，此处战斗的痕迹证明着今日的惨痛损失。"
     rd = random.randint(1, 100)
     if rd <= 40:
-        name = filter_item_name(type=['武器'], level=['金丹'])
+        names = filter_item_name(type=['武器'], level=['金丹'])
+        name = random.choice(names)
         if not add_item(user.gid, user.uid, get_item_by_name(name)):
             ex_msg = "(背包已满,只得丢弃)"
         msg += f"你过去捡漏发现了无爱之遗,获得了{name}{ex_msg}"

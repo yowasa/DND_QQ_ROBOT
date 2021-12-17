@@ -235,8 +235,8 @@ async def add_level(msg, bot, ev: CQEvent):
     CE = CECounter()
     max_time = CE._get_zhuansheng(gid, uid, cid)
 
-    if max_time < 5:
-        return (False, f"{c.name}等级不足100，请先升级")
+    if max_time >= 5:
+        return (False, f"{c.name}等级上限已经无法再提升了")
     CE._add_zhuansheng(gid, uid, cid)
     max_level = (max_time + 1) * 10 + 50
     return (True, f"角色{c.name}突破了自己的能力界限，等级上限提高10级，目前上限为{max_level}")

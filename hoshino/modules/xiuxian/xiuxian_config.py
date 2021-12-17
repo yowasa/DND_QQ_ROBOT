@@ -96,19 +96,77 @@ EXP_NEED_MAP = {
     "39": 1000000,
     "40": 1000000,
 }
+# 俸禄
+FENGLU_MAP = {
+    "1": 10,
+    "2": 20,
+    "3": 20,
+    "4": 20,
+    "5": 20,
+    "6": 20,
+    "7": 50,
+    "8": 50,
+    "9": 50,
+    "10": 70,
+    "11": 70,
+    "12": 70,
+    "13": 100,
+    "14": 100,
+    "15": 100,
+    "16": 150,
+    "17": 150,
+    "18": 150,
+    "19": 200,
+    "20": 200,
+    "21": 200,
+    "22": 300,
+    "23": 300,
+    "24": 300,
+    "25": 500,
+    "26": 500,
+    "27": 500,
+    "28": 500,
+    "29": 500,
+    "30": 500,
+    "31": 500,
+    "32": 800,
+    "33": 800,
+    "34": 800,
+    "35": 800,
+    "36": 800,
+    "37": 800,
+    "38": 800,
+    "39": 800,
+    "40": 800,
+}
 # 地图
 MAP = {
     '新手村': {"max_level": 1, "in_level": 0, "lingqi_max": 10, "lingqi_min": 10, "able": ['大千世界']},
-    '大千世界': {"max_level": 9, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30, "able": ['新手村', '修仙秘境', '苍穹神州']},
-    '修仙秘境': {"max_level": 12, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50, "able": ['大千世界', '灵寰福址', '无尽之海']},
-    '无尽之海': {"max_level": 15, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['修仙秘境']},
+    '大千世界': {"max_level": 9, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30,
+             "able": ['新手村', '修仙秘境', '苍穹神州', '狮府', '百炼山庄']},
+    '狮府': {"max_level": 40, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30, "able": ['大千世界']},
+    '百炼山庄': {"max_level": 40, "in_level": 2, "lingqi_max": 50, "lingqi_min": 30, "able": ['大千世界']},
+    '修仙秘境': {"max_level": 12, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50,
+             "able": ['大千世界', '灵寰福址', '无尽之海', '混元门', '蜀山派']},
+    '混元门': {"max_level": 40, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50, "able": ["修仙秘境"]},
+    '蜀山派': {"max_level": 40, "in_level": 7, "lingqi_max": 100, "lingqi_min": 50, "able": ["修仙秘境"]},
+    '无尽之海': {"max_level": 15, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['修仙秘境', '百花谷']},
+    '百花谷': {"max_level": 40, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['无尽之海']},
     '苍穹神州': {"max_level": 18, "in_level": 13, "lingqi_max": 150, "lingqi_min": 100, "able": ['大千世界', '洪荒大陆', '九天十国']},
     '九天十国': {"max_level": 21, "in_level": 16, "lingqi_max": 200, "lingqi_min": 150, "able": ['苍穹神州', '诸天万界']},
     '洪荒大陆': {"max_level": 24, "in_level": 19, "lingqi_max": 260, "lingqi_min": 200, "able": ['苍穹神州', '混沌绝地']},
     '诸天万界': {"max_level": 27, "in_level": 22, "lingqi_max": 320, "lingqi_min": 280, "able": ['九天十国']},
     '灵寰福址': {"max_level": 30, "in_level": 25, "lingqi_max": 400, "lingqi_min": 350, "able": ['修仙秘境']},
     '混沌绝地': {"max_level": 31, "in_level": 30, "lingqi_max": 500, "lingqi_min": 500, "able": ['洪荒大陆']},
-    '荧惑仙境': {"max_level": 40, "in_level": 10, "lingqi_max": 1000, "lingqi_min": 1000, "able": []},
+    '荧惑仙境': {"max_level": 40, "in_level": 32, "lingqi_max": 1000, "lingqi_min": 1000, "able": []},
+}
+
+ZONGMEN = {
+    "混元门": {"map": "大千世界", "condition": "len(linggen)>=3", "condition_desc": "灵根数量至少为3才可拜入混元门"},
+    "狮府": {"map": "大千世界", "condition": "('土' in linggen) or ('木' in linggen)", "condition_desc": "只有具有土或木灵根才可拜入狮府"},
+    "百花谷": {"map": "大千世界", "condition": "('水' in linggen) or ('木' in linggen)", "condition_desc": "只有具有水或木灵根才可拜入百花谷"},
+    "百炼山庄": {"map": "大千世界", "condition": "'火' in linggen", "condition_desc": "只有具有火灵根可以拜入百炼山庄"},
+    "蜀山派": {"map": "大千世界", "condition": "'金' in linggen", "condition_desc": "只有具有金灵根可以拜入蜀山派"},
 }
 # 境界所能拥有的道具上限
 ITEM_CARRY = {
@@ -170,6 +228,28 @@ LIANBAO_NEED_LINGQI = {
     "金仙": 5000,
 }
 
+DAQIAN_MAP: {
+    "1": {"id": "1", "name": "新手村", "in_level": 0},
+    "2": {"id": "2", "name": "大千世界", "in_level": 2},
+    "3": {"id": "3", "name": "修仙秘境", "in_level": 7},
+    "4": {"id": "4", "name": "无尽之海", "in_level": 10},
+    "5": {"id": "5", "name": "苍穹神州", "in_level": 13},
+    "6": {"id": "6", "name": "九天十国", "in_level": 16},
+    "7": {"id": "7", "name": "洪荒大陆", "in_level": 19},
+    "8": {"id": "8", "name": "诸天万界", "in_level": 22},
+    "9": {"id": "9", "name": "灵寰福址", "in_level": 25},
+    "10": {"id": "10", "name": "混沌绝地", "in_level": 30},
+    "11": {"id": "11", "name": "荧惑仙境", "in_level": 10}
+}
+
+QIE_CUO_MAP = {
+    "1": {"id": "1", "name": "狮府", "in_level": 2},
+    "2": {"id": "2", "name": "百炼山庄", "in_level": 2},
+    "3": {"id": "3", "name": "混元门", "in_level": 7},
+    "4": {"id": "4", "name": "蜀山派", "in_level": 7},
+    "5": {"id": "5", "name": "百花谷", "in_level": 10},
+}
+
 # 瓶颈
 PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
@@ -212,6 +292,13 @@ with open(os.path.join(FILE_PATH, 'config/danfang.json'), 'r', encoding='UTF-8')
 # 锻造
 with open(os.path.join(FILE_PATH, 'config/duanzao.json'), 'r', encoding='UTF-8') as fa:
     DUANZAO = json.load(fa, strict=False)
+
+# 特效
+with open(os.path.join(FILE_PATH, 'config/base_skill.json'), 'r', encoding='UTF-8') as fa:
+    BASE_SKILL = json.load(fa, strict=False)
+# 藏经阁
+with open(os.path.join(FILE_PATH, 'config/cangjing.json'), 'r', encoding='UTF-8') as fa:
+    CANGJING = json.load(fa, strict=False)
 
 
 # 根据名字获取道具
@@ -386,29 +473,47 @@ class AllUserInfo():
         wuqi = get_equip_by_name(self.wuqi)
         if wuqi:
             buff = wuqi['buff']
-            if buff.get('atk1'):
-                self.battle_atk1 += buff.get('atk1')
-            if buff.get('atk2'):
-                self.battle_atk2 += buff.get('atk2')
-            if buff.get('hp'):
-                self.battle_hp += buff.get('hp')
-            if buff.get('mp'):
-                self.battle_mp += buff.get('mp')
-            if buff.get('defen1'):
-                self.battle_defen1 += buff.get('defen1')
-            if buff.get('defen2'):
-                self.battle_defen2 += buff.get('defen2')
-            if buff.get('boost'):
-                self.battle_boost += buff.get('boost')
-            if buff.get('double'):
-                self.battle_double += buff.get('double')
-            if buff.get('dodge'):
-                self.battle_dodge += buff.get('dodge')
-            content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2}
-            if buff.get('atk1_exec'):
-                self.battle_atk1 = int(eval(buff.get('atk1_exec'), content))
-            if buff.get('atk2_exec'):
-                self.battle_atk2 = int(eval(buff.get('atk2_exec'), content))
+            self.cal_buff(buff)
+        # 心法加成
+        xinfa = get_gongfa_by_name(self.gongfa)
+        if xinfa:
+            buff = xinfa.get('buff')
+            if buff:
+                self.cal_buff(buff)
+
+    def cal_buff(self, buff):
+        if buff.get('atk1'):
+            self.battle_atk1 += buff.get('atk1')
+        if buff.get('atk2'):
+            self.battle_atk2 += buff.get('atk2')
+        if buff.get('hp'):
+            self.battle_hp += buff.get('hp')
+        if buff.get('mp'):
+            self.battle_mp += buff.get('mp')
+        if buff.get('defen1'):
+            self.battle_defen1 += buff.get('defen1')
+        if buff.get('defen2'):
+            self.battle_defen2 += buff.get('defen2')
+        if buff.get('boost'):
+            self.battle_boost += buff.get('boost')
+        if buff.get('double'):
+            self.battle_double += buff.get('double')
+        if buff.get('dodge'):
+            self.battle_dodge += buff.get('dodge')
+        content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2, "defen1": self.battle_defen1,
+                   "defen2": self.battle_defen2, "hp": self.battle_hp, "mp": self.battle_mp, "level": self.level}
+        if buff.get('hp_exec'):
+            self.battle_hp = int(eval(buff.get('hp_exec'), content))
+        if buff.get('mp_exec'):
+            self.battle_mp = int(eval(buff.get('mp_exec'), content))
+        if buff.get('atk1_exec'):
+            self.battle_atk1 = int(eval(buff.get('atk1_exec'), content))
+        if buff.get('atk2_exec'):
+            self.battle_atk2 = int(eval(buff.get('atk2_exec'), content))
+        if buff.get('defen1_exec'):
+            self.battle_defen1 = int(eval(buff.get('defen1_exec'), content))
+        if buff.get('defen2_exec'):
+            self.battle_defen2 = int(eval(buff.get('defen2_exec'), content))
 
     def other_info(self):
         flags = get_all_user_flag(self.gid, self.uid)
@@ -442,6 +547,9 @@ class AllUserInfo():
             if have >= need:
                 await bot.send(ev, "炼宝灵气已经充足，请使用#练宝 指令获取炼制完成的法宝")
         await self.check_cd_ignore_other(bot, ev)
+        if self.gongfa3 == "缩地成寸":
+            if get_user_counter(self.gid, self.uid, UserModel.SUODI) > 0:
+                add_user_counter(self.gid, self.uid, UserModel.SUODI, num=-1)
 
     async def check_cd_ignore_other(self, bot, ev):
         if not flmt.check(self.uid):
@@ -462,6 +570,8 @@ class AllUserInfo():
             min = address["lingqi_min"]
             max = address["lingqi_max"]
             lingqi = int(random.randint(min, max) * 0.1)
+            if self.gongfa3 == "天灵地动":
+                lingqi = 2 * lingqi
             add_user_counter(self.gid, self.uid, UserModel.LIANBAO_LINGQI, lingqi)
         if self.gongfa3 == "大罗洞观":
             if random.randint(1, 10) > 1:
@@ -526,3 +636,135 @@ def filter_item_name(type=[], level=[]):
     if level:
         result = [i for i in result if ITEM_NAME_MAP[i]['level'] in level]
     return result
+
+
+from hoshino.config.__bot__ import BASE_DB_PATH
+from datetime import datetime, timedelta
+from hoshino.util import DailyNumberLimiter
+
+DB_PATH = os.path.expanduser(BASE_DB_PATH + "xiuxian_limit.db")
+
+
+# 限制器操作类
+class RecordDAO:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        self._create_table()
+
+    def connect(self):
+        return sqlite3.connect(self.db_path)
+
+    def _create_table(self):
+        with self.connect() as conn:
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS limiter"
+                "(key TEXT NOT NULL, num INT NOT NULL, date INT, PRIMARY KEY(key))"
+            )
+
+    def exist_check(self, key):
+        try:
+            key = str(key)
+            with self.connect() as conn:
+                conn.execute("INSERT INTO limiter (key,num,date) VALUES (?, 0,-1)", (key,), )
+            return
+        except:
+            return
+
+    def get_num(self, key):
+        self.exist_check(key)
+        key = str(key)
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT num FROM limiter WHERE key=? ", (key,)
+            ).fetchall()
+            r2 = r[0]
+        return r2[0]
+
+    def clear_key(self, key):
+        key = str(key)
+        self.exist_check(key)
+        with self.connect() as conn:
+            conn.execute("UPDATE limiter SET num=0 WHERE key=?", (key,), )
+        return
+
+    def increment_key(self, key, num):
+        self.exist_check(key)
+        key = str(key)
+        with self.connect() as conn:
+            conn.execute("UPDATE limiter SET num=num+? WHERE key=?", (num, key,))
+        return
+
+    def get_date(self, key):
+        self.exist_check(key)
+        key = str(key)
+        with self.connect() as conn:
+            r = conn.execute(
+                "SELECT date FROM limiter WHERE key=? ", (key,)
+            ).fetchall()
+            r2 = r[0]
+        return r2[0]
+
+    def set_date(self, date, key):
+        print(date)
+        self.exist_check(key)
+        key = str(key)
+        with self.connect() as conn:
+            conn.execute("UPDATE limiter SET date=? WHERE key=?", (date, key,), )
+        return
+
+
+db = RecordDAO(DB_PATH)
+
+
+# 每天每群限制n次
+class DailyAmountLimiter(DailyNumberLimiter):
+    def __init__(self, types, max_num, reset_hour):
+        super().__init__(max_num)
+        self.reset_hour = reset_hour
+        self.type = types
+
+    def check(self, key) -> bool:
+        now = datetime.now(self.tz)
+        key = list(key)
+        key.append(self.type)
+        key = tuple(key)
+        day = (now - timedelta(hours=self.reset_hour)).day
+        if day != db.get_date(key):
+            db.set_date(day, key)
+            db.clear_key(key)
+        return bool(db.get_num(key) < self.max)
+
+    def check10(self, key) -> bool:
+        now = datetime.now(self.tz)
+        key = list(key)
+        key.append(self.type)
+        key = tuple(key)
+        day = (now - timedelta(hours=self.reset_hour)).day
+        if day != db.get_date(key):
+            db.set_date(day, key)
+            db.clear_key(key)
+        return bool(db.get_num(key) < 10)
+
+    def get_num(self, key):
+        key = list(key)
+        key.append(self.type)
+        key = tuple(key)
+        return db.get_num(key)
+
+    def increase(self, key, num=1):
+        key = list(key)
+        key.append(self.type)
+        key = tuple(key)
+        db.increment_key(key, num)
+
+    def reset(self, key):
+        key = list(key)
+        key.append(self.type)
+        key = tuple(key)
+        db.clear_key(key)
+
+
+daily_fenglu_limiter = DailyAmountLimiter("fenglu", 1, 5)
+daily_huafu_limiter = DailyAmountLimiter("huafu", 1, 5)
+daily_mission_limiter = DailyAmountLimiter("mission", 10, 5)

@@ -32,6 +32,13 @@ class UserModel(Enum):
     DUANZAO_ITEM = [20, "锻造item"]  # 锻造物品
     LIANBAO_ITEM = [21, "炼宝item"]
     LIANBAO_LINGQI = [22, "炼宝灵气"]
+    BANGGONG = [23, "帮贡"]
+    SUODI = [24, "缩地计数器"]
+    MISSION = [25, "接受的任务id"]
+    MISSION_COMPLETE = [26, "任务完成标识"]
+    YOULI_DAQIAN = [27, "游历大千的地点"]
+    YOULI_DAQIAN_COUNT = [28, "游历大千的次数"]
+    WUXUE = [29, "武学交流的门派"]
 
 
 # 群组状态储存枚举类

@@ -242,7 +242,7 @@
     "damage_type": 1,
     "buff": {
       "atk2": 25,
-      "atk2_exec": "daohang/5"
+      "atk2_exec": "atk2+int(daohang/5)"
     }
   },
   "妖刀村雨": {
@@ -297,7 +297,8 @@
     "condition_desc": "需要结丹以上",
     "damage_type": 0,
     "buff": {
-      "atk1": 50
+      "atk1": 50,
+      "hp": 100
     }
   },
   "青风笔": {
@@ -306,7 +307,8 @@
     "condition_desc": "需要结丹以上",
     "damage_type": 1,
     "buff": {
-      "atk2": 50
+      "atk2": 50,
+      "hp": 100
     }
   },
   "天狼盾": {

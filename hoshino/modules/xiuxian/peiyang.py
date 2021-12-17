@@ -1,12 +1,30 @@
 from .xiuxian_config import *
 
 
+def get_max_min_zongmen(user):
+    min = 0
+    max = 0
+    for address in MAP.keys():
+        if user.level < address['in_level']:
+            return max, min
+        min = address["lingqi_min"]
+        max = address["lingqi_max"]
+    return max, min
+
+
 def cal_get_exp(user):
     address = MAP.get(user.map)
-    min = address["lingqi_min"]
+    # 宗门修炼会取能去的最高灵气地图的灵气值
+    if address in list(ZONGMEN.keys()):
+        max, min = get_max_min_zongmen(user)
+    else:
+        min = address["lingqi_min"]
     max = address["lingqi_max"]
     lingqi = random.randint(min, max)
     base_speed = XIULIAN_SPEED[len(user.linggen) - 1]
+    # 宗门修炼额外获取20%的修炼速度
+    if address in list(ZONGMEN.keys()):
+        base_speed += 20
     speed = base_speed
     if user.gongfa == '太玄经':
         if 30 - user.wuxing > 0:
@@ -51,6 +69,8 @@ async def xiulian(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     if user.level > MAP[user.map]['max_level']:
         await bot.finish(ev, f"此地的灵气浓度不足以支撑你的修炼，请到灵气更加浓郁的地方。")
+    if user.map in ZONGMEN.keys() and user.belong != user.map:
+        await bot.finish(ev, f"你无法在非自己的宗门的修炼！")
     if (user.level in PINGJING) and user.exp > EXP_NEED_MAP[str(user.level)]:
         await bot.finish(ev, f"你已经到达了当前境界的瓶颈，无法继续获得经验！请使用#突破 来突破当前境界")
     await user.check_cd(bot, ev)

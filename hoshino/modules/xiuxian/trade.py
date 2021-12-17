@@ -27,7 +27,10 @@ async def shangjia(bot, ev: CQEvent):
     if not check_have_item(user.gid, user.uid, item):
         await bot.finish(ev, f'你背包中没有「{item_name}」', at_sender=True)
     # 检查灵石
-    shui = int(0.1 * price)
+    shui = 0.1
+    if user.gongfa3 == '斤斤计较':
+        shui = 0.03
+    shui = int(shui * price)
     if user.lingshi < shui:
         await bot.finish(ev, f'上架「{item_name}」需要预先缴纳10%售价的税款，你的灵石不足。', at_sender=True)
     # 扣减灵石

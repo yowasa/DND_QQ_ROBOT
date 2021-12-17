@@ -25,6 +25,22 @@ def get_hp_mp(my: AllUserInfo):
     return hp, mp
 
 
+def get_equip_atk(wuqi):
+    atk = 0
+    div = 0
+    if wuqi != "赤手空拳":
+        equip = get_equip_by_name(wuqi)
+        if equip.get("atk1"):
+            atk += equip.get("atk1")
+            div += 1
+        if equip.get("atk2"):
+            atk += equip.get("atk2")
+            div += 1
+    if div:
+        atk = int(atk / div)
+    return atk
+
+
 def init_content(my: AllUserInfo):
     content = {}
     # 初始化属性
@@ -44,34 +60,52 @@ def init_content(my: AllUserInfo):
     content["skill"] = my.skill
     # 杀人数
     content["sharen"] = my.sharen
+    # 境界等级
+    content["level"] = my.level
+    # 伤害倍率
+    content["dmg_rate"] = 1
+    # 伤害减免
+    content["reduce_rate"] = 1
+    # 攻击中毒标识
+    content["du_flag"] = 0
+    # 中毒加深
+    content["du_shang"] = 0
+    # 体内毒素
+    content["du_count"] = 0
+    # 额外伤害
+    content["ex_atk"] = 0
+    # 武器伤害
+    content["equip_atk"] = get_equip_atk(my.wuqi)
 
     skill_cd = {}
     content["skills"] = skill_cd
-    content["effect"] = {}
 
     # 伤害类型
     content["dmg_type"] = 0
     # 武器特性
     equip = get_equip_by_name(my.wuqi)
+    skills = []
+    # 武器
     if equip:
-        if equip.get("effect"):
-            content["effect"][equip["name"]] = equip.get("effect")
-            skill_cd[equip["name"]] = 0
+        if equip.get("skill"):
+            skills.extend(equip.get("skill"))
         if equip.get("damage_type"):
             content["dmg_type"] = equip["damage_type"]
+        else:
+            content["dmg_type"] = 0
     # 法宝
     fabao = get_fabao_by_name(my.fabao)
     if fabao:
-        if fabao.get("effect"):
-            content["effect"][fabao["name"]] = fabao.get("effect")
-            skill_cd[fabao["name"]] = 0
-
+        if fabao.get("skill"):
+            skills.extend(fabao.get("skill"))
     # 功法
     gongfa = get_gongfa_by_name(my.gongfa2)
     if gongfa:
-        if gongfa.get("effect"):
-            content["effect"][gongfa["name"]] = gongfa.get("effect")
-            skill_cd[gongfa["name"]] = 0
+        if gongfa.get("skill"):
+            skills.extend(gongfa.get("skill"))
+    skills = list(set(skills))
+    for i in skills:
+        skill_cd[i] = 0
 
     content["boost"] = my.battle_boost
     content["double"] = my.battle_double
@@ -99,6 +133,9 @@ def init_content(my: AllUserInfo):
     content["next_is_boost"] = []
     content["next_is_double"] = []
     content["next_is_dodge"] = []
+    content["next_dmg_rate"] = []
+    content["next_reduce_rate"] = []
+    content["next_ex_atk"] = []
     # 初始化
     return content
 
@@ -117,12 +154,12 @@ def build_content(my_content, enemy_content, turn):
 # 校验触发技能
 def check_condition(skill, my_content, enemy_content, turn):
     content = build_content(my_content, enemy_content, turn)
-    return eval(my_content["effect"][skill]["condition"], content)
+    return eval(BASE_SKILL[skill]["condition"], content)
 
 
 # 技能影响
 def effect(skill, my_content, enemy_content, turn, logs):
-    effect = my_content["effect"][skill]["effect"]
+    effect = BASE_SKILL[skill]["effect"]
     content = build_content(my_content, enemy_content, turn)
     my = effect.get("my")
     if my:
@@ -156,12 +193,12 @@ def effect(skill, my_content, enemy_content, turn, logs):
                 li = [eval(j, content) for j in enemy_next[i]["value"]]
                 enemy_content[i].extend(li)
     content = build_content(my_content, enemy_content, turn)
-    skill_log = my_content["effect"][skill].get('log')
+    skill_log = BASE_SKILL[skill].get('log')
     if skill_log:
         skill_log = skill_log.format(**content)
         logs.append(f"{skill_log}")
-    if my_content["effect"][skill].get("cd"):
-        my_content["skills"][skill] = my_content["effect"][skill]["cd"]
+    if BASE_SKILL[skill].get("cd"):
+        my_content["skills"][skill] = BASE_SKILL[skill]["cd"]
 
 
 # 技能执行引擎
@@ -170,11 +207,11 @@ def skill_engine(time: str, my_content, enemy_content, turn: int):
     skill = []
     for i in my_content["skills"].keys():
         if my_content["skills"][i] == 0:
-            if my_content["effect"][i]["time"] == time:
+            if BASE_SKILL[i]["time"] == time:
                 skill.append(i)
     for i in skill:
         if check_condition(i, my_content, enemy_content, turn):
-            cost = my_content["effect"][i].get("cost") if my_content["effect"][i].get("cost") else 0
+            cost = BASE_SKILL[i].get("cost") if BASE_SKILL[i].get("cost") else 0
             if cost > my_content['mp']:
                 continue
             else:
@@ -205,6 +242,10 @@ def duel_buff(my_content, enemy_content):
     is_dodge = content_get("is_dodge", enemy_content)
     is_double = content_get("is_double", my_content)
     dmg_type = content_get("dmg_type", my_content)
+    dmg_rate = content_get("dmg_rate", my_content)
+    reduce_rate = content_get("reduce_rate", enemy_content)
+    du_flag = content_get("du_flag", enemy_content)
+    ex_atk = content_get('ex_atk', my_content)
     # 处理自适应伤害
     if dmg_type == 2:
         dmg_type = 0 if defen1 <= defen2 else 1
@@ -228,27 +269,34 @@ def duel_buff(my_content, enemy_content):
         my_content["damage_log"] += f"攻击被闪避!"
     else:
         if dmg_type:
-            base = atk2 * (100 / (100 + defen2))
+            base = atk2 * (100 / (100 + defen2)) * dmg_rate * reduce_rate
             each = deviation(base, 20)
             dmg += each
             my_content["damage_log"] += f"造成了{each}点术法伤害{boost_tag}"
         else:
-            base = atk1 * (100 / (100 + defen1))
+            base = atk1 * (100 / (100 + defen1)) * dmg_rate * reduce_rate
             each = deviation(base, 50) + random.randint(1, 10)
             dmg += each
             my_content["damage_log"] += f"造成了{each}点伤害{boost_tag}"
-
         if is_double:
             if dmg_type:
-                base = atk2 * (100 / (100 + defen2))
+                base = atk2 * (100 / (100 + defen2)) * dmg_rate * reduce_rate
                 each = deviation(base, 20)
                 dmg += each
                 my_content["damage_log"] += f",连击造成了{each}点术法伤害{boost_tag} "
             else:
-                base = atk1 * (100 / (100 + defen1))
+                base = atk1 * (100 / (100 + defen1)) * dmg_rate * reduce_rate
                 each = deviation(base, 50)
                 dmg += each
                 my_content["damage_log"] += f",连击造成了{each}点伤害{boost_tag} "
+        if du_flag:
+            enemy_content['du_count'] += 10
+            if is_double:
+                enemy_content['du_count'] += 10
+    if not is_dodge and ex_atk:
+        ex_dmg = ex_atk
+        dmg += ex_dmg
+        my_content["damage_log"] += f",额外造成{ex_dmg}附加伤害!"
     my_content["total_damage"] = dmg
 
 
@@ -278,6 +326,19 @@ def duel_skill(my, enemy):
     else:
         enemy['boost'] += enemy['skill'] / my['skill'] * 2
         enemy['dodge'] += enemy['skill'] / my['skill']
+
+
+def cal_yichang(my_content, enemy_content):
+    logs = []
+    du_count = content_get("du_count", my_content)
+    du_shang = content_get("du_shang", enemy_content)
+    if du_shang:
+        du_count = int(du_count * ((100 + du_shang) / 100))
+        my_content["du_count"] = du_count
+    if du_count > 0:
+        my_content["hp"] -= du_count
+        logs.extend(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
+    return logs
 
 
 def battle(my: AllUserInfo, enemy: AllUserInfo):
@@ -333,6 +394,11 @@ def battle(my: AllUserInfo, enemy: AllUserInfo):
         tun_log.extend(skill_engine("after_damage", enemy_content, my_content, turn))
         tun_log.extend(skill_engine("battle_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("battle_end", enemy_content, my_content, turn))
+        # 计算异常伤害
+        tun_log.extend(cal_yichang(my_content, enemy_content))
+        # 计算异常伤害
+        tun_log.extend(cal_yichang(enemy_content, my_content))
+
         tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
         logs.append(",".join(tun_log))

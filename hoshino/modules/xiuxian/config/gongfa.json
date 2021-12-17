@@ -4,30 +4,9 @@
     "condition": "(wuxing>=20)&(level>6)",
     "condition_desc": "需要练气以上，悟性大于20",
     "speed": "(wuxing/10)+1",
-    "effect": {
-      "time": "after_damage",
-      "condition": "enemy_mp>int(my_max_mp*0.1)",
-      "effect": {
-        "my": {
-          "xi_mp": {
-            "type": "exec",
-            "value": "int(my_max_mp*0.1)"
-          },
-          "mp": {
-            "type": "exec",
-            "value": "my_mp+int(my_max_mp*0.1)"
-          }
-        },
-        "enemy": {
-          "mp": {
-            "type": "exec",
-            "value": "enemy_mp-int(my_max_mp*0.1)"
-          }
-        }
-      },
-      "log": "偷取了{my_xi_mp}的mp"
-    },
-    "desc": "战斗每回合有几率偷取对方「10%自己最大MP」的MP"
+    "skill": [
+      "吸蓝"
+    ]
   },
   "太玄经": {
     "name": "太玄经",
@@ -58,24 +37,9 @@
     "condition": "(wuxing>=30)&(level>9)&('土'==linggen)",
     "condition_desc": "需要筑基以上,悟性大于30,只有土灵根",
     "speed": "int(wuxing/20)+2",
-    "effect": {
-      "cost": 50,
-      "time": "begin",
-      "condition": "True",
-      "effect": {
-        "my": {
-          "defen1": {
-            "type": "exec",
-            "value": "int(my_defen1*1.5)"
-          },
-          "defen2": {
-            "type": "exec",
-            "value": "int(my_defen2*1.5)"
-          }
-        }
-      },
-      "log": "由于震磐裂山崩的效果防御力增加50%"
-    }
+    "skill": [
+      "震磐"
+    ]
   },
   "大罗洞观": {
     "name": "大罗洞观",
@@ -112,20 +76,9 @@
     "condition": "(wuxing>=10)&('水'==linggen)",
     "condition_desc": "悟性大于10,必须是水属性单灵根",
     "speed": "int(wuxing/20)+5",
-    "effect": {
-      "cost": 20,
-      "time": "after_damage",
-      "condition": "True",
-      "effect": {
-        "my": {
-          "atk2": {
-            "type": "exec",
-            "value": "int(my_atk2*1.2)"
-          }
-        }
-      },
-      "log": "由于摧心浪的效果术法攻击力增加20%"
-    }
+    "skill": [
+      "摧心浪"
+    ]
   },
   "封魔阵法": {
     "name": "封魔阵法",
@@ -156,5 +109,460 @@
     "condition": "(wuxing<=20)&(level>6)",
     "condition_desc": "悟性小于20,练气期以上",
     "speed": "(100-wuxing)/5+1"
+  },
+  "混元基功": {
+    "name": "混元基功",
+    "condition": "level>9",
+    "condition_desc": "筑基期以上",
+    "speed": "int(wuxing/5)+25",
+    "buff": {
+      "atk1_exec": "atk1*1.01",
+      "atk2_exec": "atk2*1.01",
+      "defen1_exec": "defen1*1.01",
+      "defen2_exec": "defen1*1.01"
+    }
+  },
+  "混元乘功": {
+    "name": "混元乘功",
+    "condition": "level>12",
+    "condition_desc": "结丹期以上",
+    "speed": "int(wuxing/5)+20",
+    "buff": {
+      "atk1_exec": "atk1*1.02",
+      "atk2_exec": "atk2*1.02",
+      "defen1_exec": "defen1*1.02",
+      "defen2_exec": "defen1*1.02"
+    }
+  },
+  "混元极功": {
+    "name": "混元极功",
+    "condition": "level>15",
+    "condition_desc": "金丹期以上",
+    "speed": "int(wuxing/5)+15",
+    "buff": {
+      "atk1_exec": "atk1*1.03",
+      "atk2_exec": "atk2*1.03",
+      "defen1_exec": "defen1*1.03",
+      "defen2_exec": "defen1*1.03"
+    }
+  },
+  "五行基功": {
+    "name": "五行基功",
+    "condition": "level>18",
+    "condition_desc": "元婴期以上",
+    "speed": "int(wuxing/5)+10",
+    "buff": {
+      "atk1_exec": "atk1*1.04",
+      "atk2_exec": "atk2*1.04",
+      "defen1_exec": "defen1*1.04",
+      "defen2_exec": "defen1*1.04"
+    }
+  },
+  "五行乘功": {
+    "name": "五行乘功",
+    "condition": "level>21",
+    "condition_desc": "化神期以上",
+    "speed": "int(wuxing/5)+5",
+    "buff": {
+      "atk1_exec": "atk1*1.05",
+      "atk2_exec": "atk2*1.05",
+      "defen1_exec": "defen1*1.05",
+      "defen2_exec": "defen1*1.05"
+    }
+  },
+  "五行极功": {
+    "name": "五行极功",
+    "condition": "level>24",
+    "condition_desc": "洞虚期以上",
+    "speed": "int(wuxing/10)+1",
+    "buff": {
+      "atk1_exec": "atk1*1.06",
+      "atk2_exec": "atk2*1.06",
+      "defen1_exec": "defen1*1.06",
+      "defen2_exec": "defen1*1.06"
+    }
+  },
+  "自在极意功": {
+    "name": "自在极意功",
+    "condition": "level>27",
+    "condition_desc": "大乘期以上",
+    "speed": "int(wuxing/20)+1",
+    "buff": {
+      "atk1_exec": "atk1*1.07",
+      "atk2_exec": "atk2*1.07",
+      "defen1_exec": "defen1*1.07",
+      "defen2_exec": "defen1*1.07"
+    }
+  },
+  "无相神功": {
+    "name": "无相神功",
+    "condition": "level>31",
+    "condition_desc": "天仙期以上",
+    "speed": "int(wuxing/25)+1",
+    "buff": {
+      "atk1_exec": "atk1*1.1",
+      "atk2_exec": "atk2*1.1",
+      "defen1_exec": "defen1*1.1",
+      "defen2_exec": "defen1*1.1"
+    }
+  },
+  "斤斤计较": {
+    "name": "斤斤计较",
+    "condition_desc": "无",
+    "condition": "True",
+    "speed": "int(wuxing/5)+20"
+  },
+  "飞龙探云手": {
+    "name": "飞龙探云手",
+    "condition_desc": "无",
+    "condition": "True",
+    "speed": "int(wuxing/5)+20"
+  },
+  "玄固土术": {
+    "name": "玄固土术",
+    "condition": "level>9",
+    "condition_desc": "筑基期以上",
+    "speed": "int(wuxing/5)+20",
+    "buff": {
+      "atk1_exec": "atk1+int(defen1*0.05)",
+      "defen1_exec": "defen1*1.02"
+    }
+  },
+  "磐地土术": {
+    "name": "磐地土术",
+    "condition": "level>12",
+    "condition_desc": "结丹期以上",
+    "speed": "int(wuxing/5)+15",
+    "buff": {
+      "atk1_exec": "atk1+int(defen1*0.08)",
+      "defen1_exec": "defen1*1.03"
+    }
+  },
+  "罡鸣土术": {
+    "name": "罡鸣土术",
+    "condition": "level>15",
+    "condition_desc": "金丹期以上",
+    "speed": "int(wuxing/5)+10",
+    "buff": {
+      "atk1_exec": "atk1+int(defen1*0.1)",
+      "defen1_exec": "defen1*1.05"
+    }
+  },
+  "凝气归元": {
+    "name": "凝气归元",
+    "condition": "level>18",
+    "condition_desc": "元婴期以上",
+    "speed": "int(wuxing/5)+5",
+    "skill": [
+      "回复"
+    ]
+  },
+  "真元护体": {
+    "name": "真元护体",
+    "condition": "level>21",
+    "condition_desc": "化神期以上",
+    "speed": "int(wuxing/10)+10",
+    "skill": [
+      "护体"
+    ]
+  },
+  "天崩地裂": {
+    "name": "天崩地裂",
+    "condition": "level>24",
+    "condition_desc": "洞虚期以上",
+    "speed": "int(wuxing/15)+5",
+    "skill": [
+      "削血防"
+    ]
+  },
+  "地动星沉": {
+    "name": "地动星沉",
+    "condition": "level>27",
+    "condition_desc": "大乘期以上",
+    "speed": "int(wuxing/20)+5",
+    "skill": [
+      "削血1",
+      "削血2"
+    ]
+  },
+  "武神心得": {
+    "name": "武神心得",
+    "condition": "level>31",
+    "condition_desc": "天仙以上",
+    "speed": "int(wuxing/20)+5",
+    "skill": [
+      "叠物攻",
+      "叠物防"
+    ]
+  },
+  "缩地成寸": {
+    "name": "缩地成寸",
+    "condition": "level>6",
+    "condition_desc": "练气以上",
+    "speed": "int(wuxing/5)+15"
+  },
+  "天灵地动": {
+    "name": "天灵地动",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+10"
+  },
+  "普渡丹心": {
+    "name": "普渡丹心",
+    "condition": "level>15",
+    "condition_desc": "金丹期以上",
+    "speed": "int(wuxing/10)+5",
+    "buff": {
+      "hp_exec": "hp+level*15"
+    }
+  },
+  "紫宵丹霞": {
+    "name": "紫宵丹霞",
+    "condition": "level>15",
+    "condition_desc": "金丹期以上",
+    "speed": "int(wuxing/10)+5",
+    "buff": {
+      "mp_exec": "mp*1.3"
+    }
+  },
+  "蛊术": {
+    "name": "蛊术",
+    "condition": "level>9",
+    "condition_desc": "筑基以上",
+    "speed": "int(wuxing/5)+15",
+    "skill": [
+      "中毒",
+      "毒伤1"
+    ]
+  },
+  "驱虫护体": {
+    "name": "驱虫护体",
+    "condition": "level>12",
+    "condition_desc": "结丹以上",
+    "speed": "int(wuxing/5)+10",
+    "skill": [
+      "中毒",
+      "毒回1"
+    ]
+  },
+  "蚀骨术": {
+    "name": "蚀骨术",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+5",
+    "skill": [
+      "中毒",
+      "毒伤2"
+    ]
+  },
+  "驭蛊护体": {
+    "name": "驭蛊护体",
+    "condition": "level>18",
+    "condition_desc": "元婴以上",
+    "speed": "int(wuxing/15)+5",
+    "skill": [
+      "中毒",
+      "毒回2"
+    ]
+  },
+  "幻蛊术": {
+    "name": "幻蛊术",
+    "condition": "level>21",
+    "condition_desc": "化神以上",
+    "speed": "int(wuxing/20)+5",
+    "skill": [
+      "中毒",
+      "毒伤3"
+    ]
+  },
+  "燃血蛊": {
+    "name": "燃血蛊",
+    "condition": "level>24",
+    "condition_desc": "洞虚以上",
+    "speed": "int(wuxing/25)+5",
+    "skill": [
+      "嗜血"
+    ]
+  },
+  "万蚁食天": {
+    "name": "万蚁食天",
+    "condition": "level>31",
+    "condition_desc": "天仙以上",
+    "speed": "int(wuxing/25)+1",
+    "skill": [
+      "斩杀"
+    ]
+  },
+  "药神真记": {
+    "name": "药神真记",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+5"
+  },
+  "天轮毒诀": {
+    "name": "天轮毒诀",
+    "condition": "level>12",
+    "condition_desc": "结丹以上",
+    "speed": "int(wuxing/15)+7"
+  },
+  "烈炎火术": {
+    "name": "烈炎火术",
+    "condition": "level>9",
+    "condition_desc": "筑基期以上",
+    "speed": "int(wuxing/5)+25",
+    "buff": {
+      "atk2_exec": "atk2+(0.02*atk1)"
+    }
+  },
+  "炽灼火术": {
+    "name": "炽灼火术",
+    "condition": "level>12",
+    "condition_desc": "结丹期以上",
+    "speed": "int(wuxing/5)+15",
+    "buff": {
+      "atk2_exec": "atk2+(0.04*atk1)"
+    }
+  },
+  "爆燃火术": {
+    "name": "爆燃火术",
+    "condition": "level>15",
+    "condition_desc": "金丹期以上",
+    "speed": "int(wuxing/5)+10",
+    "buff": {
+      "atk2_exec": "atk2+(0.08*atk1)"
+    }
+  },
+  "地炎决": {
+    "name": "地炎决",
+    "condition": "level>18",
+    "condition_desc": "元婴期以上",
+    "speed": "int(wuxing/5)+5",
+    "buff": {
+      "defen1_exec": "defen1+0.1*atk2"
+    }
+  },
+  "神火决": {
+    "name": "神火决",
+    "condition": "level>21",
+    "condition_desc": "化神期以上",
+    "speed": "int(wuxing/10)+5",
+    "buff": {
+      "defen2_exec": "defen2+0.1*atk2"
+    }
+  },
+  "神焰护体": {
+    "name": "神焰护体",
+    "condition": "level>24",
+    "condition_desc": "洞虚期以上",
+    "speed": "int(wuxing/20)+5",
+    "buff": {
+      "defen1_exec": "defen1+0.08*atk2",
+      "defen2_exec": "defen2+0.08*atk2"
+    }
+  },
+  "星火燎原": {
+    "name": "星火燎原",
+    "condition": "level>27",
+    "condition_desc": "大乘以上",
+    "speed": "int(wuxing/25)+5",
+    "skill": [
+      "削魔抗"
+    ]
+  },
+  "焰火滔天": {
+    "name": "焰火滔天",
+    "condition": "level>31",
+    "condition_desc": "天仙以上",
+    "speed": "int(wuxing/25)+1",
+    "skill": [
+      "术法真伤"
+    ]
+  },
+  "千锤百炼": {
+    "name": "千锤百炼",
+    "condition": "level>6",
+    "condition_desc": "练气以上",
+    "speed": "int(wuxing/5)+15"
+  },
+  "御剑术": {
+    "name": "御剑术",
+    "condition": "level>9",
+    "condition_desc": "筑基以上",
+    "speed": "int(wuxing/5)+25",
+    "skill": [
+      "叠物攻小"
+    ]
+  },
+  "驭剑护体": {
+    "name": "驭剑护体",
+    "condition": "level>12",
+    "condition_desc": "结丹以上",
+    "speed": "int(wuxing/5)+15",
+    "skill": [
+      "叠物防小"
+    ]
+  },
+  "剑灵护体": {
+    "name": "剑灵护体",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/5)+10",
+    "skill": [
+      "武器真伤"
+    ]
+  },
+  "心灵归元术": {
+    "name": "心灵归元术",
+    "condition": "level>18",
+    "condition_desc": "元婴以上",
+    "speed": "int(wuxing/10)+5",
+    "skill": [
+      "归元术"
+    ]
+  },
+  "天罡战气": {
+    "name": "天罡战气",
+    "condition": "level>21",
+    "condition_desc": "化神以上",
+    "speed": "int(wuxing/15)+5",
+    "skill": [
+      "叠物攻"
+    ]
+  },
+  "剑气护体": {
+    "name": "剑气护体",
+    "condition": "level>24",
+    "condition_desc": "洞虚以上",
+    "speed": "int(wuxing/20)+5",
+    "skill": [
+      "叠物防"
+    ]
+  },
+  "剑心": {
+    "name": "剑心",
+    "condition": "level>27",
+    "condition_desc": "大乘以上",
+    "speed": "int(wuxing/25)+5",
+    "skill": [
+      "叠物攻",
+      "剑心"
+    ]
+  },
+  "剑神幻化术": {
+    "name": "剑神幻化术",
+    "condition": "level>31",
+    "condition_desc": "天仙以上",
+    "speed": "int(wuxing/25)+1",
+    "skill": [
+      "叠物攻",
+      "剑幻"
+    ]
+  },
+  "太元符禄": {
+    "name": "太元符禄",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+10"
   }
+
 }
