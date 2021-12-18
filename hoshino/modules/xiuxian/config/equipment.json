@@ -493,6 +493,7 @@
     "condition_desc": "需要元婴以上",
     "damage_type": 0,
     "buff": {
+      "hp": 150,
       "atk1_exec": "atk1+tizhi"
     }
   },
@@ -502,6 +503,7 @@
     "condition_desc": "需要元婴以上",
     "damage_type": 1,
     "buff": {
+      "hp": 150,
       "atk2_exec": "atk2+lingli"
     }
   },

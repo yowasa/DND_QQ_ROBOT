@@ -497,7 +497,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     if user.mp > 200:
         return (False, f"你法力足够雄厚,涤魂丹对你没有效果了")
     if user.level < 13:
-        return (False, f"你现在境界还无法吸收赤血丹，请至少达到结丹期")
+        return (False, f"你现在境界还无法吸收涤魂丹，请至少达到结丹期")
     user.mp += 10
     ct._save_user_info(user)
     return (True, f"你使用了涤魂丹,增加了10MP上限。")
