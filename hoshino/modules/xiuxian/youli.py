@@ -42,9 +42,10 @@ async def youli(bot, ev: CQEvent):
     sv.logger.info(f"进行游历:[{msg}]")
     result = await _youli(msg, user, bot, ev)
     if user.gongfa3 == '飞龙探云手':
-        if random.randint(1, 20) == 1:
-            add_user_counter(user.gid, user.uid, UserModel.LINGSHI, 20)
-            await bot.send(ev, "你发动了飞龙探云手，获取了20灵石", at_sender=True)
+        if random.randint(1, 10) == 1:
+            get_lingshi = user.level * 2
+            add_user_counter(user.gid, user.uid, UserModel.LINGSHI, get_lingshi)
+            await bot.send(ev, f"你发动了飞龙探云手，获取了{get_lingshi}灵石", at_sender=True)
     id = get_user_counter(user.gid, user.uid, UserModel.YOULI_DAQIAN)
     if id:
         if DAQIAN_MAP[str(id)]['name'] == user.map:
@@ -675,7 +676,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     if rd <= 40:
         names = filter_item_name(type=['武器'], level=['金丹'])
         name = random.choice(names)
-        ex_msg=""
+        ex_msg = ""
         if not add_item(user.gid, user.uid, get_item_by_name(name)):
             ex_msg = "(背包已满,只得丢弃)"
         msg += f"你过去捡漏发现了无爱之遗,获得了{name}{ex_msg}"
