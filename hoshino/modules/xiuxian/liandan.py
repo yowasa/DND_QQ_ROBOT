@@ -22,7 +22,7 @@ async def shangjia(bot, ev: CQEvent):
             save_user_counter(user.gid, user.uid, UserModel.LIANDAN_CD, 0)
             save_user_counter(user.gid, user.uid, UserModel.LIANDAN_ITEM, 0)
             user.start_cd()
-            await bot.finish(ev, f"炼丹成功，获得丹药[{item['name']}]")
+            await bot.finish(ev, f"炼丹成功，获得丹药[{item['name']}]*{num}")
         else:
             user.start_cd()
             save_user_counter(user.gid, user.uid, UserModel.LIANDAN_CD, cd)
