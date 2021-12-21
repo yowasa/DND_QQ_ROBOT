@@ -905,7 +905,7 @@
       "enemy": {
         "du_count": {
           "type": "exec",
-          "value": "du_count+10"
+          "value": "enemy_du_count+10"
         }
       }
     }
