@@ -26,11 +26,10 @@ EVENT_MAP = {
 @sv.on_fullmatch(["#游历"])
 async def youli(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
-    await user.check_and_start_cd(bot, ev)
     all_li = EVENT_MAP.get(user.map)
     if not all_li:
         await bot.finish(ev, "此地无法游历", at_sender=True)
-
+    await user.check_and_start_cd(bot, ev)
     rn = random.randint(1, 100)
     total = 0
     msg = ""

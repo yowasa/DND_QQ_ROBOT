@@ -55,13 +55,13 @@
   },
   "化功大法": {
     "name": "化功大法",
-    "condition": "(wuxing>=50)&(level>13)&(sharen>=5)",
+    "condition": "(wuxing>=50)&(level>12)&(sharen>=5)",
     "condition_desc": "需要结丹以上,悟性大于50,杀害人数大于5人",
     "speed": "int(wuxing/10)+5"
   },
   "袖里乾坤": {
     "name": "袖里乾坤",
-    "condition": "(wuxing>=50)&(level>13)",
+    "condition": "(wuxing>=50)&(level>12)",
     "condition_desc": "需要结丹以上,悟性大于50",
     "speed": "int(wuxing/5)+5"
   },
