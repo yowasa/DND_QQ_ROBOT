@@ -157,11 +157,11 @@ MAP = {
 }
 
 ZONGMEN = {
-    "混元门": {"map": "大千世界", "condition": "len(linggen)>=3", "condition_desc": "灵根数量至少为3才可拜入混元门"},
+    "混元门": {"map": "修仙秘境", "condition": "len(linggen)>=3", "condition_desc": "灵根数量至少为3才可拜入混元门"},
     "狮府": {"map": "大千世界", "condition": "('土' in linggen) or ('木' in linggen)", "condition_desc": "只有具有土或木灵根才可拜入狮府"},
-    "百花谷": {"map": "大千世界", "condition": "('水' in linggen) or ('木' in linggen)", "condition_desc": "只有具有水或木灵根才可拜入百花谷"},
+    "百花谷": {"map": "无尽之海", "condition": "('水' in linggen) or ('木' in linggen)", "condition_desc": "只有具有水或木灵根才可拜入百花谷"},
     "百炼山庄": {"map": "大千世界", "condition": "'火' in linggen", "condition_desc": "只有具有火灵根可以拜入百炼山庄"},
-    "蜀山派": {"map": "大千世界", "condition": "'金' in linggen", "condition_desc": "只有具有金灵根可以拜入蜀山派"},
+    "蜀山派": {"map": "修仙秘境", "condition": "'金' in linggen", "condition_desc": "只有具有金灵根可以拜入蜀山派"},
 }
 # 境界所能拥有的道具上限
 ITEM_CARRY = {
