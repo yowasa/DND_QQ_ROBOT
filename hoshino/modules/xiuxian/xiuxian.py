@@ -330,20 +330,32 @@ async def duanti(bot, ev: CQEvent):
 @sv.on_prefix(["#前往"])
 async def go(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
-    name = str(ev.message).strip()
-    adress = MAP.get(name)
-    if not adress:
-        await bot.finish(ev, f"未找到名为「{name}」的地点")
+    destination = str(ev.message).strip()
+    address = MAP.get(destination)
+    if not address:
+        await bot.finish(ev, f"未找到名为「{destination}」的地点")
     user_adress = MAP.get(user.map)
-    if name not in user_adress['able']:
+    if destination not in user_adress['able']:
         await bot.finish(ev, f"你当前所在的[{user.map}]只能前往 {'｜'.join(user_adress['able'])}")
-    need_level = adress["in_level"]
+    need_level = address["in_level"]
     if user.level < need_level:
-        await bot.finish(ev, f"你的还不足以应对接下来的挑战，请先提升自己的实力吧（{name}需要{JingJieMap[str(need_level)]}才能前往）")
+        await bot.finish(ev, f"你的还不足以应对接下来的挑战，请先提升自己的实力吧（{destination}需要{JingJieMap[str(need_level)]}才能前往）")
+    # 进宗门（从宗门所在大地图去宗门）
+    if destination == user.belong and user.map == ZONGMEN.get(user.belong)["map"] :
+        gotoDestination( user, destination)
+        await bot.finish(ev, f"这里的事情已经办完了，动身前往{destination}")
+    # 出宗门
+    if user.map == user.belong and destination == ZONGMEN.get(user.belong)["map"] :
+        gotoDestination( user, destination)
+        await bot.finish(ev, f"这里的事情已经办完了，动身前往{destination}")
     await user.check_cd(bot, ev)
     if user.gongfa3 != "千里神行":
         user.start_cd()
-    user.map = name
+    gotoDestination(user, destination)
+    await bot.finish(ev, f"这里的事情已经办完了，动身前往{destination}")
+
+def gotoDestination(user:AllUserInfo, destination:str):
+    user.map = destination
     ct = XiuxianCounter()
     ct._save_user_info(user)
-    await bot.finish(ev, f"这里的事情已经办完了，动身前往{name}")
+
