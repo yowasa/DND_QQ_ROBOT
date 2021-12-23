@@ -1,5 +1,6 @@
 from hoshino.util import FreqLimiter
 from .ItemCounter import *
+from .HistoryCounter import *
 from .XiuxianCounter import *
 from hoshino import util
 import random
@@ -250,15 +251,15 @@ PINGJING = [1, 6, 9, 12, 15, 18, 21, 24, 27, 30, 31, 34, 37]
 # 修炼效率
 XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
-# 时间限制
-# 操作间隔
-flmt = FreqLimiter(10 * 60)
-# 死亡cd
-die_flmt = FreqLimiter(1 * 60 * 60)
+# # 时间限制
+# # 操作间隔
+# flmt = FreqLimiter(10 * 60)
+# # 死亡cd
+# die_flmt = FreqLimiter(1 * 60 * 60)
 
-# # 测试服
-# flmt = FreqLimiter(1)
-# die_flmt = FreqLimiter(10)
+# 测试服
+flmt = FreqLimiter(1)
+die_flmt = FreqLimiter(10)
 
 # 文件路径
 FILE_PATH = os.path.dirname(__file__)
@@ -313,6 +314,13 @@ def add_item(gid, uid, item, num=1):
     i_c = ItemCounter()
     if count_item(gid, uid) >= get_max_count(gid, uid):
         return 0
+    i_c._add_item(gid, uid, int(item['id']), num)
+    return 1
+
+
+# 添加道具
+def add_item_ignore_limit(gid, uid, item, num=1):
+    i_c = ItemCounter()
     i_c._add_item(gid, uid, int(item['id']), num)
     return 1
 
@@ -378,8 +386,98 @@ def add_user_counter(gid, uid, state: UserModel, num=1):
     i_c._save_user_info(gid, uid, state, base + num)
 
 
+# 获取指定用户历史状态
+def get_user_history(gid, uid, state: UserHistory):
+    i_c = HistoryCounter()
+    return i_c._get_user_info(gid, uid, state)
+
+
+# 获取用户全部历史状态
+def get_all_user_history(gid, uid):
+    i_c = HistoryCounter()
+    li = i_c._query_user_info(gid, uid)
+    map = {i[0]: i[1] for i in li}
+    result_map = {}
+    for i in UserHistory:
+        result_map[i] = 0
+        if map.get(i.value[0]):
+            result_map[i] = map.get(i.value[0])
+    return result_map
+
+
+# 存储指定用户历史状态
+def save_user_history(gid, uid, state: UserHistory, num):
+    i_c = HistoryCounter()
+    i_c._save_user_info(gid, uid, state, num)
+
+
+# 指定用户历史状态+num
+def add_user_history(gid, uid, state: UserHistory, num=1):
+    i_c = HistoryCounter()
+    base = i_c._get_user_info(gid, uid, state)
+    i_c._save_user_info(gid, uid, state, base + num)
+
+
+# 留存历史
+def cal_history(user):
+    # 记录最大等级
+    his_map = get_all_user_history(user.gid, user.uid)
+    if his_map.get(UserHistory.MAX_LEVEL) < user.level:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_LEVEL, user.level)
+    # 留存灵石
+    save_user_history(user.gid, user.uid, UserHistory.RESTART_LINGSHI, int(user.lingshi / 2))
+    # 随机留存一个身上的道具
+    counter = ItemCounter()
+    items = counter._get_item(user.gid, user.uid)
+    if items:
+        i = random.choice(items)
+        item = ITEM_INFO[str(i[0])]
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_ITEM, int(item['id']))
+    else:
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_ITEM, 0)
+    # 留存心法
+    if user.gongfa != "无":
+        xinfa = get_item_by_name(user.gongfa)
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_XINFA, int(xinfa['id']))
+    else:
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_XINFA, 0)
+    # 留存功法
+    if user.gongfa2 != "无":
+        gongfa = get_item_by_name(user.gongfa2)
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_GONGFA, int(gongfa['id']))
+    else:
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_GONGFA, 0)
+    # 留存神通
+    if user.gongfa3 != "无":
+        shentong = get_item_by_name(user.gongfa3)
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_SHENTONG, int(shentong['id']))
+    else:
+        save_user_history(user.gid, user.uid, UserHistory.RESTART_SHENTONG, 0)
+    # 更新历史最高血量
+    if his_map.get(UserHistory.MAX_HP) < user.battle_hp:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_HP, user.battle_hp)
+    # 更新历史最高蓝量
+    if his_map.get(UserHistory.MAX_MP) < user.battle_mp:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_MP, user.battle_mp)
+    # 更新历史最高物攻
+    if his_map.get(UserHistory.MAX_ACT) < user.battle_atk1:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_ACT, user.battle_atk1)
+    # 更新历史最高魔攻
+    if his_map.get(UserHistory.MAX_ACT2) < user.battle_atk2:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_ACT2, user.battle_atk2)
+    # 更新历史最高物防
+    if his_map.get(UserHistory.MAX_DEFEN1) < user.battle_defen1:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_DEFEN1, user.battle_defen1)
+    # 更新历史最高术防
+    if his_map.get(UserHistory.MAX_DEFEN2) < user.battle_defen2:
+        save_user_history(user.gid, user.uid, UserHistory.MAX_DEFEN2, user.battle_defen2)
+
+
 # 角色死亡
 def delete_user(user):
+    # 储存历史信息
+    cal_history(user)
+
     ct = XiuxianCounter()
     # 删除角色基本信息
     ct._del_user(user.gid, user.uid)
@@ -496,7 +594,7 @@ class AllUserInfo():
         if buff.get('dodge'):
             self.battle_dodge += buff.get('dodge')
         content = {"daohang": self.daohang, "atk1": self.battle_atk1, "atk2": self.battle_atk2,
-                   "defen1": self.battle_defen1,"tizhi":self.tizhi,"lingli":self.lingli,
+                   "defen1": self.battle_defen1, "tizhi": self.tizhi, "lingli": self.lingli,
                    "defen2": self.battle_defen2, "hp": self.battle_hp, "mp": self.battle_mp, "level": self.level}
         if buff.get('hp_exec'):
             self.battle_hp = int(eval(buff.get('hp_exec'), content))

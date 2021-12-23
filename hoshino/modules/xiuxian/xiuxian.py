@@ -1,6 +1,8 @@
 from .battle import *
 from hoshino.util.utils import get_message_at, get_message_text
 from .xiuxian_base import *
+from .zhuansheng import his_buff
+
 
 @sv.on_fullmatch(["#修仙手册", "#修仙帮助"])
 async def help(bot, ev: CQEvent):
@@ -90,8 +92,12 @@ async def start(bot, ev: CQEvent):
     user.name = name
     user.linggen = my_linggen
     init_user(user)
+    spec = his_buff(user)
+    ex_msg = ""
+    if spec:
+        ex_msg = "\n" + "\n".join(spec)
     ct._save_user_info(user)
-    await bot.finish(ev, f'拥有{my_linggen}灵根的{name}已正式进入修仙界')
+    await bot.finish(ev, f'拥有{my_linggen}灵根的{name}已正式进入修仙界{ex_msg}')
 
 
 @sv.on_fullmatch(["#time", "#TIME", "#T", "#t"])

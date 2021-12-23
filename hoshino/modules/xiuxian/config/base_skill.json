@@ -300,7 +300,7 @@
         }
       }
     },
-    "log": "{my_name}触发了万民玺对{enemy_name}造成{my_wanmin_hp}点伤害"
+    "log": "{my_name}触发了万民玺对{enemy_name}造成{enemy_wanmin_hp}点伤害"
   },
   "妖花": {
     "cost": 100,
@@ -953,6 +953,42 @@
           "value": [
             true
           ]
+        }
+      }
+    }
+  },
+  "棋局": {
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "boost": {
+          "type": "exec",
+          "value": "my_boost+2"
+        },
+        "double": {
+          "type": "exec",
+          "value": "my_double+2"
+        },
+        "dodge": {
+          "type": "exec",
+          "value": "my_dodge+2"
+        }
+      }
+    }
+  },
+  "平衡": {
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "my_atk2 if my_atk2>my_atk1 else my_atk1"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "my_atk1 if my_atk1>my_atk2 else my_atk2"
         }
       }
     }

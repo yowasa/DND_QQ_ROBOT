@@ -264,7 +264,6 @@ def duel_buff(my_content, enemy_content):
     boost_tag = ""
     if is_boost:
         atk1 = int(1.5 * atk1)
-        atk2 = int(1.5 * atk2)
         boost_tag = "(暴击)"
     if is_dodge and dmg_type == 0:
         my_content["damage_log"] += f"攻击被闪避!"
@@ -273,7 +272,7 @@ def duel_buff(my_content, enemy_content):
             base = atk2 * (100 / (100 + defen2)) * dmg_rate * reduce_rate
             each = deviation(base, 20)
             dmg += each
-            my_content["damage_log"] += f"造成了{each}点术法伤害{boost_tag}"
+            my_content["damage_log"] += f"造成了{each}点术法伤害"
         else:
             base = atk1 * (100 / (100 + defen1)) * dmg_rate * reduce_rate
             each = deviation(base, 50) + random.randint(1, 10)
@@ -284,7 +283,7 @@ def duel_buff(my_content, enemy_content):
                 base = atk2 * (100 / (100 + defen2)) * dmg_rate * reduce_rate
                 each = deviation(base, 20)
                 dmg += each
-                my_content["damage_log"] += f",连击造成了{each}点术法伤害{boost_tag} "
+                my_content["damage_log"] += f",连击造成了{each}点术法伤害 "
             else:
                 base = atk1 * (100 / (100 + defen1)) * dmg_rate * reduce_rate
                 each = deviation(base, 50)

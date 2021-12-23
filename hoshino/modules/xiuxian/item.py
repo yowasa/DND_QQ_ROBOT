@@ -3,35 +3,35 @@ from .xiuxian_base import *
 from hoshino.util.utils import get_message_text, get_message_at
 
 
-# @sv.on_prefix(['#获取'])
-# async def my_item(bot, ev: CQEvent):
-#     gid = ev.group_id
-#     uid = ev.user_id
-#     msg = str(ev.message).strip().split()
-#     item_info = ITEM_NAME_MAP.get(msg[0])
-#     if not item_info:
-#         await bot.finish(ev, f"未找到名称为{msg[0]}的道具", at_sender=True)
-#     ct = XiuxianCounter()
-#     user = ct._get_user(gid, uid)
-#     if not user:
-#         await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
-#     result = add_item(gid, uid, item_info)
-#     if result:
-#         await bot.finish(ev, "获取成功")
-#     else:
-#         await bot.finish(ev, "获取失败,请检查背包空间")
-#
-#
-# @sv.on_prefix(['#充值'])
-# async def my_item(bot, ev: CQEvent):
-#     gid = ev.group_id
-#     uid = ev.user_id
-#     msg = str(ev.message).strip()
-#     if not msg.isdecimal():
-#         await bot.finish(ev, f"请输入充值数字", at_sender=True)
-#     num = int(msg)
-#     add_user_counter(gid, uid, UserModel.LINGSHI, num)
-#     await bot.finish(ev, f"充值{num}灵石成功", at_sender=True)
+@sv.on_prefix(['#获取'])
+async def my_item(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    msg = str(ev.message).strip().split()
+    item_info = ITEM_NAME_MAP.get(msg[0])
+    if not item_info:
+        await bot.finish(ev, f"未找到名称为{msg[0]}的道具", at_sender=True)
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    if not user:
+        await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
+    result = add_item(gid, uid, item_info)
+    if result:
+        await bot.finish(ev, "获取成功")
+    else:
+        await bot.finish(ev, "获取失败,请检查背包空间")
+
+
+@sv.on_prefix(['#充值'])
+async def my_item(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    msg = str(ev.message).strip()
+    if not msg.isdecimal():
+        await bot.finish(ev, f"请输入充值数字", at_sender=True)
+    num = int(msg)
+    add_user_counter(gid, uid, UserModel.LINGSHI, num)
+    await bot.finish(ev, f"充值{num}灵石成功", at_sender=True)
 
 @sv.on_prefix(["#传送"])
 async def go(bot, ev: CQEvent):
