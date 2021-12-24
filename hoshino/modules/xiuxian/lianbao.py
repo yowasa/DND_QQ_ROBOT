@@ -42,7 +42,7 @@ async def shangjia(bot, ev: CQEvent):
             max_level_count += 1
         elif order.index(item['level']) > order.index(max_level):
             max_level = item['level']
-            max_level_count == 1
+            max_level_count = 1
     # 消耗物品 开启cd
     user.start_cd()
     for i in msg:
@@ -75,7 +75,7 @@ async def shangjia(bot, ev: CQEvent):
     name = random.choice(names)
     fabao_item = get_item_by_name(name)
     save_user_counter(user.gid, user.uid, UserModel.LIANBAO_ITEM, int(fabao_item['id']))
-    await bot.finish(ev, f"开始炼制法宝，炼制进度会随着你的行动慢慢增加，当炼制成功时会额外提醒，再次使用#练宝指令获取，你可以使用 #注灵 灵石数量 指令来加速炼制过程")
+    await bot.finish(ev, f"开始炼制法宝，炼制进度会随着你的行动慢慢增加，当炼制成功时会额外提醒，再次使用#炼宝指令获取，你可以使用 #注灵 灵石数量 指令来加速炼制过程")
 
 
 @sv.on_prefix(["#注灵"])
@@ -98,5 +98,5 @@ async def shangjia(bot, ev: CQEvent):
     have = get_user_counter(user.gid, user.uid, UserModel.LIANBAO_LINGQI)
     ex_msg = ""
     if have >= need:
-        ex_msg = "（练宝已经完成，请再次使用 #练宝 指令取出）"
+        ex_msg = "（炼宝已经完成，请再次使用 #炼宝 指令取出）"
     await bot.finish(ev, f"注入{num}成功!{ex_msg}")
