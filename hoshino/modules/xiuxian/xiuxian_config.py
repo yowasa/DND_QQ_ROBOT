@@ -647,7 +647,7 @@ class AllUserInfo():
             if get_user_counter(self.gid, self.uid, UserModel.SUODI) > 0:
                 add_user_counter(self.gid, self.uid, UserModel.SUODI, num=-1)
         if self.gongfa3 == "大罗洞观":
-            if random.randint(1, 2) == 1:
+            if random.randint(1, 10) == 1:
                 self.daluo = 1
                 await bot.send(ev, "大罗入世，窥晓阴阳，观测天机，规避天道，此次行动取消CD")
 
