@@ -564,8 +564,8 @@
     "condition_desc": "金丹以上",
     "speed": "int(wuxing/10)+10"
   },
-  "胜天半子": {
-    "name": "胜天半子",
+  "星棋九转": {
+    "name": "星棋九转",
     "condition": "level>15",
     "condition_desc": "金丹以上",
     "speed": "int(wuxing/10)+10",

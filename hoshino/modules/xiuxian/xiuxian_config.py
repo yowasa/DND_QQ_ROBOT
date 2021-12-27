@@ -528,6 +528,8 @@ class AllUserInfo():
         self.duel_battle_info()
         # 处理其他数据
         self.other_info()
+        # 大罗洞观
+        self.daluo=0
 
     def duel_battle_info(self):  # 标签库
         # 基础属性
@@ -644,6 +646,10 @@ class AllUserInfo():
         if self.gongfa3 == "缩地成寸":
             if get_user_counter(self.gid, self.uid, UserModel.SUODI) > 0:
                 add_user_counter(self.gid, self.uid, UserModel.SUODI, num=-1)
+        if self.gongfa3 == "大罗洞观":
+            if random.randint(1, 10) == 1:
+                self.daluo = 1
+                await bot.send(ev, "大罗入世，窥晓阴阳，观测天机，规避天道，此次行动取消CD")
 
     async def check_cd_ignore_other(self, bot, ev):
         if not flmt.check(self.uid):
@@ -667,10 +673,7 @@ class AllUserInfo():
             if self.gongfa3 == "天灵地动":
                 lingqi = 2 * lingqi
             add_user_counter(self.gid, self.uid, UserModel.LIANBAO_LINGQI, lingqi)
-        if self.gongfa3 == "大罗洞观":
-            if random.randint(1, 10) > 1:
-                flmt.start_cd(self.uid)
-        else:
+        if not self.daluo:
             flmt.start_cd(self.uid)
 
 

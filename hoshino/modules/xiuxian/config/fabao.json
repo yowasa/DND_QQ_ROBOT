@@ -161,7 +161,7 @@
   },
   "千寻一醉": {
     "name": "千寻一醉",
-    "condition": "(level>=19)&(linggen='水')",
+    "condition": "(level>=19)&(linggen=='水')",
     "condition_desc": "需要元婴期以上且只有水灵根",
     "skill": [
       "千寻一醉"
