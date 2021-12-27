@@ -42,7 +42,7 @@ async def shangjia(bot, ev: CQEvent):
             max_level_count += 1
         elif order.index(item['level']) > order.index(max_level):
             max_level = item['level']
-            max_level_count == 1
+            max_level_count = 1
     # 消耗物品 开启cd
     user.start_cd()
     for i in msg:

@@ -41,7 +41,7 @@
     "log": "防御力增加50%"
   },
   "摧心浪": {
-    "cost": 20,
+    "cost": 0,
     "time": "after_damage",
     "condition": "my_linggen=='水'",
     "effect": {
