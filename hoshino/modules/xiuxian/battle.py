@@ -194,6 +194,7 @@ def effect(skill, my_content, enemy_content, turn, logs):
             elif enemy_next[i]["type"] == "exec":
                 li = [eval(j, content) for j in enemy_next[i]["value"]]
                 enemy_content[i].extend(li)
+
     content = build_content(my_content, enemy_content, turn)
     skill_log = BASE_SKILL[skill].get('log')
     if skill_log:
