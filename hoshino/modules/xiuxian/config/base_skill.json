@@ -368,7 +368,7 @@
         }
       },
       "enemy_next": {
-        "ts": {
+        "next_ts": {
           "type": "const",
           "value": [
             true
@@ -684,7 +684,7 @@
       "my": {
         "atk1": {
           "type": "exec",
-          "value": "int(my_atk1*1.05)"
+          "value": "int(my_atk1*1.04)"
         }
       }
     }
@@ -697,7 +697,7 @@
       "my": {
         "atk1": {
           "type": "exec",
-          "value": "int(my_atk1*1.10)"
+          "value": "int(my_atk1*1.08)"
         }
       }
     }
@@ -710,7 +710,7 @@
       "my": {
         "atk1": {
           "type": "exec",
-          "value": "int(my_atk1*1.15)"
+          "value": "int(my_atk1*1.10)"
         }
       }
     }
