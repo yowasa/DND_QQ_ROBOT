@@ -274,6 +274,7 @@ async def duanti(bot, ev: CQEvent):
     if enemy.gongfa3 == "缩地成寸":
         add_user_counter(enemy.gid, enemy.uid, UserModel.SUODI, num=5)
     enemy = AllUserInfo(enemy)
+    # check使用燃魂丹标识
     flag = get_user_counter(my.gid, my.uid, UserModel.RANHUN)
     if flag:
         my.battle_hp = my.battle_hp * 2

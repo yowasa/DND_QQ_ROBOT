@@ -130,7 +130,7 @@
   "金雷": {
     "cost": 100,
     "time": "begin",
-    "condition": "('水' in my_linggen)&('火' in my_linggen)",
+    "condition": "('水' in enemy_linggen)&('火' in enemy_linggen)",
     "effect": {
       "my": {
         "atk1": {
@@ -148,7 +148,7 @@
   "二气": {
     "cost": 100,
     "time": "begin",
-    "condition": "('金' in my_linggen)&('木' in my_linggen)",
+    "condition": "('金' in enemy_linggen)&('木' in enemy_linggen)",
     "effect": {
       "my": {
         "atk1": {
@@ -672,6 +672,45 @@
         "atk1": {
           "type": "exec",
           "value": "int(my_atk1*1.02)"
+        }
+      }
+    }
+  },
+  "叠物攻结丹": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.05)"
+        }
+      }
+    }
+  },
+  "叠物攻金丹": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.10)"
+        }
+      }
+    }
+  },
+  "叠物攻元婴": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.15)"
         }
       }
     }

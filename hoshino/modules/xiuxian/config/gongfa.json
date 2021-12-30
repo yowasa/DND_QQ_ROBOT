@@ -493,6 +493,33 @@
       "叠物攻小"
     ]
   },
+  "执剑术": {
+    "name": "执剑术",
+    "condition": "level>12",
+    "condition_desc": "结丹以上",
+    "speed": "int(wuxing/5)+15",
+    "skill": [
+      "叠物攻结丹"
+    ]
+  },
+  "拔剑术": {
+    "name": "拔剑术",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/5)+10",
+    "skill": [
+      "叠物攻金丹"
+    ]
+  },
+  "问剑术": {
+    "name": "问剑术",
+    "condition": "level>18",
+    "condition_desc": "元婴以上",
+    "speed": "int(wuxing/10)+5",
+    "skill": [
+      "叠物攻元婴"
+    ]
+  },
   "驭剑护体": {
     "name": "驭剑护体",
     "condition": "level>12",
