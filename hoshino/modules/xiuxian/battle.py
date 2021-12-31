@@ -1,3 +1,4 @@
+from .BossCounter import BossCounter, UserDamageCounter
 from .xiuxian_config import *
 import random
 
@@ -45,6 +46,8 @@ def init_content(my: AllUserInfo):
     content = {}
     # 初始化属性
     # 最大血量
+    content["uid"] = my.uid
+    content["gid"] = my.gid
     content["name"] = my.name
     content["max_hp"] = my.battle_hp
     content["max_mp"] = my.battle_mp
@@ -420,3 +423,216 @@ def battle(my: AllUserInfo, enemy: AllUserInfo):
 
 def end_battle(logs, my_content, enemy_content):
     return my_content['hp'], enemy_content['hp'], logs
+
+
+def battle_boss(my: AllUserInfo):
+    my_content = init_content(my)
+    # boss content的组装
+    boss_content = init_boss_content(my_content['gid'])
+    return battle_base(my_content, boss_content)
+
+
+def init_boss_content(gid):
+    name = "元旦限定"
+    boss = BOSS[name]
+    name = boss["name"]
+    content = {}
+    # 初始化属性
+    # 最大血量
+    content["name"] = name
+    content["max_hp"] = boss["hp"]
+    content["max_mp"] = boss["mp"]
+
+    # 当前血量
+    ct = BossCounter()
+    hp = ct._get_hp_by_name(gid, name)
+    if not hp:
+        ct._save_boss_hp_info(gid, name, boss["hp"])
+        content["hp"] = boss["hp"]
+    else:
+        content["hp"] = hp
+
+    # 攻击
+    content["atk1"] = boss["atk1"]
+    content["atk2"] = boss["atk2"]
+    # 防御
+    content["defen1"] = boss["defen1"]
+    content["defen2"] = boss["defen2"]
+    # 技巧
+    content["skill"] = boss["skill"]
+    # 杀人数
+    content["sharen"] = boss["sharen"]
+    # 境界等级
+    content["level"] = boss["level"]
+    # 伤害倍率
+    content["dmg_rate"] = 1
+    # 伤害减免
+    content["reduce_rate"] = 1
+    # 攻击中毒标识
+    content["du_flag"] = 0
+    # 中毒加深
+    content["du_shang"] = 0
+    # 体内毒素
+    content["du_count"] = 0
+    # 额外伤害
+    content["ex_atk"] = 0
+    # 武器伤害
+    content["equip_atk"] = boss["wuqi"]
+    # 灵根
+    content["linggen"] = boss["linggen"]
+
+    skill_cd = {}
+    content["skills"] = skill_cd
+
+    # 伤害类型
+    content["dmg_type"] = 0
+    skills = []
+    # # 武器特性
+    # equip = get_equip_by_name(my.wuqi)
+    # # 武器
+    # if equip:
+    #     if equip.get("skill"):
+    #         skills.extend(equip.get("skill"))
+    #     if equip.get("damage_type"):
+    #         content["dmg_type"] = equip["damage_type"]
+    #     else:
+    #         content["dmg_type"] = 0
+
+    # 功法
+    gongfa = get_gongfa_by_name(boss["gongfa2"])
+    if gongfa:
+        if gongfa.get("skill"):
+            skills.extend(gongfa.get("skill"))
+    skills = list(set(skills))
+    for i in skills:
+        skill_cd[i] = 0
+
+    content["boost"] = 0
+    content["double"] = 0
+    content["dodge"] = 0
+    # buff标识
+    content["is_boost"] = False
+    content["is_double"] = False
+    content["is_dodge"] = False
+    # 跳过战斗阶段标识
+    content["ts"] = False
+    # 总伤害
+    content["total_damage"] = 0
+    # 运势
+    content["yunshi"] = random.randint(1, 100)
+    # buffer_state
+    content["next_atk1"] = []
+    content["next_atk2"] = []
+    content["next_defen1"] = []
+    content["next_defen2"] = []
+    content["next_ts"] = []
+    content["next_ts"] = []
+    content["next_boost"] = []
+    content["next_double"] = []
+    content["next_dodge"] = []
+    content["next_is_boost"] = []
+    content["next_is_double"] = []
+    content["next_is_dodge"] = []
+    content["next_dmg_rate"] = []
+    content["next_reduce_rate"] = []
+    content["next_ex_atk"] = []
+    # 初始化
+    return content
+
+
+def battle_base(my_content, enemy_content):
+    gid = my_content['gid']
+    uid = my_content['uid']
+    boss_name = enemy_content['name']
+    logs = []
+    # 处理战斗技巧
+    duel_skill(my_content, enemy_content)
+    # 战斗开始
+    logs.append(f"{my_content['name']}HP:{my_content['hp']}\t {enemy_content['name']}HP:{enemy_content['hp']}")
+    # 触发技能
+    # 有人血量归零
+    if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
+        return end_battle(logs, my_content, enemy_content)
+    turn = 0
+
+    # 准备log
+    pre_pare_log = []
+    pre_pare_log.extend(skill_engine("init", my_content, enemy_content, turn))
+    pre_pare_log.extend(skill_engine("init", enemy_content, my_content, turn))
+    pre_pare_log.extend(skill_engine("prepare", my_content, enemy_content, turn))
+    pre_pare_log.extend(skill_engine("prepare", enemy_content, my_content, turn))
+    pre_pare_log.extend(skill_engine("begin", my_content, enemy_content, turn))
+    pre_pare_log.extend(skill_engine("begin", enemy_content, my_content, turn))
+    if pre_pare_log:
+        logs.append(','.join(pre_pare_log))
+    ct = BossCounter()
+    start_boss_hp = enemy_content["hp"]
+
+    skills = my_content["skills"]
+    for i in my_content["skills"].keys():
+        if i == "凤羽流苏":
+            skills.pop("凤羽流苏")
+            logs.append(f"{boss_name}发动技能封禁法宝 凤羽流苏")
+            break
+
+    while True:
+        turn = turn + 1
+        tun_log = [f"第{turn}回合交手"]
+        # 技能cd-1
+        for i in my_content["skills"].keys():
+            if my_content["skills"][i] > 0:
+                my_content["skills"][i] -= 1
+        for i in enemy_content["skills"].keys():
+            if enemy_content["skills"][i] > 0:
+                enemy_content["skills"][i] -= 1
+
+        # 伤害计算前触发技能
+        tun_log.extend(skill_engine("before_damage", my_content, enemy_content, turn))
+        tun_log.extend(skill_engine("before_damage", enemy_content, my_content, turn))
+
+        # 判定伤害触发
+        judge_damage(my_content, enemy_content)
+        # 我方伤害日志
+        tun_log.append(my_content["damage_log"])
+        # 扣血动作
+        enemy_content["hp"] -= my_content["total_damage"]
+        # 敌方伤害日志
+        tun_log.append(enemy_content["damage_log"])
+        # 扣血动作
+        my_content["hp"] -= enemy_content["total_damage"]
+        # 触发技能
+        tun_log.extend(skill_engine("after_damage", my_content, enemy_content, turn))
+        tun_log.extend(skill_engine("after_damage", enemy_content, my_content, turn))
+        tun_log.extend(skill_engine("battle_end", my_content, enemy_content, turn))
+        tun_log.extend(skill_engine("battle_end", enemy_content, my_content, turn))
+        # 计算异常伤害
+        tun_log.extend(cal_yichang(my_content, enemy_content))
+        # 计算异常伤害
+        tun_log.extend(cal_yichang(enemy_content, my_content))
+
+        tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
+        tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
+        logs.append(",".join(tun_log))
+
+        # 每回合保存一次hp
+        cur_hp = enemy_content["hp"]
+        ct._save_boss_hp_info(gid, boss_name, cur_hp)
+
+        # 重置双方造成伤害和回复
+        my_content["total_damage"] = 0
+        enemy_content["total_damage"] = 0
+
+        # 随机出运势
+        my_content["yunshi"] = random.randint(1, 100)
+        enemy_content["yunshi"] = random.randint(1, 100)
+
+        # 有人血量归零
+        damage_all_hp = start_boss_hp - cur_hp
+        if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
+            ud = UserDamageCounter()
+            have_damage = ud._get_damage_by_name(gid, uid, boss_name)
+            logs.append(f"{my_content['name']}此次共造成{damage_all_hp}点伤害")
+            if not have_damage:
+                have_damage = 0
+            ud._save_user_damage_info(gid, uid, boss_name, damage_all_hp + have_damage)
+            return end_battle(logs, my_content, enemy_content)
