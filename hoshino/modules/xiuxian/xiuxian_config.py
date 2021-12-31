@@ -296,6 +296,10 @@ with open(os.path.join(FILE_PATH, 'config/base_skill.json'), 'r', encoding='UTF-
 with open(os.path.join(FILE_PATH, 'config/cangjing.json'), 'r', encoding='UTF-8') as fa:
     CANGJING = json.load(fa, strict=False)
 
+# 特效
+with open(os.path.join(FILE_PATH, 'config/boss.json'), 'r', encoding='UTF-8') as fa:
+    BOSS = json.load(fa, strict=False)
+
 
 # 根据名字获取道具
 def get_item_by_name(name):
@@ -353,6 +357,15 @@ def get_max_count(gid, uid):
         max = 2 * max
     return max
 
+# 获取指定群组状态
+def get_group_counter(gid, state: GroupModel):
+    i_c = ItemCounter()
+    return i_c._get_group_state(gid, state)
+
+# 获取指定群组状态
+def save_group_counter(gid, state: GroupModel, num):
+    i_c = ItemCounter()
+    return i_c._save_group_state(gid, state ,num)
 
 # 获取指定用户状态
 def get_user_counter(gid, uid, state: UserModel):

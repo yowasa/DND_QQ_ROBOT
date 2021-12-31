@@ -46,6 +46,7 @@ class UserModel(Enum):
 class GroupModel(Enum):
     OFF_FREE = [1, "定时关闭免费招募庆典标识"]
     WEATHER = [2, "天气"]
+    YUANDAN_BOSS = [3, "元旦限定Boss"]
 
 
 class ItemCounter:

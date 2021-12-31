@@ -366,3 +366,82 @@ def gotoDestination(user:AllUserInfo, destination:str):
     ct = XiuxianCounter()
     ct._save_user_info(user)
 
+
+@sv.on_fullmatch(["#元旦限定Boss"])
+async def specialNewYear(bot, ev: CQEvent):
+    gid = ev.group_id
+    my = await get_ev_user(bot, ev)
+    await my.check_and_start_cd(bot, ev)
+    if get_group_counter(gid, GroupModel.YUANDAN_BOSS) > 0 :
+        await bot.finish(ev, f"Boss已被击败，活动结束")
+    # check使用燃魂丹标识
+    # flag = get_user_counter(my.gid, my.uid, UserModel.RANHUN)
+    # if flag:
+    #     my.battle_hp = my.battle_hp * 2
+    #     my.battle_mp = my.battle_mp * 2
+    #     my.battle_atk1 = my.battle_atk1 * 2
+    #     my.battle_atk2 = my.battle_atk1 * 2
+    #     my.battle_defen1 = my.battle_defen1 * 2
+    #     my.battle_defen2 = my.battle_defen2 * 2
+
+    # 战斗
+    my_hp, he_hp, send_msg_li = battle_boss(my)
+    log=""
+    if my_hp <= 0:
+        log += f"{my.name}受到伤害，HP减为0，弱小的你还需要继续修炼，等待你的下次挑战"
+
+    if he_hp <= 0:
+        save_group_counter(gid, GroupModel.YUANDAN_BOSS, 1)
+        log += f"{my.name}击败了Boss，你的声名将响彻修仙界"
+
+    send_msg_li.append(log)
+    user = await get_ev_user(bot, ev)
+    luck = random.randint(1,10)
+    # 80%概率拿灵石
+    if luck > 2:
+        lingshi = random.randint(10,50)
+        user.lingshi += lingshi
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
+        send_msg_li.append(f"天道见你勇气可嘉，给予{lingshi}块灵石以示鼓励")
+    else:
+        luck = random.randint(1, 8)
+        if luck > 5 :
+            if user.skill < 80 :
+                user.skill += 1
+                send_msg_li.append("天道见你勇气可嘉，奖励1点战斗技巧以示鼓励")
+        elif luck == 3 :
+            list = ['木枯藤','赭黄精','朱果','琅琊果','玄牝珠']
+            item = random.choice(list)
+            if add_item(user.gid, user.uid, get_item_by_name(item)):
+                send_msg_li.append(f"天道见你勇气可嘉，给予{item}以示鼓励")
+        elif luck == 2 :
+            user.daohang += 1
+            send_msg_li.append("天道见你勇气可嘉，奖励1点道行以示鼓励")
+        elif luck == 1 :
+            user.hp += 2
+            user.mp += 2
+            send_msg_li.append("天道见你勇气可嘉，奖励2点HP 2点MP 以示鼓励")
+    ct = XiuxianCounter()
+    ct._save_user_info(user)
+
+    await bot.finish(ev, '\n'.join(send_msg_li))
+
+
+@sv.on_fullmatch(["#天榜"])
+async def specialNewYear(bot, ev: CQEvent):
+    gid = ev.group_id
+    ct = UserDamageCounter()
+    name = "元旦限定"
+    boss = BOSS[name]
+    map = ct._get_damage_by_boss(gid , boss['name'])
+    logs = []
+    logs.append("#天榜")
+    us = XiuxianCounter()
+    count = 0
+    for i in map:
+        user = us._get_user(gid,i[0])
+        logs.append(f"{user.name} 共计造成{i[1]}点伤害")
+        count+=1
+        if count == 10 :
+            break
+    await bot.finish(ev, '\n'.join(logs))
