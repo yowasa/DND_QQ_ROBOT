@@ -81,11 +81,11 @@
       "my": {
         "binghuo_hp": {
           "type": "exec",
-          "value": "int(enemy_total_damage/2)"
+          "value": "int(enemy_total_damage*0.7)"
         },
         "hp": {
           "type": "exec",
-          "value": "my_hp+int(enemy_total_damage/2)"
+          "value": "my_hp+int(enemy_total_damage*0.7)"
         }
       }
     },
