@@ -415,12 +415,15 @@ async def specialNewYear(bot, ev: CQEvent):
             if add_item(user.gid, user.uid, get_item_by_name(item)):
                 send_msg_li.append(f"天道见你勇气可嘉，给予{item}以示鼓励")
         elif luck == 2 :
-            user.daohang += 1
-            send_msg_li.append("天道见你勇气可嘉，奖励1点道行以示鼓励")
+            if user.daohang < 100 :
+                user.daohang += 1
+                send_msg_li.append("天道见你勇气可嘉，奖励1点道行以示鼓励")
         elif luck == 1 :
             user.hp += 2
-            user.mp += 2
-            send_msg_li.append("天道见你勇气可嘉，奖励2点HP 2点MP 以示鼓励")
+            send_msg_li.append("天道见你勇气可嘉，奖励2点HP 以示鼓励")
+        elif luck == 4:
+            user.mp += 1
+            send_msg_li.append("天道见你勇气可嘉，奖励1点MP 以示鼓励")
     ct = XiuxianCounter()
     ct._save_user_info(user)
 
