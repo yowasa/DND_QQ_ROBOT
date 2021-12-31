@@ -451,7 +451,7 @@ def init_boss_content(gid):
         content["hp"] = boss["hp"]
     else:
         content["hp"] = hp
-
+    content["mp"] = boss["mp"]
     # 攻击
     content["atk1"] = boss["atk1"]
     content["atk2"] = boss["atk2"]
