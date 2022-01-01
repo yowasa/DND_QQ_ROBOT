@@ -441,10 +441,19 @@ async def specialNewYear(bot, ev: CQEvent):
     logs.append("#天榜")
     us = XiuxianCounter()
     count = 0
+    cur_user = await get_ev_user(bot, ev)
+    haveme = 0
     for i in map:
         user = us._get_user(gid,i[0])
-        logs.append(f"{user.name} 共计造成{i[1]}点伤害")
+        if cur_user.uid == i[0] :
+            logs.append(f"{user.name} 共计造成{i[1]}点伤害 **")
+            haveme = 1
+        else:
+            logs.append(f"{user.name} 共计造成{i[1]}点伤害")
         count+=1
         if count == 10 :
             break
+    if not haveme:
+        damage = ct._get_damage_by_name(gid, cur_user.uid, boss['name'])
+        logs.append(f"{cur_user.name} 共计造成{damage}点伤害 **")
     await bot.finish(ev, '\n'.join(logs))
