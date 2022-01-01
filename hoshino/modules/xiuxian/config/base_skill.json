@@ -1031,6 +1031,30 @@
         }
       }
     }
+  },
+  "狂暴之心": {
+    "time": "begin",
+    "condition": "my_hp<=300000",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.50)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.50)"
+        },
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*0.6)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(my_defen2*0.6)"
+        }
+      }
+    }
   }
 }
 
