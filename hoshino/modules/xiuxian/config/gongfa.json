@@ -600,6 +600,15 @@
       "平衡",
       "棋局"
     ]
+  },
+  "狂暴之心": {
+    "name": "狂暴之心",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+10",
+    "skill": [
+      "狂暴之心"
+    ]
   }
 
 }

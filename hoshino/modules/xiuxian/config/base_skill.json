@@ -1031,6 +1031,31 @@
         }
       }
     }
+  },
+  "狂暴之心": {
+    "time": "init",
+    "condition": "my_hp<=300000",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.50)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.50)"
+        },
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*0.6)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(my_defen2*0.6)"
+        }
+      }
+    },
+    "log": "{my_name}触发技能狂暴之心 物理术法攻击力增加50% 防御力降低40%"
   }
 }
 
