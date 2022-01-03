@@ -480,7 +480,7 @@ async def specialNewYear(bot, ev: CQEvent):
             ## 标记领取过了
             add_user_counter(gid,cur_user.uid,UserModel.YUANDAN_LIHE,1)
             break
-        if count == 2 :
+        if count == 10 :
             break
     if not have_me:
         await bot.finish(ev, "你未进入天榜，请继续修炼加油")
