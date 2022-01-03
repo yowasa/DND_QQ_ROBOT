@@ -457,3 +457,41 @@ async def specialNewYear(bot, ev: CQEvent):
         damage = ct._get_damage_by_name(gid, cur_user.uid, boss['name'])
         logs.append(f"{cur_user.name} 共计造成{damage}点伤害 **")
     await bot.finish(ev, '\n'.join(logs))
+
+@sv.on_prefix(["#领取奖励"])
+async def specialNewYear(bot, ev: CQEvent):
+    gid = ev.group_id
+    name = str(ev.message).strip()
+    boss_bonus = BOSS_BONUS[name]
+    bonus = boss_bonus['bonus']
+    logs = []
+    cur_user = await get_ev_user(bot, ev)
+    if get_user_counter(gid,cur_user.uid, UserModel.YUANDAN_LIHE) > 0 :
+        await bot.finish(ev, "你已领取过奖励")
+    count = 0
+    have_me = 0
+    ct = UserDamageCounter()
+    map = ct._get_damage_by_boss(gid, boss_bonus['name'])
+    logs.append("#天榜奖励")
+    for i in map:
+        count += 1
+        if cur_user.uid == i[0] :
+            have_me = 1
+            ## 标记领取过了
+            add_user_counter(gid,cur_user.uid,UserModel.YUANDAN_LIHE,1)
+            break
+        if count == 2 :
+            break
+    if not have_me:
+        await bot.finish(ev, "你未进入天榜，请继续修炼加油")
+    if count == 1 :
+        for i in bonus:
+            if count > 3:
+                break
+            add_item_ignore_limit(gid,cur_user.uid, ITEM_NAME_MAP.get(i))
+            logs.append(f"你获得了奖励道具 {i}")
+            count += 1
+    else:
+        add_item_ignore_limit(gid, cur_user.uid, ITEM_NAME_MAP.get(bonus[count - 2]))
+        logs.append(f"你获得了奖励道具 {bonus[count - 2]}")
+    await bot.finish(ev, '\n'.join(logs))
