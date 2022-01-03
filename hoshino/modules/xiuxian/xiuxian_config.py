@@ -253,13 +253,13 @@ XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
 # 时间限制
 # 操作间隔
-flmt = FreqLimiter(10 * 60)
-# 死亡cd
-die_flmt = FreqLimiter(1 * 60 * 60)
+# flmt = FreqLimiter(10 * 60)
+# # 死亡cd
+# die_flmt = FreqLimiter(1 * 60 * 60)
 
 # 测试服
-# flmt = FreqLimiter(1)
-# die_flmt = FreqLimiter(10)
+flmt = FreqLimiter(1)
+die_flmt = FreqLimiter(10)
 
 # 文件路径
 FILE_PATH = os.path.dirname(__file__)
@@ -296,10 +296,12 @@ with open(os.path.join(FILE_PATH, 'config/base_skill.json'), 'r', encoding='UTF-
 with open(os.path.join(FILE_PATH, 'config/cangjing.json'), 'r', encoding='UTF-8') as fa:
     CANGJING = json.load(fa, strict=False)
 
-# 特效
+# boss
 with open(os.path.join(FILE_PATH, 'config/boss.json'), 'r', encoding='UTF-8') as fa:
     BOSS = json.load(fa, strict=False)
-
+# boss bonus
+with open(os.path.join(FILE_PATH, 'config/boss_bonus.json'), 'r', encoding='UTF-8') as fa:
+    BOSS_BONUS = json.load(fa, strict=False)
 
 # 根据名字获取道具
 def get_item_by_name(name):
