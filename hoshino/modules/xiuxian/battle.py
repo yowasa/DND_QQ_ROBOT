@@ -254,7 +254,7 @@ def duel_buff(my_content, enemy_content):
     ex_atk = content_get('ex_atk', my_content)
     # 处理自适应伤害
     if dmg_type == 2:
-        dmg_type = 0 if defen1 <= defen2 else 1
+        dmg_type = 0 if atk1 >= atk2 else 1
     # 术法攻击不会被闪避
     if dmg_type:
         is_dodge = False

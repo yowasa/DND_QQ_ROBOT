@@ -40,7 +40,7 @@ class UserModel(Enum):
     YOULI_DAQIAN_COUNT = [28, "游历大千的次数"]
     WUXUE = [29, "武学交流的门派"]
     CHUANSONG = [30, "传送剩余次数"]
-
+    YUANDAN_LIHE = [31, "元旦礼盒"]
 
 # 群组状态储存枚举类
 class GroupModel(Enum):

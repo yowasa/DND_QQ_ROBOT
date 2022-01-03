@@ -583,3 +583,123 @@ async def choose_girl(msg, bot, ev: CQEvent):
         return (False, "你已经服用过了燃魂丹，无法服用多个")
     save_user_counter(gid, uid, UserModel.RANHUN, 1)
     return (True, "你服用了燃魂丹 下一次主动对战战斗力翻倍 自己必定死亡")
+
+@msg_route("焕体丹-中")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    luck = random.randint(1,5)
+    msg = "你使用了焕体丹-中，"
+    if luck == 1:
+        user.mp += 50
+        msg += " mp增加了50点。"
+    elif luck <= 2:
+        user.hp += 150
+        msg += " hp增加了150点。"
+    else :
+        user.wuxing += 20
+        msg += " 悟性增加了20点。"
+    ct._save_user_info(user)
+    return (True, msg)
+
+@msg_route("风水混元丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    luck = random.randint(1,2)
+    msg = "你使用了风水混元丹，"
+    if luck == 1:
+        user.act += 20
+        user.act2 += 20
+        msg += "物理法术攻击力提升了20点。"
+    else:
+        user.defen += 20
+        user.defen2 += 20
+        msg += "物理法术防御力提升了20点。"
+    ct._save_user_info(user)
+    return (True, msg)
+
+@msg_route("洗髓丹-新")
+async def choose_girl(msg, bot, ev: CQEvent):
+    if not msg:
+        return (False, f"你没有指定灵根")
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    linggen = msg[0]
+    user.linggen = linggen
+    ct._save_user_info(user)
+    return (True, f"洗髓丹-新，灵根变为[{linggen}]")
+
+@msg_route("洗髓丹-减")
+async def choose_girl(msg, bot, ev: CQEvent):
+    if not msg:
+        return (False, f"你没有指定灵根")
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    linggen = str(msg[0][0]).split()
+    linggen = str(linggen[0])
+    if linggen not in user.linggen:
+        return (False, f"你没有{linggen}灵根，请重新指定")
+    user.linggen = user.linggen.replace(linggen,'')
+    ct._save_user_info(user)
+    return (True, f"你使用了洗髓丹-减，灵根变为[{user.linggen}]")
+
+@msg_route("洗髓丹-增")
+async def choose_girl(msg, bot, ev: CQEvent):
+    if not msg:
+        return (False, f"你没有指定灵根")
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    linggen = str(msg[0][0]).split()
+    linggen = str(linggen[0])
+    if linggen in user.linggen:
+        return (False, f"你已拥有{linggen}灵根，请重新指定")
+    user.linggen = user.linggen + linggen
+    ct._save_user_info(user)
+    return (True, f"你使用了洗髓丹-增，灵根变为[{user.linggen}]")
+
+@msg_route("法宝盒子-元婴")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    names = filter_item_name(type=['法宝'], level=['元婴'])
+    name = random.choice(names)
+    fabao_item = get_item_by_name(name)
+    add_item(user.gid, user.uid, fabao_item)
+    return (True, f"你使用了法宝盒子-元婴，获得法宝 {name}")
+
+@msg_route("灵石盒子-大")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    lingshi = random.randint(1500,2000)
+    add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
+    return (True, f"你使用了灵石盒子-大，增加{lingshi}灵石]")
+
+@msg_route("灵石盒子-中")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    lingshi = random.randint(1000,1500)
+    add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
+    return (True, f"你使用了灵石盒子-中，增加{lingshi}灵石]")
+
+@msg_route("灵石盒子-小")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    lingshi = random.randint(500,1000)
+    add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
+    return (True, f"你使用了灵石盒子-小，增加{lingshi}灵石]")
