@@ -484,7 +484,7 @@ async def specialNewYear(bot, ev: CQEvent):
             break
     if not have_me:
         await bot.finish(ev, "你未进入天榜，请继续修炼加油")
-    if count == 1 :
+    if count == 1 or count == 2 or count == 3 :
         for i in bonus:
             if count > 3:
                 break
