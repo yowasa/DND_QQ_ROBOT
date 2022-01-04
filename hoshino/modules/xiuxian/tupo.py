@@ -45,7 +45,7 @@ async def zhanmo(bot, ev: CQEvent):
     enemy.battle_hp = int(enemy.battle_hp * rate)
     enemy.battle_mp = int(enemy.battle_mp * rate)
     enemy.battle_atk1 = int(enemy.battle_atk1 * rate)
-    enemy.battle_atk2 = int(enemy.battle_atk1 * rate)
+    enemy.battle_atk2 = int(enemy.battle_atk2 * rate)
     enemy.battle_defen1 = int(enemy.battle_defen1 * rate)
     enemy.battle_defen2 = int(enemy.battle_defen2 * rate)
     my_hp, he_hp, send_msg_li = battle(my, enemy)
