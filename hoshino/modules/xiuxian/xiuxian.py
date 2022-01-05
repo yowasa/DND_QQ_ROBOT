@@ -495,3 +495,39 @@ async def specialNewYear(bot, ev: CQEvent):
         add_item_ignore_limit(gid, cur_user.uid, ITEM_NAME_MAP.get(bonus[count - 2]))
         logs.append(f"你获得了奖励道具 {bonus[count - 2]}")
     await bot.finish(ev, '\n'.join(logs))
+
+@sv.on_prefix(["#经验兑换"])
+async def exp_change_feature(bot, ev: CQEvent):
+    user = await get_ev_user(bot, ev)
+    feature_name = str(ev.message).strip().split()
+    level_true = 0
+    for key in EXP_FEATURE.keys():
+        if key == str(user.level) :
+            exp_feature = EXP_FEATURE[str(user.level)]
+            level_true = 1
+    # 境界不足
+    if not level_true:
+        await bot.finish(ev, f"你的境界未达标，不能使用经验兑换属性")
+    # 经验不足
+    if user.exp < exp_feature['cost']:
+        await bot.finish(ev, f"你的经验不足{exp_feature['cost']}点，无法兑换属性")
+
+    feature = exp_feature[feature_name[0]]
+    name = feature['feature']
+    ct = XiuxianCounter()
+    for i in dir(user):
+        if i == name:
+            value = getattr(user,i)
+            if value >= feature['max']:
+                await bot.finish(ev, f"{user.name}的{feature_name[0]}属性已至上限，不予兑换提升")
+            value += feature['upgrade']
+            is_max = 0
+            if value >= feature['max']:
+                is_max = 1
+            setattr(user, name, value)
+            user.exp -= exp_feature['cost']
+            ct._save_user_info(user)
+            if is_max :
+                await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提至上限")
+            await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提升了{feature['upgrade']}点")
+    await bot.finish(ev, f"此属性不在经验兑换内，请另外选择属性")
