@@ -303,6 +303,10 @@ with open(os.path.join(FILE_PATH, 'config/boss.json'), 'r', encoding='UTF-8') as
 with open(os.path.join(FILE_PATH, 'config/boss_bonus.json'), 'r', encoding='UTF-8') as fa:
     BOSS_BONUS = json.load(fa, strict=False)
 
+# exp change to feature
+with open(os.path.join(FILE_PATH, 'config/exp_feature.json'), 'r', encoding='UTF-8') as fa:
+    EXP_FEATURE = json.load(fa, strict=False)
+
 # 根据名字获取道具
 def get_item_by_name(name):
     return ITEM_NAME_MAP.get(name)
