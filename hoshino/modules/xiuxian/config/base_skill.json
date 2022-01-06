@@ -1033,8 +1033,9 @@
     }
   },
   "狂暴之心": {
-    "time": "init",
-    "condition": "my_hp<=300000",
+    "time": "before_damage",
+    "cd": 10,
+    "condition": "my_hp<=(0.3*my_max_hp)",
     "effect": {
       "my": {
         "atk1": {
@@ -1055,7 +1056,7 @@
         }
       }
     },
-    "log": "{my_name}触发技能狂暴之心 物理术法攻击力增加50% 防御力降低40%"
+    "log": "{my_name}触发技能狂暴之心 攻击力增加50% 防御力降低40%"
   }
 }
 
