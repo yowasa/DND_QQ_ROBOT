@@ -201,7 +201,7 @@ def kill_user_cal(my, enemy):
     if my.gongfa3 == "化功大法":
         my.exp += enemy.exp
         log += f",{my.name}使用[化功大法]获取了{enemy.exp}点经验"
-    if my.gongfa3 == "吸星大法":
+    if my.gongfa3 == "吸星大法" and my.level <= enemy.level:
         my.act += 1
         my.act2 += 1
         get_hp = random.randint(1, 20)
