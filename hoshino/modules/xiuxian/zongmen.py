@@ -393,3 +393,30 @@ async def duanti(bot, ev: CQEvent):
     ct._save_user_info(enemy)
     save_user_counter(my.gid, my.uid, UserModel.MISSION_COMPLETE, 1)
     await bot.finish(ev, '\n'.join(send_msg_li))
+
+# 试炼
+@sv.on_prefix(["#试炼场"])
+async def shilian(bot, ev: CQEvent):
+    user = await get_ev_user(bot, ev)
+    await user.check_cd(bot, ev)
+    if user.map != user.belong:
+        await bot.finish(ev, "必须在宗门才能试炼", at_sender=True)
+    if not daily_shiLian_limiter.check([user.uid]):
+        await bot.finish(ev, "你今日试炼次数已达上限，无法继续试炼", at_sender=True)
+
+    my_content = init_content(user)
+    enemy_content = init_shilian_content(user)
+    # 战斗
+    my_hp, he_hp, send_msg_li = battle_base(my_content,enemy_content)
+    # 战斗
+    if my_hp > 0 and he_hp <= 0:
+        lingshi = random.randint(30, 80)
+        user.lingshi += lingshi
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
+        send_msg_li.append(f"{user.name}试炼成功，获取{lingshi}灵石奖励")
+    elif he_hp > 0 and my_hp <= 0:
+        send_msg_li.append(f"{user.name}试炼失败")
+    else:
+        send_msg_li.append(f"试炼不分胜负")
+    daily_shiLian_limiter.increase([user.uid])
+    await bot.finish(ev, '\n'.join(send_msg_li))

@@ -346,9 +346,13 @@ def cal_yichang(my_content, enemy_content):
 
 
 def battle(my: AllUserInfo, enemy: AllUserInfo):
-    logs = []
     my_content = init_content(my)
     enemy_content = init_content(enemy)
+    return battle_base(my_content, enemy_content)
+
+
+def battle_base(my_content, enemy_content):
+    logs = []
     # 处理战斗技巧
     duel_skill(my_content, enemy_content)
     # 战斗开始
@@ -429,7 +433,56 @@ def battle_boss(my: AllUserInfo):
     my_content = init_content(my)
     # boss content的组装
     boss_content = init_boss_content(my_content['gid'])
-    return battle_base(my_content, boss_content)
+    return battle_bases(my_content, boss_content)
+
+
+def init_shilian_content(my):
+    level = my.level
+    for i in LEVEL_FEATURE_MAX.keys():
+        if level <= int(i):
+            level = int(i)
+            break
+    feature_max = LEVEL_FEATURE_MAX[str(level)]
+    enemy = OtherUserInfo(my)
+    for i in feature_max.keys():
+        if i == 'name' or i == 'wuqi':
+            setattr(enemy, i, feature_max[i])
+            continue
+        value = getattr(my, i)
+        if not value:
+            continue
+        if value <= feature_max[i]:
+            setattr(enemy, i, feature_max[i])
+        else:
+            attr = (int)(value * random.randint(9, 13) / 10)
+            setattr(enemy, i, attr)
+    enemy.skill = (int)(my.skill * random.randint(9, 13) / 10)
+    jingjie = (JingJieMap[str(level)].split(" "))[0]
+
+    fabaos = filter_item_name(type=['法宝'], level=[jingjie])
+    if fabaos:
+        enemy.fabao = random.choice(fabaos)
+
+    if jingjie == '元婴':
+        jingjie = 'EX'
+
+    gongfas = filter_item_name(type=['心法'], level=[jingjie])
+    if gongfas:
+        enemy.gongfa = random.choice(gongfas)
+    gongfa2s = filter_item_name(type=['功法'], level=[jingjie])
+    if gongfa2s:
+        enemy.gongfa2 = random.choice(gongfa2s)
+
+    gongfa3s = filter_item_name(type=['神通'], level=[jingjie])
+    if gongfa3s:
+        enemy.gongfa3 = random.choice(gongfa3s)
+
+    enemy.linggen = get_LingGen()
+    # 处理战斗数据
+    enemy.duel_battle_info()
+    # 处理其他数据
+    enemy.other_info()
+    return init_content(enemy)
 
 
 def init_boss_content(gid):
@@ -540,7 +593,7 @@ def init_boss_content(gid):
     return content
 
 
-def battle_base(my_content, enemy_content):
+def battle_bases(my_content, enemy_content):
     gid = my_content['gid']
     uid = my_content['uid']
     boss_name = enemy_content['name']
