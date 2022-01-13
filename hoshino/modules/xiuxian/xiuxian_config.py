@@ -915,3 +915,4 @@ class DailyAmountLimiter(DailyNumberLimiter):
 daily_fenglu_limiter = DailyAmountLimiter("fenglu", 1, 5)
 daily_huafu_limiter = DailyAmountLimiter("huafu", 2, 5)
 daily_mission_limiter = DailyAmountLimiter("mission", 10, 5)
+daily_shiLian_limiter = DailyAmountLimiter("shilian", 5, 5)
