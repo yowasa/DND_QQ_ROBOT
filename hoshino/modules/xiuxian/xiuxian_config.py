@@ -296,6 +296,10 @@ with open(os.path.join(FILE_PATH, 'config/base_skill.json'), 'r', encoding='UTF-
 with open(os.path.join(FILE_PATH, 'config/cangjing.json'), 'r', encoding='UTF-8') as fa:
     CANGJING = json.load(fa, strict=False)
 
+# 藏宝阁
+with open(os.path.join(FILE_PATH, 'config/cangbao.json'), 'r', encoding='UTF-8') as fa:
+    CANGBAO = json.load(fa, strict=False)
+
 # boss
 with open(os.path.join(FILE_PATH, 'config/boss.json'), 'r', encoding='UTF-8') as fa:
     BOSS = json.load(fa, strict=False)
