@@ -675,7 +675,7 @@ async def add_warehouse(bot, ev: CQEvent):
     need_sw = rate * SHANGXIAN_SW
     need_gold = rate * SHANGXIAN_NUM
     item = get_item_by_name("后宫之证")
-    if check_have_item(gid, uid, item):
+    if not check_have_item(gid, uid, item):
         msg = '只有拥有后宫之证，才能扩充女友上限喔'
         await bot.send(ev, msg, at_sender=True)
         return
@@ -979,24 +979,24 @@ async def add_girl(bot, ev: CQEvent):
         await bot.send(ev, msg, at_sender=True)
 
 
-@sv.on_prefix(['设置决斗偏好', '决斗偏好设置', '决斗方式设置', '设置决斗方式'])
-async def duel_set(bot, ev: CQEvent):
-    gid = ev.group_id
-    uid = ev.user_id
-    msg = str(ev.message)
-    duel_setting = {
-        "俄罗斯轮盘": [0, "弹夹为6 轮流对自己扣动扳机"],
-        "野蛮厮杀": [1, "弹夹为6 朝对方射击"],
-        "西部牛仔": [2, "弹夹为2 朝对方射击"]
-    }
-    if not msg:
-        await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
-
-    if not duel_setting.get(msg):
-        await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
-
-    save_user_counter(gid, uid, UserModel.DUEL_SETTING, duel_setting.get(msg)[0])
-    await bot.finish(ev, f"已经成功设置决斗偏好为{msg}({duel_setting.get(msg)[1]})")
+# @sv.on_prefix(['设置决斗偏好', '决斗偏好设置', '决斗方式设置', '设置决斗方式'])
+# async def duel_set(bot, ev: CQEvent):
+#     gid = ev.group_id
+#     uid = ev.user_id
+#     msg = str(ev.message)
+#     duel_setting = {
+#         "俄罗斯轮盘": [0, "弹夹为6 轮流对自己扣动扳机"],
+#         "野蛮厮杀": [1, "弹夹为6 朝对方射击"],
+#         "西部牛仔": [2, "弹夹为2 朝对方射击"]
+#     }
+#     if not msg:
+#         await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
+#
+#     if not duel_setting.get(msg):
+#         await bot.finish(ev, "请选择俄罗斯轮盘(轮流对自己开枪)，野蛮厮杀(轮流向对方开枪)，西部牛仔(一枪定胜负)三种方式之一")
+#
+#     save_user_counter(gid, uid, UserModel.DUEL_SETTING, duel_setting.get(msg)[0])
+#     await bot.finish(ev, f"已经成功设置决斗偏好为{msg}({duel_setting.get(msg)[1]})")
 
 
 @sv.on_prefix(['贵族决斗', '决斗'])
@@ -1063,6 +1063,8 @@ async def nobleduel(bot, ev: CQEvent):
     duel_judger.set_duelid(gid, id1, id2)
     duel_judger.turn_on_accept(gid)
     way = get_user_counter(gid, id1, UserModel.DUEL_SETTING)
+    # 强制西部牛仔
+    way = 2
     duel_setting = {
         "0": ["俄罗斯轮盘", "弹夹为6 轮流对自己扣动扳机"],
         "1": ["野蛮厮杀", "弹夹为6 朝对方射击"],
@@ -2237,6 +2239,10 @@ async def give_gift_all(bot, ev: CQEvent):
         await bot.finish(ev, '你的这件礼物的库存不足哦。', at_sender=True)
     duel._reduce_gift(gid, uid, gfid, gift_num)
     favor, text = check_gift(cid, gfid)
+    if check_have_character(cid, "坦率"):
+        favor = favor * 3
+    if check_have_character(cid, "自大"):
+        favor = int(favor / 2)
     favor = gift_num * favor
     duel._add_favor(gid, uid, cid, favor)
     current_favor = duel._get_favor(gid, uid, cid)

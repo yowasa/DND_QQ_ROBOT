@@ -4,17 +4,18 @@ from . import sv
 from .ScoreCounter import ScoreCounter2
 from .duelconfig import *
 from hoshino.typing import CommandSession
+from hoshino.util.image_utils import CreateImg
 
 
 class PolicyModel(Enum):
     BALANCE = [0, "维持现状", "保持城市现有的发展情况"]
-    GENG_INCREASE = [1, "开垦荒地", "增加城市的耕地面积，但会减少林地面积"]
-    GENG_DECREASE = [2, "退耕还林", "增加城市的林地面积，但会减少耕地面积"]
-    STRONG_BUILD = [3, "加强建设", "消耗50点繁荣度，结算时建造进度额外增加一次结算,繁荣度不足则不会生效"]
-    STRONG_TEC = [4, "加强科研", "消耗50点繁荣度，结算时科研进度额外增加一次结算,繁荣度不足则不会生效"]
-    CATCH_ALL_FISH = [5, "竭泽而渔", "消耗30点繁荣度，结算时耕地收益增加50%,繁荣度不足则不会生效"]
-    AGRICULTURAL_SUBSIDIES = [6, "农业补贴", "增加10点繁荣度，结算时耕地收益减少50%"]
-    POVERTY_ALLEVIATION_POLICIES = [7, "扶贫政策", "放弃耕地收益，额外支付城市面积*50的金币，增加20点繁荣度"]
+    GENG_INCREASE = [1, "开垦荒地", "增加城市的耕地面积\n但会减少林地面积"]
+    GENG_DECREASE = [2, "退耕还林", "增加城市的林地面积\n但会减少耕地面积"]
+    STRONG_BUILD = [3, "加强建设", "消耗50点繁荣度\n结算时建造进度额外增加一次结算\n繁荣度不足则不会生效"]
+    STRONG_TEC = [4, "加强科研", "消耗50点繁荣度\n结算时科研进度额外增加一次结算\n繁荣度不足则不会生效"]
+    CATCH_ALL_FISH = [5, "竭泽而渔", "消耗30点繁荣度\n结算时耕地收益增加50%\n繁荣度不足则不会生效"]
+    AGRICULTURAL_SUBSIDIES = [6, "农业补贴", "增加10点繁荣度\n结算时耕地收益减少50%"]
+    POVERTY_ALLEVIATION_POLICIES = [7, "扶贫政策", "放弃耕地收益\n额外支付城市面积*50的金币\n增加20点繁荣度"]
 
     @staticmethod
     def get_by_id(id):
@@ -616,34 +617,23 @@ async def manor_policy(bot, ev: CQEvent):
     save_user_counter(gid, uid, UserModel.MANOR_POLICY, pm.value[0])
     await bot.finish(ev, f'你颁布了行政法令，要求{pm.value[1]}')
 
+zhengce_li = []
+for pm in PolicyModel:
+    zhengce_li.append(f'''
+{pm.value[1]}
+详情:
+{pm.value[2]}
+    '''.strip())
+zhengce_all = '\n\n'.join(zhengce_li)
+
+from hoshino.util.image_utils import CreateImg
+zhengce_img = CreateImg(900, 1800, font_size=38)
+zhengce_img.text((10, 10), zhengce_all)
+zhengce_img.save(R.img("ghs/cache/zhengce_all.png").path)
 
 @sv.on_prefix(["政策列表", "政策一览"])
 async def manor_policy_view(bot, ev: CQEvent):
-    tas_list = []
-    data = {
-        "type": "node",
-        "data": {
-            "name": "ご主人様",
-            "uin": "1587640710",
-            "content": "==== 政策一览 ===="
-        }
-    }
-    tas_list.append(data)
-    for pm in PolicyModel:
-        msg = f'''
-{pm.value[1]}
-详情:{pm.value[2]}
-    '''.strip()
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg
-            }
-        }
-        tas_list.append(data)
-    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+    await bot.send(ev, R.img("ghs/cache/zhengce_all.png").cqcode)
 
 
 @sv.on_prefix(["税率调整", "调整税率"])
@@ -937,36 +927,23 @@ async def equip_fuse(bot, ev: CQEvent):
     else:
         await bot.finish(ev, f'你背包中没有装备', at_sender=True)
 
-
-@sv.on_fullmatch(["科技列表", "科技一览"])
-async def technology_li(bot, ev: CQEvent):
-    tas_list = []
-    data = {
-        "type": "node",
-        "data": {
-            "name": "ご主人様",
-            "uin": "1587640710",
-            "content": "====== 科技列表 ======"
-        }
-    }
-    tas_list.append(data)
-    for i in TechnologyModel:
-        msg = f'''
+keji_li = []
+for i in TechnologyModel:
+    keji_li.append(f'''
 {i.value['name']}
 花费:{i.value['gold']}金币,{i.value['sw']}声望
 研发时间:{i.value['time']}次城市结算
 描述:{i.value['desc']}
-    '''.strip()
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg
-            }
-        }
-        tas_list.append(data)
-    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+    '''.strip())
+keji_all = '\n\n'.join(keji_li)
+xingge_img = CreateImg(900, 2200, font_size=38)
+xingge_img.text((10, 10), keji_all)
+xingge_img.save(R.img("ghs/cache/keji_all.png").path)
+
+
+@sv.on_fullmatch(["科技列表", "科技一览"])
+async def technology_li(bot, ev: CQEvent):
+    await bot.send(ev, R.img("ghs/cache/keji_all.png").cqcode)
 
 
 @sv.on_fullmatch(["我的科技", "科技查询", "查询科技", "城市科技"])

@@ -4296,7 +4296,7 @@
     "name": "世世的相随",
     "level": 6,
     "effect": {
-      "hp": {
+      "atk": {
         "type": "exec",
         "value": "favor/200"
       }

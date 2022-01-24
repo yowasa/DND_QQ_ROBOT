@@ -43,34 +43,22 @@ async def xiulian_start(bot, ev: CQEvent):
         '''.strip()
     await bot.send(ev, '\n' + msg, at_sender=True)
 
+xingge_li = []
+for i in character.keys():
+    xingge_li.append(f'''
+{i}:
+{character[i]}
+    '''.strip())
+xingge_all = '\n\n'.join(xingge_li)
+
+from hoshino.util.image_utils import CreateImg
+xingge_img = CreateImg(900, 2800, font_size=38)
+xingge_img.text((10, 10), xingge_all)
+xingge_img.save(R.img("ghs/cache/xingge_all.png").path)
 
 @sv.on_fullmatch(['性格列表', '性格一览'])
 async def skill_li(bot, ev: CQEvent):
-    tas_list = []
-    data = {
-        "type": "node",
-        "data": {
-            "name": "ご主人様",
-            "uin": "1587640710",
-            "content": "====== 性格列表 ======"
-        }
-    }
-    tas_list.append(data)
-    for i in character.keys():
-        msg = f'''
-{i}:
-{character[i]}
-    '''.strip()
-        data = {
-            "type": "node",
-            "data": {
-                "name": "ご主人様",
-                "uin": "1587640710",
-                "content": msg
-            }
-        }
-        tas_list.append(data)
-    await bot.send_group_forward_msg(group_id=ev['group_id'], messages=tas_list)
+    await bot.send(ev, R.img("ghs/cache/xingge_all.png").cqcode)
 
 
 @sv.on_prefix(['查技能'])
