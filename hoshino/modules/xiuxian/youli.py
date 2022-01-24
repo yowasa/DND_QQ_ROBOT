@@ -15,7 +15,8 @@ EVENT_MAP = {
     '苍穹神州': {"捕捉小兽": 52, "井中洞天": 5, "女仆咖啡": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
              "心魔历练": 5, "神州之伴": 3},
     '九天十国': {"人面兽心": 52, "沉迷赌博": 5, "黑白无常": 5, "狗头人兽": 5, "妖兽侵扰": 10, "乌云笼罩": 3, "神秘商人": 5, "水猴赠礼": 15},
-    '洪荒大陆': {"无": 100},
+    '洪荒大陆': {"兽群侵扰": 55, "剑术大师": 5, "牛头马面": 5, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "前尘忆梦": 5, "礼盒兑换": 5, "失落碎片": 5},
+    #'洪荒大陆': {"兽群侵扰": 50, "剑术大师": 5, "牛头马面": 5, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "前尘忆梦": 10, "礼盒兑换": 5, "失落碎片": 5},
     '诸天万界': {"无": 100},
     '灵寰福址': {"无": 100},
     '混沌绝地': {"无": 100},
@@ -699,3 +700,167 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     if not add_item(user.gid, user.uid, item):
         ex_msg = "(背包已满,只得丢弃)"
     return f"因为你曾经对水猴子的悉心照料，水猴子送给了你一份礼物，获得【水猴子的感恩礼盒】一份（来自水猴子的礼物，不知道里面有什么，消耗50灵石打开）{ex_msg}"
+
+
+@msg_route("兽群侵扰")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    rd = random.randint(1, 10)
+    msg = "此大陆一座城的城主拜托你调查附近边界的妖族活跃问题。你前去调查"
+    if rd <= 2:
+        get_exp = random.randint(35, 40)
+        user.exp += get_exp
+        ct = XiuxianCounter()
+        ct._save_user_info(user)
+        msg+=f"并清扫了一些妖兽兽群但是并没有任何发现，经验增加{get_exp}"
+        return msg
+    elif rd <= 9:
+        lingshi = random.randint(50,100)
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
+        msg += f"带回来一些情报获得了一些报酬，灵石增加{lingshi}"
+        return msg
+    else:
+        msg += f"在追踪兽群痕迹用时太久，无法再寻到任何线索，只能打道回府了......"
+    return msg
+
+
+@msg_route("剑术大师")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    log = f"你碰见一个奇怪的男子在用剑术吊起物品，上前搭话发现其是剑术大师，剑术登峰造极甚至可以使周围的人都收到影响。你了解后心血来潮与其切磋，"
+    rd = random.randint(1, 10)
+    if rd <= 5:
+        log = log + f"剑术大师见你资质平平，翻个白眼，飘然而去"
+    elif rd <= 7:
+        wuxing = random.randint(1, 2)
+        ct = XiuxianCounter()
+        user.wuxing += wuxing
+        ct._save_user_info(user)
+        log = log + f"剑术大师见你资质平平，轻抚你顶，你的悟性增加{wuxing}"
+    else:
+        skill = random.randint(1, 2)
+        ct = XiuxianCounter()
+        user.skill += skill
+        ct._save_user_info(user)
+        log = log + f"收货颇丰，获得了{skill}技巧"
+    return log
+
+@msg_route("前尘忆梦")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    log = f"梦到了小时候自己，但是这个梦境似乎无法结束，"
+    if user.daohang < 20:
+        log = log + f"隐约见到一个道士，他说你必然会走上与凡人不同的路，你深受鼓舞。醒来，觉得心舒体畅，道心更为坚定"
+        user.daohang += random.randint(1, 2)
+        ct = XiuxianCounter()
+        ct._save_user_info(user)
+    else:
+        log = log + f"你发现这只是你小时候的梦境，完成了心愿就醒来了"
+    return log
+
+@msg_route("天外来客")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    item = get_item_by_name("传送符")
+    ex_msg = ""
+    if not add_item(user.gid, user.uid, item):
+        ex_msg = "(背包已满,只得丢弃)"
+    return f"遇到了一个奇怪的人，他不停的变换着模样，他看到你之后希望你把见到他的事情保密，偷偷给你塞了一点点好处。你获得了传送符{ex_msg}"
+
+@msg_route("井下魔人")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    log = "在城里游历时踩到一个井盖，井盖下边出来了一个魔界人，她邀请你去她的实验室玩，"
+    roll = random.randint(1,10)
+    if roll > 6 :
+        item = "纯阳丹"
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 1)
+        log += "同意后去她的实验室被高压炉炸到，她为表示歉意送了一个糖果给你（轻伤，获得一个纯阳丹）"
+    elif roll == 7 :
+        item = "铁精"
+        log += "同意后去她的实验室学习到一些炼金学术，并附赠了一些材料给你回去（获得铁精X1）"
+    elif roll == 8 :
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
+        log += "同意后去她的实验室研究禁忌知识，被禁忌生产物击伤（重伤）魔界人也不知道被炸到哪里去了"
+        return log
+    else:
+        log += "你感觉到可能有不好的事情发生，没有同意她的邀请"
+        return log
+    item = get_item_by_name(item)
+    if not add_item(user.gid, user.uid, item):
+        log += "(背包已满,只得丢弃)"
+    return log
+
+@msg_route("礼盒兑换")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    log = "传说世间有一位大师，手握一本荒古遗精宝典，其人貌相大马猴，你无意中找到了他，说明来意后，"
+    item_info = get_item_by_name("水猴子的感恩礼盒")
+    counter = ItemCounter()
+    num = counter._get_item_num(user.gid, user.uid, int(item_info['id']))
+    if num >= 1:
+        log += "你拿着水猴子的感恩礼盒去找他帮忙，"
+        count = random.randint(1,5)
+        if count <= 2:
+            item = get_item_by_name("失落之匙碎片")
+            log+="他很高兴给予了你一份神秘道具"
+            if not add_item(user.gid, user.uid, item):
+                log += "(背包已满,只得丢弃)"
+        else:
+            roll = random.randint(1,100)
+            if roll <= 40 :
+                item_name = "避水珠"
+            elif roll <= 70 :
+                item_name = "龙鳞"
+            elif roll <= 80 :
+                item_name = "金刚石"
+            elif roll <= 90 :
+                item_name = "定魂珠"
+            else:
+                item_name = "夜光珠"
+            item = get_item_by_name(item_name)
+            log += f"他很高兴给予了你一份天才地宝[{item_name}]"
+            add_item_ignore_limit(user.gid, user.uid, item, 1)
+        use_item(user.gid, user.uid, item_info)
+    else:
+        log +="你没有他需要的物品，他失望的张了张嘴，并告诉你拿到他需要的物品再来找他"
+    return log
+
+@msg_route("牛头马面")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    rd = random.randint(0, 1)
+    msg = "误入一个秘境，在通过一扇门时，突然有牛头马面两个怪人出现在面前你选择先下手为强，"
+    if rd:
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
+        msg += "只听到阴曹地府，凡人安敢踏入，你差点被击杀，濒死之际你逃离了此地"
+    else:
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
+        counter = ItemCounter()
+        items = counter._get_item(user.gid, user.uid)
+        item_li = []
+        for i in items:
+            item_li += [i[0]] * i[1]
+        if item_li:
+            item_id = random.choice(item_li)
+            item = ITEM_INFO[str(item_id)]
+            use_item(user.gid, user.uid, item)
+            ex_msg = f"丢失了物品{item['name']}"
+        msg += f"你只听到一声速速退敌，措手不及之后便被击成重伤，只能仓促退让，退走后发现身上少了一件东西（重伤，{ex_msg}）"
+    return msg
+
+@msg_route("失落碎片")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    rd = random.randint(1, 3)
+    msg = "误入一个秘境，看到前方有一具骸骨，你上前查看，"
+    if rd == 1:
+        msg += "只见骸骨身下出下亮光，你获得一枚神秘碎片"
+        item = get_item_by_name("失落之匙碎片")
+        add_item_ignore_limit(user.gid, user.uid, item, 1)
+    else:
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
+        counter = ItemCounter()
+        items = counter._get_item(user.gid, user.uid)
+        item_li = []
+        for i in items:
+            item_li += [i[0]] * i[1]
+        if item_li:
+            item_id = random.choice(item_li)
+            item = ITEM_INFO[str(item_id)]
+            use_item(user.gid, user.uid, item)
+            ex_msg = f"丢失了物品{item['name']}"
+        msg += f"只见骸骨空洞的双眼突闪红光，你措手不及之下便被击成重伤，只能仓促退让，退走后发现身上少了一件东西（重伤，{ex_msg}）"
+    return msg

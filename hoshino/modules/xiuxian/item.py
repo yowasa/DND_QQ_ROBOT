@@ -73,7 +73,7 @@ async def my_item(bot, ev: CQEvent):
     for i in items:
         ITEM_INFO[str(i[0])]['num'] = i[1]
         item_li.append(ITEM_INFO[str(i[0])])
-    item_li = sorted(item_li, key=lambda x: ['消耗品', '心法', '功法', '神通', '武器', '法宝', '丹药', '符咒', '素材'].index(x['type']),
+    item_li = sorted(item_li, key=lambda x: ['消耗品', '心法', '功法', '神通', '武器', '法宝', '丹药', '符咒', '素材', '道具'].index(x['type']),
                      reverse=True)
     for i in item_li:
         msg += f"\n【{i['type']}】{i['name']} *{i['num']}"
