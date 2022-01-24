@@ -41,6 +41,7 @@ class UserModel(Enum):
     WUXUE = [29, "武学交流的门派"]
     CHUANSONG = [30, "传送剩余次数"]
     YUANDAN_LIHE = [31, "元旦礼盒"]
+    SHI_LIAN= [32, "试炼次数标识"]
 
 # 群组状态储存枚举类
 class GroupModel(Enum):

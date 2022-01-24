@@ -36,6 +36,47 @@ async def _(bot, ev: CQEvent):
         li.append(f"[{item['type']}]{i}({CANGJING[user.map][i]}帮贡)")
     await bot.finish(ev, "\n" + "\n".join(li), at_sender=True)
 
+@sv.on_prefix(["#藏宝阁"])
+async def _(bot, ev: CQEvent):
+    msg = get_message_text(ev)
+    if not msg:
+        await bot.finish(ev, f"你需要指定物品类型！", at_sender=True)
+    user = await get_ev_user(bot, ev)
+    if user.belong == "无":
+        await bot.finish(ev, f"你必须拜入宗门才能阅览藏宝阁！", at_sender=True)
+    if user.map != user.belong:
+        await bot.finish(ev, "必须在宗门地图上才能阅览藏宝阁！", at_sender=True)
+    cangbaoli = list(CANGBAO.keys())
+    li = []
+    for i in cangbaoli:
+        item = get_item_by_name(i)
+        if item['type']== msg and user.level >= CANGBAO[i]['level']:
+            li.append(f"[{item['type']} {item['level']}]{i}({CANGBAO[i]['cost']}帮贡)")
+    await bot.finish(ev, "\n" + "\n".join(li), at_sender=True)
+
+@sv.on_prefix(["#兑换宝物"])
+async def _(bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    user = await get_ev_user(bot, ev)
+    if user.belong == "无":
+        await bot.finish(ev, f"你必须拜入宗门才能兑换藏宝阁中的物品！", at_sender=True)
+    if user.map != user.belong:
+        await bot.finish(ev, "必须在宗门地图上才能兑换藏宝阁中的物品！", at_sender=True)
+    msg = get_message_text(ev)
+    if msg not in CANGBAO.keys():
+        await bot.finish(ev, f"藏宝阁中没有名为[{msg}]的物品", at_sender=True)
+    banggong = get_user_counter(gid, uid, UserModel.BANGGONG)
+    need = CANGBAO[msg]['cost']
+    if banggong < need:
+        await bot.finish(ev, f"兑换{msg}需要{need}帮派贡献，你的帮贡不足", at_sender=True)
+    if user.level < CANGBAO[msg]['level']:
+        await bot.finish(ev, f"你不能兑换高于自己境界的物品", at_sender=True)
+    item_info = ITEM_NAME_MAP.get(msg)
+    if not add_item(gid,uid,item_info):
+        await bot.finish(ev, "兑换失败,请检查背包空间", at_sender=True)
+    add_user_counter(gid, uid, UserModel.BANGGONG, num=-need)
+    await bot.finish(ev, f"你花费了{need}贡献兑换了{msg}", at_sender=True)
 
 @sv.on_prefix(["#学习"])
 async def _(bot, ev: CQEvent):
@@ -392,4 +433,31 @@ async def duanti(bot, ev: CQEvent):
     ct._save_user_info(my)
     ct._save_user_info(enemy)
     save_user_counter(my.gid, my.uid, UserModel.MISSION_COMPLETE, 1)
+    await bot.finish(ev, '\n'.join(send_msg_li))
+
+# 试炼
+@sv.on_prefix(["#试炼场"])
+async def shilian(bot, ev: CQEvent):
+    user = await get_ev_user(bot, ev)
+    await user.check_cd(bot, ev)
+    if user.map != user.belong:
+        await bot.finish(ev, "必须在宗门才能试炼", at_sender=True)
+    if not daily_shiLian_limiter.check([user.uid]):
+        await bot.finish(ev, "你今日试炼次数已达上限，无法继续试炼", at_sender=True)
+
+    my_content = init_content(user)
+    enemy_content = init_shilian_content(user)
+    # 战斗
+    my_hp, he_hp, send_msg_li = battle_base(my_content,enemy_content)
+    # 战斗
+    if my_hp > 0 and he_hp <= 0:
+        lingshi = random.randint(30, 80)
+        user.lingshi += lingshi
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
+        send_msg_li.append(f"{user.name}试炼成功，获取{lingshi}灵石奖励")
+    elif he_hp > 0 and my_hp <= 0:
+        send_msg_li.append(f"{user.name}试炼失败")
+    else:
+        send_msg_li.append(f"试炼不分胜负")
+    daily_shiLian_limiter.increase([user.uid])
     await bot.finish(ev, '\n'.join(send_msg_li))

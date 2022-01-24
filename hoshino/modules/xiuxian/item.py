@@ -363,7 +363,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
         return (False, f"你当前的境界无法吸收补天丹")
     user.exp += 500
     ct._save_user_info(user)
-    return (True, f"你服用了补天丹，感觉到灵力喷涌而出，获得了800点EXP")
+    return (True, f"你服用了补天丹，感觉到灵力喷涌而出，获得了500点EXP")
 
 
 @msg_route("定神香")
@@ -374,7 +374,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     user = ct._get_user(gid, uid)
     if user.level < 19:
         return (False, f"你当前的境界无法吸收定神香")
-    user.exp += 1600
+    user.exp += 800
     ct._save_user_info(user)
     return (True, f"你服用了定神香，感觉到灵力喷涌而出，获得了800点EXP")
 

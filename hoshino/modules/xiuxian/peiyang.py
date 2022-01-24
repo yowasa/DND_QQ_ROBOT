@@ -36,7 +36,7 @@ def cal_get_exp(user):
             speed = 100
     if user.gongfa == '百锻成仙':
         speed = int(speed / 2)
-        rd = random.randint(1, 5)
+        rd = random.randint(1, 10)
         if rd == 1:
             rd = random.randint(1, 6)
             if rd == 1:

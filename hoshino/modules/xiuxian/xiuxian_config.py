@@ -296,6 +296,10 @@ with open(os.path.join(FILE_PATH, 'config/base_skill.json'), 'r', encoding='UTF-
 with open(os.path.join(FILE_PATH, 'config/cangjing.json'), 'r', encoding='UTF-8') as fa:
     CANGJING = json.load(fa, strict=False)
 
+# 藏宝阁
+with open(os.path.join(FILE_PATH, 'config/cangbao.json'), 'r', encoding='UTF-8') as fa:
+    CANGBAO = json.load(fa, strict=False)
+
 # boss
 with open(os.path.join(FILE_PATH, 'config/boss.json'), 'r', encoding='UTF-8') as fa:
     BOSS = json.load(fa, strict=False)
@@ -306,6 +310,11 @@ with open(os.path.join(FILE_PATH, 'config/boss_bonus.json'), 'r', encoding='UTF-
 # exp change to feature
 with open(os.path.join(FILE_PATH, 'config/exp_feature.json'), 'r', encoding='UTF-8') as fa:
     EXP_FEATURE = json.load(fa, strict=False)
+
+# level feature max
+with open(os.path.join(FILE_PATH, 'config/feature_max.json'), 'r', encoding='UTF-8') as fa:
+    LEVEL_FEATURE_MAX = json.load(fa, strict=False)
+
 
 # 根据名字获取道具
 def get_item_by_name(name):
@@ -695,6 +704,32 @@ class AllUserInfo():
         if not self.daluo:
             flmt.start_cd(self.uid)
 
+class OtherUserInfo(AllUserInfo):
+    def __init__(self, user):
+        self.gid = user.gid
+        self.uid = user.uid
+        self.name = user.name
+        self.linggen = user.linggen
+        self.exp = user.exp
+        self.level = user.level
+        self.belong = user.belong
+        self.map = user.map
+        self.gongfa = user.gongfa  # 心法
+        self.fabao = user.fabao
+        self.wuqi = user.wuqi
+        self.wuxing = user.wuxing
+        self.lingli = user.lingli
+        self.daohang = user.daohang
+        self.act = user.act
+        self.defen = user.defen
+        self.defen2 = user.defen2
+        self.hp = user.hp
+        self.mp = user.mp
+        self.skill = user.skill
+        self.tizhi = user.tizhi
+        self.act2 = user.act2
+        self.gongfa2 = user.gongfa2  # 功法
+        self.gongfa3 = user.gongfa3  # 神通
 
 def get_full_user(gid, uid):
     ct = XiuxianCounter()
@@ -884,3 +919,4 @@ class DailyAmountLimiter(DailyNumberLimiter):
 daily_fenglu_limiter = DailyAmountLimiter("fenglu", 1, 5)
 daily_huafu_limiter = DailyAmountLimiter("huafu", 2, 5)
 daily_mission_limiter = DailyAmountLimiter("mission", 10, 5)
+daily_shiLian_limiter = DailyAmountLimiter("shilian", 5, 5)
