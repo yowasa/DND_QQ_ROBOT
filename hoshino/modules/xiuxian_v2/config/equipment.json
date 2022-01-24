@@ -1,0 +1,584 @@
+{
+  "匕首": {
+    "name": "匕首",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 2,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "木剑": {
+    "name": "木剑",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 5,
+      "hp": 10
+    }
+  },
+  "砍刀": {
+    "name": "砍刀",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10,
+      "defen": -2
+    }
+  },
+  "细木棒": {
+    "name": "细木棒",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 5
+    }
+  },
+  "玄铁重剑": {
+    "name": "玄铁重剑",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 5,
+      "defen1": 5
+    }
+  },
+  "金背大砍刀": {
+    "name": "金背大砍刀",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 8
+    }
+  },
+  "苗刀": {
+    "name": "苗刀",
+    "condition": "True",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 8
+    }
+  },
+  "精铁剑": {
+    "name": "精铁剑",
+    "condition": "(level>1)&(tizhi>=50)",
+    "condition_desc": "需要锻体以上,体质大于50",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10,
+      "hp": 30
+    }
+  },
+  "遥箓剑": {
+    "name": "遥箓剑",
+    "condition": "level>1",
+    "condition_desc": "需要锻体以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10,
+      "defen1": 10
+    }
+  },
+  "戒刀": {
+    "name": "戒刀",
+    "condition": "(level>1)&(defen1>=10)",
+    "condition_desc": "需要锻体以上,防御大于10",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10,
+      "defen1": -10
+    }
+  },
+  "银光剑": {
+    "name": "银光剑",
+    "condition": "level>1",
+    "condition_desc": "需要锻体以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 15
+    }
+  },
+  "双狼剑": {
+    "name": "双狼剑",
+    "condition_desc": "需要锻体以上",
+    "condition": "level>1",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 5,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "鱼肠剑": {
+    "name": "鱼肠剑",
+    "condition": "level>6",
+    "condition_desc": "需要练气以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 20
+    }
+  },
+  "雷鸣剑": {
+    "name": "雷鸣剑",
+    "condition": "(level>6)&(tizhi>=80)",
+    "condition_desc": "需要练气以上,体质大于80",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 20,
+      "hp": 50
+    }
+  },
+  "陨火剑": {
+    "name": "陨火剑",
+    "condition": "level>6",
+    "condition_desc": "需要练气以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 15,
+      "defen1": 10
+    }
+  },
+  "伤逝剑": {
+    "name": "伤逝剑",
+    "condition": "level>6",
+    "condition_desc": "需要练气以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 25,
+      "defen1": -5
+    }
+  },
+  "青魄剑": {
+    "name": "青魄剑",
+    "condition": "level>6",
+    "condition_desc": "需要练气以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 15,
+      "boost": 10
+    }
+  },
+  "流云剑": {
+    "name": "流云剑",
+    "condition": "level>6",
+    "condition_desc": "需要练气以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "流银剑": {
+    "name": "流银剑",
+    "condition": "level>9",
+    "condition_desc": "需要筑基以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 20,
+      "hp": 30
+    }
+  },
+  "寒铁剑": {
+    "name": "寒铁剑",
+    "condition": "level>9",
+    "condition_desc": "需要筑基以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 30,
+      "defen2": -10
+    }
+  },
+  "火狐剑": {
+    "name": "火狐剑",
+    "condition": "level>9",
+    "condition_desc": "需要筑基以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 40,
+      "defen1": -10
+    }
+  },
+  "清风剑": {
+    "name": "清风剑",
+    "condition": "level>9",
+    "condition_desc": "需要筑基以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 10,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "精钢剑": {
+    "name": "精钢剑",
+    "condition": "(level>9)&(tizhi>=50)",
+    "condition_desc": "需要筑基以上,体质大于50",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 35,
+      "hp": 40
+    }
+  },
+  "天师剑": {
+    "name": "天师剑",
+    "condition": "level>9",
+    "condition_desc": "需要筑基以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 20,
+      "defen1": 10
+    }
+  },
+  "道韵剑": {
+    "name": "道韵剑",
+    "condition": "(level>9)&(daohang>=10)",
+    "condition_desc": "需要筑基以上,道心10以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 25,
+      "atk2_exec": "atk2+int(daohang/5)"
+    }
+  },
+  "妖刀村雨": {
+    "name": "妖刀村雨",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 40,
+      "atk2": 40,
+      "hp": 100
+    }
+  },
+  "紫电青霜": {
+    "name": "紫电青霜",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 40,
+      "atk2": 40,
+      "defen1": 10,
+      "defen2": 10
+    }
+  },
+  "龙泉剑": {
+    "name": "龙泉剑",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 1,
+    "buff": {
+      "atk1": 55,
+      "defen2": -10
+    }
+  },
+  "影匕": {
+    "name": "影匕",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 15,
+      "atk2": 15,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "狼牙棒": {
+    "name": "狼牙棒",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 50,
+      "hp": 100
+    }
+  },
+  "青风笔": {
+    "name": "青风笔",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 50,
+      "hp": 100
+    }
+  },
+  "天狼盾": {
+    "name": "天狼盾",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 0,
+    "buff": {
+      "defen1": 20,
+      "defen2": 20,
+      "hp": 200
+    }
+  },
+  "天狼刀": {
+    "name": "天狼刀",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 50
+    }
+  },
+  "天狼剑": {
+    "name": "天狼剑",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 50
+    }
+  },
+  "天狼枪": {
+    "name": "天狼枪",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 20,
+      "atk2": 20,
+      "hp": 200
+    }
+  },
+  "青影蓝荧": {
+    "name": "青影蓝荧",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 20,
+      "atk2": 20,
+      "hp": 260
+    }
+  },
+  "赤血飞光": {
+    "name": "赤血飞光",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 60,
+      "defen1": -20
+    }
+  },
+  "黑樱斩魄": {
+    "name": "黑樱斩魄",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 20,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "陨火流云": {
+    "name": "陨火流云",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 100,
+      "defen2": -20
+    }
+  },
+  "七窍玲珑": {
+    "name": "七窍玲珑",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 0,
+    "buff": {
+      "defen1": 40,
+      "defen2": 40,
+      "hp": 400
+    }
+  },
+  "金珀银花": {
+    "name": "金珀银花",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 40,
+      "atk2": 40,
+      "hp": 400
+    }
+  },
+  "龙吟虎啸": {
+    "name": "龙吟虎啸",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 60,
+      "atk2": 60,
+      "boost": 20
+    }
+  },
+  "太清归一": {
+    "name": "太清归一",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 20,
+      "atk2": 20,
+      "atk1_exec": "int(atk1*1.2)",
+      "atk2_exec": "int(atk2*1.2)"
+    }
+  },
+  "太乙大道": {
+    "name": "太乙大道",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 60,
+      "atk2": 60
+    }
+  },
+  "冰火诵歌": {
+    "name": "冰火诵歌",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 0,
+    "buff": {}
+  },
+  "萤光辉月": {
+    "name": "萤光辉月",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 0,
+    "buff": {
+      "double": 20
+    }
+  },
+  "天琊神剑": {
+    "name": "天琊神剑",
+    "condition": "level>15",
+    "condition_desc": "需要金丹以上",
+    "damage_type": 2,
+    "buff": {
+      "atk1": 60,
+      "atk2": 60
+    }
+  },
+  "风束者": {
+    "name": "风束者",
+    "condition": "level>12",
+    "condition_desc": "需要结丹以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 30,
+      "hp": 200,
+      "defen1": 30,
+      "defen1": 30
+    }
+  },
+  "金童剑": {
+    "name": "金童剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "hp": 150,
+      "atk1_exec": "atk1+tizhi"
+    }
+  },
+  "玉女剑": {
+    "name": "玉女剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "hp": 150,
+      "atk2_exec": "atk2+lingli"
+    }
+  },
+  "圣洁光辉": {
+    "name": "圣洁光辉",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 140,
+      "double": 5
+    }
+  },
+  "净水之息": {
+    "name": "净水之息",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 100,
+      "double": 25
+    }
+  },
+  "苍华剑施": {
+    "name": "苍华剑施",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "atk2": 60,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "流星芸剑": {
+    "name": "流星芸剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 60,
+      "double": 100,
+      "atk1_exec": "int(atk1/2)",
+      "atk2_exec": "int(atk2/2)"
+    }
+  },
+  "黑白剑": {
+    "name": "黑白剑",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "atk1": 10
+    },
+    "skill": [
+      "黑白剑"
+    ]
+  },
+  "暗夜之影": {
+    "name": "暗夜之影",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 1,
+    "buff": {
+      "defen2": 80
+    }
+  },
+  "白狼天牙": {
+    "name": "白狼天牙",
+    "condition": "level>18",
+    "condition_desc": "需要元婴以上",
+    "damage_type": 0,
+    "buff": {
+      "defen1": 80
+    }
+  }
+}

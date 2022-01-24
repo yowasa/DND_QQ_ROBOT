@@ -1,0 +1,31 @@
+{
+  "21": {
+    "境界": "元婴后期",
+    "cost": 750,
+    "HP": {
+      "feature": "hp",
+      "upgrade": 10,
+      "max": 1130
+    },
+    "攻击": {
+      "feature": "act",
+      "upgrade": 1,
+      "max": 389
+    },
+    "术法": {
+      "feature": "act2",
+      "upgrade": 1,
+      "max": 414
+    },
+    "物防": {
+      "feature": "defen",
+      "upgrade": 3,
+      "max": 101
+    },
+    "魔抗": {
+      "feature": "defen2",
+      "upgrade": 3,
+      "max": 101
+    }
+  }
+}

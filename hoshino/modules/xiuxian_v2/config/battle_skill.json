@@ -1,0 +1,1129 @@
+{
+  "吸蓝1": {
+    "belong": "吸蓝",
+    "level": 1,
+    "cost": 20,
+    "time": "after_damage",
+    "condition": "enemy_mp>int(enemy_max_mp*0.05)",
+    "effect": {
+      "my": {
+        "xi_mp": {
+          "type": "exec",
+          "value": "int(enemy_max_mp*0.05)"
+        },
+        "mp": {
+          "type": "exec",
+          "value": "my_mp+int(enemy_max_mp*0.05)"
+        }
+      },
+      "enemy": {
+        "mp": {
+          "type": "exec",
+          "value": "enemy_mp-int(enemy_max_mp*0.05)"
+        }
+      }
+    },
+    "log": "偷取了{my_xi_mp}的mp"
+  },
+  "吸蓝2": {
+    "belong": "吸蓝",
+    "level": 2,
+    "cost": 20,
+    "time": "after_damage",
+    "condition": "enemy_mp>int(enemy_max_mp*0.1)",
+    "effect": {
+      "my": {
+        "xi_mp": {
+          "type": "exec",
+          "value": "int(enemy_max_mp*0.1)"
+        },
+        "mp": {
+          "type": "exec",
+          "value": "my_mp+int(enemy_max_mp*0.1)"
+        }
+      },
+      "enemy": {
+        "mp": {
+          "type": "exec",
+          "value": "enemy_mp-int(enemy_max_mp*0.1)"
+        }
+      }
+    },
+    "log": "偷取了{my_xi_mp}的mp"
+  },
+  "吸血1": {
+    "cost": 20,
+    "time": "battle_end",
+    "condition": "enemy_mp<=int(enemy_max_mp*0.1)",
+    "effect": {
+      "my": {
+        "xi_hp": {
+          "type": "exec",
+          "value": "int(my_max_mp*0.1)"
+        },
+        "mp": {
+          "type": "exec",
+          "value": "my_hp+int(my_max_mp*0.1)"
+        }
+      },
+      "enemy": {
+        "mp": {
+          "type": "exec",
+          "value": "enemy_hp-int(my_max_mp*0.1)"
+        }
+      }
+    },
+    "log": "偷取了{my_xi_mp}的hp"
+  },
+  "烧蓝1": {
+    "time": "prepare",
+    "condition": "enemy_mp>int(enemy_max_mp*0.7)",
+    "effect": {
+      "enemy": {
+        "mp": {
+          "type": "exec",
+          "value": "int(enemy_max_mp*0.7)"
+        }
+      }
+    },
+    "log": "{enemy_name}的蓝量被降至70%"
+  },
+
+  "震磐": {
+    "cost": 50,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*1.5)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(my_defen2*1.5)"
+        }
+      }
+    },
+    "log": "防御力增加50%"
+  },
+  "摧心浪": {
+    "cost": 0,
+    "time": "after_damage",
+    "condition": "my_linggen=='水'",
+    "effect": {
+      "my": {
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.1)"
+        }
+      }
+    },
+    "log": "法攻击力增加10%"
+  },
+  "吸血": {
+    "cost": 10,
+    "time": "after_damage",
+    "condition": "my_total_damage>0",
+    "effect": {
+      "my": {
+        "xi_hp": {
+          "type": "exec",
+          "value": "int(my_total_damage*0.2)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+int(my_total_damage*0.2)"
+        }
+      }
+    },
+    "log": "恢复了{my_xi_hp}的hp"
+  },
+  "冰火": {
+    "cost": 20,
+    "cd": 2,
+    "time": "after_damage",
+    "condition": "enemy_total_damage>(my_max_hp*0.2)",
+    "effect": {
+      "my": {
+        "binghuo_hp": {
+          "type": "exec",
+          "value": "int(enemy_total_damage*0.7)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+int(enemy_total_damage*0.7)"
+        }
+      }
+    },
+    "log": "{my_name}由于冰火诵歌受到的伤害降低了{my_binghuo_hp}点"
+  },
+  "阴阳阳": {
+    "cost": 100,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "defen1": {
+          "type": "exec",
+          "value": "int(enemy_defen1*0.8)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(enemy_defen2*0.8)"
+        }
+      }
+    },
+    "log": "{enemy_name}由于阴阳手环（阳）的效果防御力降低了20%"
+  },
+  "阴阳阴": {
+    "cost": 100,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(enemy_atk1*0.8)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(enemy_atk2*0.8)"
+        }
+      }
+    },
+    "log": "{enemy_name}由于阴阳手环（阴）的效果攻击力降低了20%"
+  },
+  "金雷": {
+    "cost": 100,
+    "time": "begin",
+    "condition": "('水' in enemy_linggen)&('火' in enemy_linggen)",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.5)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.5)"
+        }
+      }
+    },
+    "log": "{my_name}由于金雷竹笛的效果攻击力增加了50%"
+  },
+  "二气": {
+    "cost": 100,
+    "time": "begin",
+    "condition": "('金' in enemy_linggen)&('木' in enemy_linggen)",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.5)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.5)"
+        }
+      }
+    },
+    "log": "{my_name}由于阴阳二气瓶的效果攻击力增加了50%"
+  },
+  "合欢": {
+    "cost": 200,
+    "time": "before_damage",
+    "condition": "my_yunshi>80",
+    "effect": {
+      "enemy_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      }
+    },
+    "log": "由于合欢铃的效果{enemy_name}的回合被跳过"
+  },
+  "削蓝": {
+    "cost": 30,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "shihun_mp": {
+          "type": "exec",
+          "value": "int(my_total_damage*0.3)"
+        },
+        "mp": {
+          "type": "exec",
+          "value": "enemy_mp-int(my_total_damage*0.3)"
+        }
+      }
+    },
+    "log": "削减了{enemy_name}{enemy_shihun_mp}点MP"
+  },
+  "暗器1": {
+    "cost": 30,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-40"
+        }
+      }
+    },
+    "log": "{my_name}使用了孔雀翎造成了40HP伤害"
+  },
+  "暗器2": {
+    "cost": 50,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-60"
+        }
+      }
+    },
+    "log": "{my_name}使用了暴雨梨花造成了60HP伤害"
+  },
+  "暗器3": {
+    "cost": 80,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-80"
+        }
+      }
+    },
+    "log": "{my_name}使用了无影神针造成了80HP伤害"
+  },
+  "转魔攻": {
+    "cost": 20,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "dmg_type": {
+          "type": "const",
+          "value": 1
+        }
+      }
+    }
+  },
+  "转物攻": {
+    "cost": 20,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "dmg_type": {
+          "type": "const",
+          "value": 0
+        }
+      }
+    }
+  },
+  "蟠龙": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "panlong_add": {
+          "type": "exec",
+          "value": "int(my_defen1/2)"
+        },
+        "atk1": {
+          "type": "exec",
+          "value": "my_atk1+int(my_defen1/2)"
+        }
+      }
+    },
+    "log": "{my_name}由于使用了蟠龙玉壁增加了{my_panlong_add}点物理攻击力"
+  },
+  "反伤": {
+    "cost": 50,
+    "cd": 3,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "wanmin_hp": {
+          "type": "exec",
+          "value": "int(my_atk1*0.3)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-int(my_atk1*0.3)"
+        }
+      }
+    },
+    "log": "{my_name}触发了万民玺对{enemy_name}造成{enemy_wanmin_hp}点伤害"
+  },
+  "妖花": {
+    "cost": 100,
+    "time": "battle_end",
+    "condition": "turn==2",
+    "effect": {
+      "my": {
+        "yaohua_hp": {
+          "type": "exec",
+          "value": "int(0.5*(my_max_hp-my_hp))"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+int(0.5*(my_max_hp-my_hp))"
+        }
+      }
+    },
+    "log": "{my_name}触发了墨冥妖花,回复{my_yaohua_hp}点HP"
+  },
+  "念罡": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "turn==1",
+    "effect": {
+      "my_next": {
+        "next_atk1": {
+          "type": "exec",
+          "value": [
+            "int(my_atk1*1.5)"
+          ]
+        }
+      }
+    },
+    "log": "{my_name}触发了念罡无相戒,物理攻击力临时提高50%"
+  },
+  "打神鞭": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "(my_hp<my_atk1) or (enemy_hp<my_atk1) ",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "0 if my_hp<my_atk1 else my_hp"
+        }
+      },
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "0 if enemy_hp<my_atk1 else enemy_hp"
+        }
+      }
+    },
+    "log": "{my_name}触发了斩杀,血量低于{my_atk1}的人HP归0"
+  },
+  "捆仙": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "(my_max_mp==my_mp) and (enemy_mp<my_mp)",
+    "effect": {
+      "my": {
+        "mp": {
+          "type": "const",
+          "value": 0
+        }
+      },
+      "enemy_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      }
+    },
+    "log": "{my_name}触发了捆仙绳"
+  },
+  "遮天": {
+    "cost": 0,
+    "time": "init",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "skills": {
+          "type": "const",
+          "value": {}
+        }
+      },
+      "enemy": {
+        "skills": {
+          "type": "const",
+          "value": {}
+        }
+      }
+    },
+    "log": "{my_name}触发了遮天布，双方失去所有特效"
+  },
+  "回复": {
+    "cost": 20,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "huifu_hp": {
+          "type": "exec",
+          "value": "my_level*2"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+my_level*2"
+        }
+      }
+    },
+    "log": "{my_name}回复了{my_huifu_hp}点HP"
+  },
+  "护体": {
+    "cost": 100,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "reduce_rate": {
+          "type": "const",
+          "value": [
+            0.7,
+            0.7
+          ]
+        }
+      }
+    },
+    "log": "{my_name}前两回合受伤额外减免30%"
+  },
+  "削血防": {
+    "cost": 50,
+    "time": "after_damage",
+    "condition": "turn==1",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-my_defen1"
+        }
+      }
+    },
+    "log": "{my_name}额外造成了{my_defen1}伤害"
+  },
+  "削血1": {
+    "cost": 50,
+    "time": "battle_end",
+    "condition": "turn==1",
+    "effect": {
+      "enemy": {
+        "xiao_1_hp": {
+          "type": "exec",
+          "value": "int(enemy_hp*0.1)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-int(enemy_hp*0.1)"
+        }
+      }
+    },
+    "log": "{enemy_name}由于地动星沉收到了{enemy_xiao_1_hp}点伤害"
+  },
+  "削血2": {
+    "cost": 20,
+    "time": "battle_end",
+    "condition": "turn>1",
+    "effect": {
+      "enemy": {
+        "xiao_2_hp": {
+          "type": "exec",
+          "value": "int(enemy_hp*0.02)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-int(enemy_hp*0.02)"
+        }
+      }
+    },
+    "log": "{enemy_name}由于地动星沉收到了{enemy_xiao_2_hp}点伤害"
+  },
+  "叠物攻": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.05)"
+        }
+      }
+    }
+  },
+  "叠物防": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*1.05)"
+        }
+      }
+    }
+  },
+  "中毒": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "du_flag": {
+          "type": "const",
+          "value": 1
+        }
+      }
+    }
+  },
+  "毒伤1": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "du_shang": {
+          "type": "const",
+          "value": 10
+        }
+      }
+    }
+  },
+  "毒伤2": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "du_shang": {
+          "type": "const",
+          "value": 20
+        }
+      }
+    }
+  },
+  "毒伤3": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "du_shang": {
+          "type": "const",
+          "value": 30
+        }
+      }
+    }
+  },
+  "毒回1": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "enemy_du_count>0",
+    "effect": {
+      "my": {
+        "du_re_1": {
+          "type": "exec",
+          "value": "int(enemy_du_count*0.5)"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+int(enemy_du_count*0.5)"
+        }
+      }
+    },
+    "log": "{my_name}回复了{my_du_re_1}点HP"
+  },
+  "毒回2": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "enemy_du_count>0",
+    "effect": {
+      "hp": {
+        "type": "exec",
+        "value": "my_hp+enemy_du_count"
+      }
+    },
+    "log": "{my_name}回复了{enemy_du_count}点HP"
+  },
+  "嗜血": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "dmg_rate": {
+          "type": "exec",
+          "value": "1+((my_max_hp-my_hp)/(2*my_max_hp))"
+        }
+      }
+    },
+    "log": "{my_name}回复了{enemy_du_count}点HP"
+  },
+  "斩杀": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_ex_atk": {
+          "type": "exec",
+          "value": [
+            "int((enemy_max_hp-enemy_hp)*0.2)"
+          ]
+        }
+      }
+    }
+  },
+  "削魔抗": {
+    "cost": 50,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "defen2": {
+          "type": "exec",
+          "value": "int(0.7*enemy_defen2)"
+        }
+      }
+    },
+    "log": "{enemy_name}魔抗降低了30%"
+  },
+  "削魔抗": {
+    "cost": 50,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "defen2": {
+          "type": "exec",
+          "value": "int(0.7*enemy_defen2)"
+        }
+      }
+    },
+    "log": "{enemy_name}魔抗降低了30%"
+  },
+  "术法真伤": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_ex_atk": {
+          "type": "exec",
+          "value": [
+            "int(my_atk2*0.1)"
+          ]
+        }
+      }
+    }
+  },
+  "叠物攻小": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.02)"
+        }
+      }
+    }
+  },
+  "叠物攻结丹": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.04)"
+        }
+      }
+    }
+  },
+  "叠物攻金丹": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.08)"
+        }
+      }
+    }
+  },
+  "叠物攻元婴": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.10)"
+        }
+      }
+    }
+  },
+  "叠物防小": {
+    "cost": 0,
+    "time": "battle_end",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*1.02)"
+        }
+      }
+    }
+  },
+  "武器真伤": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "ex_atk": {
+          "type": "exec",
+          "value": "my_ex_atk+int(my_equip_atk*0.2)"
+        }
+      }
+    }
+  },
+  "归元术": {
+    "cost": 100,
+    "time": "battle_end",
+    "condition": "turn==3",
+    "effect": {
+      "my": {
+        "guiyuan_hp": {
+          "type": "exec",
+          "value": "int(0.35*(my_max_hp-my_hp))"
+        },
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+int(0.35*(my_max_hp-my_hp))"
+        }
+      }
+    },
+    "log": "{my_name}触发了心灵归元术,回复{my_guiyuan_hp}点HP"
+  },
+  "剑心": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "turn==1",
+    "effect": {
+      "my_next": {
+        "next_atk1": {
+          "type": "exec",
+          "value": [
+            "int(1.3*my_atk1)"
+          ]
+        }
+      }
+    },
+    "log": "{my_name}触发了剑心,第一回合额外获得30%物攻"
+  },
+  "剑幻": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "turn==1",
+    "effect": {
+      "my_next": {
+        "next_defen1": {
+          "type": "exec",
+          "value": [
+            "int(1.5*my_defen1)"
+          ]
+        }
+      }
+    },
+    "log": "{my_name}触发了剑神幻化术,第一回合额外获得50%物防"
+  },
+  "黑白剑": {
+    "cost": 0,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my_next": {
+        "next_ex_atk": {
+          "type": "exec",
+          "value": [
+            "my_yunshi"
+          ]
+        }
+      }
+    }
+  },
+  "千寻一醉": {
+    "cost": 0,
+    "time": "begin",
+    "condition": "(my_max_mp<=my_mp)&(my_linggen=='水')",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+my_max_mp"
+        },
+        "mp": {
+          "type": "const",
+          "value": 0
+        }
+      }
+    },
+    "log": "{my_name}触发了千寻一醉,HP增加了{my_max_mp}"
+  },
+  "蛟龙手套": {
+    "cost": 80,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.05)"
+        }
+      }
+    },
+    "log": "法攻击力增加5%"
+  },
+  "凤羽流苏": {
+    "cost": 80,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "hp": {
+          "type": "exec",
+          "value": "enemy_hp-int(enemy_max_hp*0.05)"
+        },
+        "max_hp": {
+          "type": "exec",
+          "value": "enemy_max_hp-int(enemy_max_hp*0.05)"
+        }
+      }
+    },
+    "log": "{enemy_name}HP和最大HP减少了5%"
+  },
+  "落星飞鸿": {
+    "cost": 80,
+    "time": "battle_end",
+    "condition": "(enemy_is_dodge)|(enemy_is_double)|(enemy_is_boost)",
+    "effect": {
+      "my": {
+        "dodge": {
+          "type": "exec",
+          "value": "my_dodge+10 if enemy_is_dodge else my_dodge"
+        },
+        "double": {
+          "type": "exec",
+          "value": "my_double+10 if enemy_is_double else my_double"
+        },
+        "boost": {
+          "type": "exec",
+          "value": "my_boost+10 if enemy_is_boost else my_boost"
+        }
+      }
+    },
+    "log": "{my_name}触发了落星飞鸿"
+  },
+  "七宝妙树": {
+    "cost": 100,
+    "time": "init",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "skills": {
+          "type": "exec",
+          "value": "enemy_skills"
+        }
+      }
+    },
+    "log": "复制了对手的技能"
+  },
+  "玄黄如意": {
+    "cost": 0,
+    "time": "after_damage",
+    "condition": "enemy_total_damage>(0.1*my_max_hp)",
+    "effect": {
+      "my_next": {
+        "next_reduce_rate": {
+          "type": "const",
+          "value": [
+            0.75
+          ]
+        }
+      }
+    },
+    "log": "下次受到伤害减免25%"
+  },
+  "凤凰羽翎": {
+    "cost": 100,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+50"
+        }
+      }
+    },
+    "log": "{my_name}回复了50HP"
+  },
+  "龛神链": {
+    "cost": 150,
+    "time": "after_damage",
+    "condition": "turn==2",
+    "effect": {
+      "my": {
+        "hp": {
+          "type": "exec",
+          "value": "my_hp+my_total_damage"
+        }
+      }
+    },
+    "log": "{my_name}回复了{my_total_damage}HP"
+  },
+  "恍惚之境": {
+    "cost": 100,
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "enemy": {
+        "du_count": {
+          "type": "exec",
+          "value": "enemy_du_count+10"
+        }
+      }
+    }
+  },
+  "白无常": {
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "double": {
+          "type": "exec",
+          "value": "0 if my_is_double else my_double+5"
+        }
+      }
+    }
+  },
+  "黑无常": {
+    "time": "after_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "boost": {
+          "type": "exec",
+          "value": "int(my_boost/2) if my_is_boost else my_boost+5"
+        }
+      }
+    }
+  },
+  "时之沙漏": {
+    "cd": 3,
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "enemy_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      },
+      "my_next": {
+        "next_ts": {
+          "type": "const",
+          "value": [
+            true
+          ]
+        }
+      }
+    }
+  },
+  "棋局": {
+    "time": "before_damage",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "boost": {
+          "type": "exec",
+          "value": "my_boost+2"
+        },
+        "double": {
+          "type": "exec",
+          "value": "my_double+2"
+        },
+        "dodge": {
+          "type": "exec",
+          "value": "my_dodge+2"
+        }
+      }
+    }
+  },
+  "平衡": {
+    "time": "begin",
+    "condition": "True",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "my_atk2 if my_atk2>my_atk1 else my_atk1"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "my_atk1 if my_atk1>my_atk2 else my_atk2"
+        }
+      }
+    }
+  },
+  "狂暴之心": {
+    "time": "before_damage",
+    "cd": 10,
+    "condition": "my_hp<=(0.3*my_max_hp)",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.50)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.50)"
+        },
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*0.6)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(my_defen2*0.6)"
+        }
+      }
+    },
+    "log": "{my_name}触发技能狂暴之心 攻击力增加50% 防御力降低40%"
+  }
+}
+
