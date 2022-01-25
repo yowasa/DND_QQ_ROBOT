@@ -767,7 +767,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     log = "在城里游历时踩到一个井盖，井盖下边出来了一个魔界人，她邀请你去她的实验室玩，"
     roll = random.randint(1,10)
-    if roll > 6 :
+    if roll <= 6 :
         item = "纯阳丹"
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 1)
         log += "同意后去她的实验室被高压炉炸到，她为表示歉意送了一个糖果给你（轻伤，获得一个纯阳丹）"
@@ -800,6 +800,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
             log+="他很高兴给予了你一份神秘道具"
             if not add_item(user.gid, user.uid, item):
                 log += "(背包已满,只得丢弃)"
+            he_cheng(user, "失落之匙碎片", "失落之匙", 3,log)
         else:
             roll = random.randint(1,100)
             if roll <= 40 :
@@ -825,8 +826,13 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     rd = random.randint(0, 1)
     msg = "误入一个秘境，在通过一扇门时，突然有牛头马面两个怪人出现在面前你选择先下手为强，"
     if rd:
-        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
-        msg += "只听到阴曹地府，凡人安敢踏入，你差点被击杀，濒死之际你逃离了此地"
+        wanli = get_item_by_name("瞬息万里符")
+        if check_have_item(user.gid, user.uid, wanli):
+            use_item(user.gid, user.uid, wanli)
+            msg += "只听到阴曹地府，凡人安敢踏入，你心神惊惧，下意识使用了瞬息万里符逃离了此地"
+        else:
+            save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
+            msg += "只听到阴曹地府，凡人安敢踏入，你差点被击杀，濒死之际你逃离了此地"
     else:
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
         counter = ItemCounter()
@@ -850,6 +856,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
         msg += "只见骸骨身下出下亮光，你获得一枚神秘碎片"
         item = get_item_by_name("失落之匙碎片")
         add_item_ignore_limit(user.gid, user.uid, item, 1)
+        he_cheng(user, "失落之匙碎片", "失落之匙", 3)
     else:
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
         counter = ItemCounter()
@@ -864,3 +871,16 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
             ex_msg = f"丢失了物品{item['name']}"
         msg += f"只见骸骨空洞的双眼突闪红光，你措手不及之下便被击成重伤，只能仓促退让，退走后发现身上少了一件东西（重伤，{ex_msg}）"
     return msg
+
+
+async def he_cheng(user: AllUserInfo, suipian, daoju, count, log, bot,ev: CQEvent):
+    gid = user.gid
+    uid = user.uid
+    counter = ItemCounter()
+    item = get_item_by_name(suipian)
+    cur_count = counter._get_item_num(gid, uid,  int(item['id']))
+    if cur_count >= count:
+        use_item(user.gid, user.uid, item, count)
+        item = get_item_by_name(daoju)
+        add_item_ignore_limit(user.gid, user.uid, item, 1)
+        log+=f"\n你背包中的{count}枚{suipian}自动合成为了{daoju}\n"
