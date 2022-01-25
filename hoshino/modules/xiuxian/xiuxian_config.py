@@ -149,7 +149,7 @@ MAP = {
     '无尽之海': {"max_level": 15, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['修仙秘境', '百花谷']},
     '百花谷': {"max_level": 40, "in_level": 10, "lingqi_max": 120, "lingqi_min": 70, "able": ['无尽之海']},
     '苍穹神州': {"max_level": 18, "in_level": 13, "lingqi_max": 150, "lingqi_min": 100, "able": ['大千世界', '洪荒大陆', '九天十国']},
-    '九天十国': {"max_level": 21, "in_level": 16, "lingqi_max": 200, "lingqi_min": 150, "able": ['苍穹神州', '洪荒大陆', '诸天万界']},
+    '九天十国': {"max_level": 21, "in_level": 16, "lingqi_max": 200, "lingqi_min": 150, "able": ['苍穹神州', '洪荒大陆', '诸天万界','失落之境']},
     '洪荒大陆': {"max_level": 24, "in_level": 19, "lingqi_max": 260, "lingqi_min": 200, "able": ['苍穹神州', '混沌绝地']},
     '诸天万界': {"max_level": 27, "in_level": 22, "lingqi_max": 320, "lingqi_min": 280, "able": ['九天十国']},
     '灵寰福址': {"max_level": 30, "in_level": 25, "lingqi_max": 400, "lingqi_min": 350, "able": ['修仙秘境']},
@@ -253,13 +253,13 @@ XIULIAN_SPEED = [100, 70, 50, 40, 30]
 
 # 时间限制
 # 操作间隔
-flmt = FreqLimiter(10 * 60)
-# 死亡cd
-die_flmt = FreqLimiter(1 * 60 * 60)
+# flmt = FreqLimiter(10 * 60)
+# # 死亡cd
+# die_flmt = FreqLimiter(1 * 60 * 60)
 
 # 测试服
-# flmt = FreqLimiter(1)
-# die_flmt = FreqLimiter(10)
+flmt = FreqLimiter(1)
+die_flmt = FreqLimiter(10)
 
 # 文件路径
 FILE_PATH = os.path.dirname(__file__)
@@ -315,6 +315,10 @@ with open(os.path.join(FILE_PATH, 'config/exp_feature.json'), 'r', encoding='UTF
 with open(os.path.join(FILE_PATH, 'config/feature_max.json'), 'r', encoding='UTF-8') as fa:
     LEVEL_FEATURE_MAX = json.load(fa, strict=False)
 
+
+# 副本
+with open(os.path.join(FILE_PATH, 'config/fuben.json'), 'r', encoding='UTF-8') as fa:
+    FU_BEN = json.load(fa, strict=False)
 
 # 根据名字获取道具
 def get_item_by_name(name):
