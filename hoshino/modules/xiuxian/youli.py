@@ -15,8 +15,8 @@ EVENT_MAP = {
     '苍穹神州': {"捕捉小兽": 52, "井中洞天": 5, "女仆咖啡": 5, "灵药风波": 5, "妙手空空": 5, "棋逢对手": 5, "沙中淘金": 5, "神秘商人": 5, "圣人传经": 5,
              "心魔历练": 5, "神州之伴": 3},
     '九天十国': {"人面兽心": 52, "沉迷赌博": 5, "黑白无常": 5, "狗头人兽": 5, "妖兽侵扰": 10, "乌云笼罩": 3, "神秘商人": 5, "水猴赠礼": 15},
-    '洪荒大陆': {"兽群侵扰": 55, "剑术大师": 5, "牛头马面": 5, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "前尘忆梦": 5, "礼盒兑换": 5, "失落碎片": 5},
-    #'洪荒大陆': {"兽群侵扰": 50, "剑术大师": 5, "牛头马面": 5, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "前尘忆梦": 10, "礼盒兑换": 5, "失落碎片": 5},
+    '洪荒大陆': {"兽群侵扰": 58, "剑术大师": 5, "绝世宝物": 2, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "牛头马面": 5, "前尘忆梦": 5, "礼盒兑换": 3, "失落碎片": 2},
+    #'洪荒大陆': {"兽群侵扰": 63, "剑术大师": 5, "牛头马面": 5, "天外来客": 5, "井下魔人": 10, "神秘商人": 5, "前尘忆梦": 10, "礼盒兑换": 5, "失落碎片": 5},
     '诸天万界': {"无": 100},
     '灵寰福址': {"无": 100},
     '混沌绝地': {"无": 100},
@@ -727,14 +727,8 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     log = f"你碰见一个奇怪的男子在用剑术吊起物品，上前搭话发现其是剑术大师，剑术登峰造极甚至可以使周围的人都收到影响。你了解后心血来潮与其切磋，"
     rd = random.randint(1, 10)
-    if rd <= 5:
+    if rd <= 6:
         log = log + f"剑术大师见你资质平平，翻个白眼，飘然而去"
-    elif rd <= 7:
-        wuxing = random.randint(1, 2)
-        ct = XiuxianCounter()
-        user.wuxing += wuxing
-        ct._save_user_info(user)
-        log = log + f"剑术大师见你资质平平，轻抚你顶，你的悟性增加{wuxing}"
     else:
         skill = random.randint(1, 2)
         ct = XiuxianCounter()
@@ -747,8 +741,9 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     log = f"梦到了小时候自己，但是这个梦境似乎无法结束，"
     if user.daohang < 20:
-        log = log + f"隐约见到一个道士，他说你必然会走上与凡人不同的路，你深受鼓舞。醒来，觉得心舒体畅，道心更为坚定"
-        user.daohang += random.randint(1, 2)
+        daohang = random.randint(1, 3)
+        user.daohang += daohang
+        log = log + f"隐约见到一个道士，他说你必然会走上与凡人不同的路，你深受鼓舞。醒来，觉得心舒体畅，道心更为坚定，增加{daohang}点道行"
         ct = XiuxianCounter()
         ct._save_user_info(user)
     else:
@@ -800,7 +795,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
             log+="他很高兴给予了你一份神秘道具"
             if not add_item(user.gid, user.uid, item):
                 log += "(背包已满,只得丢弃)"
-            he_cheng(user, "失落之匙碎片", "失落之匙", 3,log)
+            log+=he_cheng(user, "失落之匙碎片", "失落之匙", 3,log)
         else:
             roll = random.randint(1,100)
             if roll <= 40 :
@@ -856,7 +851,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
         msg += "只见骸骨身下出下亮光，你获得一枚神秘碎片"
         item = get_item_by_name("失落之匙碎片")
         add_item_ignore_limit(user.gid, user.uid, item, 1)
-        he_cheng(user, "失落之匙碎片", "失落之匙", 3)
+        msg += he_cheng(user, "失落之匙碎片", "失落之匙", 3,msg)
     else:
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 2)
         counter = ItemCounter()
@@ -873,7 +868,25 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     return msg
 
 
-async def he_cheng(user: AllUserInfo, suipian, daoju, count, log, bot,ev: CQEvent):
+@msg_route("绝世宝物")
+async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
+    msg = "你偶遇一奇人，他告诉你他有绝世宝物，"
+    lingshi = get_user_counter(user.gid, user.uid, UserModel.LINGSHI)
+    if lingshi > 300 :
+        roll = random.randint(1,10)
+        if roll <= 9:
+            item = get_item_by_name("风水造化丹")
+        else:
+            item = get_item_by_name("铁精")
+        msg += f"你用300灵石交换了宝物，获得了{item['name']}"
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI,-300)
+        if not add_item(user.gid, user.uid, item):
+            msg += "(背包已满,只得丢弃)"
+    else :
+        msg+="但是你没有足够的灵石，他说这便是没有缘分"
+    return msg
+
+def he_cheng(user: AllUserInfo, suipian, daoju, count, log):
     gid = user.gid
     uid = user.uid
     counter = ItemCounter()
@@ -884,3 +897,4 @@ async def he_cheng(user: AllUserInfo, suipian, daoju, count, log, bot,ev: CQEven
         item = get_item_by_name(daoju)
         add_item_ignore_limit(user.gid, user.uid, item, 1)
         log+=f"\n你背包中的{count}枚{suipian}自动合成为了{daoju}\n"
+    return log
