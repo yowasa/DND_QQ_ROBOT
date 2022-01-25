@@ -703,3 +703,16 @@ async def choose_girl(msg, bot, ev: CQEvent):
     lingshi = random.randint(500,1000)
     add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
     return (True, f"你使用了灵石盒子-小，增加{lingshi}灵石]")
+
+@msg_route("风水造化丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    msg = "你使用了风水造化丹，"
+    user.act += 20
+    user.hp +=20
+    msg += "HP提升了20点 物理攻击力提升了20点。"
+    ct._save_user_info(user)
+    return (True, msg)
