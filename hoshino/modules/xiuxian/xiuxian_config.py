@@ -694,6 +694,13 @@ class AllUserInfo():
             await util.silence(ev, 10 * 60, skip_su=False)
             await bot.finish(ev, f"做事急躁，有损道心，道行-1，距离下次操作还需要{round(int(flmt.left_time(self.uid)))}秒")
 
+    async def check_in_fuben(self, bot, ev):
+        fuben = get_user_counter(ev.group_id, ev.uid, UserModel.FU_BEN)
+        if fuben:
+            await bot.finish(ev, f"你身处秘境之中，无法进行此项操作", at_sender=True)
+
+
+
     def start_cd(self):
         # 练宝相关
         item_id = get_user_counter(self.gid, self.uid, UserModel.LIANBAO_ITEM)

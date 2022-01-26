@@ -198,6 +198,8 @@ async def feigong(bot, ev: CQEvent):
     shangshi = get_user_counter(gid, uid, UserModel.SHANGSHI)
     if not shangshi:
         await bot.finish(ev, f"你没有受伤，无需修养", at_sender=True)
+
+    await user.check_in_fuben(bot, ev)
     await user.check_cd_ignore_other(bot, ev)
     time = get_user_counter(gid, uid, UserModel.XIUYANG_TIME)
     time += 1

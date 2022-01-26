@@ -385,7 +385,7 @@ async def specialNewYear(bot, ev: CQEvent):
     #     my.battle_defen2 = my.battle_defen2 * 2
 
     # 战斗
-    my_hp, he_hp, send_msg_li = battle_boss(my)
+    my_hp, he_hp, send_msg_li = battle_boss(my,"元旦限定")
     log=""
     if my_hp <= 0:
         log += f"{my.name}受到伤害，HP减为0，弱小的你还需要继续修炼，等待你的下次挑战"
@@ -531,3 +531,11 @@ async def exp_change_feature(bot, ev: CQEvent):
                 await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提至上限")
             await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提升了{feature['upgrade']}点")
     await bot.finish(ev, f"此属性不在经验兑换内，请另外选择属性")
+
+def get_random_item(all_li):
+    total = 0
+    rn = random.randint(1, 100)
+    for i in all_li.keys():
+        total += all_li[i]
+        if rn <= total:
+            return i

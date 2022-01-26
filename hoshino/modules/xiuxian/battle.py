@@ -429,10 +429,10 @@ def end_battle(logs, my_content, enemy_content):
     return my_content['hp'], enemy_content['hp'], logs
 
 
-def battle_boss(my: AllUserInfo):
+def battle_boss(my: AllUserInfo,boss_name):
     my_content = init_content(my)
     # boss content的组装
-    boss_content = init_boss_content(my_content['gid'])
+    boss_content = init_boss_content(my_content['gid'],boss_name)
     return battle_bases(my_content, boss_content)
 
 
@@ -485,8 +485,8 @@ def init_shilian_content(my):
     return init_content(enemy)
 
 
-def init_boss_content(gid):
-    name = "元旦限定"
+def init_boss_content(gid,boss_name):
+    name = boss_name
     boss = BOSS[name]
     name = boss["name"]
     content = {}

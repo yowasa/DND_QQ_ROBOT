@@ -1,3 +1,5 @@
+from .battle import battle_boss
+from .xiuxian import get_random_item
 from .xiuxian_config import *
 from hoshino import util
 import random
@@ -18,6 +20,12 @@ async def start(bot, ev: CQEvent):
     in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
     if in_fuben:
         await bot.finish(ev, f"你已在秘境之中", at_sender=True)
+
+    # 有伤势不可进
+    shangshi = get_user_counter(gid, uid, UserModel.SHANGSHI)
+    if shangshi :
+        await bot.finish(ev, f"你身有伤势，无法探索秘境", at_sender=True)
+
     user = await get_ev_user(bot, ev)
     mijing_map = mi_jing['name']
     user_adress = MAP.get(user.map)
@@ -67,15 +75,33 @@ async def start(bot, ev: CQEvent):
     # todo
     user = await get_ev_user(bot, ev)
     mi_jing = FU_BEN[user.map]
+    event_time = get_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME)
+    # 触发boss战
+    if event_time >= mi_jing['event_times'] :
+        boss_name = mi_jing['boss']
+        my_hp, he_hp, send_msg_li = battle_boss(user)
+        log = ""
+        if my_hp <= 0:
+            # todo 死亡道具处理
+            log += f"{user.name}受到Boss-{boss_name}伤害，陷入濒死状态，被迫结束了此次秘境探索"
+
+        if he_hp <= 0:
+            save_group_counter(gid, GroupModel.YUANDAN_BOSS, 1)
+            bonus = get_random_item(mi_jing['bonus'])
+            log += f"{user.name}击败了Boss-{boss_name}，获得了奖励道具[{bonus}]，结束了此次秘境探索"
+        send_msg_li.append(log)
+        # 更新状态
+        save_user_counter(gid, uid, UserModel.FU_BEN, 0)
+        user = await get_ev_user(bot, ev)
+        user.map = FU_BEN[user.map]['map']
+        save_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 0)
+        ct = XiuxianCounter()
+        ct._save_user_info(user)
+        await bot.send(ev, send_msg_li, at_sender=True)
+
+    # 探索事件
     all_li = mi_jing['event']
-    rn = random.randint(1, 100)
-    total = 0
-    msg = ""
-    for i in all_li.keys():
-        total += all_li[i]
-        if rn <= total:
-            msg = i
-            break
-    result = await _youli(msg, user, bot, ev)
+    event = get_random_item(all_li)
+    result = await _youli(event, user, bot, ev)
     add_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 1)
     await bot.send(ev, result, at_sender=True)
