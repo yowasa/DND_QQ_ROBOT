@@ -541,11 +541,11 @@ def init_boss_content(gid,boss_name):
     content["dmg_type"] = 0
     skills = []
     # # 武器特性
-    # equip = get_equip_by_name(my.wuqi)
+    equip = get_equip_by_name(boss["linggen"])
     # # 武器
-    # if equip:
-    #     if equip.get("skill"):
-    #         skills.extend(equip.get("skill"))
+    if equip:
+        if equip.get("skill"):
+            skills.extend(equip.get("skill"))
     #     if equip.get("damage_type"):
     #         content["dmg_type"] = equip["damage_type"]
     #     else:
@@ -556,6 +556,10 @@ def init_boss_content(gid,boss_name):
     if gongfa:
         if gongfa.get("skill"):
             skills.extend(gongfa.get("skill"))
+    if boss['special_skills']:
+        for i in boss['special_skills']:
+            skills.extend(i)
+
     skills = list(set(skills))
     for i in skills:
         skill_cd[i] = 0

@@ -30,8 +30,17 @@
     "mp": 300,
     "lingli": 100,
     "sharen": 0,
-    "wuqi": "赤手空拳",
+    "wuqi": "流星芸剑",
     "linggen": "金",
-    "gongfa2": "狂暴之心"
+    "gongfa2": "狂暴之心",
+    "fengjin": [
+      "凤羽流苏",
+      "遮天布",
+      "时之沙漏"
+    ],
+    "special_skills": [
+      "",
+      ""
+    ]
   }
 }
