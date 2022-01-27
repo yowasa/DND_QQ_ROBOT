@@ -395,6 +395,7 @@ async def _(user: AllUserInfo, bot, ev: CQEvent):
 async def duanti(bot, ev: CQEvent):
     gid = ev.group_id
     my = await get_ev_user(bot, ev)
+    await my.check_in_fuben(bot, ev)
     name = get_message_text(ev)
     at = get_message_at(ev)
     ct = XiuxianCounter()

@@ -70,6 +70,7 @@ async def xiulian(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
     if (user.level not in PINGJING) or (user.exp < EXP_NEED_MAP[str(user.level)]):
         await bot.finish(ev, "你当前还未遇到瓶颈")
+    await user.check_in_fuben(bot, ev)
     await user.check_and_start_cd(bot, ev)
     sucess, log = await tupo(str(user.level), user, bot, ev)
     if sucess:

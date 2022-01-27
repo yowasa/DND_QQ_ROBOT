@@ -67,6 +67,7 @@ def cal_add_shuxing(user):
 @sv.on_fullmatch(["#修炼"])
 async def xiulian(bot, ev: CQEvent):
     user = await get_ev_user(bot, ev)
+    await user.check_in_fuben(bot, ev)
     if user.level > MAP[user.map]['max_level']:
         await bot.finish(ev, f"此地的灵气浓度不足以支撑你的修炼，请到灵气更加浓郁的地方。")
     if user.map in ZONGMEN.keys() and user.belong != user.map:
