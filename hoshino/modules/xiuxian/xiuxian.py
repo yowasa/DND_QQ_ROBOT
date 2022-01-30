@@ -367,6 +367,20 @@ def gotoDestination(user:AllUserInfo, destination:str):
     ct._save_user_info(user)
 
 
+@sv.on_prefix(["#开启限定Boss活动"])
+async def specialNewYear(bot, ev: CQEvent):
+    gid = ev.group_id
+    # save_group_counter(gid, GroupModel.SPECIAL_BOSS, 2)
+    # await bot.finish(ev, f"限定Boss 年兽-岁，活动开启")
+    boss_id = get_group_counter(gid, GroupModel.SPECIAL_BOSS)
+    name = str(ev.message).strip()
+    boss = BOSS[name]
+    if not boss_id:
+        save_group_counter(gid, GroupModel.SPECIAL_BOSS,boss['id'])
+        await bot.finish(ev, f"限定Boss活动 {boss['name']}已开启")
+    if boss_id > 0:
+        await bot.finish(ev, f"限定Boss活动已开启")
+
 @sv.on_prefix(["#限定Boss"])
 async def specialNewYear(bot, ev: CQEvent):
     gid = ev.group_id
