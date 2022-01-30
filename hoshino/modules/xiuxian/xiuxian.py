@@ -389,7 +389,7 @@ async def specialNewYear(bot, ev: CQEvent):
     my = await get_ev_user(bot, ev)
     await my.check_and_start_cd(bot, ev)
     boss_id = get_group_counter(gid, GroupModel.SPECIAL_BOSS)
-    if boss_id == 0 :
+    if boss_id < 0 :
         await bot.finish(ev, f"限定Boss已被击败，活动结束")
     name = str(ev.message).strip()
     if not name:
