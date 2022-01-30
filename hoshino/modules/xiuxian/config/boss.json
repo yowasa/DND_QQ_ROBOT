@@ -1,6 +1,7 @@
 {
   "元旦限定": {
     "name": "元旦异兽-天",
+    "id": 1,
     "map": "苍穹神州",
     "level": 19,
     "atk1": 800,
@@ -13,6 +14,58 @@
     "sharen": 0,
     "wuqi": "赤手空拳",
     "linggen": "金",
-    "gongfa2": "狂暴之心"
+    "gongfa2": "狂暴之心",
+    "special_skills": [
+
+    ]
+  },
+  "年兽-岁": {
+    "id": 2,
+    "name": "年兽-岁",
+    "map": "苍穹神州",
+    "level": 19,
+    "atk1": 800,
+    "atk2": 800,
+    "defen1": 500,
+    "defen2": 500,
+    "skill": 200,
+    "hp": 1000000,
+    "mp": 100,
+    "sharen": 0,
+    "wuqi": "赤手空拳",
+    "linggen": "金",
+    "gongfa2": "狂暴之心",
+    "special_skills": [
+
+    ]
+  },
+  "碎魂兽": {
+    "name": "碎魂兽",
+    "id": 3,
+    "map": "失落之境",
+    "daohang": 28,
+    "level": 21,
+    "tizhi": 100,
+    "atk1": 600,
+    "atk2": 600,
+    "defen1": 500,
+    "defen2": 100,
+    "skill": 400,
+    "hp": 2500,
+    "mp": 300,
+    "lingli": 100,
+    "sharen": 0,
+    "wuqi": "流星芸剑",
+    "linggen": "金",
+    "gongfa2": "狂暴之心",
+    "fengjin": [
+      "凤羽流苏",
+      "遮天布",
+      "时之沙漏"
+    ],
+    "special_skills": [
+      "",
+      ""
+    ]
   }
 }

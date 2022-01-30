@@ -704,6 +704,14 @@ async def choose_girl(msg, bot, ev: CQEvent):
     add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
     return (True, f"你使用了灵石盒子-小，增加{lingshi}灵石]")
 
+@msg_route("新年礼盒")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    lingshi = 666
+    add_user_counter(gid, uid, UserModel.LINGSHI, lingshi)
+    return (True, f"来自小天道的祝福，获得{lingshi}灵石，祝你新年快乐，平安喜乐！")
+
 @msg_route("风水造化丹")
 async def choose_girl(msg, bot, ev: CQEvent):
     gid = ev.group_id
