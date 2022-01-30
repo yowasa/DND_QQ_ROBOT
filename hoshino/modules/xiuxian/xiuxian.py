@@ -367,13 +367,24 @@ def gotoDestination(user:AllUserInfo, destination:str):
     ct._save_user_info(user)
 
 
-@sv.on_fullmatch(["#元旦限定Boss"])
+@sv.on_prefix(["#限定Boss"])
 async def specialNewYear(bot, ev: CQEvent):
     gid = ev.group_id
+    # save_group_counter(gid, GroupModel.SPECIAL_BOSS, 2)
+    # await bot.finish(ev, f"限定Boss 年兽-岁，活动开启")
     my = await get_ev_user(bot, ev)
     await my.check_and_start_cd(bot, ev)
-    if get_group_counter(gid, GroupModel.YUANDAN_BOSS) > 0 :
-        await bot.finish(ev, f"Boss已被击败，活动结束")
+    boss_id = get_group_counter(gid, GroupModel.SPECIAL_BOSS)
+    if boss_id == 0 :
+        await bot.finish(ev, f"限定Boss已被击败，活动结束")
+    name = str(ev.message).strip()
+    if not name:
+        await bot.finish(ev, f"请再次确认Boss名称")
+    boss = BOSS[name]
+    if not boss :
+        await bot.finish(ev, f"请再次确认Boss名称")
+    if boss['id'] != boss_id:
+        await bot.finish(ev, f"此Boss活动尚未开启")
     # check使用燃魂丹标识
     # flag = get_user_counter(my.gid, my.uid, UserModel.RANHUN)
     # if flag:
@@ -385,25 +396,24 @@ async def specialNewYear(bot, ev: CQEvent):
     #     my.battle_defen2 = my.battle_defen2 * 2
 
     # 战斗
-    my_hp, he_hp, send_msg_li = battle_boss(my)
+    my_hp, he_hp, send_msg_li ,damage= battle_boss(my,name,1)
     log=""
     if my_hp <= 0:
         log += f"{my.name}受到伤害，HP减为0，弱小的你还需要继续修炼，等待你的下次挑战"
 
     if he_hp <= 0:
-        save_group_counter(gid, GroupModel.YUANDAN_BOSS, 1)
+        save_group_counter(gid, GroupModel.SPECIAL_BOSS, -boss_id)
         log += f"{my.name}击败了Boss，你的声名将响彻修仙界"
-
     send_msg_li.append(log)
     user = await get_ev_user(bot, ev)
     luck = random.randint(1,10)
     # 80%概率拿灵石
     if luck > 2:
-        lingshi = random.randint(10,50)
+        lingshi = random.randint(10,30)
         user.lingshi += lingshi
         add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
         send_msg_li.append(f"天道见你勇气可嘉，给予{lingshi}块灵石以示鼓励")
-    else:
+    elif damage > 500:
         luck = random.randint(1, 8)
         if luck > 5 :
             if user.skill < 80 :
@@ -434,8 +444,13 @@ async def specialNewYear(bot, ev: CQEvent):
 async def specialNewYear(bot, ev: CQEvent):
     gid = ev.group_id
     ct = UserDamageCounter()
-    name = "元旦限定"
-    boss = BOSS[name]
+    boss_id = get_group_counter(gid, GroupModel.SPECIAL_BOSS)
+    if boss_id < 0:
+        boss_id = -boss_id
+    for i in BOSS.keys():
+        if BOSS[i]['id'] == boss_id:
+            boss = BOSS[i]
+            break
     map = ct._get_damage_by_boss(gid , boss['name'])
     logs = []
     logs.append("#天榜")
@@ -458,15 +473,23 @@ async def specialNewYear(bot, ev: CQEvent):
         logs.append(f"{cur_user.name} 共计造成{damage}点伤害 **")
     await bot.finish(ev, '\n'.join(logs))
 
-@sv.on_prefix(["#领取奖励"])
+@sv.on_fullmatch(["#领取天榜奖励"])
 async def specialNewYear(bot, ev: CQEvent):
     gid = ev.group_id
-    name = str(ev.message).strip()
-    boss_bonus = BOSS_BONUS[name]
+    boss_id = get_group_counter(gid, GroupModel.SPECIAL_BOSS)
+    if boss_id > 0 :
+        await bot.finish(ev, "限定Boss尚未被击败，无法领取奖励")
+    if boss_id < 0:
+        boss_id = -boss_id
+    for i in BOSS.keys():
+        if BOSS[i]['id'] == boss_id:
+            boss = BOSS[i]
+            break
+    boss_bonus = BOSS_BONUS[boss['name']]
     bonus = boss_bonus['bonus']
     logs = []
     cur_user = await get_ev_user(bot, ev)
-    if get_user_counter(gid,cur_user.uid, UserModel.YUANDAN_LIHE) > 0 :
+    if get_user_counter(gid,cur_user.uid, UserModel.SPECIAL_LIHE) > 0 :
         await bot.finish(ev, "你已领取过奖励")
     count = 0
     have_me = 0
@@ -478,12 +501,16 @@ async def specialNewYear(bot, ev: CQEvent):
         if cur_user.uid == i[0] :
             have_me = 1
             ## 标记领取过了
-            add_user_counter(gid,cur_user.uid,UserModel.YUANDAN_LIHE,1)
+            add_user_counter(gid,cur_user.uid,UserModel.SPECIAL_LIHE,1)
             break
         if count == 10 :
             break
+    if boss_id == 2:
+        add_item_ignore_limit(gid, cur_user.uid, get_item_by_name('新年礼盒'))
+        logs.append(f"你获得了额外奖励道具 [新年礼盒]")
     if not have_me:
-        await bot.finish(ev, "你未进入天榜，请继续修炼加油")
+        logs.append(f"你未进入天榜，请继续修炼加油")
+        await bot.finish(ev, logs)
     if count == 1 or count == 2 or count == 3 :
         for i in bonus:
             if count > 3:
@@ -531,3 +558,11 @@ async def exp_change_feature(bot, ev: CQEvent):
                 await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提至上限")
             await bot.finish(ev, f"{user.name}使用了{exp_feature['cost']}点经验，使{feature_name[0]}属性提升了{feature['upgrade']}点")
     await bot.finish(ev, f"此属性不在经验兑换内，请另外选择属性")
+
+def get_random_item(all_li):
+    total = 0
+    rn = random.randint(1, 100)
+    for i in all_li.keys():
+        total += all_li[i]
+        if rn <= total:
+            return i
