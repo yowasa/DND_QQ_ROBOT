@@ -380,6 +380,8 @@ async def specialNewYear(bot, ev: CQEvent):
         await bot.finish(ev, f"限定Boss活动 {boss['name']}已开启")
     if boss_id > 0:
         await bot.finish(ev, f"限定Boss活动已开启")
+    elif boss_id < 0:
+        await bot.finish(ev, f"限定Boss活动已结束")
 
 @sv.on_prefix(["#限定Boss"])
 async def specialNewYear(bot, ev: CQEvent):
@@ -503,7 +505,7 @@ async def specialNewYear(bot, ev: CQEvent):
     bonus = boss_bonus['bonus']
     logs = []
     cur_user = await get_ev_user(bot, ev)
-    if get_user_counter(gid,cur_user.uid, UserModel.SPECIAL_LIHE) > 0 :
+    if get_user_counter(gid,cur_user.uid, UserModel.SPECIAL_LIHE) == boss_id :
         await bot.finish(ev, "你已领取过奖励")
     count = 0
     have_me = 0
@@ -515,7 +517,7 @@ async def specialNewYear(bot, ev: CQEvent):
         if cur_user.uid == i[0] :
             have_me = 1
             ## 标记领取过了
-            add_user_counter(gid,cur_user.uid,UserModel.SPECIAL_LIHE,1)
+            save_user_counter(gid,cur_user.uid,UserModel.SPECIAL_LIHE,boss_id)
             break
         if count == 10 :
             break
