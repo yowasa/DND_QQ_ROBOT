@@ -811,6 +811,7 @@ async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
             item = get_item_by_name(item_name)
             log += f"他很高兴给予了你一份天才地宝[{item_name}]"
             add_item_ignore_limit(user.gid, user.uid, item, 1)
+            # he_cheng_2(user,['避水珠','龙鳞','金刚石','定魂珠','夜光珠'],"登仙台",log)
         use_item(user.gid, user.uid, item_info)
     else:
         log +="你没有他需要的物品，他失望的张了张嘴，并告诉你拿到他需要的物品再来找他"
@@ -897,4 +898,22 @@ def he_cheng(user: AllUserInfo, suipian, daoju, count, log):
         item = get_item_by_name(daoju)
         add_item_ignore_limit(user.gid, user.uid, item, 1)
         log+=f"\n你背包中的{count}枚{suipian}自动合成为了{daoju}\n"
+    return log
+
+def he_cheng_2(user: AllUserInfo, item_li, daoju, log):
+    gid = user.gid
+    uid = user.uid
+    counter = ItemCounter()
+    count = len(item_li)
+    for i in item_li:
+        item = get_item_by_name(i)
+        cur_count = counter._get_item_num(gid, uid,  int(item['id']))
+        if cur_count < 0:
+            return log
+    for i in item_li:
+        item = get_item_by_name(i)
+        use_item(user.gid, user.uid, item, count)
+    last = get_item_by_name(daoju)
+    add_item_ignore_limit(user.gid, user.uid, last, 1)
+    log+=f"\n你背包中的五宝自动合成为了{daoju}\n"
     return log
