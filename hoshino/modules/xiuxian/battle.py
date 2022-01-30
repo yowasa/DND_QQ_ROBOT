@@ -429,11 +429,14 @@ def end_battle(logs, my_content, enemy_content):
     return my_content['hp'], enemy_content['hp'], logs
 
 
-def battle_boss(my: AllUserInfo):
+def end_battle_boss(logs, my_content, enemy_content,damage):
+    return my_content['hp'], enemy_content['hp'], logs,damage
+
+def battle_boss(my: AllUserInfo,boss_name,special):
     my_content = init_content(my)
     # boss content的组装
-    boss_content = init_boss_content(my_content['gid'])
-    return battle_bases(my_content, boss_content)
+    boss_content = init_boss_content(my_content['gid'],boss_name)
+    return battle_bases(my_content, boss_content,special)
 
 
 def init_shilian_content(my):
@@ -485,8 +488,8 @@ def init_shilian_content(my):
     return init_content(enemy)
 
 
-def init_boss_content(gid):
-    name = "元旦限定"
+def init_boss_content(gid,boss_name):
+    name = boss_name
     boss = BOSS[name]
     name = boss["name"]
     content = {}
@@ -541,11 +544,11 @@ def init_boss_content(gid):
     content["dmg_type"] = 0
     skills = []
     # # 武器特性
-    # equip = get_equip_by_name(my.wuqi)
+    equip = get_equip_by_name(boss["linggen"])
     # # 武器
-    # if equip:
-    #     if equip.get("skill"):
-    #         skills.extend(equip.get("skill"))
+    if equip:
+        if equip.get("skill"):
+            skills.extend(equip.get("skill"))
     #     if equip.get("damage_type"):
     #         content["dmg_type"] = equip["damage_type"]
     #     else:
@@ -556,6 +559,10 @@ def init_boss_content(gid):
     if gongfa:
         if gongfa.get("skill"):
             skills.extend(gongfa.get("skill"))
+    if boss['special_skills']:
+        for i in boss['special_skills']:
+            skills.extend(i)
+
     skills = list(set(skills))
     for i in skills:
         skill_cd[i] = 0
@@ -593,7 +600,7 @@ def init_boss_content(gid):
     return content
 
 
-def battle_bases(my_content, enemy_content):
+def battle_bases(my_content, enemy_content,special):
     gid = my_content['gid']
     uid = my_content['uid']
     boss_name = enemy_content['name']
@@ -682,10 +689,12 @@ def battle_bases(my_content, enemy_content):
         # 有人血量归零
         damage_all_hp = start_boss_hp - cur_hp
         if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
+            if not special:
+                return end_battle(logs, my_content, enemy_content)
             ud = UserDamageCounter()
             have_damage = ud._get_damage_by_name(gid, uid, boss_name)
             logs.append(f"{my_content['name']}此次共造成{damage_all_hp}点伤害")
             if not have_damage:
                 have_damage = 0
             ud._save_user_damage_info(gid, uid, boss_name, damage_all_hp + have_damage)
-            return end_battle(logs, my_content, enemy_content)
+            return end_battle_boss(logs, my_content, enemy_content,damage_all_hp)
