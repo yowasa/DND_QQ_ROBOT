@@ -117,7 +117,7 @@ async def consume_item(bot, ev: CQEvent):
         result = await equip(bot, ev, item_info['name'])
     elif item_info['type'] == '法宝':
         result = await equip_fa(bot, ev, item_info['name'])
-    elif item_info['type'] in ['丹药', "消耗品"]:
+    elif item_info['type'] in ['丹药', "消耗品", "道具"]:
         result = await _use_item(msg[0], msg[1:], bot, ev)
     else:
         result = (False, f"【{item_info['type']}】{item_info['name']}:{item_info['desc']}")
@@ -724,3 +724,12 @@ async def choose_girl(msg, bot, ev: CQEvent):
     msg += "HP提升了20点 物理攻击力提升了20点。"
     ct._save_user_info(user)
     return (True, msg)
+
+@msg_route("纳戒")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    if get_user_counter(gid, uid, UserModel.NA_JIE) >= 5:
+        return (False, f"你的额外背包空间已到上限，无法继续提升")
+    add_user_counter(gid, uid, UserModel.NA_JIE, 1)
+    return (True, f"你使用了道具纳戒,背包空间增加1")
