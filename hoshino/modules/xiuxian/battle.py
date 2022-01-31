@@ -681,10 +681,14 @@ def battle_bases(my_content, enemy_content,special):
         # 计算异常伤害
         tun_log.extend(cal_yichang(my_content, enemy_content))
         # 计算异常伤害
-        if turn <= 8:
-            tun_log.extend(cal_yichang_boss(enemy_content, my_content,1))
+        if not special:
+            tun_log.extend(cal_yichang(enemy_content, my_content))
         else:
-            tun_log.append(f"超过8回合,{enemy_content['name']}免疫毒伤害")
+            if turn <= 8:
+                tun_log.extend(cal_yichang_boss(enemy_content, my_content,1))
+            else:
+                tun_log.append(f"超过8回合,{enemy_content['name']}免疫毒伤害")
+
         tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
         logs.append(",".join(tun_log))
