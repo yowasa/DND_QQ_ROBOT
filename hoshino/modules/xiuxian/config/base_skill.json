@@ -1061,7 +1061,7 @@
   "狂暴之心-怒": {
     "time": "before_damage",
     "cd": 10,
-    "condition": "my_hp<=(0.3*my_max_hp)",
+    "condition": "my_hp<=(0.4*my_max_hp)",
     "effect": {
       "my": {
         "atk1": {
