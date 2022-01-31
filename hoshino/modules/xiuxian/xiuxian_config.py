@@ -698,7 +698,7 @@ class AllUserInfo():
             await bot.finish(ev, f"做事急躁，有损道心，道行-1，距离下次操作还需要{round(int(flmt.left_time(self.uid)))}秒")
 
     async def check_in_fuben(self, bot, ev):
-        fuben = get_user_counter(ev.group_id, ev.uid, UserModel.FU_BEN)
+        fuben = get_user_counter(self.gid, self.uid, UserModel.FU_BEN)
         if fuben:
             await bot.finish(ev, f"你身处秘境之中，无法进行此项操作", at_sender=True)
 

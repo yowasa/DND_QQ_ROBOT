@@ -695,7 +695,8 @@ def battle_bases(my_content, enemy_content,special):
 
         # 每回合保存一次hp
         cur_hp = enemy_content["hp"]
-        ct._save_boss_hp_info(gid, boss_name, cur_hp)
+        if special:
+            ct._save_boss_hp_info(gid, boss_name, cur_hp)
 
         # 重置双方造成伤害和回复
         my_content["total_damage"] = 0
