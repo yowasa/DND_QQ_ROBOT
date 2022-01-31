@@ -344,6 +344,19 @@ def cal_yichang(my_content, enemy_content):
         logs.append(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
     return logs
 
+def cal_yichang_boss(my_content, enemy_content,boss):
+    logs = []
+    du_count = content_get("du_count", my_content)
+    du_shang = content_get("du_shang", enemy_content)
+    if du_shang:
+        du_count = int(du_count * ((100 + du_shang) / 100))
+        my_content["du_count"] = du_count
+    if boss:
+        du_count = int(du_count * 0.6)
+    if du_count > 0:
+        my_content["hp"] -= du_count
+        logs.append(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
+    return logs
 
 def battle(my: AllUserInfo, enemy: AllUserInfo):
     my_content = init_content(my)
@@ -668,8 +681,10 @@ def battle_bases(my_content, enemy_content,special):
         # 计算异常伤害
         tun_log.extend(cal_yichang(my_content, enemy_content))
         # 计算异常伤害
-        tun_log.extend(cal_yichang(enemy_content, my_content))
-
+        if turn <= 8:
+            tun_log.extend(cal_yichang_boss(enemy_content, my_content,1))
+        else:
+            tun_log.append(f"超过8回合,{enemy_content['name']}免疫毒伤害")
         tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
         logs.append(",".join(tun_log))
