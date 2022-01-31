@@ -609,6 +609,15 @@
     "skill": [
       "狂暴之心"
     ]
+  },
+  "狂暴之心-怒": {
+    "name": "狂暴之心-怒",
+    "condition": "level>15",
+    "condition_desc": "金丹以上",
+    "speed": "int(wuxing/10)+10",
+    "skill": [
+      "狂暴之心-怒"
+    ]
   }
 
 }
