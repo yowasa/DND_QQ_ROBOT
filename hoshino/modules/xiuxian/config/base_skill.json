@@ -1057,6 +1057,32 @@
       }
     },
     "log": "{my_name}触发技能狂暴之心 攻击力增加50% 防御力降低40%"
+  },
+  "狂暴之心-怒": {
+    "time": "before_damage",
+    "cd": 10,
+    "condition": "my_hp<=(0.3*my_max_hp)",
+    "effect": {
+      "my": {
+        "atk1": {
+          "type": "exec",
+          "value": "int(my_atk1*1.60)"
+        },
+        "atk2": {
+          "type": "exec",
+          "value": "int(my_atk2*1.60)"
+        },
+        "defen1": {
+          "type": "exec",
+          "value": "int(my_defen1*0.8)"
+        },
+        "defen2": {
+          "type": "exec",
+          "value": "int(my_defen2*0.8)"
+        }
+      }
+    },
+    "log": "{my_name}触发技能狂暴之心-怒 攻击力增加60% 防御力降低20%"
   }
 }
 
