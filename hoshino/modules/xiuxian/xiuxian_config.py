@@ -374,6 +374,9 @@ def get_max_count(gid, uid):
     max = ITEM_CARRY[str(user.level)]
     if user.gongfa3 == "袖里乾坤":
         max = 2 * max
+    count = get_user_counter(gid, uid, UserModel.NA_JIE)
+    if count:
+        max += count
     return max
 
 # 获取指定群组状态

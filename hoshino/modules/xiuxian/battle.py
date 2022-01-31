@@ -344,6 +344,19 @@ def cal_yichang(my_content, enemy_content):
         logs.append(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
     return logs
 
+def cal_yichang_boss(my_content, enemy_content,boss):
+    logs = []
+    du_count = content_get("du_count", my_content)
+    du_shang = content_get("du_shang", enemy_content)
+    if du_shang:
+        du_count = int(du_count * ((100 + du_shang) / 100))
+        my_content["du_count"] = du_count
+    if boss:
+        du_count = int(du_count * 0.6)
+    if du_count > 0:
+        my_content["hp"] -= du_count
+        logs.append(f"{my_content['name']}由于中毒受到了{du_count}点伤害")
+    return logs
 
 def battle(my: AllUserInfo, enemy: AllUserInfo):
     my_content = init_content(my)
@@ -429,11 +442,14 @@ def end_battle(logs, my_content, enemy_content):
     return my_content['hp'], enemy_content['hp'], logs
 
 
-def battle_boss(my: AllUserInfo,boss_name):
+def end_battle_boss(logs, my_content, enemy_content,damage):
+    return my_content['hp'], enemy_content['hp'], logs,damage
+
+def battle_boss(my: AllUserInfo,boss_name,special):
     my_content = init_content(my)
     # boss content的组装
     boss_content = init_boss_content(my_content['gid'],boss_name)
-    return battle_bases(my_content, boss_content)
+    return battle_bases(my_content, boss_content,special)
 
 
 def init_shilian_content(my):
@@ -597,7 +613,7 @@ def init_boss_content(gid,boss_name):
     return content
 
 
-def battle_bases(my_content, enemy_content):
+def battle_bases(my_content, enemy_content,special):
     gid = my_content['gid']
     uid = my_content['uid']
     boss_name = enemy_content['name']
@@ -665,7 +681,13 @@ def battle_bases(my_content, enemy_content):
         # 计算异常伤害
         tun_log.extend(cal_yichang(my_content, enemy_content))
         # 计算异常伤害
-        tun_log.extend(cal_yichang(enemy_content, my_content))
+        if not special:
+            tun_log.extend(cal_yichang(enemy_content, my_content))
+        else:
+            if turn <= 8:
+                tun_log.extend(cal_yichang_boss(enemy_content, my_content,1))
+            else:
+                tun_log.append(f"超过8回合,{enemy_content['name']}免疫毒伤害")
 
         tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
@@ -686,10 +708,12 @@ def battle_bases(my_content, enemy_content):
         # 有人血量归零
         damage_all_hp = start_boss_hp - cur_hp
         if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
+            if not special:
+                return end_battle(logs, my_content, enemy_content)
             ud = UserDamageCounter()
             have_damage = ud._get_damage_by_name(gid, uid, boss_name)
             logs.append(f"{my_content['name']}此次共造成{damage_all_hp}点伤害")
             if not have_damage:
                 have_damage = 0
             ud._save_user_damage_info(gid, uid, boss_name, damage_all_hp + have_damage)
-            return end_battle(logs, my_content, enemy_content)
+            return end_battle_boss(logs, my_content, enemy_content,damage_all_hp)

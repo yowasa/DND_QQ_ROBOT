@@ -44,12 +44,15 @@ class UserModel(Enum):
     SHI_LIAN= [32, "试炼次数标识"]
     FU_BEN= [33, "副本标识"]
     FU_BEN_EVENT_TIME= [34, "副本探索次数"]
+    SPECIAL_LIHE = [35, "限定BOSS礼盒"]
+    NA_JIE = [36, "额外空间"]
 
 # 群组状态储存枚举类
 class GroupModel(Enum):
     OFF_FREE = [1, "定时关闭免费招募庆典标识"]
     WEATHER = [2, "天气"]
     YUANDAN_BOSS = [3, "元旦限定Boss"]
+    SPECIAL_BOSS = [4, "限定Boss"]
 
 
 class ItemCounter:
@@ -211,7 +214,7 @@ class ItemCounter:
     def _get_group_state(self, gid, group_state: GroupModel):
         try:
             r = self._connect().execute(
-                "SELECT INFO_FLAG FROM GROUP_INFO WHERE GID=? AND INFO_TYPE=? AND INFO_FLAG>0",
+                "SELECT INFO_FLAG FROM GROUP_INFO WHERE GID=? AND INFO_TYPE=?",
                 (gid, group_state.value[0]),
             ).fetchone()
             if r is None:
