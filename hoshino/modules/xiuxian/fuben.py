@@ -1,5 +1,5 @@
 from .UserStatusCounter import UserStatusCounter
-from .battle import battle_boss
+from .battle import *
 from .xiuxian import get_random_item
 from .xiuxian_config import *
 from hoshino import util
@@ -175,66 +175,94 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
 
 @event_exe("强大禁制")
 async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
-    if not answer:
-        return "你发现一处散发着强大禁制的地点，是否选择破除此禁制？可选择\n是    否"
-    if answer == '否':
-        return "你权衡利弊之下，不再去破除此禁制"
+    # if not answer:
+    #     return "你发现一处散发着强大禁制的地点，是否选择破除此禁制？可选择\n是    否"
+    # if answer == '否':
+    #     return "你权衡利弊之下，不再去破除此禁制"
+    msg ="你发现一处散发着强大禁制的地点，"
     roll = random.randint(1,10)
     st = UserStatusCounter()
     user_status = st._get_user(user.gid, user.uid)
-    if roll > 3:
+    if roll <= 3:
         user_status.hp -= int(user_status.hp*0.2)
         st._save_user_info(user_status)
-        msg = "你破除失败，触发了禁制，用尽力气逃了出来，受了轻伤，损失了20%HP"
+        msg +="你破除失败，触发了禁制，用尽力气逃了出来，受了轻伤，损失了20%HP"
+        return msg
+    elif roll <= 6 :
+        bonus = "纳戒"
+    elif roll <= 9:
+        bonus = "失落之匙碎片"
     else :
-        #todo 获取物品 物品 list 复活道具？
-        bonus = ""
-        item_info = ITEM_INFO[bonus]
-        add_item_ignore_limit(user.gid, user.uid,item_info)
-        msg = f"你花了些许时间破除了此禁制，获得了[{bonus}]成功"
+        bonus = "千代乐的急救包"
+    item_info = ITEM_INFO[bonus]
+    add_item_ignore_limit(user.gid, user.uid, item_info)
+    msg += f"你花了些许时间破除了此禁制，获得了[{bonus}]"
     return msg
 
 
 @event_exe("秘境商人")
 async def qiecuo(user: AllUserInfo, answer, user_status, bot, ev: CQEvent):
-    if not answer:
-        msg = "你一个奇怪的神秘人，向你招手，走进后展开了自己的衣服咧嘴笑，里面尽是奇珍异宝，有以下物品,"
-        item_li = list(1,2)
-        for i in item_li:
-            msg += f"\n【{i['type']}】{i['name']}: *{i['num']}灵石"
-        msg += "你可以选择其中的物品购买，或者不购买"
-        return msg
-    if answer == '不购买':
-        return "你对此商人摆摆手，表示没有兴趣，离开了此地"
-    #todo 购买
-    lingshi = 1000
+    msg = "你一个奇怪的神秘人，向你招手，走进后展开了自己的衣服咧嘴笑，里面尽是奇珍异宝"
+    item_li = ('灵葫药','还神丹','纳戒')
+    i = random.randint(0, len(item_li)-1)
+    item = item_li[i]
+    lingshi = 300
     if lingshi > user.lingshi:
-        return f"你的灵石不足无法购买，商人见你没有诚意，摆手离去"
-    if not add_item(user.gid, user.uid, get_item_by_name(answer)):
-        return "你没有足够的背包空间,只能放弃)"
+        msg +="你的灵石不足无法购买，商人见你没有诚意，摆手离去"
+        return msg
     add_user_counter(user.gid, user.uid, UserModel.LINGSHI, num=-lingshi)
-    return f"花费了{lingshi}灵石购买了{answer}，你和商人都很满意"
+    msg+=f"花费了{lingshi}灵石购买了{answer}"
+    if not add_item(user.gid, user.uid, get_item_by_name(item)):
+        msg+="(你没有足够的背包空间,只能放弃)"
+    return msg
 
 
 @event_exe("神秘石板")
 async def qiecuo(user: AllUserInfo, answer, user_status, bot, ev: CQEvent):
     ct = XiuxianCounter()
-    user.exp += 5
-    ct._save_user_info(user)
-    return f"帮助村民击退了附近的野兽，获取5点经验"
+    msg="你发现一个神秘的石板，你走进前去细细观摩，"
+    if user.wuxing > 60 :
+        count = random.randint(1,10)
+        if count == 1:
+            user.atk += 1
+            feature = "物理攻击力"
+        elif count == 2:
+            user.defen += 1
+            feature = "物防"
+        elif count == 3:
+            user.atk2 += 1
+            feature = "术法攻击力"
+        else :
+            msg += "你苦苦参悟，却什么事情都没有发生"
+            return msg
+        msg += f"感悟成功，{feature}提升一点"
+        ct._save_user_info(user)
+    else :
+        msg+="你苦苦参悟，却什么事情都没有发生"
+    return msg
 
 
-@event_exe("可疑地点")
+@event_exe("神秘灵泉")
 async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
     ct = XiuxianCounter()
-    user.exp += 5
-    ct._save_user_info(user)
+    roll = random.randint(1,6)
     return f"帮助村民击退了附近的野兽，获取5点经验"
 
 
 @event_exe("狭路相逢")
-async def qiecuo(user: AllUserInfo, bot, ev: CQEvent):
-    ct = XiuxianCounter()
-    user.exp += 5
-    ct._save_user_info(user)
-    return f"帮助村民击退了附近的野兽，获取5点经验"
+async def qiecuo(user: AllUserInfo, anwser,user_status,bot, ev: CQEvent):
+    my_content = init_content(user_status)
+    enemy_content = init_shilian_content(user)
+    # 战斗
+    my_hp, he_hp, send_msg_li = battle_base(my_content, enemy_content)
+    # 战斗
+    if my_hp > 0 and he_hp <= 0:
+        lingshi = random.randint(30, 80)
+        user.lingshi += lingshi
+        add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
+        send_msg_li.append(f"{user.name}试炼成功，获取{lingshi}灵石奖励")
+    elif he_hp > 0 and my_hp <= 0:
+        send_msg_li.append(f"{user.name}试炼失败")
+    else:
+        send_msg_li.append(f"试炼不分胜负")
+    await bot.finish(ev, '\n'.join(send_msg_li))
