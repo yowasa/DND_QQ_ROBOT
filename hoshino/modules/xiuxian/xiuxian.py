@@ -512,12 +512,12 @@ async def specialNewYear(bot, ev: CQEvent):
     ct = UserDamageCounter()
     map = ct._get_damage_by_boss(gid, boss_bonus['name'])
     logs.append("#天榜奖励")
+    ## 标记领取过了
+    save_user_counter(gid, cur_user.uid, UserModel.SPECIAL_LIHE, boss_id)
     for i in map:
         count += 1
         if cur_user.uid == i[0] :
             have_me = 1
-            ## 标记领取过了
-            save_user_counter(gid,cur_user.uid,UserModel.SPECIAL_LIHE,boss_id)
             break
         if count == 10 :
             break
@@ -526,7 +526,7 @@ async def specialNewYear(bot, ev: CQEvent):
         logs.append(f"你获得了额外奖励道具 [新年礼盒]")
     if not have_me:
         logs.append(f"你未进入天榜，请继续修炼加油")
-        await bot.finish(ev, logs)
+        await bot.finish(ev, '\n'.join(logs))
     if count == 1 or count == 2 or count == 3 :
         for i in bonus:
             if count > 3:

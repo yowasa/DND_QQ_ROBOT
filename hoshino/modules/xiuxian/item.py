@@ -593,10 +593,10 @@ async def choose_girl(msg, bot, ev: CQEvent):
     luck = random.randint(1,5)
     msg = "你使用了焕体丹-中，"
     if luck == 1:
-        user.mp += 50
+        user.mp += 30
         msg += " mp增加了50点。"
     elif luck <= 2:
-        user.hp += 150
+        user.hp += 100
         msg += " hp增加了150点。"
     else :
         user.wuxing += 20
