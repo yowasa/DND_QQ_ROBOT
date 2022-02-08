@@ -85,7 +85,7 @@ class XiuXianCounter():
     def _create_user_table(self):
         try:
             self._connect().execute('''CREATE TABLE IF NOT EXISTS USER_INFO
-                          (UID           INT    NOT NULL,
+                          (UID INT    NOT NULL,
                            NAME TEXT NOT NULL,
                            MAGIC_ROOT TEXT NOT NULL,
                            EXP INT NOT NULL DEFAULT 0,
@@ -99,7 +99,7 @@ class XiuXianCounter():
                            ATTR TEXT NOT NULL DEFAULT '{}',
                            ABILITY TEXT NOT NULL DEFAULT '{}',
                            OTHER TEXT NOT NULL DEFAULT '{}',
-                           PRIMARY KEY(UID,USER_NAME));''')
+                           PRIMARY KEY(UID,NAME));''')
         except:
             raise Exception('创建修仙表发生错误')
 
@@ -110,7 +110,7 @@ class XiuXianCounter():
                               (UID           INT    NOT NULL,
                                ITEM_ID           INT    NOT NULL,
                                ITEM_COUNT           INT    NOT NULL,
-                               PRIMARY KEY(GID, UID,ITEM_ID));''')
+                               PRIMARY KEY(UID,ITEM_ID));''')
         except:
             raise Exception('创建角道具表发生错误')
 
@@ -163,7 +163,7 @@ class XiuXianCounter():
     def _get_user_by_name(self, name):
         try:
             r = self._connect().execute(
-                f'SELECT * FROM USER_INFO WHERE USER_NAME="{name}"', ).fetchall()
+                f'SELECT * FROM USER_INFO WHERE NAME="{name}"', ).fetchall()
             if r:
                 sub = UserInfo(r=r[0])
                 return sub

@@ -508,9 +508,9 @@ async def buy_item(bot, ev: CQEvent):
         await bot.send(ev, '请输入购买物品+物品名称。', at_sender=True)
         return
     name = args[0]
-    itemMap = {"红药水": 3, "蓝药水": 5, "零时迷子": 50}
+    itemMap = {"红药水": 3, "蓝药水": 5}
     if name not in itemMap.keys():
-        await bot.finish(ev, '只能购买 红药水-3 蓝药水-5 零时迷子-50', at_sender=True)
+        await bot.finish(ev, '只能购买 红药水-3 蓝药水-5', at_sender=True)
     CE = CECounter()
     myscore = CE._get_dunscore(gid, uid)
     price = itemMap[name]
