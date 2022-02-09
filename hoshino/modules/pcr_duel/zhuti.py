@@ -237,6 +237,9 @@ class NvYouJiaoYi:
     def turn_off_jiaoyi(self, gid):
         self.jiaoyi_on[gid] = False
 
+    def get_jiaoyi_switch(self, gid):
+        return self.jiaoyi_on[gid] if self.jiaoyi_on[gid] is not None else False
+
     # 记录交易者id
     def init_jiaoyiid(self, gid):
         self.jiaoyiid[gid] = []
@@ -381,6 +384,13 @@ async def nobleduel(bot, ev: CQEvent):
     if duel_jiaoyier.get_jiaoyiflag(gid) is False:
         msg = '交易被拒绝。'
         duel_jiaoyier.turn_jiaoyioff(gid)
+        await bot.send(ev, msg, at_sender=True)
+        return
+
+    now_score = score_counter._get_score(gid, id1)
+    if now_score < num:
+        msg = f'您的金币不足{num}，无法交易哦。'
+        duel_jiaoyier.turn_jiaoyioff(ev.group_id)
         await bot.send(ev, msg, at_sender=True)
         return
 
@@ -1009,6 +1019,9 @@ async def nobleduel(bot, ev: CQEvent):
         await bot.send(ev, "此轮决斗还没结束，请勿重复使用指令。")
         return
 
+    if duel_jiaoyier.get_jiaoyi_switch(ev.group_id):
+        await bot.send(ev, "正在执行交易指令,请交易完成后再决斗")
+        return
     gid = ev.group_id
     duel_judger.turn_on(gid)
     id1 = ev.user_id
