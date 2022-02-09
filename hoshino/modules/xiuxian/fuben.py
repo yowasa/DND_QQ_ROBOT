@@ -78,7 +78,6 @@ async def start(bot, ev: CQEvent):
     if not in_fuben:
         await bot.finish(ev, f"你并不在秘境之中", at_sender=True)
 
-    # todo
     user = await get_ev_user(bot, ev)
     mi_jing = FU_BEN[user.map]
     event_time = get_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME)
@@ -88,21 +87,16 @@ async def start(bot, ev: CQEvent):
         my_hp, he_hp, send_msg_li = battle_boss(user,boss_name,0)
         log = ""
         if my_hp <= 0:
-            # todo 死亡道具处理
+            # todo 死亡道具处理 待定
             log += f"{user.name}受到Boss-{boss_name}伤害，陷入濒死状态，被迫结束了此次秘境探索"
-
+            save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
         if he_hp <= 0:
             save_group_counter(gid, GroupModel.YUANDAN_BOSS, 1)
             bonus = get_random_item(mi_jing['bonus'])
             log += f"{user.name}击败了Boss-{boss_name}，获得了奖励道具[{bonus}]，结束了此次秘境探索"
         send_msg_li.append(log)
         # 更新状态
-        save_user_counter(gid, uid, UserModel.FU_BEN, 0)
-        user = await get_ev_user(bot, ev)
-        user.map = FU_BEN[user.map]['map']
-        save_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 0)
-        ct = XiuxianCounter()
-        ct._save_user_info(user)
+        update_status(gid, uid, bot, ev)
         await bot.finish(ev, '\n'.join(send_msg_li), at_sender=True)
 
     # 探索事件
@@ -166,12 +160,6 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
     return f"此处安全而又隐蔽，在此稍作歇息,恢复了固定30%最大百分比的HP"
 
 
-@event_exe("可疑身影")
-async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
-
-
-    return f"帮助村民击退了附近的野兽，获取5点经验"
-
 
 @event_exe("强大禁制")
 async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
@@ -188,8 +176,10 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
         st._save_user_info(user_status)
         msg +="你破除失败，触发了禁制，用尽力气逃了出来，受了轻伤，损失了20%HP"
         return msg
-    elif roll <= 6 :
+    elif roll <= 7 :
         bonus = "纳戒"
+    elif roll <= 8:
+        bonus = "绯想之桃"
     elif roll <= 9:
         bonus = "失落之匙碎片"
     else :
@@ -203,7 +193,7 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
 @event_exe("秘境商人")
 async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
     msg = "你一个奇怪的神秘人，向你招手，走进后展开了自己的衣服咧嘴笑，里面尽是奇珍异宝"
-    item_li = ('灵葫药','还神丹','纳戒')
+    item_li = ('灵葫药','还神丹','纳戒','失落之匙碎片')
     i = random.randint(0, len(item_li)-1)
     item = item_li[i]
     lingshi = 300
@@ -224,18 +214,24 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
     if user.wuxing > 60 :
         count = random.randint(1,10)
         if count == 1:
-            user.act += 1
+            user.act += 2
             feature = "物理攻击力"
         elif count == 2:
-            user.defen += 1
+            user.defen += 2
             feature = "物防"
         elif count == 3:
-            user.aact2 += 1
+            user.act2 += 2
             feature = "术法攻击力"
+        elif count == 4:
+            user.defen2 += 2
+            feature = "魔抗"
+        elif count == 5:
+            user.skill += 2
+            feature = "战斗技巧"
         else :
             msg += "你苦苦参悟，却什么事情都没有发生"
             return msg
-        msg += f"感悟成功，{feature}提升一点"
+        msg += f"感悟成功，{feature}提升1点"
         ct._save_user_info(user)
     else :
         msg+="你苦苦参悟，却什么事情都没有发生"
@@ -244,28 +240,63 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
 
 @event_exe("神秘灵泉")
 async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
-    ct = XiuxianCounter()
-    roll = random.randint(1,6)
-    return f"帮助村民击退了附近的野兽，获取5点经验"
+    roll = random.randint(1,5)
+    st = UserStatusCounter()
+    user_status = st._get_user(user.gid, user.uid)
+    log = "你发现一个神秘灵泉，强大的灵力，让你变得精力更加充沛，你发现提高了10%的"
+    if roll == 1:
+        user_status.act += int(user_status.act * 0.1)
+        log+="物理攻击力"
+    elif roll == 2:
+        user_status.act2 += int(user_status.act2 * 0.1)
+        log += "术法攻击力"
+    if roll == 3:
+        user_status.defen += int(user_status.defen * 0.1)
+        log += "物防"
+    elif roll == 4:
+        user_status.defen2 += int(user_status.defen2 * 0.1)
+        log += "魔抗"
+    elif roll == 5:
+        user_status.skill += int(user_status.skill * 0.1)
+        log += "战斗技巧"
+    return log
 
 
-@event_exe("狭路相逢")
-async def qiecuo(user: AllUserInfo, anwser,user_status,bot, ev: CQEvent):
-    msg =""
+@event_exe("可疑身影")
+async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
+    msg="你发现一个可疑身影，"
+    roll = random.randint(1,10)
+    st = UserStatusCounter()
+    user_status = st._get_user(user.gid, user.uid)
+    if roll > 7 :
+        msg += "眉头一皱认为此人过于危险，选择绕道而行"
+        count = random.randint(1,10)
+        if count < 4:
+            await bot.finish(ev, msg)
+        else :
+            msg += "，然而避开失败，触发战斗"
+    st = UserStatusCounter()
+    user_status = st._get_user(user.gid, user.uid)
     my_content = init_content(user_status)
     enemy_content = init_shilian_content(user)
     # 战斗
     my_hp, he_hp, send_msg_li = battle_base(my_content, enemy_content)
     # 战斗
+    send_msg_li.insert(0,msg)
     if my_hp > 0 and he_hp <= 0:
         lingshi = random.randint(30, 80)
+        exp = random.randint(15, 20)
         user.lingshi += lingshi
+        user.exp+=20
         add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
-        send_msg_li.append(f"{user.name}试炼成功，获取{lingshi}灵石奖励")
+        send_msg_li.append(f"{user.name}战斗胜利，获取{lingshi}灵石奖励,经验增加{exp}点")
     elif he_hp > 0 and my_hp <= 0:
-        send_msg_li.append(f"{user.name}试炼失败")
+        send_msg_li.append(f"{user.name}战斗失败，陷入濒死状态，被迫结束了此次秘境探索")
+        save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
+        # 更新状态
+        update_status(user.gid,user.uid,bot, ev)
     else:
-        send_msg_li.append(f"试炼不分胜负")
+        send_msg_li.append(f"战斗不分胜负")
     await bot.finish(ev, '\n'.join(send_msg_li))
 
 @sv.on_fullmatch(["#查询状态"])
@@ -288,3 +319,11 @@ async def query(bot, ev: CQEvent):
 HP:{user.battle_hp} MP:{user.battle_mp} 战斗技巧:{user.skill}
 """.strip()
     await bot.finish(ev, sendmsg)
+
+def update_status(gid,uid,bot, ev: CQEvent):
+    save_user_counter(gid, uid, UserModel.FU_BEN, 0)
+    user = await get_ev_user(bot, ev)
+    user.map = FU_BEN[user.map]['map']
+    save_user_counter(user.gid, user.uid, UserModel.FU_BEN_EVENT_TIME, 0)
+    ct = XiuxianCounter()
+    ct._save_user_info(user)

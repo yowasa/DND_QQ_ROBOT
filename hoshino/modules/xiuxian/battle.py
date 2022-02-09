@@ -642,15 +642,18 @@ def battle_bases(my_content, enemy_content,special):
     start_boss_hp = enemy_content["hp"]
 
     skills = my_content["skills"]
-    for i in my_content["skills"].keys():
-        if i == "凤羽流苏":
-            skills.pop("凤羽流苏")
-            logs.append(f"{boss_name}发动技能封禁法宝 凤羽流苏")
-            break
+    if special:
+        for i in my_content["skills"].keys():
+            if i == "凤羽流苏":
+                skills.pop("凤羽流苏")
+                logs.append(f"{boss_name}发动技能封禁法宝 凤羽流苏")
+                break
 
     while True:
         turn = turn + 1
         tun_log = [f"第{turn}回合交手"]
+        if turn == 1 and get_user_counter(gid, uid, UserModel.FEI_TAO):
+            hp_start = my_content["hp"]
         # 技能cd-1
         for i in my_content["skills"].keys():
             if my_content["skills"][i] > 0:
@@ -691,6 +694,9 @@ def battle_bases(my_content, enemy_content,special):
 
         tun_log.extend(skill_engine("turn_end", my_content, enemy_content, turn))
         tun_log.extend(skill_engine("turn_end", enemy_content, my_content, turn))
+        if hp_start and not special:
+            my_content["hp"] = hp_start
+            tun_log.extend("由于使用了绯想之桃，第一回合免疫所有伤害")
         logs.append(",".join(tun_log))
 
         # 每回合保存一次hp

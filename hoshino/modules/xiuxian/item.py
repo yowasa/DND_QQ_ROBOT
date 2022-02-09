@@ -1,3 +1,4 @@
+from .UserStatusCounter import UserStatusCounter
 from .xiuxian_config import *
 from .xiuxian_base import *
 from hoshino.util.utils import get_message_text, get_message_at
@@ -733,3 +734,64 @@ async def choose_girl(msg, bot, ev: CQEvent):
         return (False, f"你的额外背包空间已到上限，无法继续提升")
     add_user_counter(gid, uid, UserModel.NA_JIE, 1)
     return (True, f"你使用了道具纳戒,背包空间增加1")
+
+#TODO
+@msg_route("千代乐的急救包")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
+    if not in_fuben:
+        return (False, "你不在副本中，无法使用[千代乐的急救包]")
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    st = UserStatusCounter()
+    user_status = st._get_user(gid, uid)
+    user_status.hp += int(user.hp * 0.5)
+    user_status.hp = user.hp if user_status.hp > user.hp else user_status.hp
+    user_status.mp += int(user.mp * 0.5)
+    user_status.mp = user.mp if user_status.mp > user.mp else user_status.mp
+    st._save_user_info(user_status)
+    return (True, f"你使用了[千代乐的急救包],恢复了最大HP MP的50%")
+
+@msg_route("绯想之桃")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
+    if not in_fuben:
+        return (False, "你不在副本中，无法使用[绯想之桃]")
+    save_user_counter(gid,uid,UserModel.FEI_TAO,1)
+    return (True, f"你使用了道具纳戒,背包空间增加1")
+
+@msg_route("灵葫药")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
+    if not in_fuben:
+        return (False, "你不在副本中，无法使用[灵葫药]")
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    st = UserStatusCounter()
+    user_status = st._get_user(gid, uid)
+    user_status.hp += 200
+    user_status.hp = user.hp if user_status.hp > user.hp else user_status.hp
+    st._save_user_info(user_status)
+    return (True, f"你使用了[灵葫药],恢复了200点HP")
+
+@msg_route("还神丹")
+async def choose_girl(msg, bot, ev: CQEvent):
+    gid = ev.group_id
+    uid = ev.user_id
+    in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
+    if not in_fuben:
+        return (False, "你不在副本中，无法使用[还神丹]")
+    ct = XiuxianCounter()
+    user = ct._get_user(gid, uid)
+    st = UserStatusCounter()
+    user_status = st._get_user(gid, uid)
+    user_status.mp += 100
+    user_status.mp = user.mp if user_status.mp > user.mp else user_status.mp
+    st._save_user_info(user_status)
+    return (True, f"你使用了[还神丹],恢复了100点MP")

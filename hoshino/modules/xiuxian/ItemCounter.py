@@ -46,6 +46,7 @@ class UserModel(Enum):
     FU_BEN_EVENT_TIME= [34, "副本探索次数"]
     SPECIAL_LIHE = [35, "限定BOSS礼盒"]
     NA_JIE = [36, "额外空间"]
+    FEI_TAO =[37,"绯想之桃标识"]
 
 # 群组状态储存枚举类
 class GroupModel(Enum):
