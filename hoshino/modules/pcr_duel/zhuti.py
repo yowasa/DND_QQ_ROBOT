@@ -238,7 +238,7 @@ class NvYouJiaoYi:
         self.jiaoyi_on[gid] = False
 
     def get_jiaoyi_switch(self, gid):
-        return self.jiaoyi_on[gid] if self.jiaoyi_on[gid] is not None else False
+        return self.jiaoyi_on[gid] if self.jiaoyi_on.get(gid) is not None else False
 
     # 记录交易者id
     def init_jiaoyiid(self, gid):
