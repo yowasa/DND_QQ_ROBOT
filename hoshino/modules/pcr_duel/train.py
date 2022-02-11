@@ -207,7 +207,7 @@ async def xiulian_end(bot, ev: CQEvent):
     count = check_build_counter(gid, uid, BuildModel.KONGFU)
     if count < 2:
         if jgtime > 86400:
-            xlmin1 = math.ceil(jgtime / 60)
+            xlmin1 = math.floor(jgtime / 60)
             sj_msg = sj_msg + f"总共修炼时间{xlmin1}分钟，由于超过24小时，实际"
             jgtime = 86400
     xlmin = math.ceil(jgtime / 3600)
