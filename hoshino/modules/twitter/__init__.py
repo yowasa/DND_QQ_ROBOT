@@ -148,13 +148,15 @@ async def subscribe(bot, ev: CQEvent):
     sub_id = msg
     # 检查推主是否存在
     # 检查推主是否存在
-    params = {'screen_name': sub_id}
-    r = await twt_request(URL_USER_LOOKUP, params)
-    if not r.status_code == 200:
+    if not check_screen_name(sub_id):
         await bot.finish(ev, '查询用户失败。', at_sender=True)
-    screen_name = r.json()[0].get('screen_name')
-    if screen_name != sub_id:
-        await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
+    # params = {'screen_name': sub_id}
+    # r = await twt_request(URL_USER_LOOKUP, params)
+    # if not r.status_code == 200:
+    #     await bot.finish(ev, '查询用户失败。', at_sender=True)
+    # screen_name = r.json()[0].get('screen_name')
+    # if screen_name != sub_id:
+    #     await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
     bc = TwitterCounter()
     sub = SubInfo()
     sub.gid = ev.group_id
