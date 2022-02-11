@@ -1,19 +1,17 @@
 import asyncio
-import hashlib
-import os
 import re
 from datetime import datetime
 from functools import partial, wraps
 
 import pytz
 import requests
-from TwitterAPI import TwitterAPI, TwitterResponse, OAuthType
-from nonebot import MessageSegment as ms
+from TwitterAPI import TwitterAPI, OAuthType
 
-from .TwitterCounter import *
 from hoshino import R, util, Service, priv
 from hoshino.config import twitter as cfg
 from hoshino.typing import CQEvent
+from hoshino.util.utils import get_message_text
+from .TwitterCounter import *
 
 sv = Service('推特功能', enable_on_default=True, bundle='推特功能', help_='''推特搜索功能
 [看推特]{推主的screen_name,即用户下面@后面的字符} {推文条数 不超过15,且会自动过滤转推内容}
@@ -101,21 +99,37 @@ async def one_tweet(bot, ev: CQEvent):
         await asyncio.sleep(0.5)
 
 
+def check_screen_name(screen_name):
+    params = {
+        'screen_name': screen_name,
+        'count': 10,
+        'exclude_replies': 'true',
+        'include_rts': 'true',
+    }
+    rsp = api.request('statuses/user_timeline', params)
+    if not rsp.status_code == 200:
+        return False
+    item_li = rsp.json()
+    if len(item_li) == 0:
+        return False
+    return True
+
+
 @sv.on_prefix(['推特订阅'])
 async def subscribe(bot, ev: CQEvent):
     if not priv.check_priv(ev, priv.ADMIN):
         await bot.finish(ev, '只有群管理才能设置订阅。', at_sender=True)
-    msg = str(ev.message).strip()
-
-    sub_id = msg
+    sub_id = get_message_text(ev)
     # 检查推主是否存在
-    params = {'screen_name': sub_id}
-    r = await twt_request(URL_USER_LOOKUP, params)
-    if not r.status_code == 200:
+    if not check_screen_name(sub_id):
         await bot.finish(ev, '查询用户失败。', at_sender=True)
-    screen_name = r.json()[0].get('screen_name')
-    if screen_name != sub_id:
-        await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
+    # params = {'screen_name': sub_id}
+    # r = await twt_request(URL_USER_LOOKUP, params)
+    # if not r.status_code == 200:
+    #     await bot.finish(ev, '查询用户失败。', at_sender=True)
+    # screen_name = r.json()[0].get('screen_name')
+    # if screen_name != sub_id:
+    #     await bot.finish(ev, f'用户名查询不符，是否为"{screen_name}"?', at_sender=True)
     bc = TwitterCounter()
     sub = SubInfo()
     sub.gid = ev.group_id
@@ -295,3 +309,23 @@ async def scan_job():
                                 await sv.bot.send_group_msg(self_id=sid, group_id=sub.gid, message=msg)
                             except:
                                 sv.logger.error("发送群消息失败！")
+
+
+@sv.on_prefix(['看推特'])
+async def sublist(bot, ev: CQEvent):
+    screen_name = get_message_text(ev)
+    params = {
+        'screen_name': screen_name,
+        'count': 10,
+        'exclude_replies': 'true',
+        'include_rts': 'true',
+    }
+    rsp = api.request('statuses/user_timeline', params)
+    if not rsp.status_code == 200:
+        await bot.send(ev, "查询失败")
+    item_li = rsp.json()
+    if len(item_li) == 0:
+        await bot.send(ev, "没有查询到推特内容")
+    for i in item_li:
+        msg = build_msg(i)
+        await bot.send(ev, msg)
