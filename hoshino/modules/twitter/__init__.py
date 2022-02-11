@@ -322,10 +322,11 @@ async def sublist(bot, ev: CQEvent):
     }
     rsp = api.request('statuses/user_timeline', params)
     if not rsp.status_code == 200:
-        await bot.send(ev, "查询失败")
+        await bot.finish(ev, "查询失败")
     item_li = rsp.json()
     if len(item_li) == 0:
-        await bot.send(ev, "没有查询到推特内容")
+        await bot.finish(ev, "没有查询到推特内容")
     for i in item_li:
         msg = build_msg(i)
         await bot.send(ev, msg)
+        await asyncio.sleep(1)
