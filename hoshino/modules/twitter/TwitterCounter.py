@@ -38,7 +38,7 @@ class TwitterCounter():
     def _get_sub(self, gid, subid):
         try:
             r = self._connect().execute(
-                f'SELECT * FROM TWITTWE_SUB WHERE GID={gid} AND SUBID={subid}', ).fetchall()
+                f'SELECT * FROM TWITTWE_SUB WHERE GID={gid} AND SUBID="{subid}"', ).fetchall()
             if r:
                 sub = SubInfo(r=r[0])
                 return sub
@@ -79,4 +79,4 @@ class TwitterCounter():
     def _del_sub(self, gid, sub_id):
         with self._connect() as conn:
             conn.execute(
-                f"DELETE FROM TWITTWE_SUB WHERE GID={gid} AND SUBID={sub_id}")
+                f'DELETE FROM TWITTWE_SUB WHERE GID={gid} AND SUBID="{sub_id}"')
