@@ -38,10 +38,10 @@ async def start(bot, ev: CQEvent):
     item_info = ITEM_NAME_MAP.get(access)
     counter = ItemCounter()
     num = counter._get_item_num(gid, uid, int(item_info['id']))
-    if num < 1:
-        await bot.finish(ev, f"背包中没有道具{access}，无法探索秘境", at_sender=True)
+    # if num < 1:
+    #     await bot.finish(ev, f"背包中没有道具{access}，无法探索秘境", at_sender=True)
     ## 消耗凭证 记录状态
-    counter._add_item(gid, uid, int(item_info['id']), num=-1)
+    # counter._add_item(gid, uid, int(item_info['id']), num=-1)
     save_user_counter(gid, uid, UserModel.FU_BEN, 1)
     save_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 0)
 
@@ -84,25 +84,25 @@ async def start(bot, ev: CQEvent):
     # 触发boss战
     if event_time >= mi_jing['event_times']:
         boss_name = mi_jing['boss']
-        my_hp, he_hp, send_msg_li = battle_boss(user,boss_name,0)
+        user_status = await get_status_user(bot, ev)
+        my_hp, he_hp, send_msg_li = battle_boss(user_status,boss_name,0)
         log = ""
         if my_hp <= 0:
             # todo 死亡道具处理 待定
             log += f"{user.name}受到Boss-{boss_name}伤害，陷入濒死状态，被迫结束了此次秘境探索"
             save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
         if he_hp <= 0:
-            save_group_counter(gid, GroupModel.YUANDAN_BOSS, 1)
             bonus = get_random_item(mi_jing['bonus'])
             log += f"{user.name}击败了Boss-{boss_name}，获得了奖励道具[{bonus}]，结束了此次秘境探索"
         send_msg_li.append(log)
         # 更新状态
-        update_status(gid, uid, bot, ev)
+        update_status(user, bot, ev)
         await bot.finish(ev, '\n'.join(send_msg_li), at_sender=True)
 
     # 探索事件
     all_li = mi_jing['event']
     event = get_random_item(all_li)
-    result = await _fuben_event(event, user, 0,bot, ev)
+    result = await _fuben_event(event, user,0, bot, ev)
     add_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 1)
     await bot.finish(ev, result, at_sender=True)
 
@@ -134,7 +134,7 @@ register = dict()
 async def _fuben_event(name, user, anwser, bot, ev):
     func = register.get(name)
     if func:
-        return await func(user, bot, anwser, ev)
+        return await func(user,anwser,bot, ev)
     return "秘境探索事件未实装"
 
 
@@ -259,6 +259,7 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
     elif roll == 5:
         user_status.skill += int(user_status.skill * 0.1)
         log += "战斗技巧"
+    st._save_user_info(user_status)
     return log
 
 
@@ -266,8 +267,6 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
 async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
     msg="你发现一个可疑身影，"
     roll = random.randint(1,10)
-    st = UserStatusCounter()
-    user_status = st._get_user(user.gid, user.uid)
     if roll > 7 :
         msg += "眉头一皱认为此人过于危险，选择绕道而行"
         count = random.randint(1,10)
@@ -275,12 +274,15 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
             await bot.finish(ev, msg)
         else :
             msg += "，然而避开失败，触发战斗"
-    st = UserStatusCounter()
-    user_status = st._get_user(user.gid, user.uid)
-    my_content = init_content(user_status)
-    enemy_content = init_shilian_content(user)
+    user_status = await get_status_user(bot, ev)
+    # todo 小怪
+    mi_jing = FU_BEN[user.map]
+    name_li = mi_jing['little_boss']
+    roll = random.randint(0,len(name_li)-1)
+
+
     # 战斗
-    my_hp, he_hp, send_msg_li = battle_base(my_content, enemy_content)
+    my_hp, he_hp, send_msg_li = battle_boss(user_status, name_li[0], 0)
     # 战斗
     send_msg_li.insert(0,msg)
     if my_hp > 0 and he_hp <= 0:
@@ -294,7 +296,7 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
         send_msg_li.append(f"{user.name}战斗失败，陷入濒死状态，被迫结束了此次秘境探索")
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
         # 更新状态
-        update_status(user.gid,user.uid,bot, ev)
+        update_status(user,bot, ev)
     else:
         send_msg_li.append(f"战斗不分胜负")
     await bot.finish(ev, '\n'.join(send_msg_li))
@@ -320,10 +322,9 @@ HP:{user.battle_hp} MP:{user.battle_mp} 战斗技巧:{user.skill}
 """.strip()
     await bot.finish(ev, sendmsg)
 
-def update_status(gid,uid,bot, ev: CQEvent):
-    save_user_counter(gid, uid, UserModel.FU_BEN, 0)
-    user = await get_ev_user(bot, ev)
+def update_status(user,bot, ev: CQEvent):
     user.map = FU_BEN[user.map]['map']
+    save_user_counter(user.gid, user.uid, UserModel.FU_BEN, 0)
     save_user_counter(user.gid, user.uid, UserModel.FU_BEN_EVENT_TIME, 0)
     ct = XiuxianCounter()
     ct._save_user_info(user)

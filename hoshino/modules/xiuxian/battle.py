@@ -652,6 +652,7 @@ def battle_bases(my_content, enemy_content,special):
     while True:
         turn = turn + 1
         tun_log = [f"第{turn}回合交手"]
+        hp_start = 0
         if turn == 1 and get_user_counter(gid, uid, UserModel.FEI_TAO):
             hp_start = my_content["hp"]
         # 技能cd-1

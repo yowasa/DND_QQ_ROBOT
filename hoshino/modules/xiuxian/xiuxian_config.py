@@ -1,6 +1,7 @@
 from hoshino.util import FreqLimiter
 from .ItemCounter import *
 from .HistoryCounter import *
+from .UserStatusCounter import UserStatusCounter
 from .XiuxianCounter import *
 from hoshino import util
 import random
@@ -760,6 +761,21 @@ async def get_ev_user(bot, ev):
     if not user:
         await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
     return user
+
+async def get_status_user(bot, ev):
+    gid = ev.group_id
+    uid = ev.user_id
+    user = get_status_full_user(gid, uid)
+    if not user:
+        await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
+    return user
+
+def get_status_full_user(gid, uid):
+    ct = UserStatusCounter()
+    user = ct._get_user(gid, uid)
+    if not user:
+        return None
+    return AllUserInfo(user)
 
 
 # 随机获得灵根

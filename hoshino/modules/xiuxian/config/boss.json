@@ -46,8 +46,8 @@
     "daohang": 28,
     "level": 21,
     "tizhi": 100,
-    "atk1": 600,
-    "atk2": 600,
+    "atk1": 200,
+    "atk2": 200,
     "defen1": 500,
     "defen2": 100,
     "skill": 400,
@@ -58,6 +58,34 @@
     "wuqi": "流星芸剑",
     "linggen": "金",
     "gongfa2": "狂暴之心",
+    "fengjin": [
+      "凤羽流苏",
+      "遮天布",
+      "时之沙漏"
+    ],
+    "special_skills": [
+
+    ]
+  },
+  "低阶狼": {
+    "name": "低阶狼",
+    "id": 3,
+    "map": "失落之境",
+    "daohang": 28,
+    "level": 19,
+    "tizhi": 100,
+    "atk1": 200,
+    "atk2": 200,
+    "defen1": 35,
+    "defen2": 35,
+    "skill": 200,
+    "hp": 1500  ,
+    "mp": 200,
+    "lingli": 100,
+    "sharen": 0,
+    "wuqi": "赤手空拳",
+    "linggen": "金",
+    "gongfa2": "无",
     "fengjin": [
       "凤羽流苏",
       "遮天布",
