@@ -1,11 +1,14 @@
 import base64
+import hashlib
 import json
-import math
 import random
+import re
 from datetime import timedelta
 from io import BytesIO
-import hashlib
+
+import math
 from PIL import Image
+
 from hoshino import R
 from hoshino.config import pcr_duel as cfg
 from hoshino.util import DailyNumberLimiter
@@ -13,7 +16,6 @@ from . import duel_chara as chara
 from .CECounter import *
 from .DuelCounter import *
 from .ItemCounter import *
-import re
 
 BLACKLIST_ID = [1000, 1072, 4031, 9000, 1069, 1073, 1907, 1910, 1913, 1914, 1915, 1916, 1917, 1919, 9601, 9602, 9603,
                 9604]  # 黑名单ID
@@ -1795,7 +1797,7 @@ def get_card_battle_info(gid, uid, cid):
                 if effect[e]['type'] == "const":
                     result[e] += effect[e]['value']
                 elif effect[e]['type'] == "exec":
-                    result[e] += int(eval(effect[e]['value'],content))
+                    result[e] += int(eval(effect[e]['value'], content))
             elif e == 'skill':
                 if effect['skill']['type'] == "const":
                     result["skills"].extend(effect['skill']['value'])
@@ -2078,11 +2080,11 @@ def duel_my_buff(gid, uid, defen):
         my_boost += content["boost"]
         my_dodge += content["dodge"]
         # 羁绊加成
-        if char_fetter_json.get(str(i)):
+        jiban = char_fetter_json.get(str(i))
+        for j in jiban:
             rate = 1
-            for j in char_fetter_json.get(str(i)):
-                if j in defen:
-                    rate += 0.05
+            if set(j) <= set(defen):
+                rate += 0.05
             hp = int(hp * rate)
             atk = int(atk * rate)
         z_hp += hp
