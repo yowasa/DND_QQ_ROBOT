@@ -55,6 +55,6 @@ MODULES_ON = {
     # 'twitter',  # 轮询版转推（old）
     # 'twitter_stream', # 推流版转推（beta）
     # 'updlc', #自定义贵族
-    # 'xiuxian',  # 修仙
-    'xiuxian_v2',  # 修仙
+    'xiuxian',  # 修仙
+    # 'xiuxian_v2',  # 修仙
 }
