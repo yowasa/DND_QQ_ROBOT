@@ -2081,12 +2081,12 @@ def duel_my_buff(gid, uid, defen):
         my_dodge += content["dodge"]
         # 羁绊加成
         jiban = char_fetter_json.get(str(i))
+        rate = 1
         for j in jiban:
-            rate = 1
             if set(j) <= set(defen):
                 rate += 0.05
-            hp = int(hp * rate)
-            atk = int(atk * rate)
+        hp = int(hp * rate)
+        atk = int(atk * rate)
         z_hp += hp
         z_atk += atk
         z_sp += sp
@@ -2111,8 +2111,8 @@ def duel_my_buff(gid, uid, defen):
             atk = content["atk"]
             atk_gu += int(atk * 0.1)
 
-    z_hp = int(z_hp * hp_buff)
-    z_atk = int(z_atk * atk_buff)
+    z_hp = int(z_hp * hp_buff)+hp_gu
+    z_atk = int(z_atk * atk_buff)+atk_gu
     my_recover += chara_map["温柔"] * 5 + chara_map["冷静"] * 1 + changwai_map["温柔"]
     my_double += chara_map["淘气"] * 5 + chara_map["冷静"] * 1 + changwai_map["淘气"]
     my_crit += chara_map["天然"] * 5 + chara_map["冷静"] * 1 + changwai_map["天然"]
