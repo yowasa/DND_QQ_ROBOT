@@ -243,7 +243,7 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
     roll = random.randint(1,5)
     st = UserStatusCounter()
     user_status = st._get_user(user.gid, user.uid)
-    log = "你发现一个神秘灵泉，强大的灵力，让你变得精力更加充沛，你发现提高了10%的"
+    log = "你发现一个神秘灵泉，强大的灵力，让你变得精力更加充沛，你临时提高了10%的"
     if roll == 1:
         user_status.act += int(user_status.act * 0.1)
         log+="物理攻击力"
@@ -280,9 +280,8 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
     name_li = mi_jing['little_boss']
     roll = random.randint(0,len(name_li)-1)
 
-
     # 战斗
-    my_hp, he_hp, send_msg_li = battle_boss(user_status, name_li[0], 0)
+    my_hp, he_hp, send_msg_li = battle_boss(user_status, name_li[roll], 0)
     # 战斗
     send_msg_li.insert(0,msg)
     if my_hp > 0 and he_hp <= 0:
@@ -292,6 +291,9 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
         user.exp+=20
         add_user_counter(user.gid, user.uid, UserModel.LINGSHI, lingshi)
         send_msg_li.append(f"{user.name}战斗胜利，获取{lingshi}灵石奖励,经验增加{exp}点")
+        st = UserStatusCounter()
+        user_status.hp = my_hp
+        st._save_user_info(user_status)
     elif he_hp > 0 and my_hp <= 0:
         send_msg_li.append(f"{user.name}战斗失败，陷入濒死状态，被迫结束了此次秘境探索")
         save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
@@ -307,9 +309,7 @@ async def query(bot, ev: CQEvent):
     in_fuben = get_user_counter(user_origin.gid, user_origin.uid, UserModel.FU_BEN)
     if not in_fuben:
         await bot.finish(ev, "你不在副本中，无法进行此操作")
-    st = UserStatusCounter()
-    user = st._get_user(user_origin.gid, user_origin.uid)
-    user = AllUserInfo(user)
+    user = await get_status_user(bot, ev)
     sendmsg = f"""
 道号:{user.name} 灵根:{user.linggen} 伤势:{user.shangshi_desc} 
 境界:{JingJieMap[str(user.level)]}  EXP:{user.exp}
