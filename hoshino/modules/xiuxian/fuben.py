@@ -287,8 +287,8 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
         if count < 4:
             await bot.finish(ev, msg)
         else :
-            msg += "，然而避开失败"
-    msg += "，触发战斗"
+            msg += "，然而避开失败，"
+    msg += "触发战斗"
     # todo 小怪
     mi_jing = FU_BEN[user.map]
     name_li = mi_jing['little_boss']
