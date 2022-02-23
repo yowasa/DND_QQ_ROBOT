@@ -49,8 +49,11 @@ async def start(bot, ev: CQEvent):
     user.map = mijing_map
     ct._save_user_info(user)
 
-    # 记录副本时用户的状态
+    # 记录副本时用户的状态 起始是保存基本属性 现在想存最终面板属性
     st = UserStatusCounter()
+    origin_content = init_content(user)
+    user.hp = origin_content["max_hp"]
+    user.mp = origin_content["max_mp"]
     st._save_user_info(user)
     await bot.finish(ev, f"你已经进入{name}，可以开始你的探索之旅了", at_sender=True)
 
@@ -85,7 +88,14 @@ async def start(bot, ev: CQEvent):
     if event_time >= mi_jing['event_times']:
         boss_name = mi_jing['boss']
         user_status = await get_status_user(bot, ev)
-        my_hp, he_hp, send_msg_li = battle_boss(user_status,boss_name,0)
+        my_content = init_content(user_status)
+        # 当前状态
+        my_content = get_cur_status(my_content,user,bot, ev)
+        boss_content = init_boss_content(my_content['gid'], boss_name)
+
+        my_content, he_content, send_msg_li = battle_bases(my_content, boss_content, 0)
+        my_hp = my_content['hp']
+        he_hp = he_content['hp']
         log = ""
         if my_hp <= 0:
             # todo 死亡道具处理 待定
@@ -94,6 +104,8 @@ async def start(bot, ev: CQEvent):
         if he_hp <= 0:
             bonus = get_random_item(mi_jing['bonus'])
             log += f"{user.name}击败了Boss-{boss_name}，获得了奖励道具[{bonus}]，结束了此次秘境探索"
+            item_info = ITEM_NAME_MAP.get(bonus)
+            add_item_ignore_limit(user.gid, user.uid, item_info)
         send_msg_li.append(log)
         # 更新状态
         update_status(user, bot, ev)
@@ -154,8 +166,9 @@ def event_exe(item_name):
 async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
     st = UserStatusCounter()
     user_status = st._get_user(user.gid, user.uid)
-    user_status.hp += int(user.hp * 0.3)
-    user_status.hp = user.hp if user_status.hp > user.hp else user_status.hp
+    origin_content = init_content(user)
+    user_status.hp += int(origin_content['max_hp'] * 0.3)
+    user_status.hp = origin_content['max_hp'] if user_status.hp > origin_content['max_hp'] else user_status.hp
     st._save_user_info(user_status)
     return f"此处安全而又隐蔽，在此稍作歇息,恢复了固定30%最大百分比的HP"
 
@@ -192,7 +205,7 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
 
 @event_exe("秘境商人")
 async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
-    msg = "你一个奇怪的神秘人，向你招手，走进后展开了自己的衣服咧嘴笑，里面尽是奇珍异宝"
+    msg = "你遇到了一个奇怪的神秘人，他走进后展开了自己的衣服，里面尽是奇珍异宝"
     item_li = ('灵葫药','还神丹','纳戒','失落之匙碎片')
     i = random.randint(0, len(item_li)-1)
     item = item_li[i]
@@ -244,6 +257,7 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
     st = UserStatusCounter()
     user_status = st._get_user(user.gid, user.uid)
     log = "你发现一个神秘灵泉，强大的灵力，让你变得精力更加充沛，你临时提高了10%的"
+    # 临时buff
     if roll == 1:
         user_status.act += int(user_status.act * 0.1)
         log+="物理攻击力"
@@ -273,15 +287,23 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
         if count < 4:
             await bot.finish(ev, msg)
         else :
-            msg += "，然而避开失败，触发战斗"
-    user_status = await get_status_user(bot, ev)
+            msg += "，然而避开失败"
+    msg += "，触发战斗"
     # todo 小怪
     mi_jing = FU_BEN[user.map]
     name_li = mi_jing['little_boss']
     roll = random.randint(0,len(name_li)-1)
 
     # 战斗
-    my_hp, he_hp, send_msg_li = battle_boss(user_status, name_li[roll], 0)
+    user = await get_ev_user(bot,ev)
+    user_status = await get_status_user(bot, ev)
+    my_content = init_content(user_status)
+    # 当前状态
+    my_content = get_cur_status(my_content,user, bot, ev)
+    boss_content = init_boss_content(user_status.gid, name_li[roll])
+    my_content, he_content, send_msg_li = battle_bases(my_content, boss_content,0)
+    my_hp = my_content['hp']
+    he_hp = he_content['hp']
     # 战斗
     send_msg_li.insert(0,msg)
     if my_hp > 0 and he_hp <= 0:
@@ -293,6 +315,7 @@ async def qiecuo(user: AllUserInfo, anwser,bot, ev: CQEvent):
         send_msg_li.append(f"{user.name}战斗胜利，获取{lingshi}灵石奖励,经验增加{exp}点")
         st = UserStatusCounter()
         user_status.hp = my_hp
+        user_status.mp = my_content['mp']
         st._save_user_info(user_status)
     elif he_hp > 0 and my_hp <= 0:
         send_msg_li.append(f"{user.name}战斗失败，陷入濒死状态，被迫结束了此次秘境探索")
@@ -310,6 +333,7 @@ async def query(bot, ev: CQEvent):
     if not in_fuben:
         await bot.finish(ev, "你不在副本中，无法进行此操作")
     user = await get_status_user(bot, ev)
+    user_status = await get_status_user_basic(bot, ev)
     sendmsg = f"""
 道号:{user.name} 灵根:{user.linggen} 伤势:{user.shangshi_desc} 
 境界:{JingJieMap[str(user.level)]}  EXP:{user.exp}
@@ -318,7 +342,7 @@ async def query(bot, ev: CQEvent):
 门派:{user.belong}  所在地:{user.map}
 体质:{user.tizhi} 悟性:{user.wuxing} 灵力:{user.lingli} 道行:{user.daohang}
 攻击:{user.battle_atk1} 术法:{user.battle_atk2} 物防:{user.battle_defen1} 魔抗:{user.battle_defen2}
-HP:{user.battle_hp} MP:{user.battle_mp} 战斗技巧:{user.skill}
+HP:{user_status.hp} MP:{user_status.mp} 战斗技巧:{user.skill}
 """.strip()
     await bot.finish(ev, sendmsg)
 
@@ -328,3 +352,19 @@ def update_status(user,bot, ev: CQEvent):
     save_user_counter(user.gid, user.uid, UserModel.FU_BEN_EVENT_TIME, 0)
     ct = XiuxianCounter()
     ct._save_user_info(user)
+
+def get_cur_status(my_content,user_origin,bot, ev: CQEvent):
+    st = UserStatusCounter();
+    user_status = st._get_user(user_origin.gid, user_origin.uid)
+    origin_content = init_content(user_origin)
+    my_content["max_hp"] = origin_content["max_hp"]
+    my_content["max_mp"] = origin_content["max_mp"]
+    my_content["hp"] = user_status.hp
+    my_content["mp"] = user_status.mp
+    # 攻击
+    # my_content["atk1"] = user_status.act
+    # my_content["atk2"] = user_status.act2
+    # # 防御
+    # my_content["defen1"] = user_status.defen
+    # my_content["defen2"] = user_status.defen2
+    return my_content

@@ -443,7 +443,7 @@ def end_battle(logs, my_content, enemy_content):
 
 
 def end_battle_boss(logs, my_content, enemy_content,damage):
-    return my_content['hp'], enemy_content['hp'], logs,damage
+    return my_content, enemy_content, logs,damage
 
 def battle_boss(my: AllUserInfo,boss_name,special):
     my_content = init_content(my)
@@ -717,7 +717,7 @@ def battle_bases(my_content, enemy_content,special):
         damage_all_hp = start_boss_hp - cur_hp
         if my_content["hp"] <= 0 or enemy_content["hp"] <= 0:
             if not special:
-                return end_battle(logs, my_content, enemy_content)
+                return my_content, enemy_content,logs
             ud = UserDamageCounter()
             have_damage = ud._get_damage_by_name(gid, uid, boss_name)
             logs.append(f"{my_content['name']}此次共造成{damage_all_hp}点伤害")

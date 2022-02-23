@@ -770,6 +770,15 @@ async def get_status_user(bot, ev):
         await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
     return user
 
+async def get_status_user_basic(bot, ev):
+    gid = ev.group_id
+    uid = ev.user_id
+    ct = UserStatusCounter()
+    user = ct._get_user(gid, uid)
+    if not user:
+        await bot.finish(ev, "江湖上还没有过您的传说，请先注册账号")
+    return user
+
 def get_status_full_user(gid, uid):
     ct = UserStatusCounter()
     user = ct._get_user(gid, uid)

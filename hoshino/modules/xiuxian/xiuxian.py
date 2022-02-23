@@ -413,7 +413,9 @@ async def specialNewYear(bot, ev: CQEvent):
     #     my.battle_defen2 = my.battle_defen2 * 2
 
     # 战斗
-    my_hp, he_hp, send_msg_li ,damage= battle_boss(my,name,1)
+    my_content, he_content, send_msg_li ,damage= battle_boss(my,name,1)
+    my_hp = my_content['hp']
+    he_hp = he_content['hp']
     log=""
     if my_hp <= 0:
         log += f"{my.name}受到伤害，HP减为0，弱小的你还需要继续修炼，等待你的下次挑战"
