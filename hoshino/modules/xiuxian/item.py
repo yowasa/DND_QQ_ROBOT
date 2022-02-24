@@ -744,8 +744,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
     if not in_fuben:
         return (False, "你不在副本中，无法使用[千代乐的急救包]")
-    ct = XiuxianCounter()
-    user = ct._get_user(gid, uid)
+    user = await get_ev_user(bot, ev)
     st = UserStatusCounter()
     user_status = st._get_user(gid, uid)
     origin_content = init_content(user)
@@ -773,8 +772,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
     if not in_fuben:
         return (False, "你不在副本中，无法使用[灵葫药]")
-    ct = XiuxianCounter()
-    user = ct._get_user(gid, uid)
+    user = await get_ev_user(bot, ev)
     st = UserStatusCounter()
     user_status = st._get_user(gid, uid)
     user_status.hp += 200
@@ -790,8 +788,7 @@ async def choose_girl(msg, bot, ev: CQEvent):
     in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
     if not in_fuben:
         return (False, "你不在副本中，无法使用[还神丹]")
-    ct = XiuxianCounter()
-    user = ct._get_user(gid, uid)
+    user = await get_ev_user(bot, ev)
     st = UserStatusCounter()
     user_status = st._get_user(gid, uid)
     user_status.mp += 100

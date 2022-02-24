@@ -65,11 +65,9 @@ async def start(bot, ev: CQEvent):
     in_fuben = get_user_counter(gid, uid, UserModel.FU_BEN)
     if not in_fuben:
         await bot.finish(ev, f"你并不在秘境之中", at_sender=True)
-    save_user_counter(gid, uid, UserModel.FU_BEN, 0)
+        # 更新状态
     user = await get_ev_user(bot, ev)
-    user.map = FU_BEN[user.map]['map']
-    ct = XiuxianCounter()
-    ct._save_user_info(user)
+    update_status(user, bot, ev)
     await bot.finish(ev, f"你已离开秘境", at_sender=True)
 
 
@@ -97,16 +95,17 @@ async def start(bot, ev: CQEvent):
         my_hp = my_content['hp']
         he_hp = he_content['hp']
         log = ""
-        if my_hp <= 0:
+        if my_hp <= 0 and he_hp <= 0 :
             # todo 死亡道具处理 待定
-            log += f"{user.name}受到Boss-{boss_name}伤害，陷入濒死状态，被迫结束了此次秘境探索"
-            save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
-        if he_hp <= 0:
+            log += f"{user.name}受到Boss-{boss_name}伤害，陷入濒死状态，被迫结束了此次秘境探索；"
+            send_msg_li.append(log)
+            # save_user_counter(user.gid, user.uid, UserModel.SHANGSHI, 3)
+        elif he_hp <= 0:
             bonus = get_random_item(mi_jing['bonus'])
             log += f"{user.name}击败了Boss-{boss_name}，获得了奖励道具[{bonus}]，结束了此次秘境探索"
             item_info = ITEM_NAME_MAP.get(bonus)
             add_item_ignore_limit(user.gid, user.uid, item_info)
-        send_msg_li.append(log)
+            send_msg_li.append(log)
         # 更新状态
         update_status(user, bot, ev)
         await bot.finish(ev, '\n'.join(send_msg_li), at_sender=True)
@@ -114,8 +113,8 @@ async def start(bot, ev: CQEvent):
     # 探索事件
     all_li = mi_jing['event']
     event = get_random_item(all_li)
-    result = await _fuben_event(event, user,0, bot, ev)
     add_user_counter(gid, uid, UserModel.FU_BEN_EVENT_TIME, 1)
+    result = await _fuben_event(event, user,0, bot, ev)
     await bot.finish(ev, result, at_sender=True)
 
 
@@ -170,7 +169,7 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
     user_status.hp += int(origin_content['max_hp'] * 0.3)
     user_status.hp = origin_content['max_hp'] if user_status.hp > origin_content['max_hp'] else user_status.hp
     st._save_user_info(user_status)
-    return f"此处安全而又隐蔽，在此稍作歇息,恢复了固定30%最大百分比的HP"
+    return f"你走入一片隐蔽之地，在此稍作歇息，恢复了固定30%最大百分比的HP"
 
 
 
@@ -244,7 +243,7 @@ async def qiecuo(user: AllUserInfo, answer, bot, ev: CQEvent):
         else :
             msg += "你苦苦参悟，却什么事情都没有发生"
             return msg
-        msg += f"感悟成功，{feature}提升1点"
+        msg += f"感悟成功，{feature}提升2点"
         ct._save_user_info(user)
     else :
         msg+="你苦苦参悟，却什么事情都没有发生"

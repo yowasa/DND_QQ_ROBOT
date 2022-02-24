@@ -94,5 +94,61 @@
     "special_skills": [
 
     ]
+  },
+  "头狼": {
+    "name": "头狼",
+    "id": 4,
+    "map": "失落之境",
+    "daohang": 28,
+    "level": 20,
+    "tizhi": 150,
+    "atk1": 300,
+    "atk2": 300,
+    "defen1": 100,
+    "defen2": 100,
+    "skill": 300,
+    "hp": 1800  ,
+    "mp": 300,
+    "lingli": 100,
+    "sharen": 0,
+    "wuqi": "赤手空拳",
+    "linggen": "金",
+    "gongfa2": "无",
+    "fengjin": [
+      "凤羽流苏",
+      "遮天布",
+      "时之沙漏"
+    ],
+    "special_skills": [
+
+    ]
+  },
+  "半身蛇人": {
+    "name": "半身蛇人",
+    "id": 5,
+    "map": "失落之境",
+    "daohang": 28,
+    "level": 20,
+    "tizhi": 150,
+    "atk1": 200,
+    "atk2": 200,
+    "defen1": 100,
+    "defen2": 100,
+    "skill": 300,
+    "hp": 1800  ,
+    "mp": 300,
+    "lingli": 100,
+    "sharen": 0,
+    "wuqi": "赤手空拳",
+    "linggen": "水木",
+    "gongfa2": "蚀骨术",
+    "fengjin": [
+      "凤羽流苏",
+      "遮天布",
+      "时之沙漏"
+    ],
+    "special_skills": [
+
+    ]
   }
 }
