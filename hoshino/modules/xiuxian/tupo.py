@@ -243,7 +243,17 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
 # 元婴突破
 @msg_route("21")
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
-    return (False, f"v1.4版本再来突破吧")
+    item = ['金灵珠','木灵珠','水灵珠','火灵珠','土灵珠','化神精髓']
+    counter = ItemCounter()
+    use_item = []
+    for i in item:
+        item_info = ITEM_NAME_MAP.get(i)
+        num = counter._get_item_num(user.gid, user.uid, int(item_info['id']))
+        if num < 1:
+            return (False, f"你背包中缺少道具[{i}]，无法突破")
+        use_item.append(item_info)
+    for i in use_item:
+        counter._add_item(user.gid, user.uid, int(i['id']), num=-1)
     rd = random.randint(1, 100)
     need = 80 + int(user.lingli / 10)
     if rd > need:
@@ -253,12 +263,14 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
     user.mp += int(0.1 * user.mp)
     user.act += int(0.1 * user.act)
     user.act2 += int(0.1 * user.act2)
-    return (True, f"你成功突破到了筑基！")
+    log = "你消耗了道具：金灵珠,木灵珠,水灵珠,火灵珠,土灵珠,化神精髓，成功突破到了化神！"
+    return (True, log)
 
 
 # 化神突破
 @msg_route("24")
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
+    return (False, f"v3版本再来突破吧")
     rd = random.randint(1, 100)
     need = 80 + int(user.lingli / 10)
     if rd > need:
@@ -276,6 +288,7 @@ async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
 # 洞虚突破
 @msg_route("27")
 async def _level_up(user: AllUserInfo, bot, ev: CQEvent):
+    return (False, f"v3版本再来突破吧")
     rd = random.randint(1, 100)
     need = 80 + int(user.lingli / 10)
     if rd > need:
